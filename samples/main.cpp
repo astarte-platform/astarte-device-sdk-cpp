@@ -4,8 +4,8 @@
 
 #include <iostream>
 
-#include "astarte_device.h"
-#include "astarte_individual.h"
+#include "astarte_device_sdk/device.h"
+#include "astarte_device_sdk/individual.h"
 
 using AstarteDeviceSdk::AstarteDevice;
 using AstarteDeviceSdk::AstarteIndividual;

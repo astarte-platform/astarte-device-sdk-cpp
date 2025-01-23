@@ -2,9 +2,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "astarte_device.h"
-
+#include <astarteplatform/msghub/astarte_message.pb.h>
+#include <astarteplatform/msghub/astarte_type.pb.h>
+#include <astarteplatform/msghub/node.pb.h>
 #include <google/protobuf/empty.pb.h>
+#include <google/protobuf/timestamp.pb.h>
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
 #include <grpcpp/support/channel_arguments.h>
@@ -23,14 +25,11 @@
 #include <variant>
 #include <vector>
 
-#include "astarte_exceptions.h"
-#include "astarte_individual.h"
-#include "astarte_individual_priv.h"
-#include "astarteplatform/msghub/astarte_message.pb.h"
-#include "astarteplatform/msghub/astarte_type.pb.h"
-#include "astarteplatform/msghub/node.pb.h"
-#include "google/protobuf/timestamp.pb.h"
+#include "astarte_device_sdk/device.h"
+#include "astarte_device_sdk/exceptions.h"
+#include "astarte_device_sdk/individual.h"
 #include "grpc_interceptors.h"
+#include "individual_private.h"
 
 namespace AstarteDeviceSdk {
 

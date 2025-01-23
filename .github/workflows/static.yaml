@@ -22,7 +22,7 @@ jobs:
     - name: Install clang-format
       run: pip install clang-format==19.1.6
     - name: Check formatting library
-      run: clang-format --style=file --dry-run -Werror src/*.cpp include/*.h private/*.h
+      run: clang-format --style=file --dry-run -Werror src/*.cpp include/astarte_device_sdk/*.h private/*.h
     - name: Check formatting examples
       run: clang-format --style=file --dry-run -Werror samples/*.cpp
   clang-tidy-check:
@@ -91,7 +91,7 @@ jobs:
         cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_CXX_STANDARD=20 -DCMAKE_CXX_STANDARD_REQUIRED=ON ..
     - name: Check library
       working-directory: ./astarte-device-sdk-cpp
-      run: clang-tidy -warnings-as-errors=* -header-filter='.*(?<!pb)\.h$' -p=samples/build include/*.h private/*.h src/*.cpp
+      run: clang-tidy -warnings-as-errors=* -header-filter='.*(?<!pb)\.h$' -p=samples/build include/astarte_device_sdk/*.h private/*.h src/*.cpp
     - name: Configure library for C++ 17
       working-directory: ./astarte-device-sdk-cpp
       run: |
@@ -101,4 +101,4 @@ jobs:
         cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_STANDARD_REQUIRED=ON ..
     - name: Check library
       working-directory: ./astarte-device-sdk-cpp
-      run: clang-tidy -warnings-as-errors=* -header-filter='.*(?<!pb)\.h$' -p=samples/build include/*.h private/*.h src/*.cpp
+      run: clang-tidy -warnings-as-errors=* -header-filter='.*(?<!pb)\.h$' -p=samples/build include/astarte_device_sdk/*.h private/*.h src/*.cpp

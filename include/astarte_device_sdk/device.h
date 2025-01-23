@@ -2,14 +2,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef ASTARTE_DEVICE_H
-#define ASTARTE_DEVICE_H
+#ifndef ASTARTE_DEVICE_SDK_DEVICE_H
+#define ASTARTE_DEVICE_SDK_DEVICE_H
 
 /**
- * @file astarte_device.h
+ * @file astarte_device_sdk/device.h
  * @brief Astarte device object and its related methods.
  */
 
+#include <astarteplatform/msghub/astarte_message.pb.h>
+#include <astarteplatform/msghub/message_hub_service.grpc.pb.h>
 #include <grpcpp/grpcpp.h>
 
 #include <filesystem>
@@ -18,9 +20,7 @@
 #include <thread>
 #include <vector>
 
-#include "astarte_individual.h"
-#include "astarteplatform/msghub/astarte_message.pb.h"
-#include "astarteplatform/msghub/message_hub_service.grpc.pb.h"
+#include "astarte_device_sdk/individual.h"
 
 /** @brief Umbrella namespace for the Astarte device SDK */
 namespace AstarteDeviceSdk {
@@ -85,4 +85,4 @@ class AstarteDevice {
 
 }  // namespace AstarteDeviceSdk
 
-#endif  // ASTARTE_DEVICE_H
+#endif  // ASTARTE_DEVICE_SDK_DEVICE_H

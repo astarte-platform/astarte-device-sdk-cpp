@@ -2,11 +2,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef ASTARTE_INDIVIDUAL_H
-#define ASTARTE_INDIVIDUAL_H
+#ifndef ASTARTE_DEVICE_SDK_INDIVIDUAL_H
+#define ASTARTE_DEVICE_SDK_INDIVIDUAL_H
 
 /**
- * @file astarte_individual.h
+ * @file astarte_device_sdk/individual.h
  * @brief Astarte individual object and its related methods.
  */
 
@@ -101,4 +101,4 @@ auto to_astarte_individual(T value)
 
 }  // namespace AstarteDeviceSdk
 
-#endif  // ASTARTE_INDIVIDUAL_H
+#endif  // ASTARTE_DEVICE_SDK_INDIVIDUAL_H

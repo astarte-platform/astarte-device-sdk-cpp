@@ -2,15 +2,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef ASTARTE_INDIVIDUAL_PRIV_H
-#define ASTARTE_INDIVIDUAL_PRIV_H
+#ifndef INDIVIDUAL_PRIVATE_H
+#define INDIVIDUAL_PRIVATE_H
+
+#include <astarteplatform/msghub/astarte_type.pb.h>
 
 #include <chrono>
 #include <cstdint>
 #include <string>
 #include <vector>
-
-#include "astarteplatform/msghub/astarte_type.pb.h"
 
 namespace AstarteDeviceSdk {
 
@@ -37,4 +37,4 @@ struct AstarteIndividualToAstarteDataTypeIndividual {
 
 }  // namespace AstarteDeviceSdk
 
-#endif  // ASTARTE_INDIVIDUAL_PRIV_H
+#endif  // INDIVIDUAL_PRIVATE_H

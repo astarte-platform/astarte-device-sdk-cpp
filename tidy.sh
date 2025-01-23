@@ -62,4 +62,4 @@ cmake --fresh -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_CXX_STANDARD=${CXX_STAN
 popd
 
 # Run clang-tidy
-clang-tidy -warnings-as-errors=* -header-filter='.*(?<!pb)\.h$' -p=samples/build include/*.h private/*.h src/*.cpp
+clang-tidy -warnings-as-errors=* -header-filter='.*(?<!pb)\.h$' -p=samples/build include/astarte_device_sdk/*.h private/*.h src/*.cpp

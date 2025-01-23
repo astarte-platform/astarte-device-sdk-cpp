@@ -2,7 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "astarte_individual.h"
+#include <astarteplatform/msghub/astarte_type.pb.h>
+#include <google/protobuf/timestamp.pb.h>
 
 #include <chrono>
 #include <cstdint>
@@ -10,9 +11,7 @@
 #include <string>
 #include <vector>
 
-#include "astarte_individual_priv.h"
-#include "astarteplatform/msghub/astarte_type.pb.h"
-#include "google/protobuf/timestamp.pb.h"
+#include "individual_private.h"
 
 namespace AstarteDeviceSdk {
 

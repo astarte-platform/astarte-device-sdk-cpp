@@ -2,11 +2,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef ASTARTE_EXCEPTIONS_H
-#define ASTARTE_EXCEPTIONS_H
+#ifndef ASTARTE_DEVICE_SDK_EXCEPTIONS_H
+#define ASTARTE_DEVICE_SDK_EXCEPTIONS_H
 
 /**
- * @file astarte_exceptions.h
+ * @file astarte_device_sdk/exceptions.h
  * @brief Exceptions raised by the Astarte device.
  */
 
@@ -57,4 +57,4 @@ class AstarteFileOpenException : public AstarteException {
 
 }  // namespace AstarteDeviceSdk
 
-#endif  // ASTARTE_EXCEPTIONS_H
+#endif  // ASTARTE_DEVICE_SDK_EXCEPTIONS_H

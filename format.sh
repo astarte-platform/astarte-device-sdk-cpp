@@ -54,7 +54,7 @@ if [ "$installed_version" != "$package_version" ]; then
 fi
 
 # Run clang-format
-format_files=("src/*.cpp" "include/*.h" "private/*.h" "samples/*.cpp")
+format_files=("src/*.cpp" "include/astarte_device_sdk/*.h" "private/*.h" "samples/*.cpp")
 if [ "$check_only" = true ]; then
     command="--dry-run -Werror"
 else
