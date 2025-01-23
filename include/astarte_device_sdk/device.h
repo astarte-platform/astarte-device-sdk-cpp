@@ -14,10 +14,12 @@
 #include <astarteplatform/msghub/message_hub_service.grpc.pb.h>
 #include <grpcpp/grpcpp.h>
 
+#include <chrono>
 #include <filesystem>
 #include <memory>
 #include <string>
 #include <thread>
+#include <unordered_map>
 #include <vector>
 
 #include "astarte_device_sdk/individual.h"
@@ -53,13 +55,39 @@ class AstarteDevice {
   /** @brief Disconnect from Astarte. */
   void disconnect();
   /**
-   * @brief Stream data to Astarte.
+   * @brief Stream individual data to Astarte.
    * @param interface_name The name of the interface on which to stream the data.
    * @param path The path to the interface endpoint to use for streaming.
-   * @param data The data to stream.
+   * @param individual The data to stream.
+   * @param timestamp The timestamp for the data, this might be a nullptr.
    */
-  void stream_data(const std::string &interface_name, const std::string &path,
-                   AstarteIndividual &data);
+  void stream_individual(const std::string &interface_name, const std::string &path,
+                         AstarteIndividual &individual,
+                         std::chrono::system_clock::time_point *timestamp);
+  /**
+   * @brief Stream aggregated data to Astarte.
+   * @param interface_name The name of the interface on which to stream the data.
+   * @param path The common path to the interface endpoint to use for streaming.
+   * @param aggregated The data to stream.
+   * @param timestamp The timestamp for the data, this might be a nullptr.
+   */
+  void stream_aggregated(const std::string &interface_name, const std::string &path,
+                         std::unordered_map<std::string, AstarteIndividual> &aggregated,
+                         std::chrono::system_clock::time_point *timestamp);
+  /**
+   * @brief Set a device property.
+   * @param interface_name The name of the interface for the property.
+   * @param path The property full path.
+   * @param data The property data.
+   */
+  void set_property(const std::string &interface_name, const std::string &path,
+                    AstarteIndividual &data);
+  /**
+   * @brief Unset a device property.
+   * @param interface_name The name of the interface for the property.
+   * @param path The property full path.
+   */
+  void unset_property(const std::string &interface_name, const std::string &path);
 
  private:
   /** @brief Handle the Astarte message hub events stream. */

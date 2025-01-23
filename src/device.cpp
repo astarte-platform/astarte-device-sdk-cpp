@@ -2,6 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "astarte_device_sdk/device.h"
+
 #include <astarteplatform/msghub/astarte_message.pb.h>
 #include <astarteplatform/msghub/astarte_type.pb.h>
 #include <astarteplatform/msghub/node.pb.h>
@@ -13,6 +15,8 @@
 #include <grpcpp/support/client_interceptor.h>
 #include <grpcpp/support/status.h>
 
+#include <chrono>
+#include <cstdint>
 #include <ctime>
 #include <filesystem>
 #include <fstream>
@@ -21,11 +25,12 @@
 #include <iterator>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <variant>
 #include <vector>
 
-#include "astarte_device_sdk/device.h"
+#include "aggregate_private.h"
 #include "astarte_device_sdk/exceptions.h"
 #include "astarte_device_sdk/individual.h"
 #include "grpc_interceptors.h"
@@ -35,7 +40,6 @@ namespace AstarteDeviceSdk {
 
 using std::make_unique;
 using std::shared_ptr;
-using std::time;
 
 using grpc::Channel;
 using grpc::Status;
@@ -45,6 +49,7 @@ using grpc::experimental::ClientInterceptorFactoryInterface;
 using astarteplatform::msghub::AstarteDataType;
 using astarteplatform::msghub::AstarteDataTypeIndividual;
 using astarteplatform::msghub::AstarteMessage;
+using astarteplatform::msghub::AstarteUnset;
 using astarteplatform::msghub::MessageHub;
 using astarteplatform::msghub::Node;
 
@@ -96,20 +101,67 @@ void AstarteDevice::disconnect() {
   // Call the dettach RPC.
   ClientContext context;
   google::protobuf::Empty response;
-  stub_->Detach(&context, google::protobuf::Empty(), &response);
+  const Status status = stub_->Detach(&context, google::protobuf::Empty(), &response);
+  if (!status.ok()) {
+    std::cerr << status.error_code() << ": " << status.error_message() << "\n";
+  }
 }
 
-void AstarteDevice::stream_data(const std::string &interface_name, const std::string &path,
-                                AstarteIndividual &data) {
+void AstarteDevice::stream_individual(const std::string &interface_name, const std::string &path,
+                                      AstarteIndividual &individual,
+                                      std::chrono::system_clock::time_point *timestamp) {
   auto *grpc_data = new AstarteDataType();
   AstarteDataTypeIndividual *grpc_individual =
-      std::visit(AstarteIndividualToAstarteDataTypeIndividual(), data);
+      std::visit(AstarteIndividualToAstarteDataTypeIndividual(), individual);
   grpc_data->set_allocated_astarte_individual(grpc_individual);
 
-  auto *grpc_timestamp = new google::protobuf::Timestamp();
-  const time_t now = time(nullptr);
-  grpc_timestamp->set_seconds(now);
-  grpc_timestamp->set_nanos(0);
+  google::protobuf::Timestamp *grpc_timestamp = nullptr;
+  if (timestamp != nullptr) {
+    const std::chrono::system_clock::duration t_duration = timestamp->time_since_epoch();
+    const std::chrono::seconds sec = std::chrono::duration_cast<std::chrono::seconds>(t_duration);
+    const std::chrono::nanoseconds nano =
+        std::chrono::duration_cast<std::chrono::nanoseconds>(t_duration) - sec;
+    grpc_timestamp = new google::protobuf::Timestamp();
+    grpc_timestamp->set_seconds(static_cast<int64_t>(sec.count()));
+    grpc_timestamp->set_nanos(static_cast<int32_t>(nano.count()));
+  }
+
+  AstarteMessage message;
+  message.set_interface_name(interface_name);
+  message.set_path(path);
+  message.set_allocated_astarte_data(grpc_data);
+  if (timestamp != nullptr) {
+    message.set_allocated_timestamp(grpc_timestamp);
+  }
+
+  ClientContext context;
+  google::protobuf::Empty response;
+  const Status status = stub_->Send(&context, message, &response);
+  if (!status.ok()) {
+    std::cerr << status.error_code() << ": " << status.error_message() << "\n";
+    throw AstarteIncompatibleInputException(status.error_message());
+  }
+}
+
+void AstarteDevice::stream_aggregated(
+    const std::string &interface_name, const std::string &path,
+    std::unordered_map<std::string, AstarteIndividual> &aggregated,
+    std::chrono::system_clock::time_point *timestamp) {
+  auto *grpc_data = new AstarteDataType();
+  const AstarteAggregateToAstarteDataTypeObject converter;
+  AstarteDataTypeObject *grpc_object = converter(aggregated);
+  grpc_data->set_allocated_astarte_object(grpc_object);
+
+  google::protobuf::Timestamp *grpc_timestamp = nullptr;
+  if (timestamp != nullptr) {
+    const std::chrono::system_clock::duration t_duration = timestamp->time_since_epoch();
+    const std::chrono::seconds sec = std::chrono::duration_cast<std::chrono::seconds>(t_duration);
+    const std::chrono::nanoseconds nano =
+        std::chrono::duration_cast<std::chrono::nanoseconds>(t_duration) - sec;
+    grpc_timestamp = new google::protobuf::Timestamp();
+    grpc_timestamp->set_seconds(static_cast<int64_t>(sec.count()));
+    grpc_timestamp->set_nanos(static_cast<int32_t>(nano.count()));
+  }
 
   AstarteMessage message;
   message.set_interface_name(interface_name);
@@ -117,12 +169,39 @@ void AstarteDevice::stream_data(const std::string &interface_name, const std::st
   // The deallocation of grpc_data and grpc_timestamp is handled by gRPC
   // NOLINTBEGIN(clang-analyzer-cplusplus.NewDeleteLeaks)
   message.set_allocated_astarte_data(grpc_data);
-  message.set_allocated_timestamp(grpc_timestamp);
+  if (timestamp != nullptr) {
+    message.set_allocated_timestamp(grpc_timestamp);
+  }
 
   ClientContext context;
   google::protobuf::Empty response;
-  stub_->Send(&context, message, &response);
+  const Status status = stub_->Send(&context, message, &response);
+  if (!status.ok()) {
+    std::cerr << status.error_code() << ": " << status.error_message() << "\n";
+    throw AstarteIncompatibleInputException(status.error_message());
+  }
   // NOLINTEND(clang-analyzer-cplusplus.NewDeleteLeaks)
+}
+
+void AstarteDevice::set_property(const std::string &interface_name, const std::string &path,
+                                 AstarteIndividual &data) {
+  this->stream_individual(interface_name, path, data, nullptr);
+}
+
+void AstarteDevice::unset_property(const std::string &interface_name, const std::string &path) {
+  auto *grpc_data = new AstarteUnset();
+  AstarteMessage message;
+  message.set_interface_name(interface_name);
+  message.set_path(path);
+  message.set_allocated_astarte_unset(grpc_data);
+
+  ClientContext context;
+  google::protobuf::Empty response;
+  const Status status = stub_->Send(&context, message, &response);
+  if (!status.ok()) {
+    std::cerr << status.error_code() << ": " << status.error_message() << "\n";
+    throw AstarteIncompatibleInputException(status.error_message());
+  }
 }
 
 void AstarteDevice::handle_events(std::unique_ptr<ClientReader<MessageHubEvent>> reader) {
