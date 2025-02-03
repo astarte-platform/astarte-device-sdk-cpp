@@ -169,8 +169,6 @@ void AstarteDevice::stream_aggregated(
   AstarteMessage message;
   message.set_interface_name(interface_name);
   message.set_path(path);
-  // The deallocation of grpc_data and grpc_timestamp is handled by gRPC
-  // NOLINTBEGIN(clang-analyzer-cplusplus.NewDeleteLeaks)
   message.set_allocated_astarte_data(grpc_data);
   if (timestamp != nullptr) {
     message.set_allocated_timestamp(grpc_timestamp);
@@ -183,7 +181,6 @@ void AstarteDevice::stream_aggregated(
     spdlog::error("{}: {}", static_cast<int>(status.error_code()), status.error_message());
     throw AstarteIncompatibleInputException(status.error_message());
   }
-  // NOLINTEND(clang-analyzer-cplusplus.NewDeleteLeaks)
 }
 
 void AstarteDevice::set_property(const std::string &interface_name, const std::string &path,
