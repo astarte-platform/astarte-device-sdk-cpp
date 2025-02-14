@@ -24,7 +24,7 @@
 namespace AstarteDeviceSdk {
 
 /**
- * @brief Class for the Astarte device objects.
+ * @brief Class for the Astarte devices.
  * @details This class should be instantiated once and then used to communicate with Astarte.
  */
 class AstarteDevice {

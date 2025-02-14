@@ -246,7 +246,7 @@ void AstarteDevice::send_individual(const std::string &interface_name, const std
   spdlog::debug("Sending individual: {} {}", interface_name, path);
   gRPCAstarteDataType grpc_data = gRPCAstarteDataType();
   gRPCAstarteDataTypeIndividual *grpc_individual =
-      std::visit(AstarteIndividualToAstarteDataTypeIndividual(), individual.get_data());
+      std::visit(AstarteIndividualToAstarteDataTypeIndividual(), individual.get_raw_data());
   grpc_data.set_allocated_astarte_individual(grpc_individual);
   astarte_device_impl_->send_generic(interface_name, path, grpc_data, timestamp);
 }
@@ -267,7 +267,7 @@ void AstarteDevice::set_property(const std::string &interface_name, const std::s
   spdlog::debug("Setting property: {} {}", interface_name, path);
   gRPCAstarteDataType grpc_data = gRPCAstarteDataType();
   gRPCAstarteDataTypeIndividual *grpc_individual =
-      std::visit(AstarteIndividualToAstarteDataTypeIndividual(), data.get_data());
+      std::visit(AstarteIndividualToAstarteDataTypeIndividual(), data.get_raw_data());
   grpc_data.set_allocated_astarte_individual(grpc_individual);
   astarte_device_impl_->send_generic(interface_name, path, grpc_data, nullptr);
 }

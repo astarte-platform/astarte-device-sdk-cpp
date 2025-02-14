@@ -78,7 +78,7 @@ auto AstarteObjectToAstarteDataTypeObject::operator()(const AstarteObject& value
     const std::string& path = pair.first;
     const AstarteIndividual& individual = pair.second;
     gRPCAstarteDataTypeIndividual* grpc_individual =
-        std::visit(AstarteIndividualToAstarteDataTypeIndividual(), individual.get_data());
+        std::visit(AstarteIndividualToAstarteDataTypeIndividual(), individual.get_raw_data());
     // TODO(simone): This could be a memory leak. It should be investigated.
     (*grpc_map)[path] = *grpc_individual;
   }

@@ -160,7 +160,7 @@ auto AstarteIndividual::format() const -> std::string {
 }
 // NOLINTEND(readability-function-size)
 
-auto AstarteIndividual::get_data() const
+auto AstarteIndividual::get_raw_data() const
     -> const std::variant<int32_t, int64_t, double, bool, std::string, std::vector<uint8_t>,
                           std::chrono::system_clock::time_point, std::vector<int32_t>,
                           std::vector<int64_t>, std::vector<double>, std::vector<bool>,

@@ -14,20 +14,35 @@
 
 namespace AstarteDeviceSdk {
 
+/** @brief Possible Astarte types. */
 enum AstarteType : int8_t {
+  /** @brief Binary blob Astarte type. */
   BINARYBLOB,
+  /** @brief Boolean Astarte type. */
   BOOLEAN,
+  /** @brief Date-time Astarte type. */
   DATETIME,
+  /** @brief Double Astarte type. */
   DOUBLE,
+  /** @brief Integer Astarte type. */
   INTEGER,
+  /** @brief Long integer Astarte type. */
   LONGINTEGER,
+  /** @brief String Astarte type. */
   STRING,
+  /** @brief Binary blob array Astarte type. */
   BINARYBLOBARRAY,
+  /** @brief Boolean array Astarte type. */
   BOOLEANARRAY,
+  /** @brief Datetime array Astarte type. */
   DATETIMEARRAY,
+  /** @brief Double array Astarte type. */
   DOUBLEARRAY,
+  /** @brief Integer array Astarte type. */
   INTEGERARRAY,
+  /** @brief Long integer array Astarte type. */
   LONGINTEGERARRAY,
+  /** @brief String array Astarte type. */
   STRINGARRAY
 };
 

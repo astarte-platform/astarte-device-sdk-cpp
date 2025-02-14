@@ -17,18 +17,43 @@
 #include "astarte_device_sdk/individual.hpp"
 #include "astarte_device_sdk/object.hpp"
 
-/** @brief Umbrella namespace for the Astarte device SDK */
 namespace AstarteDeviceSdk {
 
+/** @brief Astarte message class, represents a full message for/from Astarte. */
 class AstarteMessage {
  public:
+  /**
+   * @brief Constructor for the AstarteMessage class.
+   * @param interface The interface for the message.
+   * @param path The path for the message.
+   * @param data The data for the message. This may be one of:
+   *             - An individual value used for individual datastreams and properties
+   *             - An object message used for object datastreams
+   *             - The no-option value used for unsetting properties (there is no new value)
+   */
   AstarteMessage(std::string interface, std::string path,
                  std::optional<std::variant<AstarteIndividual, AstarteObject>> data);
 
+  /**
+   * @brief Get the interface of the message.
+   * @return The interface.
+   */
   [[nodiscard]] auto get_interface() const -> const std::string&;
+  /**
+   * @brief Get the path of the message.
+   * @return The path.
+   */
   [[nodiscard]] auto get_path() const -> const std::string&;
+  /**
+   * @brief Get the content of the message.
+   * @return The value contained in the message.
+   */
   [[nodiscard]] auto into() const
       -> const std::optional<std::variant<AstarteIndividual, AstarteObject>>&;
+  /**
+   * @brief Pretty format the Astarte message.
+   * @return A string representing in human readable format the content of the class instance.
+   */
   [[nodiscard]] auto format() const -> std::string;
 
  private:
