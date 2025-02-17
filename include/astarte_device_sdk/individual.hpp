@@ -40,33 +40,47 @@ concept AstarteIndividualAllowedType = requires {
 #else   // __cplusplus >= 202002L
 template <typename T>
 struct astarte_individual_is_allowed_type : std::false_type {};
+
 template <>
 struct astarte_individual_is_allowed_type<int32_t> : std::true_type {};
+
 template <>
 struct astarte_individual_is_allowed_type<int64_t> : std::true_type {};
+
 template <>
 struct astarte_individual_is_allowed_type<double> : std::true_type {};
+
 template <>
 struct astarte_individual_is_allowed_type<bool> : std::true_type {};
+
 template <>
 struct astarte_individual_is_allowed_type<std::string> : std::true_type {};
+
 template <>
 struct astarte_individual_is_allowed_type<std::vector<uint8_t>> : std::true_type {};
+
 template <>
 struct astarte_individual_is_allowed_type<std::chrono::system_clock::time_point> : std::true_type {
 };
+
 template <>
 struct astarte_individual_is_allowed_type<std::vector<int32_t>> : std::true_type {};
+
 template <>
 struct astarte_individual_is_allowed_type<std::vector<int64_t>> : std::true_type {};
+
 template <>
 struct astarte_individual_is_allowed_type<std::vector<double>> : std::true_type {};
+
 template <>
 struct astarte_individual_is_allowed_type<std::vector<bool>> : std::true_type {};
+
 template <>
 struct astarte_individual_is_allowed_type<std::vector<std::string>> : std::true_type {};
+
 template <>
 struct astarte_individual_is_allowed_type<std::vector<std::vector<uint8_t>>> : std::true_type {};
+
 template <>
 struct astarte_individual_is_allowed_type<std::vector<std::chrono::system_clock::time_point>>
     : std::true_type {};

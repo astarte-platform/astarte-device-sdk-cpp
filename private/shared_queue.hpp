@@ -24,15 +24,18 @@ class SharedQueue {
     }
     return res;
   }
+
   void push(const T& item) {
     std::unique_lock<std::mutex> mlock(mutex_);
     queue_.push(item);
   }
+
   auto size() -> std::size_t {
     std::unique_lock<std::mutex> mlock(mutex_);
     const std::size_t size = queue_.size();
     return size;
   }
+
   auto empty() -> bool {
     std::unique_lock<std::mutex> mlock(mutex_);
     const bool res = queue_.empty();

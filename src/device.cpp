@@ -174,6 +174,7 @@ struct AstarteDevice::AstarteDeviceImpl {
     return res;
   }
 };
+
 // NOLINTEND(misc-non-private-member-variables-in-classes)
 
 AstarteDevice::AstarteDevice(const std::string &server_addr, const std::string &node_uuid)
