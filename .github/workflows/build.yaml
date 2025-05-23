@@ -9,7 +9,16 @@ on:
   push:
 
 jobs:
-  build-check:
+  fetch-grpc-build-check:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: fetch-grpc-build-check-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build library for C++ 20
+      run: ./build_samples.sh
+  installed-grpc-build-check:
     runs-on: ubuntu-latest
     concurrency:
       group: build-check-${{ github.ref }}
@@ -64,16 +73,7 @@ jobs:
         key: ${{ steps.cache-grpc-cpp-restore.outputs.cache-primary-key }}
     - name: Build library for C++ 20
       working-directory: ./astarte-device-sdk-cpp
-      run: |
-        mkdir ./samples/grpc/build
-        cd ./samples/grpc/build
-        cmake -DUSE_SYSTEM_GRPC=ON -DCMAKE_CXX_STANDARD=20 -DCMAKE_CXX_STANDARD_REQUIRED=ON ..
-        make
+      run: ./build_samples.sh --fresh --system_grpc --stdcpp 20
     - name: Build library for C++ 17
       working-directory: ./astarte-device-sdk-cpp
-      run: |
-        rm -r ./samples/grpc/build
-        mkdir ./samples/grpc/build
-        cd ./samples/grpc/build
-        cmake -DUSE_SYSTEM_GRPC=ON -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_STANDARD_REQUIRED=ON ..
-        make
+      run: ./build_samples.sh --fresh --system_grpc --stdcpp 17
