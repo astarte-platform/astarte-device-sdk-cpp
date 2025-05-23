@@ -23,6 +23,8 @@ gRPC or if to fetch it at build time.
 leading to a much longer build time.
 > We suggest using your system gRPC for fast developement.
 
+The officially supported version of gRPC is `v0.69.0`.
+
 ## Required C++ version
 
 This library requires at least C++ 17.
