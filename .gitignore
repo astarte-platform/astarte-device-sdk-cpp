@@ -14,3 +14,9 @@ _build/
 
 # Configuration TOMLs
 config.toml
+
+
+# qtcreator generated files
+*.pro.user*
+*.qbs.user*
+CMakeLists.txt.user*
