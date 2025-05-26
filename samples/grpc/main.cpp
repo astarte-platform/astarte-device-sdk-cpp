@@ -14,22 +14,35 @@
 
 using AstarteDeviceSdk::AstarteData;
 using AstarteDeviceSdk::AstarteDevice;
+using AstarteDeviceSdk::AstarteIndividualDatastream;
+using AstarteDeviceSdk::AstarteIndividualProperty;
 using AstarteDeviceSdk::AstarteMessage;
-using AstarteDeviceSdk::AstarteObject;
+using AstarteDeviceSdk::AstarteObjectDatastream;
 
 void reception_handler(std::shared_ptr<AstarteDevice> msghub_client) {
   while (true) {
     auto incoming = msghub_client->poll_incoming();
     if (incoming.has_value()) {
       AstarteMessage msg(incoming.value());
-      spdlog::info("Received message: {}", msg.format());
-      if (msg.get_interface().find("org.astarte-platform.cpp.examples.ServerDatastream") !=
-              std::string::npos &&
-          msg.get_path().find("double_endpoint") != std::string::npos && msg.into().has_value() &&
-          std::holds_alternative<AstarteData>(msg.into().value())) {
-        const AstarteData &data = std::get<AstarteData>(msg.into().value());
-        double value = data.into<double>();
-        // Use the received value
+      spdlog::info("Received message.");
+      spdlog::info("Interface name: {}", msg.get_interface());
+      spdlog::info("Path: {}", msg.get_path());
+      const std::variant<AstarteIndividualDatastream, AstarteObjectDatastream,
+                         AstarteIndividualProperty> &var_data(msg.into());
+      if (std::holds_alternative<AstarteIndividualDatastream>(var_data)) {
+        spdlog::info("Type: individual datastream");
+        const AstarteIndividualDatastream &data = std::get<AstarteIndividualDatastream>(var_data);
+        spdlog::info("Value: {}", data.format());
+      }
+      if (std::holds_alternative<AstarteObjectDatastream>(var_data)) {
+        spdlog::info("Type: object datastream");
+        const AstarteObjectDatastream &data = std::get<AstarteObjectDatastream>(var_data);
+        spdlog::info("Value: {}", data.format());
+      }
+      if (std::holds_alternative<AstarteIndividualProperty>(var_data)) {
+        spdlog::info("Type: individual property");
+        const AstarteIndividualProperty &data = std::get<AstarteIndividualProperty>(var_data);
+        spdlog::info("Value: {}", data.format());
       }
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -149,7 +162,7 @@ int main(int argc, char **argv) {
     std::string interface_name("org.astarte-platform.cpp.examples.DeviceAggregate");
     std::string common_path("/sensor15");
 
-    AstarteObject data = {
+    AstarteObjectDatastream data = {
         {"integer_endpoint", AstarteData(43)},
         {"longinteger_endpoint", AstarteData(8589934592)},
         {"double_endpoint", AstarteData(43.5)},
