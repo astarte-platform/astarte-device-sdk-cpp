@@ -224,7 +224,7 @@ void AstarteDevice::send_individual(const std::string &interface_name, const std
 }
 
 void AstarteDevice::send_object(const std::string &interface_name, const std::string &path,
-                                const AstarteObject &object,
+                                const AstarteObjectDatastream &object,
                                 const std::chrono::system_clock::time_point *timestamp) {
   spdlog::debug("Sending object: {} {}", interface_name, path);
   gRPCAstarteMessage message;

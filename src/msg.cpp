@@ -17,7 +17,8 @@ namespace AstarteDeviceSdk {
 
 AstarteMessage::AstarteMessage(
     std::string interface, std::string path,
-    std::variant<AstarteIndividualDatastream, AstarteObject, AstarteIndividualProperty> data)
+    std::variant<AstarteIndividualDatastream, AstarteObjectDatastream, AstarteIndividualProperty>
+        data)
     : interface_(std::move(interface)), path_(std::move(path)), data_(std::move(data)) {}
 
 auto AstarteMessage::get_interface() const -> const std::string & { return interface_; }
@@ -25,7 +26,8 @@ auto AstarteMessage::get_interface() const -> const std::string & { return inter
 auto AstarteMessage::get_path() const -> const std::string & { return path_; }
 
 auto AstarteMessage::into() const
-    -> const std::variant<AstarteIndividualDatastream, AstarteObject, AstarteIndividualProperty> & {
+    -> const std::variant<AstarteIndividualDatastream, AstarteObjectDatastream,
+                          AstarteIndividualProperty> & {
   return data_;
 }
 
