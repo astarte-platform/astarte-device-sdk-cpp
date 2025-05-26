@@ -58,6 +58,9 @@ using gRPCMessageHub = astarteplatform::msghub::MessageHub;
 using gRPCMessageHubError = astarteplatform::msghub::MessageHubError;
 using gRPCMessageHubEvent = astarteplatform::msghub::MessageHubEvent;
 using gRPCNode = astarteplatform::msghub::Node;
+using grpcInterfaceName = astarteplatform::msghub::InterfaceName;
+using grpcStoredProperties = astarteplatform::msghub::StoredProperties;
+using grpcProperty = astarteplatform::msghub::Property;
 
 // This class is only used for the PImpl of the class AstarteDeviceAstarteDevice, as such member
 // variables are not required to be private.
@@ -292,6 +295,27 @@ void AstarteDevice::unset_property(const std::string &interface_name, const std:
 
 auto AstarteDevice::poll_incoming() -> std::optional<AstarteMessage> {
   return astarte_device_impl_->rcv_queue_.pop();
+}
+
+auto AstarteDevice::get_properties(const std::string &interface_name)
+    -> std::list<std::tuple<std::string, AstarteData>> {
+  spdlog::debug("Getting stored properties for interfaces:");
+  ClientContext context;
+  grpcInterfaceName grpc_interface_name;
+  grpc_interface_name.set_name(interface_name);
+  grpcStoredProperties response;
+  const Status status =
+      astarte_device_impl_->stub_->GetProperties(&context, grpc_interface_name, &response);
+  if (!status.ok()) {
+    spdlog::error("{}: {}", static_cast<int>(status.error_code()), status.error_message());
+    throw AstarteInvalidInputException(status.error_message());
+  }
+  std::list<std::tuple<std::string, AstarteData>> properties;
+  for (const grpcProperty &property : *(response.mutable_properties())) {
+    GrpcConverterFrom converter;
+    properties.push_back(std::make_tuple(property.path(), converter(property.data())));
+  }
+  return properties;
 }
 
 }  // namespace AstarteDeviceSdk

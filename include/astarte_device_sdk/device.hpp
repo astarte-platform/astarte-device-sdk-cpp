@@ -12,6 +12,7 @@
 
 #include <chrono>
 #include <filesystem>
+#include <list>
 #include <memory>
 #include <optional>
 #include <string>
@@ -94,6 +95,16 @@ class AstarteDevice {
    * @return The received message when present, std::nullopt otherwise.
    */
   auto poll_incoming() -> std::optional<AstarteMessage>;
+  /**
+   * @brief Get stored propertied matching the interface.
+   * @param interface_name The name of the interface for the property.
+   * @return A list of touples representing all the properties currently stored by the device.
+   *         The touples are composed by:
+   *         1. The path to the property
+   *         2. The value of the property
+   */
+  auto get_properties(const std::string &interface_name)
+      -> std::list<std::tuple<std::string, AstarteData>>;
 
  private:
   struct AstarteDeviceImpl;
