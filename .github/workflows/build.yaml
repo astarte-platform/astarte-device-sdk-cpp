@@ -77,3 +77,54 @@ jobs:
         cd ./samples/grpc/build
         cmake -DUSE_SYSTEM_GRPC=ON -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_STANDARD_REQUIRED=ON ..
         make
+
+  build-qt-sample:
+    name: Build Qt Sample
+    runs-on: ubuntu-latest
+    needs: build-check
+    strategy:
+      matrix:
+        qt_version: [5.15.2, 6.5.3]
+    env:
+      GRPC_VERSION: "1.69.0"
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set MY_INSTALL_DIR variable
+      run: |
+        MY_INSTALL_DIR=$PWD/grpc-install
+        echo "MY_INSTALL_DIR=$MY_INSTALL_DIR" >> $GITHUB_ENV
+        mkdir -p $MY_INSTALL_DIR
+        echo "$MY_INSTALL_DIR" >> "$GITHUB_PATH"
+    - name: Restore gRPC cache
+      uses: actions/cache/restore@v4
+      with:
+        path: |
+          ./grpc/cmake
+          ./grpc-install
+        key: grpc-cpp-v${{ env.GRPC_VERSION }}
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: ${{ matrix.qt_version }}
+        target: desktop
+        arch: gcc_64
+        cache: true
+        cache-key-prefix: install-qt-action
+    - name: Detect Qt path
+      id: qt-path
+      run: |
+        if [[ "${{ matrix.qt_version }}" == 5* ]]; then
+          echo "QT_PATH=$Qt/5.15.2/gcc_64/lib/cmake/Qt5" >> $GITHUB_ENV
+          echo "QT_MAJOR_VERSION=5" >> $GITHUB_ENV
+        else
+          echo "QT_PATH=$Qt/6.5.3/gcc_64/lib/cmake/Qt6" >> $GITHUB_ENV
+          echo "QT_MAJOR_VERSION=6" >> $GITHUB_ENV
+        fi
+    - name: Build Qt Examples
+      run: |
+        chmod +x samples/qt/build_qt_example.sh
+        ./samples/qt/build_qt_example.sh \
+          --qt_version $QT_MAJOR_VERSION \
+          --qt_path "$QT_PATH" \
+          --fresh
+
