@@ -4,55 +4,52 @@
 
 #include "astarte_device_sdk/msg.hpp"
 
-#include <optional>
 #include <sstream>
 #include <string>
-#include <utility>
 #include <variant>
 
-#include "astarte_device_sdk/data.hpp"
+#include "astarte_device_sdk/individual.hpp"
 #include "astarte_device_sdk/object.hpp"
+#include "astarte_device_sdk/property.hpp"
 
 namespace AstarteDeviceSdk {
-
-AstarteMessage::AstarteMessage(std::string interface, std::string path, AstarteMessageType type,
-                               std::optional<std::variant<AstarteData, AstarteObject>> data)
-    : interface_(std::move(interface)),
-      path_(std::move(path)),
-      type_(type),
-      data_(std::move(data)) {}
 
 auto AstarteMessage::get_interface() const -> const std::string & { return interface_; }
 
 auto AstarteMessage::get_path() const -> const std::string & { return path_; }
 
-auto AstarteMessage::get_message_type() const -> const AstarteMessageType & { return type_; }
+auto AstarteMessage::is_datastream() const -> bool {
+  return std::holds_alternative<AstarteIndividualDatastream>(data_) ||
+         std::holds_alternative<AstarteObjectDatastream>(data_);
+}
 
-auto AstarteMessage::into() const
-    -> const std::optional<std::variant<AstarteData, AstarteObject>> & {
-  return data_;
+auto AstarteMessage::is_individual() const -> bool {
+  return std::holds_alternative<AstarteIndividualDatastream>(data_) ||
+         std::holds_alternative<AstarteIndividualProperty>(data_);
+}
+
+auto AstarteMessage::get_raw_data() const
+    -> const std::variant<AstarteIndividualDatastream, AstarteObjectDatastream,
+                          AstarteIndividualProperty> & {
+  return this->data_;
 }
 
 auto AstarteMessage::operator==(const AstarteMessage &other) const -> bool {
   return this->interface_ == other.get_interface() && this->path_ == other.get_path() &&
-         this->data_ == other.into();
+         this->data_ == other.get_raw_data();
 }
 auto AstarteMessage::operator!=(const AstarteMessage &other) const -> bool {
   return this->interface_ != other.get_interface() || this->path_ != other.get_path() ||
-         this->data_ != other.into();
+         this->data_ != other.get_raw_data();
 }
 
 auto AstarteMessage::format() const -> std::string {
   std::ostringstream oss;
   oss << "{interface: " << interface_ << ", path: " << path_;
-  if (data_.has_value()) {
-    if (std::holds_alternative<AstarteData>(data_.value())) {
-      const AstarteData ind = std::get<AstarteData>(data_.value());
-      oss << ", value: " << ind.format();
-    } else {
-      const AstarteObject obj = std::get<AstarteObject>(data_.value());
-      oss << ", value: " << obj.format();
-    }
+  const std::string formatted_data =
+      std::visit([](const auto &arg) { return arg.format(); }, data_);
+  if (!formatted_data.empty()) {
+    oss << ", value: " << formatted_data;
   }
   oss << "}";
   return oss.str();
