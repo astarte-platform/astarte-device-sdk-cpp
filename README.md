@@ -87,7 +87,7 @@ version of this library.
 ## Get started with the samples
 
 Various samples have been added in the `samples` folder of this project.
-An utility bash script has also been added, named `build_samples.sh`. It can be used to build one of
+An utility bash script has also been added, named `build_sample.sh`. It can be used to build one of
 the samples without having to deal directly with CMake.
 
 ## Importing the library in an external project
@@ -100,7 +100,7 @@ include(FetchContent)
 FetchContent_Declare(
     astarte_device_sdk
   GIT_REPOSITORY git@github.com:secomind/astarte-device-sdk-cpp.git
-  GIT_TAG main
+  GIT_TAG v0.5.0-beta
 )
 FetchContent_MakeAvailable(astarte_device_sdk)
 ```

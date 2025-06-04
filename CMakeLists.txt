@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(
   AstarteDeviceSDKcpp
-  VERSION 0.5.0
+  VERSION 0.5.99
   LANGUAGES CXX)
 
 include(FetchContent)

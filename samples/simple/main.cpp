@@ -45,22 +45,22 @@ int main(int argc, char **argv) {
 
   // Those paths assume the user is calling the Astarte executable from the root of this project.
   std::filesystem::path device_individual_interface_file_path =
-      "samples/grpc/interfaces/org.astarte-platform.cpp.examples.DeviceDatastream.json";
+      "samples/simple/interfaces/org.astarte-platform.cpp.examples.DeviceDatastream.json";
   msghub_client->add_interface_from_json(device_individual_interface_file_path);
   std::filesystem::path server_individual_interface_file_path =
-      "samples/grpc/interfaces/org.astarte-platform.cpp.examples.ServerDatastream.json";
+      "samples/simple/interfaces/org.astarte-platform.cpp.examples.ServerDatastream.json";
   msghub_client->add_interface_from_json(server_individual_interface_file_path);
   std::filesystem::path device_property_interface_file_path =
-      "samples/grpc/interfaces/org.astarte-platform.cpp.examples.DeviceProperty.json";
+      "samples/simple/interfaces/org.astarte-platform.cpp.examples.DeviceProperty.json";
   msghub_client->add_interface_from_json(device_property_interface_file_path);
   std::filesystem::path device_aggregated_interface_file_path =
-      "samples/grpc/interfaces/org.astarte-platform.cpp.examples.DeviceAggregate.json";
+      "samples/simple/interfaces/org.astarte-platform.cpp.examples.DeviceAggregate.json";
   msghub_client->add_interface_from_json(device_aggregated_interface_file_path);
   std::filesystem::path server_aggregated_interface_file_path =
-      "samples/grpc/interfaces/org.astarte-platform.cpp.examples.ServerAggregate.json";
+      "samples/simple/interfaces/org.astarte-platform.cpp.examples.ServerAggregate.json";
   msghub_client->add_interface_from_json(server_aggregated_interface_file_path);
   std::filesystem::path server_property_interface_file_path =
-      "samples/grpc/interfaces/org.astarte-platform.cpp.examples.ServerProperty.json";
+      "samples/simple/interfaces/org.astarte-platform.cpp.examples.ServerProperty.json";
   msghub_client->add_interface_from_json(server_property_interface_file_path);
 
   msghub_client->connect();
