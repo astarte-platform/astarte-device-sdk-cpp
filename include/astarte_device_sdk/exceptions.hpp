@@ -79,6 +79,18 @@ class AstarteInternalException : public AstarteException {
   explicit AstarteInternalException(const std::string& err_message);
 };
 
+/**
+ * @brief Specific exception for when a file cannot be opened.
+ */
+class AstarteBadOptionException : public AstarteException {
+ public:
+  /**
+   * @brief Constructor for the Astarte bad option open exception.
+   * @param err_message The error message with for the exception.
+   */
+  explicit AstarteBadOptionException(const std::string& err_message);
+};
+
 }  // namespace AstarteDeviceSdk
 
 #endif  // ASTARTE_DEVICE_SDK_EXCEPTIONS_H

@@ -22,4 +22,7 @@ AstarteInvalidInputException::AstarteInvalidInputException(const std::string& er
 AstarteInternalException::AstarteInternalException(const std::string& err_message)
     : AstarteException(err_message) {}
 
+AstarteBadOptionException::AstarteBadOptionException(const std::string& err_message)
+    : AstarteException(err_message) {}
+
 }  // namespace AstarteDeviceSdk

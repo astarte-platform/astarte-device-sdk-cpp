@@ -16,8 +16,10 @@
 #include <vector>
 
 #include "astarte_device_sdk/data.hpp"
+#include "astarte_device_sdk/individual.hpp"
 #include "astarte_device_sdk/msg.hpp"
 #include "astarte_device_sdk/object.hpp"
+#include "astarte_device_sdk/property.hpp"
 
 namespace AstarteDeviceSdk {
 
@@ -58,7 +60,9 @@ class GrpcConverterTo {
 class GrpcConverterFrom {
  public:
   auto operator()(const gRPCAstarteData &value) -> AstarteData;
+  auto operator()(const gRPCAstarteDatastreamIndividual &value) -> AstarteIndividualDatastream;
   auto operator()(const gRPCAstarteDatastreamObject &value) -> AstarteObject;
+  auto operator()(const gRPCAstartePropertyIndividual &value) -> AstarteIndividualProperty;
   auto operator()(const gRPCAstarteMessage &value) -> AstarteMessage;
 };
 

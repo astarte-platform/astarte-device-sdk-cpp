@@ -19,8 +19,10 @@
 
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/exceptions.hpp"
+#include "astarte_device_sdk/individual.hpp"
 #include "astarte_device_sdk/msg.hpp"
 #include "astarte_device_sdk/object.hpp"
+#include "astarte_device_sdk/property.hpp"
 
 namespace AstarteDeviceSdk {
 
@@ -305,6 +307,13 @@ auto GrpcConverterFrom::operator()(const gRPCAstarteData &value) -> AstarteData 
 }
 // NOLINTEND(readability-function-size)
 
+auto GrpcConverterFrom::operator()(const gRPCAstarteDatastreamIndividual &value)
+    -> AstarteIndividualDatastream {
+  const gRPCAstarteData &grpc_data = value.data();
+  GrpcConverterFrom converter;
+  return AstarteIndividualDatastream(converter(grpc_data));
+}
+
 auto GrpcConverterFrom::operator()(const gRPCAstarteDatastreamObject &value) -> AstarteObject {
   AstarteObject object;
   const google::protobuf::Map<std::string, gRPCAstarteData> &grpc_data = value.data();
@@ -315,35 +324,40 @@ auto GrpcConverterFrom::operator()(const gRPCAstarteDatastreamObject &value) -> 
   return object;
 }
 
+auto GrpcConverterFrom::operator()(const gRPCAstartePropertyIndividual &value)
+    -> AstarteIndividualProperty {
+  if (value.has_data()) {
+    const gRPCAstarteData &grpc_data = value.data();
+    GrpcConverterFrom converter;
+    return AstarteIndividualProperty(converter(grpc_data));
+  }
+  return AstarteIndividualProperty(std::nullopt);
+}
+
 auto GrpcConverterFrom::operator()(const gRPCAstarteMessage &value) -> AstarteMessage {
-  std::optional<std::variant<AstarteData, AstarteObject>> parsed_data;
-  AstarteMessageType message_type;  // NOLINT(cppcoreguidelines-init-variables)
   if (value.has_datastream_individual()) {
-    message_type = AstarteMessageType::DATASTREAM_INDIVIDUAL;
     const gRPCAstarteDatastreamIndividual &grpc_datastream_individual =
         value.datastream_individual();
-    const gRPCAstarteData &grpc_data = grpc_datastream_individual.data();
     GrpcConverterFrom converter;
-    parsed_data = converter(grpc_data);
-  } else if (value.has_datastream_object()) {
-    message_type = AstarteMessageType::DATASTREAM_OBJECT;
+    const std::variant<AstarteIndividualDatastream, AstarteObject, AstarteIndividualProperty>
+        parsed_data = converter(grpc_datastream_individual);
+    return {value.interface_name(), value.path(), parsed_data};
+  }
+  if (value.has_datastream_object()) {
     const gRPCAstarteDatastreamObject &grpc_datastream_object = value.datastream_object();
     GrpcConverterFrom converter;
-    parsed_data = converter(grpc_datastream_object);
-  } else if (value.has_property_individual()) {
-    message_type = AstarteMessageType::PROPERTY_INDIVIDUAL;
-    const gRPCAstartePropertyIndividual &grpc_property_individual = value.property_individual();
-    if (grpc_property_individual.has_data()) {
-      const gRPCAstarteData &grpc_data = grpc_property_individual.data();
-      GrpcConverterFrom converter;
-      parsed_data = converter(grpc_data);
-    } else {
-      parsed_data = std::nullopt;
-    }
-  } else {
-    throw AstarteInternalException("Found an unrecognized gRPC gRPCAstarteDataType.");
+    const std::variant<AstarteIndividualDatastream, AstarteObject, AstarteIndividualProperty>
+        parsed_data = converter(grpc_datastream_object);
+    return {value.interface_name(), value.path(), parsed_data};
   }
-  return {value.interface_name(), value.path(), message_type, parsed_data};
+  if (value.has_property_individual()) {
+    const gRPCAstartePropertyIndividual &grpc_property_individual = value.property_individual();
+    GrpcConverterFrom converter;
+    const std::variant<AstarteIndividualDatastream, AstarteObject, AstarteIndividualProperty>
+        parsed_data = converter(grpc_property_individual);
+    return {value.interface_name(), value.path(), parsed_data};
+  }
+  throw AstarteInternalException("Found an unrecognized gRPC gRPCAstarteDataType.");
 }
 
 }  // namespace AstarteDeviceSdk
