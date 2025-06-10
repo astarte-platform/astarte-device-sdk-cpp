@@ -17,7 +17,7 @@ using AstarteDeviceSdk::AstarteDevice;
 using AstarteDeviceSdk::AstarteIndividualDatastream;
 using AstarteDeviceSdk::AstarteIndividualProperty;
 using AstarteDeviceSdk::AstarteMessage;
-using AstarteDeviceSdk::AstarteObject;
+using AstarteDeviceSdk::AstarteObjectDatastream;
 
 void reception_handler(std::shared_ptr<AstarteDevice> msghub_client) {
   while (true) {
@@ -27,16 +27,16 @@ void reception_handler(std::shared_ptr<AstarteDevice> msghub_client) {
       spdlog::info("Received message.");
       spdlog::info("Interface name: {}", msg.get_interface());
       spdlog::info("Path: {}", msg.get_path());
-      const std::variant<AstarteIndividualDatastream, AstarteObject, AstarteIndividualProperty>
-          &var_data(msg.into());
+      const std::variant<AstarteIndividualDatastream, AstarteObjectDatastream,
+                         AstarteIndividualProperty> &var_data(msg.into());
       if (std::holds_alternative<AstarteIndividualDatastream>(var_data)) {
         spdlog::info("Type: individual datastream");
         const AstarteIndividualDatastream &data = std::get<AstarteIndividualDatastream>(var_data);
         spdlog::info("Value: {}", data.format());
       }
-      if (std::holds_alternative<AstarteObject>(var_data)) {
+      if (std::holds_alternative<AstarteObjectDatastream>(var_data)) {
         spdlog::info("Type: object datastream");
-        const AstarteObject &data = std::get<AstarteObject>(var_data);
+        const AstarteObjectDatastream &data = std::get<AstarteObjectDatastream>(var_data);
         spdlog::info("Value: {}", data.format());
       }
       if (std::holds_alternative<AstarteIndividualProperty>(var_data)) {
@@ -162,7 +162,7 @@ int main(int argc, char **argv) {
     std::string interface_name("org.astarte-platform.cpp.examples.DeviceAggregate");
     std::string common_path("/sensor15");
 
-    AstarteObject data = {
+    AstarteObjectDatastream data = {
         {"integer_endpoint", AstarteData(43)},
         {"longinteger_endpoint", AstarteData(8589934592)},
         {"double_endpoint", AstarteData(43.5)},

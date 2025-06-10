@@ -14,40 +14,47 @@
 namespace AstarteDeviceSdk {
 
 // Default constructor
-AstarteObject::AstarteObject() = default;
+AstarteObjectDatastream::AstarteObjectDatastream() = default;
 // Constructor with initializer list
-AstarteObject::AstarteObject(std::initializer_list<MapType::value_type> init) : data_(init) {}
+AstarteObjectDatastream::AstarteObjectDatastream(std::initializer_list<MapType::value_type> init)
+    : data_(init) {}
 // Access element by key (modifiable)
-auto AstarteObject::at(const std::string& key) -> AstarteData& { return data_.at(key); }
+auto AstarteObjectDatastream::at(const std::string& key) -> AstarteData& { return data_.at(key); }
 // Access element by key (const)
-auto AstarteObject::at(const std::string& key) const -> const AstarteData& { return data_.at(key); }
+auto AstarteObjectDatastream::at(const std::string& key) const -> const AstarteData& {
+  return data_.at(key);
+}
 // Begin iterator (modifiable)
-auto AstarteObject::begin() -> iterator { return data_.begin(); }
+auto AstarteObjectDatastream::begin() -> iterator { return data_.begin(); }
 // Begin iterator (const)
-auto AstarteObject::begin() const -> const_iterator { return data_.begin(); }
+auto AstarteObjectDatastream::begin() const -> const_iterator { return data_.begin(); }
 // End iterator (modifiable)
-auto AstarteObject::end() -> iterator { return data_.end(); }
+auto AstarteObjectDatastream::end() -> iterator { return data_.end(); }
 // End iterator (const)
-auto AstarteObject::end() const -> const_iterator { return data_.end(); }
+auto AstarteObjectDatastream::end() const -> const_iterator { return data_.end(); }
 // Get size of the map
-auto AstarteObject::size() const -> size_type { return data_.size(); }
+auto AstarteObjectDatastream::size() const -> size_type { return data_.size(); }
 // Check if map is empty
-auto AstarteObject::empty() const -> bool { return data_.empty(); }
+auto AstarteObjectDatastream::empty() const -> bool { return data_.empty(); }
 // Insert element into the map
-void AstarteObject::insert(const std::string& key, const AstarteData& data) {
+void AstarteObjectDatastream::insert(const std::string& key, const AstarteData& data) {
   data_.insert({key, data});
 }
 // Erase element by key
-auto AstarteObject::erase(const std::string& key) -> size_type { return data_.erase(key); }
+auto AstarteObjectDatastream::erase(const std::string& key) -> size_type {
+  return data_.erase(key);
+}
 // Clear the map
-void AstarteObject::clear() { data_.clear(); }
+void AstarteObjectDatastream::clear() { data_.clear(); }
 // Find element by key (modifiable)
-auto AstarteObject::find(const std::string& key) -> iterator { return data_.find(key); }
+auto AstarteObjectDatastream::find(const std::string& key) -> iterator { return data_.find(key); }
 // Find element by key (const)
-auto AstarteObject::find(const std::string& key) const -> const_iterator { return data_.find(key); }
+auto AstarteObjectDatastream::find(const std::string& key) const -> const_iterator {
+  return data_.find(key);
+}
 #if defined(ASTARTE_FORMAT_ENABLED)
 // Format the map content
-auto AstarteObject::format() const -> std::string {
+auto AstarteObjectDatastream::format() const -> std::string {
   std::ostringstream oss;
   bool first = true;
   for (const auto& pair : data_) {
@@ -61,12 +68,12 @@ auto AstarteObject::format() const -> std::string {
 }
 #endif
 
-auto AstarteObject::get_raw_data() const -> const MapType& { return this->data_; }
+auto AstarteObjectDatastream::get_raw_data() const -> const MapType& { return this->data_; }
 
-auto AstarteObject::operator==(const AstarteObject& other) const -> bool {
+auto AstarteObjectDatastream::operator==(const AstarteObjectDatastream& other) const -> bool {
   return this->data_ == other.get_raw_data();
 }
-auto AstarteObject::operator!=(const AstarteObject& other) const -> bool {
+auto AstarteObjectDatastream::operator!=(const AstarteObjectDatastream& other) const -> bool {
   return this->data_ != other.get_raw_data();
 }
 

@@ -19,7 +19,7 @@
 namespace AstarteDeviceSdk {
 
 /** @brief Astarte object class, representing the Astarte object datastream data. */
-class AstarteObject {
+class AstarteObjectDatastream {
  public:
   /** @brief Helper type for the map of paths and Astarte datas. */
   using MapType = std::unordered_map<std::string, AstarteData>;
@@ -33,12 +33,12 @@ class AstarteObject {
   using value_type = MapType::value_type;
 
   /** @brief Constructor for the class. To instantiate an empty object. */
-  AstarteObject();
+  AstarteObjectDatastream();
   /**
    * @brief Constructor for the class. To instantiate a non-empty object.
    * @param init The initialize list to use as intial content.
    */
-  AstarteObject(std::initializer_list<value_type> init);
+  AstarteObjectDatastream(std::initializer_list<value_type> init);
   /**
    * @brief Access specified element with bounds checking.
    * @details Soft wrapper for the equivalent method in the std::unordered_map.
@@ -139,13 +139,13 @@ class AstarteObject {
    * @param other The object to compare to.
    * @return True when equal, false otherwise.
    */
-  [[nodiscard]] auto operator==(const AstarteObject& other) const -> bool;
+  [[nodiscard]] auto operator==(const AstarteObjectDatastream& other) const -> bool;
   /**
    * @brief Overloader for the comparison operator !=.
    * @param other The object to compare to.
    * @return True when different, false otherwise.
    */
-  [[nodiscard]] auto operator!=(const AstarteObject& other) const -> bool;
+  [[nodiscard]] auto operator!=(const AstarteObjectDatastream& other) const -> bool;
 
  private:
   MapType data_;

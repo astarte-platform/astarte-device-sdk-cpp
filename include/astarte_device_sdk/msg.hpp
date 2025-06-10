@@ -30,7 +30,8 @@ class AstarteMessage {
    */
   AstarteMessage(
       std::string interface, std::string path,
-      std::variant<AstarteIndividualDatastream, AstarteObject, AstarteIndividualProperty> data);
+      std::variant<AstarteIndividualDatastream, AstarteObjectDatastream, AstarteIndividualProperty>
+          data);
 
   /**
    * @brief Get the interface of the message.
@@ -47,7 +48,8 @@ class AstarteMessage {
    * @return The value contained in the message.
    */
   [[nodiscard]] auto into() const
-      -> const std::variant<AstarteIndividualDatastream, AstarteObject, AstarteIndividualProperty>&;
+      -> const std::variant<AstarteIndividualDatastream, AstarteObjectDatastream,
+                            AstarteIndividualProperty>&;
 #if defined(ASTARTE_FORMAT_ENABLED)
   /**
    * @brief Pretty format the Astarte message.
@@ -71,7 +73,8 @@ class AstarteMessage {
  private:
   std::string interface_;
   std::string path_;
-  std::variant<AstarteIndividualDatastream, AstarteObject, AstarteIndividualProperty> data_;
+  std::variant<AstarteIndividualDatastream, AstarteObjectDatastream, AstarteIndividualProperty>
+      data_;
 };
 
 }  // namespace AstarteDeviceSdk
