@@ -13,11 +13,11 @@
 #include "astarte_device_sdk/msg.hpp"
 
 using AstarteDeviceSdk::AstarteData;
-using AstarteDeviceSdk::AstarteDevice;
 using AstarteDeviceSdk::AstarteDatastreamIndividual;
-using AstarteDeviceSdk::AstartePropertyIndividual;
-using AstarteDeviceSdk::AstarteMessage;
 using AstarteDeviceSdk::AstarteDatastreamObject;
+using AstarteDeviceSdk::AstarteDevice;
+using AstarteDeviceSdk::AstarteMessage;
+using AstarteDeviceSdk::AstartePropertyIndividual;
 
 void reception_handler(std::shared_ptr<AstarteDevice> msghub_client) {
   while (true) {

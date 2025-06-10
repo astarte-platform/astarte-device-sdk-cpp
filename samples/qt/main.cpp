@@ -3,11 +3,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include <QCoreApplication>
-#include <QTimer>
-#include <QThread>
 #include <QDebug>
-#include <memory>
+#include <QThread>
+#include <QTimer>
 #include <filesystem>
+#include <memory>
 
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/device.hpp"
@@ -51,41 +51,52 @@ class AstarteWorker : public QObject {
       // Basic type
       device->send_individual(interface.toStdString(), "/integer_endpoint", AstarteData(43), &now);
       device->send_individual(interface.toStdString(), "/double_endpoint", AstarteData(43.5), &now);
-      device->send_individual(interface.toStdString(), "/longinteger_endpoint", AstarteData(int64_t(8589934592)), &now);
-      device->send_individual(interface.toStdString(), "/boolean_endpoint", AstarteData(true), &now);
-      device->send_individual(interface.toStdString(), "/string_endpoint", AstarteData(std::string("Hello from Qt!")), &now);
+      device->send_individual(interface.toStdString(), "/longinteger_endpoint",
+                              AstarteData(int64_t(8589934592)), &now);
+      device->send_individual(interface.toStdString(), "/boolean_endpoint", AstarteData(true),
+                              &now);
+      device->send_individual(interface.toStdString(), "/string_endpoint",
+                              AstarteData(std::string("Hello from Qt!")), &now);
 
       // Binary blob
       std::vector<uint8_t> binaryblob = {10, 20, 30, 40, 50};
-      device->send_individual(interface.toStdString(), "/binaryblob_endpoint", AstarteData(binaryblob), &now);
+      device->send_individual(interface.toStdString(), "/binaryblob_endpoint",
+                              AstarteData(binaryblob), &now);
 
       // Datetime
-      device->send_individual(interface.toStdString(), "/datetime_endpoint", AstarteData(now), &now);
+      device->send_individual(interface.toStdString(), "/datetime_endpoint", AstarteData(now),
+                              &now);
 
       // Arrays
       std::vector<int32_t> integerarray = {10, 20, 30, 40, 50};
-      device->send_individual(interface.toStdString(), "/integerarray_endpoint", AstarteData(integerarray), &now);
+      device->send_individual(interface.toStdString(), "/integerarray_endpoint",
+                              AstarteData(integerarray), &now);
 
       std::vector<int64_t> longintegerarray = {8589934592, 8589934593, 8589939592};
-      device->send_individual(interface.toStdString(), "/longintegerarray_endpoint", AstarteData(longintegerarray), &now);
+      device->send_individual(interface.toStdString(), "/longintegerarray_endpoint",
+                              AstarteData(longintegerarray), &now);
 
       std::vector<double> doublearray = {0.0, 1.1, 2.2};
-      device->send_individual(interface.toStdString(), "/doublearray_endpoint", AstarteData(doublearray), &now);
+      device->send_individual(interface.toStdString(), "/doublearray_endpoint",
+                              AstarteData(doublearray), &now);
 
       std::vector<bool> booleanarray = {true, false, true};
-      device->send_individual(interface.toStdString(), "/booleanarray_endpoint", AstarteData(booleanarray), &now);
+      device->send_individual(interface.toStdString(), "/booleanarray_endpoint",
+                              AstarteData(booleanarray), &now);
 
       std::vector<std::string> stringarray = {"Hello", "from", "Qt!"};
-      device->send_individual(interface.toStdString(), "/stringarray_endpoint", AstarteData(stringarray), &now);
+      device->send_individual(interface.toStdString(), "/stringarray_endpoint",
+                              AstarteData(stringarray), &now);
 
       std::vector<std::vector<uint8_t>> binaryblobarray = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
-      device->send_individual(interface.toStdString(), "/binaryblobarray_endpoint", AstarteData(binaryblobarray), &now);
+      device->send_individual(interface.toStdString(), "/binaryblobarray_endpoint",
+                              AstarteData(binaryblobarray), &now);
 
       std::vector<std::chrono::system_clock::time_point> datetimearray = {
           std::chrono::system_clock::now(),
-          std::chrono::system_clock::now() + std::chrono::seconds(5)
-      };
-      device->send_individual(interface.toStdString(), "/datetimearray_endpoint", AstarteData(datetimearray), &now);
+          std::chrono::system_clock::now() + std::chrono::seconds(5)};
+      device->send_individual(interface.toStdString(), "/datetimearray_endpoint",
+                              AstarteData(datetimearray), &now);
     }
 
     {
@@ -111,30 +122,20 @@ class AstarteWorker : public QObject {
           {"stringarray_endpoint",
            AstarteData(std::vector<std::string>{"Hello ", "world ", "from ", "Qt"})},
           {"binaryblobarray_endpoint",
-           AstarteData(std::vector<std::vector<uint8_t>>{
-               {1, 2, 3},
-               {4, 5, 6},
-               {7, 8, 9}
-           })},
+           AstarteData(std::vector<std::vector<uint8_t>>{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}})},
           {"datetimearray_endpoint",
-           AstarteData(std::vector<std::chrono::system_clock::time_point>{
-               now,
-               now
-           })}
-      };
+           AstarteData(std::vector<std::chrono::system_clock::time_point>{now, now})}};
 
       // Send aggregate object
       device->send_object(interface_name, common_path, data, nullptr);
     }
   }
 
-
  private:
   std::shared_ptr<AstarteDevice> device;
   QTimer *pollingTimer;
 
   void addInterfaces() {
-
     // Those paths assume the user is calling the Astarte executable from the root of this project.
     std::filesystem::path device_individual_interface_file_path =
         "samples/simple/interfaces/org.astarte-platform.cpp.examples.DeviceDatastream.json";

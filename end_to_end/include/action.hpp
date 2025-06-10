@@ -20,11 +20,11 @@
 using json = nlohmann::json;
 
 using AstarteDeviceSdk::AstarteData;
-using AstarteDeviceSdk::AstarteDevice;
 using AstarteDeviceSdk::AstarteDatastreamIndividual;
-using AstarteDeviceSdk::AstartePropertyIndividual;
-using AstarteDeviceSdk::AstarteMessage;
 using AstarteDeviceSdk::AstarteDatastreamObject;
+using AstarteDeviceSdk::AstarteDevice;
+using AstarteDeviceSdk::AstarteMessage;
+using AstarteDeviceSdk::AstartePropertyIndividual;
 
 class TestAction {
  public:
