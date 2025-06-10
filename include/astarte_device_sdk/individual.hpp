@@ -17,13 +17,13 @@
 namespace AstarteDeviceSdk {
 
 /** @brief Representing the Astarte individual datastream data. */
-class AstarteIndividualDatastream {
+class AstarteDatastreamIndividual {
  public:
   /**
-   * @brief Constructor for the AstarteIndividualDatastream class.
+   * @brief Constructor for the AstarteDatastreamIndividual class.
    * @param data The wrapped Astarte data type.
    */
-  explicit AstarteIndividualDatastream(AstarteData data);
+  explicit AstarteDatastreamIndividual(AstarteData data);
   /**
    * @brief Get the value contained within the object.
    * @return A constant reference to the data.
@@ -34,13 +34,13 @@ class AstarteIndividualDatastream {
    * @param other The object to compare to.
    * @return True when equal, false otherwise.
    */
-  [[nodiscard]] auto operator==(const AstarteIndividualDatastream &other) const -> bool;
+  [[nodiscard]] auto operator==(const AstarteDatastreamIndividual &other) const -> bool;
   /**
    * @brief Overloader for the comparison operator !=.
    * @param other The object to compare to.
    * @return True when different, false otherwise.
    */
-  [[nodiscard]] auto operator!=(const AstarteIndividualDatastream &other) const -> bool;
+  [[nodiscard]] auto operator!=(const AstarteDatastreamIndividual &other) const -> bool;
   /**
    * @brief Pretty format the Astarte individual datastream.
    * @return A string representing in human readable format the content of the class instance.

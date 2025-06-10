@@ -13,26 +13,26 @@
 
 namespace AstarteDeviceSdk {
 
-AstarteIndividualProperty::AstarteIndividualProperty(const std::optional<AstarteData> &data)
+AstartePropertyIndividual::AstartePropertyIndividual(const std::optional<AstarteData> &data)
     : data_(data) {}
 
-auto AstarteIndividualProperty::has_value() const -> bool { return data_.has_value(); }
-auto AstarteIndividualProperty::get_value() const -> const AstarteData & {
+auto AstartePropertyIndividual::has_value() const -> bool { return data_.has_value(); }
+auto AstartePropertyIndividual::get_value() const -> const AstarteData & {
   if (data_.has_value()) {
     return data_.value();
   }
-  throw AstarteBadOptionException("AstarteIndividualProperty does not hold a value.");
+  throw AstarteBadOptionException("AstartePropertyIndividual does not hold a value.");
 }
 
-auto AstarteIndividualProperty::operator==(const AstarteIndividualProperty &other) const -> bool {
+auto AstartePropertyIndividual::operator==(const AstartePropertyIndividual &other) const -> bool {
   return ((this->has_value() && other.has_value()) && (this->get_value() == other.get_value()) ||
           (!this->has_value() && !other.has_value()));
 }
-auto AstarteIndividualProperty::operator!=(const AstarteIndividualProperty &other) const -> bool {
+auto AstartePropertyIndividual::operator!=(const AstartePropertyIndividual &other) const -> bool {
   return ((this->has_value() && other.has_value()) && (this->get_value() != other.get_value()) ||
           (!this->has_value() && other.has_value()) || (this->has_value() && !other.has_value()));
 }
-auto AstarteIndividualProperty::format() const -> std::string {
+auto AstartePropertyIndividual::format() const -> std::string {
   std::ostringstream oss;
   if (data_.has_value()) {
     oss << data_.value().format();

@@ -66,8 +66,8 @@ class AstarteMessage {
    * @return The raw data contained in this class instance.
    */
   [[nodiscard]] auto get_raw_data() const
-      -> const std::variant<AstarteIndividualDatastream, AstarteObjectDatastream,
-                            AstarteIndividualProperty>&;
+      -> const std::variant<AstarteDatastreamIndividual, AstarteDatastreamObject,
+                            AstartePropertyIndividual>&;
 #if defined(ASTARTE_FORMAT_ENABLED)
   /**
    * @brief Pretty format the Astarte message.
@@ -91,7 +91,7 @@ class AstarteMessage {
  private:
   std::string interface_;
   std::string path_;
-  std::variant<AstarteIndividualDatastream, AstarteObjectDatastream, AstarteIndividualProperty>
+  std::variant<AstarteDatastreamIndividual, AstarteDatastreamObject, AstartePropertyIndividual>
       data_;
 };
 

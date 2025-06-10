@@ -206,7 +206,7 @@ auto GrpcConverterTo::operator()(const AstarteData &value,
 
 // Clang-tidy assumes some of the gRPC calls are memory leaks
 // NOLINTBEGIN(clang-analyzer-cplusplus.NewDeleteLeaks)
-auto GrpcConverterTo::operator()(const AstarteObjectDatastream &value,
+auto GrpcConverterTo::operator()(const AstarteDatastreamObject &value,
                                  const std::chrono::system_clock::time_point *timestamp)
     -> std::unique_ptr<gRPCAstarteDatastreamObject> {
   auto grpc_object = std::make_unique<gRPCAstarteDatastreamObject>();
@@ -308,15 +308,15 @@ auto GrpcConverterFrom::operator()(const gRPCAstarteData &value) -> AstarteData 
 // NOLINTEND(readability-function-size)
 
 auto GrpcConverterFrom::operator()(const gRPCAstarteDatastreamIndividual &value)
-    -> AstarteIndividualDatastream {
+    -> AstarteDatastreamIndividual {
   const gRPCAstarteData &grpc_data = value.data();
   GrpcConverterFrom converter;
-  return AstarteIndividualDatastream(converter(grpc_data));
+  return AstarteDatastreamIndividual(converter(grpc_data));
 }
 
 auto GrpcConverterFrom::operator()(const gRPCAstarteDatastreamObject &value)
-    -> AstarteObjectDatastream {
-  AstarteObjectDatastream object;
+    -> AstarteDatastreamObject {
+  AstarteDatastreamObject object;
   const google::protobuf::Map<std::string, gRPCAstarteData> &grpc_data = value.data();
   GrpcConverterFrom converter;
   for (const auto &[key, data] : grpc_data) {
@@ -326,13 +326,13 @@ auto GrpcConverterFrom::operator()(const gRPCAstarteDatastreamObject &value)
 }
 
 auto GrpcConverterFrom::operator()(const gRPCAstartePropertyIndividual &value)
-    -> AstarteIndividualProperty {
+    -> AstartePropertyIndividual {
   if (value.has_data()) {
     const gRPCAstarteData &grpc_data = value.data();
     GrpcConverterFrom converter;
-    return AstarteIndividualProperty(converter(grpc_data));
+    return AstartePropertyIndividual(converter(grpc_data));
   }
-  return AstarteIndividualProperty(std::nullopt);
+  return AstartePropertyIndividual(std::nullopt);
 }
 
 auto GrpcConverterFrom::operator()(const gRPCAstarteMessage &value) -> AstarteMessage {
@@ -340,24 +340,24 @@ auto GrpcConverterFrom::operator()(const gRPCAstarteMessage &value) -> AstarteMe
     const gRPCAstarteDatastreamIndividual &grpc_datastream_individual =
         value.datastream_individual();
     GrpcConverterFrom converter;
-    const std::variant<AstarteIndividualDatastream, AstarteObjectDatastream,
-                       AstarteIndividualProperty>
+    const std::variant<AstarteDatastreamIndividual, AstarteDatastreamObject,
+                       AstartePropertyIndividual>
         parsed_data = converter(grpc_datastream_individual);
     return {value.interface_name(), value.path(), parsed_data};
   }
   if (value.has_datastream_object()) {
     const gRPCAstarteDatastreamObject &grpc_datastream_object = value.datastream_object();
     GrpcConverterFrom converter;
-    const std::variant<AstarteIndividualDatastream, AstarteObjectDatastream,
-                       AstarteIndividualProperty>
+    const std::variant<AstarteDatastreamIndividual, AstarteDatastreamObject,
+                       AstartePropertyIndividual>
         parsed_data = converter(grpc_datastream_object);
     return {value.interface_name(), value.path(), parsed_data};
   }
   if (value.has_property_individual()) {
     const gRPCAstartePropertyIndividual &grpc_property_individual = value.property_individual();
     GrpcConverterFrom converter;
-    const std::variant<AstarteIndividualDatastream, AstarteObjectDatastream,
-                       AstarteIndividualProperty>
+    const std::variant<AstarteDatastreamIndividual, AstarteDatastreamObject,
+                       AstartePropertyIndividual>
         parsed_data = converter(grpc_property_individual);
     return {value.interface_name(), value.path(), parsed_data};
   }

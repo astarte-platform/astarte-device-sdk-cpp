@@ -50,7 +50,7 @@ class GrpcConverterTo {
 
   auto operator()(const AstarteData &value, const std::chrono::system_clock::time_point *timestamp)
       -> std::unique_ptr<gRPCAstarteDatastreamIndividual>;
-  auto operator()(const AstarteObjectDatastream &value,
+  auto operator()(const AstarteDatastreamObject &value,
                   const std::chrono::system_clock::time_point *timestamp)
       -> std::unique_ptr<gRPCAstarteDatastreamObject>;
   auto operator()(const std::optional<AstarteData> &value)
@@ -60,9 +60,9 @@ class GrpcConverterTo {
 class GrpcConverterFrom {
  public:
   auto operator()(const gRPCAstarteData &value) -> AstarteData;
-  auto operator()(const gRPCAstarteDatastreamIndividual &value) -> AstarteIndividualDatastream;
-  auto operator()(const gRPCAstarteDatastreamObject &value) -> AstarteObjectDatastream;
-  auto operator()(const gRPCAstartePropertyIndividual &value) -> AstarteIndividualProperty;
+  auto operator()(const gRPCAstarteDatastreamIndividual &value) -> AstarteDatastreamIndividual;
+  auto operator()(const gRPCAstarteDatastreamObject &value) -> AstarteDatastreamObject;
+  auto operator()(const gRPCAstartePropertyIndividual &value) -> AstartePropertyIndividual;
   auto operator()(const gRPCAstarteMessage &value) -> AstarteMessage;
 };
 

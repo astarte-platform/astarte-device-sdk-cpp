@@ -73,7 +73,7 @@ class AstarteDevice {
    * @param timestamp The timestamp for the data, this might be a nullptr.
    */
   void send_object(const std::string &interface_name, const std::string &path,
-                   const AstarteObjectDatastream &object,
+                   const AstarteDatastreamObject &object,
                    const std::chrono::system_clock::time_point *timestamp);
   /**
    * @brief Set a device property.
