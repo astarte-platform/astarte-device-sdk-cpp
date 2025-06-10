@@ -106,7 +106,7 @@ class AstarteWorker : public QObject {
       auto now = std::chrono::system_clock::now();
 
       // Fill aggregate object
-      AstarteObject data = {
+      AstarteDatastreamObject data = {
           {"integer_endpoint", AstarteData(43)},
           {"longinteger_endpoint", AstarteData(int64_t(8589934592))},
           {"double_endpoint", AstarteData(43.5)},
