@@ -31,7 +31,7 @@ class TestOrchestrator {
       : grpc_config_(config_grpc), curl_config_(config_curl) {}
 
   // Add test case to orchestrator
-  void add_test_case(TestCase& test_case) {
+  void add_test_case(TestCase&& test_case) {
     std::shared_ptr<AstarteDevice> device =
         std::make_shared<AstarteDevice>(grpc_config_.server_addr, grpc_config_.node_id);
     for (const std::filesystem::path& interface_path : grpc_config_.interfaces) {
@@ -42,13 +42,14 @@ class TestOrchestrator {
     test_case.configure_curl(curl_config_.appengine_url, curl_config_.appengine_token,
                              curl_config_.realm, curl_config_.device_id);
 
-    test_cases_.push_back(test_case);
+    test_cases_.push_back(std::move(test_case));
   }
 
   // Execute all test cases
   void execute_all() {
     spdlog::info("Executing all end to end test cases...");
     for (auto& test_case : test_cases_) {
+      test_case.start();
       test_case.execute();
     }
   }

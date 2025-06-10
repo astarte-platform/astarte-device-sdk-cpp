@@ -34,12 +34,9 @@ int main() {
        .realm = config["realm"].value<std::string>().value(),
        .device_id = config["device_id"].value<std::string>().value()});
 
-  TestCase device_status(testcases::device_status());
-  orchestrator.add_test_case(device_status);
-  TestCase device_datastream(testcases::device_datastream());
-  orchestrator.add_test_case(device_datastream);
-  TestCase server_datastream(testcases::server_datastream());
-  orchestrator.add_test_case(server_datastream);
+  orchestrator.add_test_case(testcases::device_status());
+  orchestrator.add_test_case(testcases::device_datastream());
+  orchestrator.add_test_case(testcases::server_datastream());
 
   // Execute all test cases
   orchestrator.execute_all();

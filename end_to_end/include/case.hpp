@@ -23,6 +23,12 @@ class TestCase {
         actions_(actions),
         kill_reception_(std::make_shared<std::atomic_bool>(false)),
         rx_queue_(std::make_shared<SharedQueue<AstarteMessage>>()) {}
+  ~TestCase() {
+    if (thread_ && thread_->joinable()) {
+      *kill_reception_ = true;
+      thread_->join();
+    }
+  }
 
   void configure_curl(const std::string& appengine_url, const std::string& appengine_token,
                       const std::string& realm, const std::string& device_id) {
@@ -35,9 +41,12 @@ class TestCase {
       action->attach_device(device, rx_queue_, kill_reception_);
     }
     device_ = device;
-    thread_ = std::make_shared<std::thread>(&TestCase::reception_handler, this);
   }
-
+  void start() {
+    if (!thread_) {
+      thread_ = std::make_shared<std::thread>(&TestCase::reception_handler, this);
+    }
+  }
   void execute() {
     spdlog::info("Executing test case: {}.", name_);
     for (const auto& action : actions_) {
