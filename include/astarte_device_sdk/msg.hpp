@@ -11,6 +11,7 @@
  */
 
 #include <string>
+#include <utility>
 #include <variant>
 
 #include "astarte_device_sdk/individual.hpp"
@@ -28,10 +29,9 @@ class AstarteMessage {
    * @param path The path for the message.
    * @param data The data for the message.
    */
-  AstarteMessage(
-      std::string interface, std::string path,
-      std::variant<AstarteIndividualDatastream, AstarteObjectDatastream, AstarteIndividualProperty>
-          data);
+  template <typename T>
+  AstarteMessage(std::string interface, std::string path, T data)
+      : interface_(std::move(interface)), path_(std::move(path)), data_(data) {}
 
   /**
    * @brief Get the interface of the message.
@@ -44,10 +44,28 @@ class AstarteMessage {
    */
   [[nodiscard]] auto get_path() const -> const std::string&;
   /**
+   * @brief Check if this message contains a datastream.
+   * @return True if the message contains a datastream, false otherwise.
+   */
+  [[nodiscard]] auto is_datastream() const -> bool;
+  /**
+   * @brief Check if this message contains individual data.
+   * @return True if the message contains individual data, false otherwise.
+   */
+  [[nodiscard]] auto is_individual() const -> bool;
+  /**
    * @brief Get the content of the message.
    * @return The value contained in the message.
    */
-  [[nodiscard]] auto into() const
+  template <typename T>
+  [[nodiscard]] auto into() const -> const T& {
+    return std::get<T>(data_);
+  }
+  /**
+   * @brief Return the raw data contained in this class instance.
+   * @return The raw data contained in this class instance.
+   */
+  [[nodiscard]] auto get_raw_data() const
       -> const std::variant<AstarteIndividualDatastream, AstarteObjectDatastream,
                             AstarteIndividualProperty>&;
 #if defined(ASTARTE_FORMAT_ENABLED)

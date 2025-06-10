@@ -27,21 +27,19 @@ void reception_handler(std::shared_ptr<AstarteDevice> msghub_client) {
       spdlog::info("Received message.");
       spdlog::info("Interface name: {}", msg.get_interface());
       spdlog::info("Path: {}", msg.get_path());
-      const std::variant<AstarteIndividualDatastream, AstarteObjectDatastream,
-                         AstarteIndividualProperty> &var_data(msg.into());
-      if (std::holds_alternative<AstarteIndividualDatastream>(var_data)) {
-        spdlog::info("Type: individual datastream");
-        const AstarteIndividualDatastream &data = std::get<AstarteIndividualDatastream>(var_data);
-        spdlog::info("Value: {}", data.format());
-      }
-      if (std::holds_alternative<AstarteObjectDatastream>(var_data)) {
-        spdlog::info("Type: object datastream");
-        const AstarteObjectDatastream &data = std::get<AstarteObjectDatastream>(var_data);
-        spdlog::info("Value: {}", data.format());
-      }
-      if (std::holds_alternative<AstarteIndividualProperty>(var_data)) {
+      if (msg.is_datastream()) {
+        if (msg.is_individual()) {
+          spdlog::info("Type: individual datastream");
+          const auto &data(msg.into<AstarteIndividualDatastream>());
+          spdlog::info("Value: {}", data.format());
+        } else {
+          spdlog::info("Type: object datastream");
+          const auto &data(msg.into<AstarteObjectDatastream>());
+          spdlog::info("Value: {}", data.format());
+        }
+      } else {
         spdlog::info("Type: individual property");
-        const AstarteIndividualProperty &data = std::get<AstarteIndividualProperty>(var_data);
+        const auto &data(msg.into<AstarteIndividualProperty>());
         spdlog::info("Value: {}", data.format());
       }
     }
