@@ -14,7 +14,7 @@ using AstarteDeviceSdk::AstarteMessageType;
 
 int main() {
   // Create test cases
-  auto device_status = std::make_unique<TestCase>(
+  auto device_status = TestCase(
       "Device status",
       std::vector<std::shared_ptr<TestAction>>{
           std::make_shared<TestActionConnect>(),
@@ -29,7 +29,7 @@ int main() {
           std::make_shared<TestActionDisconnect>(),
           std::make_shared<TestActionSleep>(std::chrono::seconds(1))});
 
-  auto tx_device_to_astarte = std::make_unique<TestCase>(
+  auto tx_device_to_astarte = TestCase(
       "Device to Astarte",
       std::vector<std::shared_ptr<TestAction>>{
           std::make_shared<TestActionConnect>(),
@@ -159,7 +159,7 @@ int main() {
           std::make_shared<TestActionDisconnect>(),
           std::make_shared<TestActionSleep>(std::chrono::seconds(1))});
 
-  auto tx_astarte_to_device = std::make_unique<TestCase>(
+  auto tx_astarte_to_device = TestCase(
       "Astarte to device",
       std::vector<std::shared_ptr<TestAction>>{
           std::make_shared<TestActionConnect>(),

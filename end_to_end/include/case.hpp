@@ -35,7 +35,7 @@ class TestCase {
       action->attach_device(device, rx_queue_, kill_reception_);
     }
     device_ = device;
-    thread_ = std::thread(&TestCase::reception_handler, this);
+    thread_ = std::make_shared<std::thread>(&TestCase::reception_handler, this);
   }
 
   void execute() {
@@ -51,7 +51,7 @@ class TestCase {
   std::shared_ptr<AstarteDevice> device_;
   std::shared_ptr<std::atomic_bool> kill_reception_;
   std::shared_ptr<SharedQueue<AstarteMessage>> rx_queue_;
-  std::thread thread_;
+  std::shared_ptr<std::thread> thread_;
 
   void reception_handler() {
     while (!(*kill_reception_)) {
