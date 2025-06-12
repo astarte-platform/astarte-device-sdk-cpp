@@ -23,6 +23,9 @@
 /** @brief Umbrella namespace for the Astarte device SDK */
 namespace AstarteDeviceSdk {
 
+/** @brief Namespace containign chrono literals such as ms */
+using namespace std::chrono_literals;
+
 /**
  * @brief Class for the Astarte devices.
  * @details This class should be instantiated once and then used to communicate with Astarte.
@@ -51,8 +54,19 @@ class AstarteDevice {
    * @param json_file The path to the .json interface file.
    */
   void add_interface_from_json(const std::filesystem::path &json_file);
-  /** @brief Connect to Astarte. */
+  /**
+   * @brief Connect the device to Astarte.
+   * @details This is an asynchronous funciton. It will start a management thread that will
+   * manage the device connectivity.
+   */
   void connect();
+  /**
+   * @brief Check if the device is connected.
+   * @param timeout This is the maximum timeout used to check if the device is connected.
+   * @return True if the device is connected to the message hub, false otherwise.
+   */
+  // NOLINTNEXTLINE(misc-include-cleaner)
+  auto is_connected(std::chrono::milliseconds timeout = 100ms) -> bool;
   /** @brief Disconnect from Astarte. */
   void disconnect();
   /**

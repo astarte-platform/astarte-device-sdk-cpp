@@ -87,6 +87,9 @@ class TestActionConnect : public TestAction {
   void execute(const std::string& case_name) const override {
     spdlog::info("[{}] Connecting...", case_name);
     device_->connect();
+    do {
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+    } while (!device_->is_connected());
   }
 
  private:
