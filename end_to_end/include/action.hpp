@@ -265,6 +265,8 @@ class TestActionFetchRESTData : public TestAction {
     cpr::Response get_response =
         cpr::Get(cpr::Url{request_url}, cpr::Header{{"Content-Type", "application/json"}},
                  cpr::Header{{"Authorization", "Bearer " + appengine_token_}});
+    spdlog::debug("Response: {}", get_response.text);
+    spdlog::debug("Response status code: {}", get_response.status_code);
     if (get_response.status_code != 200) {
       spdlog::error("HTTP GET failed, status code: {}", get_response.status_code);
       throw EndToEndHTTPException("Fetching data through REST API failed.");
@@ -287,6 +289,13 @@ class TestActionFetchRESTData : public TestAction {
         }
       } else {
         // TODO: Parse an expected Object
+        const auto& expected_data(message_.into<AstarteDatastreamObject>());
+        json expected_data_json = json::parse(expected_data.format());
+        if (expected_data_json != fetched_data) {
+          spdlog::error("Fetched data: {}", fetched_data.dump());
+          spdlog::error("Expected data: {}", expected_data_json.dump());
+          throw EndToEndMismatchException("Fetched REST API data differs from expected data.");
+        }
       }
     } else {
       // TODO: Parse properties
