@@ -1,0 +1,125 @@
+# (C) Copyright 2025, SECO Mind Srl
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Documentation generation
+
+on:
+  push:
+    branches:
+    - 'master'
+    - 'release-*'
+
+env:
+  DOXYGEN_VERSION: 1.13.2
+
+jobs:
+  api-docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    concurrency:
+      group: api-docs-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        path: astarte-device-sdk-cpp
+    - uses: actions/checkout@v4
+      with:
+        repository: astarte-platform/docs
+        ssh-key: ${{ secrets.DOCS_DEPLOY_KEY }}
+        path: docs
+    - name: Install doxygen
+      shell: bash
+      run: |
+        wget --no-verbose "https://github.com/doxygen/doxygen/releases/download/Release_${DOXYGEN_VERSION//./_}/doxygen-${DOXYGEN_VERSION}.linux.bin.tar.gz"
+        tar xf doxygen-${DOXYGEN_VERSION}.linux.bin.tar.gz
+        echo "${PWD}/doxygen-${DOXYGEN_VERSION}/bin" >> $GITHUB_PATH
+    - name: Build API docs for C++ 20
+      working-directory: astarte-device-sdk-cpp
+      run: ./docs.sh --fresh --stdcpp 20
+    - name: Upload HTML documentation
+      uses: actions/upload-artifact@v4
+      with:
+        name: docs_html
+        path: astarte-device-sdk-cpp/doc/_build/html
+    - name: Copy HTML documentation
+      run: |
+        export DOCS_DIRNAME="device-sdks/cpp/$(echo ${{ github.ref }} | sed 's,refs/heads/,,' | sed 's/master/snapshot/g' | sed 's/release-//g')"
+        rm -rf docs/$DOCS_DIRNAME
+        mkdir -p docs/$DOCS_DIRNAME/api
+        cp -r astarte-device-sdk-cpp/doc/_build/html/* docs/$DOCS_DIRNAME/api
+    - name: Update symlink
+      working-directory: ./docs/device-sdks/cpp
+      run: |
+        rm -f "latest"
+        latest_version=$(ls -d * | grep -v snapshot | sort -V | tail -n 1)
+        if [ -z $latest_version ]; then latest_version="snapshot"; fi
+        ln -sf "$latest_version" latest
+    - name: Commit files
+      working-directory: ./docs
+      run: |
+        git config --local user.email "astarte-machine-sdk@ispirata.com"
+        git config --local user.name "Astarte Bot"
+        git add .
+        git diff-index --quiet HEAD || git commit -m "Update C++ SDK documentation"
+    - name: Push changes
+      working-directory: ./docs
+      run: |
+        git push
+  get-started-docs:
+    runs-on: ubuntu-latest
+    needs: [api-docs]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: astarte-device-sdk-cpp
+          fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          repository: astarte-platform/sdk-doc
+          ssh-key: ${{ secrets.SDK_DOC_DEPLOY_KEY }}
+          path: sdk-doc
+      - name: Check release branch
+        id: check-release-branch
+        working-directory: ./astarte-device-sdk-cpp
+        shell: bash
+        run: |
+          latest_release=$(git branch -r | grep "release-*" | sort -t '-' -k 2,2n | tail -n 1 | cut -d '/' -f 2)
+          current_branch=$(git branch --show-current)
+          if [[ "$current_branch" == "$latest_release" ]]; then
+            echo "Current branch is the latest release branch"
+            echo "RESULT=OK" >> $GITHUB_OUTPUT
+          else
+            echo "Current branch is not the latest release branch"
+            echo "RESULT=FAILED" >> $GITHUB_OUTPUT
+          fi
+      - name: Compare and copy get started
+        id: cmp-and-copy-get-started
+        if: steps.check-release-branch.outputs.RESULT == 'OK'
+        run: |
+          our_get_started="./astarte-device-sdk-cpp/get_started.md"
+          their_get_started="./sdk-doc/source/get_started/cpp.md"
+          if cmp -s "$our_get_started" "$their_get_started"; then
+            echo "Get started are identical, no need for substitution"
+            echo "RESULT=NO_SUBSTITUTION" >> $GITHUB_OUTPUT
+          else
+            echo "Our get started is different, substituting theirs"
+            cp "$our_get_started" "$their_get_started"
+            echo "RESULT=SUBSTITUTION" >> $GITHUB_OUTPUT
+          fi
+      - name: Commit changes
+        id: commit-changes
+        if: steps.cmp-and-copy-get-started.outputs.RESULT == 'SUBSTITUTION'
+        working-directory: ./sdk-doc
+        run: |
+          git config --local user.email "astarte-machine@ispirata.com"
+          git config --local user.name "Astarte Bot"
+          git add .
+          git diff-index --quiet HEAD || git commit -m "Update C++ SDK get started"
+      - name: Push changes
+        if: steps.commit-changes.conclusion == 'success'
+        working-directory: ./sdk-doc
+        run: |
+          git push

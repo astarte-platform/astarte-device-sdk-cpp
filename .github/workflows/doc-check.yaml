@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-name: Documentation generation
+name: Documentation checks
 
 on:
   pull_request:
@@ -10,7 +10,8 @@ on:
     - 'README.md'
     - 'doc/**'
     - 'include/**'
-    - '.github/workflows/doc.yml'
+    - '.github/workflows/doc-check.yml'
+    - 'docs.sh'
 
 env:
   DOXYGEN_VERSION: 1.13.2
@@ -34,27 +35,16 @@ jobs:
         tar xf doxygen-${DOXYGEN_VERSION}.linux.bin.tar.gz
         echo "${PWD}/doxygen-${DOXYGEN_VERSION}/bin" >> $GITHUB_PATH
     - name: Build API docs for C++ 20
-      working-directory: astarte-device-sdk-cpp/doc
-      run: |
-        export DOXYGEN_ASTARTE_DEVICE_SDK_VERSION="0.5.0"
-        export DOXYGEN_OUT="./_build"
-        export DOXYGEN_ASTARTE_DEVICE_SDK_BASE="$PWD/.."
-        export DOXYGEN_ASTARTE_DEVICE_SDK_MACROS="__cplusplus=202002L"
-        doxygen astarte-device-sdk.doxyfile.in
+      working-directory: astarte-device-sdk-cpp
+      run: ./docs.sh --fresh --stdcpp 20
     - name: Upload API HTML documentation for C++ 20
       uses: actions/upload-artifact@v4
       with:
         name: docs_html_cpp_20
         path: astarte-device-sdk-cpp/doc/_build/html
     - name: Build API docs for C++ 17
-      working-directory: astarte-device-sdk-cpp/doc
-      run: |
-        rm -r ./_build
-        export DOXYGEN_ASTARTE_DEVICE_SDK_VERSION="0.5.0"
-        export DOXYGEN_OUT="./_build"
-        export DOXYGEN_ASTARTE_DEVICE_SDK_BASE="$PWD/.."
-        export DOXYGEN_ASTARTE_DEVICE_SDK_MACROS="__cplusplus=201703L"
-        doxygen astarte-device-sdk.doxyfile.in
+      working-directory: astarte-device-sdk-cpp
+      run: ./docs.sh --fresh --stdcpp 17
     - name: Upload API HTML documentation for C++ 17
       uses: actions/upload-artifact@v4
       with:

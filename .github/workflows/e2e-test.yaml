@@ -32,7 +32,7 @@ jobs:
       - name: Create Astarte Cluster
         uses: astarte-platform/astarte-cluster-action@v1
         with:
-          astarte_version: "1.2.0"
+          astarte_version: "1.2.1-alpha.0"
       - name: Install interfaces
         working-directory: ./astarte-device-sdk-cpp/.github/workflows
         timeout-minutes: 3
