@@ -22,8 +22,14 @@ AstarteDevice::AstarteDevice(const std::string &server_addr, const std::string &
 
 AstarteDevice::~AstarteDevice() = default;
 
-void AstarteDevice::add_interface_from_json(const std::filesystem::path &json_file) {
-  astarte_device_impl_->add_interface_from_json(json_file);
+void AstarteDevice::add_interface_from_json(const std::filesystem::path &json_file,
+                                            std::chrono::milliseconds timeout) {
+  astarte_device_impl_->add_interface_from_json(json_file, timeout);
+}
+
+void AstarteDevice::remove_interface(const std::string &interface_name,
+                                     std::chrono::milliseconds timeout) {
+  astarte_device_impl_->remove_interface(interface_name, timeout);
 }
 
 void AstarteDevice::connect() { astarte_device_impl_->connect(); }

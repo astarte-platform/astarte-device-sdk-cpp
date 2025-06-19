@@ -6,6 +6,7 @@
 
 #include <astarteplatform/msghub/astarte_data.pb.h>
 #include <astarteplatform/msghub/astarte_message.pb.h>
+#include <astarteplatform/msghub/interface.pb.h>
 #include <astarteplatform/msghub/message_hub_error.pb.h>
 #include <astarteplatform/msghub/message_hub_service.grpc.pb.h>
 #include <astarteplatform/msghub/node.pb.h>
@@ -27,6 +28,7 @@
 #include <iterator>
 #include <memory>
 #include <optional>
+#include <regex>
 #include <string>
 #include <thread>
 #include <utility>
@@ -59,6 +61,8 @@ using gRPCMessageHub = astarteplatform::msghub::MessageHub;
 using gRPCMessageHubError = astarteplatform::msghub::MessageHubError;
 using gRPCMessageHubEvent = astarteplatform::msghub::MessageHubEvent;
 using gRPCNode = astarteplatform::msghub::Node;
+using gRPCInterfacesJson = astarteplatform::msghub::InterfacesJson;
+using gRPCInterfacesName = astarteplatform::msghub::InterfacesName;
 
 AstarteDevice::AstarteDeviceImpl::AstarteDeviceImpl(std::string server_addr, std::string node_uuid)
     : server_addr_(std::move(server_addr)),
@@ -72,19 +76,69 @@ AstarteDevice::AstarteDeviceImpl::~AstarteDeviceImpl() {
 }
 
 void AstarteDevice::AstarteDeviceImpl::add_interface_from_json(
-    const std::filesystem::path &json_file) {
+    const std::filesystem::path &json_file, std::chrono::milliseconds timeout) {
   spdlog::debug("Adding interface from file: {}", json_file.string());
+
+  // Check file validity
   std::ifstream interface_file(json_file, std::ios::in);
   if (!interface_file.is_open()) {
     spdlog::error("Could not open the interface file: {}", json_file.string());
     throw AstarteFileOpenException(json_file.string());
   }
+
   // Read the entire JSON file content into a string
   const std::string interface_json((std::istreambuf_iterator<char>(interface_file)),
                                    std::istreambuf_iterator<char>());
+
+  // Close the file
+  interface_file.close();
+
+  // If the device is connected, notify the message hub
+  if (is_connected(timeout)) {
+    gRPCInterfacesJson grpc_interfaces_json;
+    grpc_interfaces_json.add_interfaces_json(interface_json);
+    ClientContext context;
+    google::protobuf::Empty response;
+    const Status status = stub_->AddInterfaces(&context, grpc_interfaces_json, &response);
+    if (!status.ok()) {
+      spdlog::error("{}: {}", static_cast<int>(status.error_code()), status.error_message());
+      return;
+    }
+  }
+
+  // Add i to the list of interfaces to use during (ri)connection
   interfaces_bins_.push_back(interface_json);
   spdlog::trace("Added interface: \n{}", interface_json);
-  interface_file.close();
+}
+
+void AstarteDevice::AstarteDeviceImpl::remove_interface(const std::string &interface_name,
+                                                        std::chrono::milliseconds timeout) {
+  spdlog::debug("Removing interface: {}", interface_name);
+  const std::string escaped_interface_name =
+      std::regex_replace(escaped_interface_name, std::regex("\\."), "\\.");
+  const std::string pattern_string =
+      R"(\"interface_name\":\s*\")" + escaped_interface_name + R"(\")";
+  const std::regex pattern(pattern_string);
+
+  for (auto i = interfaces_bins_.begin(); i != interfaces_bins_.end(); ++i) {
+    const std::string &interface_json = *i;
+    std::smatch match;
+    if (std::regex_search(interface_json, match, pattern)) {
+      if (is_connected(timeout)) {
+        gRPCInterfacesName grpc_interface_names;
+        grpc_interface_names.add_names(interface_name);
+        ClientContext context;
+        google::protobuf::Empty response;
+        const Status status = stub_->RemoveInterfaces(&context, grpc_interface_names, &response);
+        if (!status.ok()) {
+          spdlog::error("{}: {}", static_cast<int>(status.error_code()), status.error_message());
+          return;
+        }
+      }
+      interfaces_bins_.erase(i);
+      break;
+    }
+  }
 }
 
 void AstarteDevice::AstarteDeviceImpl::connect() {
@@ -97,7 +151,7 @@ void AstarteDevice::AstarteDeviceImpl::connect() {
 
 auto AstarteDevice::AstarteDeviceImpl::is_connected(std::chrono::milliseconds timeout) -> bool {
   // The event handler is started when a connection attempt is performed.
-  // If a connection cannot be established it will exit quickly.
+  // If a connection cannot be established i will exit quickly.
   if (!event_handler_.joinable()) {
     return false;
   }
@@ -269,7 +323,7 @@ void AstarteDevice::AstarteDeviceImpl::connection_attempt() {
   }
 
   // Generate a new client context for the Attach method.
-  // From the documentation it appears that a context needs to be valid for the duration of the RPC
+  // From the documentation i appears that a context needs to be valid for the duration of the RPC
   // In this case the RPC ends when the return stream is closed, so the context should survive at
   // least for that long.
   // See: https://grpc.github.io/grpc/cpp/classgrpc_1_1_client_context.html
@@ -310,7 +364,7 @@ void AstarteDevice::AstarteDeviceImpl::handle_events(
   }
   spdlog::info("Message hub stream has been interrupted.");
 
-  // Log an error if it the stream has been stopped due to a failure.
+  // Log an error if i the stream has been stopped due to a failure.
   const Status status = reader->Finish();
   if (!status.ok()) {
     spdlog::error("{}: {}", static_cast<int>(status.error_code()), status.error_message());

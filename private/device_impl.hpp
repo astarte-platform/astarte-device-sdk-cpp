@@ -53,8 +53,16 @@ struct AstarteDevice::AstarteDeviceImpl {
    * @brief Parse an interface definition from a JSON file and adds it to the device.
    * @details The file content is read and stored internally for use during the connection phase.
    * @param json_file The filesystem path to the .json interface file.
+   * @param timeout A timeout used to check the device connection status.
    */
-  void add_interface_from_json(const std::filesystem::path& json_file);
+  void add_interface_from_json(const std::filesystem::path& json_file,
+                               std::chrono::milliseconds timeout);
+  /**
+   * @brief Remove an installed interface.
+   * @param interface_name The interface name.
+   * @param timeout A timeout used to check the device connection status.
+   */
+  void remove_interface(const std::string& interface_name, std::chrono::milliseconds timeout);
   /**
    * @brief Connect the device to Astarte.
    * @details This is an asynchronous funciton. It will start a management thread that will

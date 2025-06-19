@@ -52,8 +52,19 @@ class AstarteDevice {
   /**
    * @brief Add an interface for the device from a json file.
    * @param json_file The path to the .json interface file.
+   * @param timeout A timeout used to check the device connection status.
    */
-  void add_interface_from_json(const std::filesystem::path &json_file);
+  // NOLINTBEGIN(misc-include-cleaner)
+  void add_interface_from_json(const std::filesystem::path &json_file,
+                               std::chrono::milliseconds timeout = 100ms);
+  // NOLINTEND(misc-include-cleaner)
+  /**
+   * @brief Remove an installed interface.
+   * @param interface_name The interface name.
+   * @param timeout A timeout used to check the device connection status.
+   */
+  void remove_interface(const std::string &interface_name,
+                        std::chrono::milliseconds timeout = 100ms);
   /**
    * @brief Connect the device to Astarte.
    * @details This is an asynchronous funciton. It will start a management thread that will
