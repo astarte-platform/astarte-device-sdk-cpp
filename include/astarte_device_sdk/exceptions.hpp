@@ -79,6 +79,18 @@ class AstarteInternalException : public AstarteException {
   explicit AstarteInternalException(const std::string& err_message);
 };
 
+/**
+ * @brief Generic exception for when an operation is refused by the Astarte device.
+ */
+class AstarteOperationRefusedException : public AstarteException {
+ public:
+  /**
+   * @brief Constructor for the Astarte operation refused exception.
+   * @param err_message The error message for the exception.
+   */
+  explicit AstarteOperationRefusedException(const std::string& err_message);
+};
+
 }  // namespace AstarteDeviceSdk
 
 #endif  // ASTARTE_DEVICE_SDK_EXCEPTIONS_H

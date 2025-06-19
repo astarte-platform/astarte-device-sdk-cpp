@@ -13,6 +13,7 @@
 #include <atomic>
 #include <chrono>
 #include <filesystem>
+#include <list>
 #include <memory>
 #include <optional>
 #include <string>
@@ -23,6 +24,9 @@
 #include "astarte_device_sdk/device.hpp"
 #include "astarte_device_sdk/msg.hpp"
 #include "astarte_device_sdk/object.hpp"
+#include "astarte_device_sdk/ownership.hpp"
+#include "astarte_device_sdk/property.hpp"
+#include "astarte_device_sdk/stored_property.hpp"
 #include "shared_queue.hpp"
 
 namespace AstarteDeviceSdk {
@@ -115,6 +119,27 @@ struct AstarteDevice::AstarteDeviceImpl {
    * std::nullopt.
    */
   auto poll_incoming() -> std::optional<AstarteMessage>;
+  /**
+   * @brief Get all stored properties matching the input filter.
+   * @param ownership Optional ownership filter.
+   * @return A list of stored properties, as returned by the message hub.
+   */
+  auto get_all_properties(const std::optional<AstarteOwnership>& ownership)
+      -> std::list<AstarteStoredProperty>;
+  /**
+   * @brief Get stored propertied matching the interface.
+   * @param interface_name The name of the interface for the property.
+   * @return TODO
+   */
+  auto get_properties(const std::string& interface_name) -> std::list<AstarteStoredProperty>;
+  /**
+   * @brief Get a single stored property matching the interface name and path.
+   * @param interface_name The name of the interface for the property.
+   * @param path Exact path for the property.
+   * @return The stored property, as returned by the message hub.
+   */
+  auto get_property(const std::string& interface_name, const std::string& path)
+      -> AstartePropertyIndividual;
 
  private:
   void connection_attempt();

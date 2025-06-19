@@ -6,6 +6,7 @@
 
 #include <chrono>
 #include <filesystem>
+#include <list>
 #include <memory>
 #include <optional>
 #include <string>
@@ -13,6 +14,9 @@
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/msg.hpp"
 #include "astarte_device_sdk/object.hpp"
+#include "astarte_device_sdk/ownership.hpp"
+#include "astarte_device_sdk/property.hpp"
+#include "astarte_device_sdk/stored_property.hpp"
 #include "device_impl.hpp"
 
 namespace AstarteDeviceSdk {
@@ -57,6 +61,21 @@ void AstarteDevice::unset_property(const std::string &interface_name, const std:
 
 auto AstarteDevice::poll_incoming() -> std::optional<AstarteMessage> {
   return astarte_device_impl_->poll_incoming();
+}
+
+auto AstarteDevice::get_all_properties(const std::optional<AstarteOwnership> &ownership)
+    -> std::list<AstarteStoredProperty> {
+  return astarte_device_impl_->get_all_properties(ownership);
+}
+
+auto AstarteDevice::get_properties(const std::string &interface_name)
+    -> std::list<AstarteStoredProperty> {
+  return astarte_device_impl_->get_properties(interface_name);
+}
+
+auto AstarteDevice::get_property(const std::string &interface_name, const std::string &path)
+    -> AstartePropertyIndividual {
+  return astarte_device_impl_->get_property(interface_name, path);
 }
 
 }  // namespace AstarteDeviceSdk
