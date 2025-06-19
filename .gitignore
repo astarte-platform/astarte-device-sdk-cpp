@@ -5,6 +5,7 @@
 # C++ related folders
 build/
 _build/
+.cache/
 
 # Python venv
 .venv/
