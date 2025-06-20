@@ -1,7 +1,7 @@
 {
     "interface_name": "org.astarte-platform.cpp.end-to-end.DeviceAggregate",
     "version_major": 0,
-    "version_minor": 1,
+    "version_minor": 2,
     "type": "datastream",
     "aggregation": "object",
     "ownership": "device",
@@ -21,11 +21,6 @@
         {
             "endpoint": "/%{sensor_id}/boolean_endpoint",
             "type": "boolean",
-            "explicit_timestamp": false
-        },
-        {
-            "endpoint": "/%{sensor_id}/longinteger_endpoint",
-            "type": "longinteger",
             "explicit_timestamp": false
         },
         {
@@ -56,11 +51,6 @@
         {
             "endpoint": "/%{sensor_id}/booleanarray_endpoint",
             "type": "booleanarray",
-            "explicit_timestamp": false
-        },
-        {
-            "endpoint": "/%{sensor_id}/longintegerarray_endpoint",
-            "type": "longintegerarray",
             "explicit_timestamp": false
         },
         {

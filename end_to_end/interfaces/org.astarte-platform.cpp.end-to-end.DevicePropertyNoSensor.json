@@ -1,5 +1,5 @@
 {
-    "interface_name": "org.astarte-platform.cpp.end-to-end.DeviceProperty",
+    "interface_name": "org.astarte-platform.cpp.end-to-end.DevicePropertyNoSensor",
     "version_major": 0,
     "version_minor": 1,
     "type": "properties",

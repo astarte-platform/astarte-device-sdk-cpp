@@ -56,6 +56,7 @@ auto AstarteDatastreamObject::find(const std::string& key) const -> const_iterat
 // Format the map content
 auto AstarteDatastreamObject::format() const -> std::string {
   std::ostringstream oss;
+  oss << "{";
   bool first = true;
   for (const auto& pair : data_) {
     if (!first) {
@@ -64,6 +65,7 @@ auto AstarteDatastreamObject::format() const -> std::string {
     oss << "\"" << pair.first << "\": " << pair.second.format();
     first = false;
   }
+  oss << "}";
   return oss.str();
 }
 #endif
