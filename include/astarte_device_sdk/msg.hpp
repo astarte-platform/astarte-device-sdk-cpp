@@ -70,7 +70,7 @@ class AstarteMessage {
   template <typename T>
   [[nodiscard]] auto try_into() const -> std::optional<T> {
     if (std::holds_alternative<T>(data_)) {
-      return std::move(std::get<T>(data_));
+      return std::get<T>(data_);
     }
 
     return std::nullopt;

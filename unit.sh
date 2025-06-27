@@ -93,6 +93,7 @@ cmake_options_array=()
 cmake_options_array+=("-DCMAKE_CXX_STANDARD=$cpp_standard")
 cmake_options_array+=("-DCMAKE_CXX_STANDARD_REQUIRED=ON")
 cmake_options_array+=("-DASTARTE_PUBLIC_PROTO_DEP=ON")
+cmake_options_array+=("-DCMAKE_POLICY_VERSION_MINIMUM=3.15")
 cmake_options_array+=("-DASTARTE_ENABLE_FORMAT=ON")
 if [ "$system_grpc" = true ]; then
     cmake_options_array+=("-DASTARTE_USE_SYSTEM_GRPC=ON")
@@ -111,6 +112,6 @@ fi
 
 # Run tests using CTest
 echo "Running tests with ctest..."
-if ! ctest --output-on-failure; then
+if ! ctest --output-on-failure --tests-regex "^AstarteTest.*"; then
     error_exit "CTest execution failed or some tests failed."
 fi
