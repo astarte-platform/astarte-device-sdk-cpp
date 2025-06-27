@@ -15,85 +15,85 @@ using AstarteDeviceSdk::AstarteType;
 
 using testing::ContainerEq;
 
-TEST(DataTest, InstantiationInteger) {
+TEST(AstarteTestData, InstantiationInteger) {
   int32_t value = 52;
   auto data = AstarteData(value);
   auto original = data.into<int32_t>();
   EXPECT_EQ(value, original);
 }
-TEST(DataTest, FormatInteger) {
+TEST(AstarteTestData, FormatInteger) {
   int32_t value = 52;
   auto data = AstarteData(value);
   auto str = data.format();
   EXPECT_STREQ(str.c_str(), "52");
 }
 
-TEST(DataTest, InstantiationLongInteger) {
+TEST(AstarteTestData, InstantiationLongInteger) {
   int64_t value = 52;
   auto data = AstarteData(value);
   auto original = data.into<int64_t>();
   EXPECT_EQ(value, original);
 }
-TEST(DataTest, FormatLongInteger) {
+TEST(AstarteTestData, FormatLongInteger) {
   int64_t value = 52;
   auto data = AstarteData(value);
   auto str = data.format();
   EXPECT_STREQ(str.c_str(), "52");
 }
 
-TEST(DataTest, InstantiationDouble) {
+TEST(AstarteTestData, InstantiationDouble) {
   double value = 43.5;
   auto data = AstarteData(value);
   auto original = data.into<double>();
   EXPECT_FLOAT_EQ(value, original);
 }
-TEST(DataTest, FormatDouble) {
+TEST(AstarteTestData, FormatDouble) {
   double value = 43.5;
   auto data = AstarteData(value);
   auto str = data.format();
   EXPECT_STREQ(str.c_str(), "43.5");
 }
 
-TEST(DataTest, InstantiationBoolean) {
+TEST(AstarteTestData, InstantiationBoolean) {
   bool value = true;
   auto data = AstarteData(value);
   auto original = data.into<bool>();
   EXPECT_EQ(value, original);
 }
-TEST(DataTest, FormatBoolean) {
+TEST(AstarteTestData, FormatBoolean) {
   bool value = true;
   auto data = AstarteData(value);
   auto str = data.format();
   EXPECT_STREQ(str.c_str(), "true");
 }
 
-TEST(DataTest, InstantiationString) {
+TEST(AstarteTestData, InstantiationString) {
   std::string value = "Test string";
   auto data = AstarteData(value);
   auto original = data.into<std::string>();
   EXPECT_STREQ(value.c_str(), original.c_str());
 }
-TEST(DataTest, FormatString) {
+TEST(AstarteTestData, FormatString) {
   std::string value = "Test string";
   auto data = AstarteData(value);
   auto str = data.format();
   EXPECT_STREQ(str.c_str(), "\"Test string\"");
 }
 
-TEST(DataTest, InstantiationBinaryBlob) {
+TEST(AstarteTestData, InstantiationBinaryBlob) {
   std::vector<uint8_t> value = {0x12U, 0x22U, 0x42};
   auto data = AstarteData(value);
   auto original = data.into<std::vector<uint8_t>>();
   EXPECT_THAT(value, ContainerEq(original));
 }
-TEST(DataTest, FormatBinaryBlob) {
+TEST(AstarteTestData, FormatBinaryBlob) {
   std::vector<uint8_t> value = {0x12U, 0x22U, 0x42};
   auto data = AstarteData(value);
   auto str = data.format();
   EXPECT_STREQ(str.c_str(), "\"EiJC\"");
 }
 
-TEST(DataTest, InstantiationDatetime) {
+TEST(AstarteTestData, InstantiationDatetime) {
 #if __cplusplus >= 202002L
   std::chrono::system_clock::time_point value =
       std::chrono::sys_days(std::chrono::year_month_day(
@@ -114,7 +114,7 @@ TEST(DataTest, InstantiationDatetime) {
   auto original = data.into<std::chrono::system_clock::time_point>();
   EXPECT_EQ(value, original);
 }
-TEST(DataTest, FormatDatetime) {
+TEST(AstarteTestData, FormatDatetime) {
 #if __cplusplus >= 202002L
   std::chrono::system_clock::time_point value =
       std::chrono::sys_days(std::chrono::year_month_day(
@@ -136,85 +136,85 @@ TEST(DataTest, FormatDatetime) {
   EXPECT_STREQ(str.c_str(), "\"1994-04-12T10:15:00.000Z\"");
 }
 
-TEST(DataTest, InstantiationIntegerArray) {
+TEST(AstarteTestData, InstantiationIntegerArray) {
   std::vector<int32_t> value{12, 43, 11, 0};
   auto data = AstarteData(value);
   auto original = data.into<std::vector<int32_t>>();
   EXPECT_THAT(original, ContainerEq(value));
 }
-TEST(DataTest, FormatIntegerArray) {
+TEST(AstarteTestData, FormatIntegerArray) {
   std::vector<int32_t> value{12, 43, 11, 0};
   auto data = AstarteData(value);
   auto str = data.format();
   EXPECT_STREQ(str.c_str(), "[12, 43, 11, 0]");
 }
 
-TEST(DataTest, InstantiationLongIntegerArray) {
+TEST(AstarteTestData, InstantiationLongIntegerArray) {
   std::vector<int64_t> value{0, 8589934592, 11};
   auto data = AstarteData(value);
   auto original = data.into<std::vector<int64_t>>();
   EXPECT_THAT(original, ContainerEq(value));
 }
-TEST(DataTest, FormatLongIntegerArray) {
+TEST(AstarteTestData, FormatLongIntegerArray) {
   std::vector<int64_t> value{0, 8589934592, 11};
   auto data = AstarteData(value);
   auto str = data.format();
   EXPECT_STREQ(str.c_str(), "[0, 8589934592, 11]");
 }
 
-TEST(DataTest, InstantiationDoubleArray) {
+TEST(AstarteTestData, InstantiationDoubleArray) {
   std::vector<double> value{0.0, 43.2};
   auto data = AstarteData(value);
   auto original = data.into<std::vector<double>>();
   EXPECT_THAT(original, ContainerEq(value));
 }
-TEST(DataTest, FormatDoubleArray) {
+TEST(AstarteTestData, FormatDoubleArray) {
   std::vector<double> value{0.0, 43.2};
   auto data = AstarteData(value);
   auto str = data.format();
   EXPECT_STREQ(str.c_str(), "[0, 43.2]");
 }
 
-TEST(DataTest, InstantiationBooleanArray) {
+TEST(AstarteTestData, InstantiationBooleanArray) {
   std::vector<bool> value{true, false, false};
   auto data = AstarteData(value);
   auto original = data.into<std::vector<bool>>();
   EXPECT_THAT(original, ContainerEq(value));
 }
-TEST(DataTest, FormatBooleanArray) {
+TEST(AstarteTestData, FormatBooleanArray) {
   std::vector<bool> value{true, false, false};
   auto data = AstarteData(value);
   auto str = data.format();
   EXPECT_STREQ(str.c_str(), "[true, false, false]");
 }
 
-TEST(DataTest, InstantiationStringArray) {
+TEST(AstarteTestData, InstantiationStringArray) {
   std::vector<std::string> value{"Hello", "C++"};
   auto data = AstarteData(value);
   auto original = data.into<std::vector<std::string>>();
   EXPECT_THAT(original, ContainerEq(value));
 }
-TEST(DataTest, FormatStringArray) {
+TEST(AstarteTestData, FormatStringArray) {
   std::vector<std::string> value{"Hello", "C++"};
   auto data = AstarteData(value);
   auto str = data.format();
   EXPECT_STREQ(str.c_str(), "[\"Hello\", \"C++\"]");
 }
 
-TEST(DataTest, InstantiationBinaryBlobArray) {
+TEST(AstarteTestData, InstantiationBinaryBlobArray) {
   std::vector<std::vector<uint8_t>> value{{0x12U, 0x22U, 0x42}, {0x10U, 0x8FU}};
   auto data = AstarteData(value);
   auto original = data.into<std::vector<std::vector<uint8_t>>>();
   EXPECT_THAT(original, ContainerEq(value));
 }
-TEST(DataTest, FormatBinaryBlobArray) {
+TEST(AstarteTestData, FormatBinaryBlobArray) {
   std::vector<std::vector<uint8_t>> value{{0x12U, 0x22U, 0x42}, {0x10U, 0x8FU}};
   auto data = AstarteData(value);
   auto str = data.format();
   EXPECT_STREQ(str.c_str(), "[\"EiJC\", \"EI8=\"]");
 }
 
-TEST(DataTest, InstantiationDatetimeArray) {
+TEST(AstarteTestData, InstantiationDatetimeArray) {
 #if __cplusplus >= 202002L
   std::chrono::system_clock::time_point datetime0 =
       std::chrono::sys_days(std::chrono::year_month_day(
@@ -249,7 +249,7 @@ TEST(DataTest, InstantiationDatetimeArray) {
   auto original = data.into<std::vector<std::chrono::system_clock::time_point>>();
   EXPECT_THAT(original, ContainerEq(value));
 }
-TEST(DataTest, FormatDatetimeArray) {
+TEST(AstarteTestData, FormatDatetimeArray) {
 #if __cplusplus >= 202002L
   std::chrono::system_clock::time_point datetime0 =
       std::chrono::sys_days(std::chrono::year_month_day(

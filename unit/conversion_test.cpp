@@ -13,7 +13,7 @@ using AstarteDeviceSdk::gRPCAstarteData;
 using AstarteDeviceSdk::GrpcConverterFrom;
 using AstarteDeviceSdk::GrpcConverterTo;
 
-TEST(ConversionTest, DataToGRPC) {
+TEST(AstarteTestConversion, DataToGRPC) {
   int32_t value = 199;
   auto data = AstarteData(value);
   std::unique_ptr<gRPCAstarteData> grpc_individual =
