@@ -21,6 +21,7 @@ add_executable(
   unit_test
   conversion_test.cpp
   data_test.cpp
+  msg_test.cpp
 )
 
 # Add the Astarte sdk root directory
