@@ -98,7 +98,7 @@ class AstarteData {
   template <AstarteDataAllowedType T>
   auto try_into() const -> std::optional<T> {
     if (std::holds_alternative<T>(data_)) {
-      return std::move(std::get<T>(data_));
+      return std::get<T>(data_);
     }
 
     return std::nullopt;
@@ -130,7 +130,7 @@ class AstarteData {
   auto try_into(std::enable_if_t<astarte_data_is_allowed_type<T>::value, bool> /*unused*/ =
                     true) const -> std::optional<T> {
     if (std::holds_alternative<T>(data_)) {
-      return std::move(std::get<T>(data_));
+      return std::get<T>(data_);
     }
 
     return std::nullopt;
