@@ -14,12 +14,13 @@ TestCase device_status() {
       std::vector<std::shared_ptr<TestAction>>{
           TestActionConnect::Create(), TestActionSleep::Create(std::chrono::seconds(1)),
           TestActionCheckDeviceStatus::Create(
-              true, std::vector<std::string>{std::string(astarte_interfaces::DEVICE_DATASTREAM),
-                                             std::string(astarte_interfaces::SERVER_DATASTREAM),
-                                             std::string(astarte_interfaces::DEVICE_AGGREGATE),
-                                             std::string(astarte_interfaces::SERVER_AGGREGATE),
-                                             std::string(astarte_interfaces::DEVICE_PROPERTY),
-                                             std::string(astarte_interfaces::SERVER_PROPERTY)}),
+              true,
+              std::vector<std::string>{std::string(astarte_interfaces::DeviceDatastream::INTERFACE),
+                                       std::string(astarte_interfaces::ServerDatastream::INTERFACE),
+                                       std::string(astarte_interfaces::DeviceAggregate::INTERFACE),
+                                       std::string(astarte_interfaces::ServerAggregate::INTERFACE),
+                                       std::string(astarte_interfaces::DeviceProperty::INTERFACE),
+                                       std::string(astarte_interfaces::ServerProperty::INTERFACE)}),
           TestActionDisconnect::Create(), TestActionSleep::Create(std::chrono::seconds(1))});
 }
 }  // namespace testcases

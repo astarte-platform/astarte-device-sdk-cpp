@@ -8,6 +8,9 @@ project(EndToEndTest)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(ASTARTE_GRPC_VERSION 1.72.0)
+set(ASTARTE_PROTOBUF_VERSION 30.0.0)
+
 include(FetchContent)
 FetchContent_Declare(cpr GIT_REPOSITORY https://github.com/libcpr/cpr.git
                          GIT_TAG 1.11.2)

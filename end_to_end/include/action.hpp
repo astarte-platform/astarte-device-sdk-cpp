@@ -7,6 +7,7 @@
 #include <cpr/cpr.h>
 #include <spdlog/spdlog.h>
 
+#include <chrono>
 #include <memory>
 #include <nlohmann/json.hpp>
 
@@ -25,6 +26,32 @@ using AstarteDeviceSdk::AstarteDatastreamObject;
 using AstarteDeviceSdk::AstarteDevice;
 using AstarteDeviceSdk::AstarteMessage;
 using AstarteDeviceSdk::AstartePropertyIndividual;
+
+/// @brief Convert a time_point to a UTC string
+/// @param timestamp
+/// @return string A string representing the UTC time in the format YYYY-MM-DDTHH:MM:SS.sssZ rturned
+/// by Astarte
+auto time_point_to_utc(const std::chrono::system_clock::time_point* timestamp) -> std::string {
+  auto ms_since_epoch =
+      std::chrono::duration_cast<std::chrono::milliseconds>(timestamp->time_since_epoch());
+  auto s_since_epoch = std::chrono::duration_cast<std::chrono::seconds>(ms_since_epoch);
+  long long milliseconds = (ms_since_epoch - s_since_epoch).count();
+
+  std::time_t c_time = std::chrono::system_clock::to_time_t(*timestamp);
+
+  // get the UTC time structure
+  std::tm* tm_gmt = std::gmtime(&c_time);
+  if (!tm_gmt) {
+    return "Error: Failed to convert to UTC time.";
+  }
+
+  std::ostringstream oss;
+  oss << std::put_time(tm_gmt, "%Y-%m-%dT%H:%M:%S")                // format YYYY-MM-DDTHH:MM:SS
+      << "." << std::setw(3) << std::setfill('0') << milliseconds  // format .sss
+      << "Z";                                                      // append the 'Z' for UTC
+
+  return oss.str();
+}
 
 class TestAction {
  public:
@@ -158,9 +185,12 @@ class TestActionCheckDeviceStatus : public TestAction {
 
 class TestActionTransmitMQTTData : public TestAction {
  public:
+  static std::shared_ptr<TestActionTransmitMQTTData> Create(const AstarteMessage& message) {
+    return std::shared_ptr<TestActionTransmitMQTTData>(new TestActionTransmitMQTTData(message));
+  }
+
   static std::shared_ptr<TestActionTransmitMQTTData> Create(
-      const AstarteMessage& message,
-      const std::chrono::system_clock::time_point* timestamp = nullptr) {
+      const AstarteMessage& message, const std::chrono::system_clock::time_point timestamp) {
     return std::shared_ptr<TestActionTransmitMQTTData>(
         new TestActionTransmitMQTTData(message, timestamp));
   }
@@ -171,23 +201,34 @@ class TestActionTransmitMQTTData : public TestAction {
       if (message_.is_individual()) {
         const auto& data(message_.into<AstarteDatastreamIndividual>());
         device_->send_individual(message_.get_interface(), message_.get_path(), data.get_value(),
-                                 timestamp_);
+                                 timestamp_.get());
       } else {
         const auto& data(message_.into<AstarteDatastreamObject>());
-        device_->send_object(message_.get_interface(), message_.get_path(), data, timestamp_);
+        device_->send_object(message_.get_interface(), message_.get_path(), data, timestamp_.get());
       }
-    } else {
-      // TODO: Handle properties
+    } else {  // handle properties
+      const auto& data(message_.into<AstartePropertyIndividual>());
+
+      if (data.get_value().has_value()) {
+        device_->set_property(message_.get_interface(), message_.get_path(),
+                              data.get_value().value());
+      } else {  // Unsetting property
+        device_->unset_property(message_.get_interface(), message_.get_path());
+      }
     }
   }
 
  private:
+  TestActionTransmitMQTTData(const AstarteMessage& message)
+      : message_(message), timestamp_(nullptr) {}
+
   TestActionTransmitMQTTData(const AstarteMessage& message,
-                             const std::chrono::system_clock::time_point* timestamp)
-      : message_(message), timestamp_(timestamp) {}
+                             const std::chrono::system_clock::time_point timestamp)
+      : message_(message),
+        timestamp_(std::make_unique<std::chrono::system_clock::time_point>(timestamp)) {}
 
   AstarteMessage message_;
-  const std::chrono::system_clock::time_point* timestamp_;
+  std::unique_ptr<std::chrono::system_clock::time_point> timestamp_;
 };
 
 class TestActionReadReceivedMQTTData : public TestAction {
@@ -265,11 +306,16 @@ class TestActionFetchRESTData : public TestAction {
   static std::shared_ptr<TestActionFetchRESTData> Create(const AstarteMessage& message) {
     return std::shared_ptr<TestActionFetchRESTData>(new TestActionFetchRESTData(message));
   }
+  static std::shared_ptr<TestActionFetchRESTData> Create(
+      const AstarteMessage& message, const std::chrono::system_clock::time_point timestamp) {
+    return std::shared_ptr<TestActionFetchRESTData>(
+        new TestActionFetchRESTData(message, timestamp));
+  }
 
   void execute(const std::string& case_name) const override {
     spdlog::info("[{}] Fetching REST data...", case_name);
     std::string request_url = appengine_url_ + "/v1/" + realm_ + "/devices/" + device_id_ +
-                              "/interfaces/" + message_.get_interface();
+                              "/interfaces/" + message_.get_interface() + "/sensor1";
     spdlog::debug("HTTP GET: {}", request_url);
     cpr::Response get_response =
         cpr::Get(cpr::Url{request_url}, cpr::Header{{"Content-Type", "application/json"}},
@@ -284,26 +330,74 @@ class TestActionFetchRESTData : public TestAction {
       spdlog::info("Fetched data: {}", response_json.dump());
       throw EndToEndHTTPException("Fetching of data through REST API failed.");
     }
-    json fetched_data = response_json[message_.get_path()]["value"];
+
     if (message_.is_datastream()) {
       if (message_.is_individual()) {
         const auto& expected_data(message_.into<AstarteDatastreamIndividual>());
         json expected_data_json = json::parse(expected_data.format());
+        json fetched_data = response_json[message_.get_path()]["value"];
+
+        if (expected_data_json != fetched_data) {
+          spdlog::error("Expected data: {}", expected_data_json.dump());
+          spdlog::error("Fetched data: {}", fetched_data.dump());
+          throw EndToEndMismatchException("Fetched REST API data differs from expected data.");
+        }
+
+        // TODO: check timestamp correctness
+        // std::string expected_timestamp = time_point_to_utc(timestamp_.get());
+        // std::string fetched_timestamp = response_json[message_.get_path()]["timestamp"];
+        // if (expected_timestamp != fetched_timestamp) {
+        //   spdlog::error("{}", response_json[message_.get_path()].dump());
+        //   spdlog::error("Expected timestamp: {}", expected_timestamp);
+        //   spdlog::error("Fetched timestamp: {}", fetched_timestamp);
+        //   throw EndToEndMismatchException("Fetched REST API timestamp differs from expected
+        //   data.");
+        // }
+      } else {
+        const auto& expected_data(message_.into<AstarteDatastreamObject>());
+
+        json expected_data_json = json::parse(expected_data.format());
+
+        // Every time the test is repeated, the object size increases by one, because
+        // it retrieves every object data tha has been sent to that interface up to that point.
+        // We only take the last object (i.e., the most recent)
+        size_t last = response_json[message_.get_path()].size() - 1;
+        json fetched_data = response_json[message_.get_path()][last];
+
+        // TODO: check timestamp correctness
+        // expected_data_json.push_back({"timestamp", time_point_to_utc(timestamp_.get())});
+        fetched_data.erase("timestamp");
+
         if (expected_data_json != fetched_data) {
           spdlog::error("Fetched data: {}", fetched_data.dump());
           spdlog::error("Expected data: {}", expected_data_json.dump());
           throw EndToEndMismatchException("Fetched REST API data differs from expected data.");
         }
-      } else {
-        // TODO: Parse an expected Object
       }
     } else {
       // TODO: Parse properties
+      const auto& expected_data(message_.into<AstartePropertyIndividual>());
+      json expected_data_json = json::parse(expected_data.format());
+      spdlog::error("Expected data: {}", expected_data_json.dump());
+
+      spdlog::info("RESPONSE JSON: {}", response_json[message_.get_path()].dump());
+      json fetched_data = response_json[message_.get_path()]["value"];
+      spdlog::error("Fetched data: {}", fetched_data.dump());
+
+      if (expected_data_json != fetched_data) {
+        throw EndToEndMismatchException("Fetched REST API data differs from expected data.");
+      }
     }
   }
 
  private:
-  TestActionFetchRESTData(const AstarteMessage& message) : message_(message) {}
+  TestActionFetchRESTData(const AstarteMessage& message) : message_(message), timestamp_(nullptr) {}
+
+  TestActionFetchRESTData(const AstarteMessage& message,
+                          const std::chrono::system_clock::time_point timestamp)
+      : message_(message),
+        timestamp_(std::make_unique<std::chrono::system_clock::time_point>(timestamp)) {}
 
   AstarteMessage message_;
+  std::unique_ptr<std::chrono::system_clock::time_point> timestamp_;
 };
