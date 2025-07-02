@@ -38,20 +38,9 @@ jobs:
       - name: Compile gRPC from source
         run: |
           ./astarte-device-sdk-cpp/.github/scripts/build-grpc.sh
-      - name: Build the unit tests (C++ 20)
-        working-directory: ./astarte-device-sdk-cpp/unit
-        run: |
-          cmake -DASTARTE_USE_SYSTEM_GRPC=ON -DASTARTE_ENABLE_FORMAT=ON -DASTARTE_PUBLIC_PROTO_DEP=ON -DCMAKE_CXX_STANDARD=20 -DCMAKE_CXX_STANDARD_REQUIRED=ON -S . -B build
-          cmake --build build
-      - name: Run the unit tests
-        working-directory: ./astarte-device-sdk-cpp/unit/build
-        run: ctest || ./unit_test
+      - name: Run the unit tests (C++ 20)
+        working-directory: ./astarte-device-sdk-cpp
+        run: ./unit.sh --system_grpc --stdcpp 20
       - name: Build the unit tests (C++ 17)
-        working-directory: ./astarte-device-sdk-cpp/unit
-        run: |
-          rm -r ./build
-          cmake -DASTARTE_USE_SYSTEM_GRPC=ON -DASTARTE_ENABLE_FORMAT=ON -DASTARTE_PUBLIC_PROTO_DEP=ON -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_STANDARD_REQUIRED=ON -S . -B build
-          cmake --build build
-      - name: Run the unit tests
-        working-directory: ./astarte-device-sdk-cpp/unit/build
-        run: ctest || ./unit_test
+        working-directory: ./astarte-device-sdk-cpp
+        run: ./unit.sh --system_grpc --stdcpp 17
