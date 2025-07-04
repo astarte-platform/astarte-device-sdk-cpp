@@ -4,20 +4,49 @@
 
 #pragma once
 
+#include <string>
 #include <string_view>
 
 namespace astarte_interfaces {
 // Datastream
-constexpr std::string_view DEVICE_DATASTREAM =
-    "org.astarte-platform.cpp.end-to-end.DeviceDatastream";
-constexpr std::string_view SERVER_DATASTREAM =
-    "org.astarte-platform.cpp.end-to-end.ServerDatastream";
+struct DeviceDatastream {
+  static constexpr std::string_view INTERFACE =
+      "org.astarte-platform.cpp.end-to-end.DeviceDatastream";
+  static constexpr std::string_view FILE =
+      "end_to_end/interfaces/org.astarte-platform.cpp.end-to-end.DeviceDatastream.json";
+};
+struct ServerDatastream {
+  static constexpr std::string_view INTERFACE =
+      "org.astarte-platform.cpp.end-to-end.ServerDatastream";
+  static constexpr std::string_view FILE =
+      "end_to_end/interfaces/org.astarte-platform.cpp.end-to-end.ServerDatastream.json";
+};
 
 // Property
-constexpr std::string_view DEVICE_PROPERTY = "org.astarte-platform.cpp.end-to-end.DeviceProperty";
-constexpr std::string_view SERVER_PROPERTY = "org.astarte-platform.cpp.end-to-end.ServerProperty";
+struct DeviceProperty {
+  static constexpr std::string_view INTERFACE =
+      "org.astarte-platform.cpp.end-to-end.DeviceProperty";
+  static constexpr std::string_view FILE =
+      "end_to_end/interfaces/org.astarte-platform.cpp.end-to-end.DeviceProperty.json";
+};
+struct ServerProperty {
+  static constexpr std::string_view INTERFACE =
+      "org.astarte-platform.cpp.end-to-end.ServerProperty";
+  static constexpr std::string_view FILE =
+      "end_to_end/interfaces/org.astarte-platform.cpp.end-to-end.ServerProperty.json";
+};
 
 // Aggregate
-constexpr std::string_view DEVICE_AGGREGATE = "org.astarte-platform.cpp.end-to-end.DeviceAggregate";
-constexpr std::string_view SERVER_AGGREGATE = "org.astarte-platform.cpp.end-to-end.ServerAggregate";
+struct DeviceAggregate {
+  static constexpr std::string_view INTERFACE =
+      "org.astarte-platform.cpp.end-to-end.DeviceAggregate";
+  static constexpr std::string_view FILE =
+      "end_to_end/interfaces/org.astarte-platform.cpp.end-to-end.DeviceAggregate.json";
+};
+struct ServerAggregate {
+  static constexpr std::string_view INTERFACE =
+      "org.astarte-platform.cpp.end-to-end.ServerAggregate";
+  static constexpr std::string_view FILE =
+      "end_to_end/interfaces/org.astarte-platform.cpp.end-to-end.ServerAggregate.json";
+};
 }  // namespace astarte_interfaces
