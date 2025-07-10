@@ -23,6 +23,7 @@
 #include "astarte_device_sdk/msg.hpp"
 #include "astarte_device_sdk/object.hpp"
 #include "astarte_device_sdk/property.hpp"
+#include "grpc_formatter.hpp"
 
 namespace AstarteDeviceSdk {
 
@@ -268,7 +269,7 @@ auto GrpcConverterTo::operator()(const std::optional<AstarteData> &value)
 
 // NOLINTBEGIN(readability-function-size)
 auto GrpcConverterFrom::operator()(const gRPCAstarteData &value) -> AstarteData {
-  spdlog::trace("Converting Astarte data from gRPC.");
+  spdlog::trace("Converting Astarte data from gRPC, message: \n{}", value);
   switch (value.astarte_data_case()) {
     case gRPCAstarteData::kDouble:
       spdlog::trace("Case kDouble");
@@ -342,14 +343,14 @@ auto GrpcConverterFrom::operator()(const gRPCAstarteData &value) -> AstarteData 
 
 auto GrpcConverterFrom::operator()(const gRPCAstarteDatastreamIndividual &value)
     -> AstarteDatastreamIndividual {
-  spdlog::trace("Converting Astarte datastream individual from gRPC.");
+  spdlog::trace("Converting Astarte datastream individual from gRPC, message: \n{}", value);
   const gRPCAstarteData &grpc_data(value.data());
   return AstarteDatastreamIndividual((*this)(grpc_data));
 }
 
 auto GrpcConverterFrom::operator()(const gRPCAstarteDatastreamObject &value)
     -> AstarteDatastreamObject {
-  spdlog::trace("Converting Astarte datastream object from gRPC.");
+  spdlog::trace("Converting Astarte datastream object from gRPC, message: \n{}", value);
   AstarteDatastreamObject object;
   const google::protobuf::Map<std::string, gRPCAstarteData> &grpc_data = value.data();
   for (const auto &[key, data] : grpc_data) {
@@ -360,7 +361,7 @@ auto GrpcConverterFrom::operator()(const gRPCAstarteDatastreamObject &value)
 
 auto GrpcConverterFrom::operator()(const gRPCAstartePropertyIndividual &value)
     -> AstartePropertyIndividual {
-  spdlog::trace("Converting Astarte property individual from gRPC.");
+  spdlog::trace("Converting Astarte property individual from gRPC, message: \n{}", value);
   if (value.has_data()) {
     const gRPCAstarteData &grpc_data(value.data());
     return AstartePropertyIndividual((*this)(grpc_data));
@@ -369,7 +370,7 @@ auto GrpcConverterFrom::operator()(const gRPCAstartePropertyIndividual &value)
 }
 
 auto GrpcConverterFrom::operator()(const gRPCAstarteMessage &value) -> AstarteMessage {
-  spdlog::trace("Converting Astarte message from gRPC.");
+  spdlog::trace("Converting Astarte message from gRPC, message: \n{}", value);
   if (value.has_datastream_individual()) {
     const gRPCAstarteDatastreamIndividual &grpc_datastream_individual =
         value.datastream_individual();
