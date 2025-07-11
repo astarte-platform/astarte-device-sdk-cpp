@@ -11,6 +11,7 @@
 
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/device_grpc.hpp"
+#include "astarte_device_sdk/formatter.hpp"
 #include "astarte_device_sdk/msg.hpp"
 
 using namespace AstarteDeviceSdk;
@@ -39,7 +40,7 @@ class AstarteWorker : public QObject {
     auto incoming = device->poll_incoming(std::chrono::milliseconds(0));
     if (incoming.has_value()) {
       AstarteMessage msg(incoming.value());
-      qDebug() << "Received:" << QString::fromStdString(msg.format());
+      qDebug() << "Received:" << QString::fromStdString(fmt::format("{}", msg));
     }
   }
 

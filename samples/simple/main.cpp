@@ -31,16 +31,16 @@ void reception_handler(std::shared_ptr<AstarteDeviceGRPC> msghub_client) {
         if (msg.is_individual()) {
           spdlog::info("Type: individual datastream");
           const auto &data(msg.into<AstarteDatastreamIndividual>());
-          spdlog::info("Value: {}", data.format());
+          spdlog::info("Value: {}", data);
         } else {
           spdlog::info("Type: object datastream");
           const auto &data(msg.into<AstarteDatastreamObject>());
-          spdlog::info("Value: {}", data.format());
+          spdlog::info("Value: {}", data);
         }
       } else {
         spdlog::info("Type: individual property");
         const auto &data(msg.into<AstartePropertyIndividual>());
-        spdlog::info("Value: {}", data.format());
+        spdlog::info("Value: {}", data);
       }
     }
   }

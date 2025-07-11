@@ -39,12 +39,12 @@ class AstarteMessage {
    * @brief Get the interface of the message.
    * @return The interface.
    */
-  [[nodiscard]] auto get_interface() const -> const std::string&;
+  [[nodiscard]] auto get_interface() const -> const std::string &;
   /**
    * @brief Get the path of the message.
    * @return The path.
    */
-  [[nodiscard]] auto get_path() const -> const std::string&;
+  [[nodiscard]] auto get_path() const -> const std::string &;
   /**
    * @brief Check if this message contains a datastream.
    * @return True if the message contains a datastream, false otherwise.
@@ -60,7 +60,7 @@ class AstarteMessage {
    * @return The value contained in the message.
    */
   template <typename T>
-  [[nodiscard]] auto into() const -> const T& {
+  [[nodiscard]] auto into() const -> const T & {
     return std::get<T>(data_);
   }
   /**
@@ -81,26 +81,19 @@ class AstarteMessage {
    */
   [[nodiscard]] auto get_raw_data() const
       -> const std::variant<AstarteDatastreamIndividual, AstarteDatastreamObject,
-                            AstartePropertyIndividual>&;
-#if defined(ASTARTE_FORMAT_ENABLED)
-  /**
-   * @brief Pretty format the Astarte message.
-   * @return A string representing in human readable format the content of the class instance.
-   */
-  [[nodiscard]] auto format() const -> std::string;
-#endif
+                            AstartePropertyIndividual> &;
   /**
    * @brief Overloader for the comparison operator ==.
    * @param other The object to compare to.
    * @return True when equal, false otherwise.
    */
-  [[nodiscard]] auto operator==(const AstarteMessage& other) const -> bool;
+  [[nodiscard]] auto operator==(const AstarteMessage &other) const -> bool;
   /**
    * @brief Overloader for the comparison operator !=.
    * @param other The object to compare to.
    * @return True when different, false otherwise.
    */
-  [[nodiscard]] auto operator!=(const AstarteMessage& other) const -> bool;
+  [[nodiscard]] auto operator!=(const AstarteMessage &other) const -> bool;
 
  private:
   std::string interface_;

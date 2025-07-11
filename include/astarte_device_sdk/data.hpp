@@ -88,7 +88,7 @@ class AstarteData {
    * @return The value contained in the class instance.
    */
   template <AstarteDataAllowedType T>
-  auto into() const -> const T& {
+  auto into() const -> const T & {
     return std::get<T>(data_);
   }
   /**
@@ -119,7 +119,7 @@ class AstarteData {
    */
   template <typename T>
   auto into(std::enable_if_t<astarte_data_is_allowed_type<T>::value, bool> /*unused*/ = true) const
-      -> const T& {
+      -> const T & {
     return std::get<T>(data_);
   }
   /**
@@ -136,14 +136,6 @@ class AstarteData {
     return std::nullopt;
   }
 #endif  // __cplusplus >= 202002L
-
-#if defined(ASTARTE_FORMAT_ENABLED)
-  /**
-   * @brief Pretty format the Astarte data.
-   * @return A string representing in human readable format the content of the class instance.
-   */
-  [[nodiscard]] auto format() const -> std::string;
-#endif
   /**
    * @brief Get the type of the data contained in this class instance.
    * @return The type of the content of this class instance.
@@ -159,19 +151,19 @@ class AstarteData {
                             std::chrono::system_clock::time_point, std::vector<int32_t>,
                             std::vector<int64_t>, std::vector<double>, std::vector<bool>,
                             std::vector<std::string>, std::vector<std::vector<uint8_t>>,
-                            std::vector<std::chrono::system_clock::time_point>>&;
+                            std::vector<std::chrono::system_clock::time_point>> &;
   /**
    * @brief Overloader for the comparison operator ==.
    * @param other The object to compare to.
    * @return True when equal, false otherwise.
    */
-  [[nodiscard]] auto operator==(const AstarteData& other) const -> bool;
+  [[nodiscard]] auto operator==(const AstarteData &other) const -> bool;
   /**
    * @brief Overloader for the comparison operator !=.
    * @param other The object to compare to.
    * @return True when different, false otherwise.
    */
-  [[nodiscard]] auto operator!=(const AstarteData& other) const -> bool;
+  [[nodiscard]] auto operator!=(const AstarteData &other) const -> bool;
 
  private:
   std::variant<int32_t, int64_t, double, bool, std::string, std::vector<uint8_t>,

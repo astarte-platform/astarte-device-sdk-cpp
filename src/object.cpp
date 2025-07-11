@@ -52,21 +52,6 @@ auto AstarteDatastreamObject::find(const std::string& key) -> iterator { return 
 auto AstarteDatastreamObject::find(const std::string& key) const -> const_iterator {
   return data_.find(key);
 }
-#if defined(ASTARTE_FORMAT_ENABLED)
-// Format the map content
-auto AstarteDatastreamObject::format() const -> std::string {
-  std::ostringstream oss;
-  bool first = true;
-  for (const auto& pair : data_) {
-    if (!first) {
-      oss << ", ";
-    }
-    oss << "\"" << pair.first << "\": " << pair.second.format();
-    first = false;
-  }
-  return oss.str();
-}
-#endif
 
 auto AstarteDatastreamObject::get_raw_data() const -> const MapType& { return this->data_; }
 

@@ -84,7 +84,7 @@ target_link_libraries(astarte_device_sdk
 # Link the dependencies within the library
 if(ASTARTE_ENABLE_FORMAT)
     target_compile_definitions(astarte_device_sdk PUBLIC ASTARTE_FORMAT_ENABLED)
-    target_link_libraries(astarte_device_sdk PRIVATE base64)
+    target_link_libraries(astarte_device_sdk PUBLIC base64)
 endif()
 if(ASTARTE_PUBLIC_SPDLOG_DEP)
     target_link_libraries(astarte_device_sdk PUBLIC spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)

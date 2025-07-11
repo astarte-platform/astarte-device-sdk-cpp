@@ -43,18 +43,4 @@ auto AstarteMessage::operator!=(const AstarteMessage &other) const -> bool {
          this->data_ != other.get_raw_data();
 }
 
-#if defined(ASTARTE_FORMAT_ENABLED)
-auto AstarteMessage::format() const -> std::string {
-  std::ostringstream oss;
-  oss << "{interface: " << interface_ << ", path: " << path_;
-  const std::string formatted_data =
-      std::visit([](const auto &arg) { return arg.format(); }, data_);
-  if (!formatted_data.empty()) {
-    oss << ", value: " << formatted_data;
-  }
-  oss << "}";
-  return oss.str();
-}
-#endif
-
 }  // namespace AstarteDeviceSdk

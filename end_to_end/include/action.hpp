@@ -12,6 +12,7 @@
 
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/device_grpc.hpp"
+#include "astarte_device_sdk/formatter.hpp"
 #include "astarte_device_sdk/msg.hpp"
 #include "astarte_device_sdk/object.hpp"
 #include "exceptions.hpp"
@@ -211,8 +212,8 @@ class TestActionReadReceivedMQTTData : public TestAction {
     AstarteMessage received = rx_queue_->pop().value();
     if (received != message_) {
       spdlog::error("Received message differs from expected.");
-      spdlog::error("Received: {}", received.format());
-      spdlog::error("Expected: {}", message_.format());
+      spdlog::error("Received: {}", received);
+      spdlog::error("Expected: {}", message_);
       throw EndToEndMismatchException("Expected and received data differ.");
     }
   }
@@ -236,7 +237,7 @@ class TestActionTransmitRESTData : public TestAction {
     if (message_.is_datastream()) {
       if (message_.is_individual()) {
         const auto& data(message_.into<AstarteDatastreamIndividual>());
-        std::string payload = "{\"data\":" + data.format() + "}";
+        std::string payload = fmt::format("{{\"data\":{}}}", data);
         spdlog::debug("HTTP POST: {} {}", request_url, payload);
         cpr::Response post_response =
             cpr::Post(cpr::Url{request_url}, cpr::Body{payload},
@@ -288,7 +289,7 @@ class TestActionFetchRESTData : public TestAction {
     if (message_.is_datastream()) {
       if (message_.is_individual()) {
         const auto& expected_data(message_.into<AstarteDatastreamIndividual>());
-        json expected_data_json = json::parse(expected_data.format());
+        json expected_data_json = json::parse(fmt::format("{}", expected_data));
         if (expected_data_json != fetched_data) {
           spdlog::error("Fetched data: {}", fetched_data.dump());
           spdlog::error("Expected data: {}", expected_data_json.dump());

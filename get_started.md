@@ -196,6 +196,7 @@ A couple of assumptions have been made:
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/device_grpc.hpp"
 #include "astarte_device_sdk/msg.hpp"
+#include "astarte_device_sdk/formatter.hpp"
 
 using AstarteDeviceSdk::AstarteData;
 using AstarteDeviceSdk::AstarteDatastreamIndividual;
@@ -215,14 +216,14 @@ void reception_handler(std::shared_ptr<AstarteDeviceGRPC> device) {
       if (msg.is_datastream()) {
         if (msg.is_individual()) {
           const auto &data(msg.into<AstarteDatastreamIndividual>());
-          std::cout << "Value: {}" << data.format()<< std::endl;
+          std::cout << "Value: {}" << fmt::format("{}", data) << std::endl;
         } else {
           const auto &data(msg.into<AstarteDatastreamObject>());
-          std::cout << "Value: {}" << data.format()<< std::endl;
+          std::cout << "Value: {}" << fmt::format("{}", data) << std::endl;
         }
       } else {
         const auto &data(msg.into<AstartePropertyIndividual>());
-          std::cout << "Value: {}" << data.format()<< std::endl;
+          std::cout << "Value: {}" << fmt::format("{}", data) << std::endl;
       }
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
