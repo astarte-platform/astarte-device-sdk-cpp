@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   of `AstarteObject`) classes, representing the different Astarte data types.
 - `get_starded.md`, a step by step guide useful to try the SDK functionalities
   guide.
+- Add e2e test to check sending and receiving operation to/from Astarte. [#54](https://github.com/astarte-platform/astarte-device-sdk-cpp/pull/54)
 
 ### Changed
 - Bump the Astarte message hub proto definitions to v0.8.2.

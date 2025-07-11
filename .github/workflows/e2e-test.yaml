@@ -24,7 +24,7 @@ jobs:
       matrix:
         # TODO: we use the commit hash of the message hub master branch.
         # This should be replaced with a proper version tag once message hub v0.8.0 is released.
-        msghub-version: ["cebb0bbf49aa97be5dbf7c3f5580e0b832230645"]
+        msghub-version: ["b97fc84ccc5f4f2a1b9f211170d672dd7be69ce0"]
         grpc-version: ["1.69.0"]
     steps:
       - name: Checkout C++ client
