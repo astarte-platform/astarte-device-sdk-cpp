@@ -13,6 +13,8 @@
 namespace testcases {
 using namespace std::chrono_literals;
 
+using AstarteDeviceSdk::AstarteOwnership;
+
 TestCase device_property() {
   return TestCase(
       "Device property to Astarte",
@@ -222,4 +224,122 @@ TestCase device_property() {
           TestActionSleep::Create(std::chrono::seconds(1)), TestActionDisconnect::Create(),
           TestActionSleep::Create(std::chrono::seconds(1))});
 }
+
+TestCase device_property_getter() {
+  return TestCase(
+      "Device property getter",
+      std::vector<std::shared_ptr<TestAction>>{
+          TestActionConnect::Create(), TestActionSleep::Create(std::chrono::seconds(1)),
+
+          TestActionTransmitMQTTData::Create(
+              AstarteMessage(astarte_interfaces::DeviceProperty::INTERFACE, "/integer_endpoint",
+                             AstartePropertyIndividual(AstarteData(12)))),
+          TestActionTransmitMQTTData::Create(
+              AstarteMessage(astarte_interfaces::DeviceProperty::INTERFACE, "/double_endpoint",
+                             AstartePropertyIndividual(AstarteData(54.4)))),
+          TestActionTransmitMQTTData::Create(
+              AstarteMessage(astarte_interfaces::DeviceProperty::INTERFACE, "/boolean_endpoint",
+                             AstartePropertyIndividual(AstarteData(true)))),
+          TestActionTransmitMQTTData::Create(AstarteMessage(
+              astarte_interfaces::DeviceProperty::INTERFACE, "/integerarray_endpoint",
+              AstartePropertyIndividual(AstarteData(std::vector<int32_t>{13, 2})))),
+          TestActionTransmitMQTTData::Create(
+              AstarteMessage(astarte_interfaces::DeviceProperty::INTERFACE, "/doublearray_endpoint",
+                             AstartePropertyIndividual(AstarteData(std::vector<double>{0.5})))),
+
+          TestActionSleep::Create(std::chrono::seconds(1)),
+
+          TestActionGetDeviceProperty::Create(astarte_interfaces::DeviceProperty::INTERFACE,
+                                              "/integer_endpoint",
+                                              AstartePropertyIndividual(AstarteData(12))),
+          TestActionGetDeviceProperty::Create(astarte_interfaces::DeviceProperty::INTERFACE,
+                                              "/double_endpoint",
+                                              AstartePropertyIndividual(AstarteData(54.4))),
+          TestActionGetDeviceProperty::Create(astarte_interfaces::DeviceProperty::INTERFACE,
+                                              "/boolean_endpoint",
+                                              AstartePropertyIndividual(AstarteData(true))),
+          TestActionGetDeviceProperty::Create(
+              astarte_interfaces::DeviceProperty::INTERFACE, "/integerarray_endpoint",
+              AstartePropertyIndividual(AstarteData(std::vector<int32_t>{13, 2}))),
+          TestActionGetDeviceProperty::Create(
+              astarte_interfaces::DeviceProperty::INTERFACE, "/doublearray_endpoint",
+              AstartePropertyIndividual(AstarteData(std::vector<double>{0.5}))),
+
+          TestActionGetDeviceProperties::Create(
+              astarte_interfaces::DeviceProperty::INTERFACE,
+              {AstarteStoredProperty(astarte_interfaces::DeviceProperty::INTERFACE,
+                                     "/integer_endpoint", 0, AstarteOwnership::kDevice,
+                                     AstarteData(12)),
+               AstarteStoredProperty(astarte_interfaces::DeviceProperty::INTERFACE,
+                                     "/double_endpoint", 0, AstarteOwnership::kDevice,
+                                     AstarteData(54.4)),
+               AstarteStoredProperty(astarte_interfaces::DeviceProperty::INTERFACE,
+                                     "/boolean_endpoint", 0, AstarteOwnership::kDevice,
+                                     AstarteData(true)),
+               AstarteStoredProperty(astarte_interfaces::DeviceProperty::INTERFACE,
+                                     "/integerarray_endpoint", 0, AstarteOwnership::kDevice,
+                                     AstarteData(std::vector<int32_t>{13, 2})),
+               AstarteStoredProperty(astarte_interfaces::DeviceProperty::INTERFACE,
+                                     "/doublearray_endpoint", 0, AstarteOwnership::kDevice,
+                                     AstarteData(std::vector<double>{0.5}))}),
+
+          TestActionGetAllDeviceProperties::Create(
+              std::nullopt,
+              {AstarteStoredProperty(astarte_interfaces::DeviceProperty::INTERFACE,
+                                     "/integer_endpoint", 0, AstarteOwnership::kDevice,
+                                     AstarteData(12)),
+               AstarteStoredProperty(astarte_interfaces::DeviceProperty::INTERFACE,
+                                     "/double_endpoint", 0, AstarteOwnership::kDevice,
+                                     AstarteData(54.4)),
+               AstarteStoredProperty(astarte_interfaces::DeviceProperty::INTERFACE,
+                                     "/boolean_endpoint", 0, AstarteOwnership::kDevice,
+                                     AstarteData(true)),
+               AstarteStoredProperty(astarte_interfaces::DeviceProperty::INTERFACE,
+                                     "/integerarray_endpoint", 0, AstarteOwnership::kDevice,
+                                     AstarteData(std::vector<int32_t>{13, 2})),
+               AstarteStoredProperty(astarte_interfaces::DeviceProperty::INTERFACE,
+                                     "/doublearray_endpoint", 0, AstarteOwnership::kDevice,
+                                     AstarteData(std::vector<double>{0.5}))}),
+
+          TestActionSleep::Create(std::chrono::seconds(1)),
+
+          TestActionFetchRESTData::Create(
+              AstarteMessage(astarte_interfaces::DeviceProperty::INTERFACE, "integer_endpoint",
+                             AstartePropertyIndividual(AstarteData(12)))),
+          TestActionFetchRESTData::Create(
+              AstarteMessage(astarte_interfaces::DeviceProperty::INTERFACE, "double_endpoint",
+                             AstartePropertyIndividual(AstarteData(54.4)))),
+          TestActionFetchRESTData::Create(
+              AstarteMessage(astarte_interfaces::DeviceProperty::INTERFACE, "boolean_endpoint",
+                             AstartePropertyIndividual(AstarteData(true)))),
+          TestActionFetchRESTData::Create(
+              AstarteMessage(astarte_interfaces::DeviceProperty::INTERFACE, "integerarray_endpoint",
+                             AstartePropertyIndividual(AstarteData(std::vector<int32_t>{13, 2})))),
+          TestActionFetchRESTData::Create(
+              AstarteMessage(astarte_interfaces::DeviceProperty::INTERFACE, "doublearray_endpoint",
+                             AstartePropertyIndividual(AstarteData(std::vector<double>{0.5})))),
+
+          TestActionSleep::Create(std::chrono::seconds(1)),
+
+          // unsetting properties
+          TestActionTransmitMQTTData::Create(
+              AstarteMessage(astarte_interfaces::DeviceProperty::INTERFACE, "/integer_endpoint",
+                             AstartePropertyIndividual(std::nullopt))),
+          TestActionTransmitMQTTData::Create(
+              AstarteMessage(astarte_interfaces::DeviceProperty::INTERFACE, "/double_endpoint",
+                             AstartePropertyIndividual(std::nullopt))),
+          TestActionTransmitMQTTData::Create(
+              AstarteMessage(astarte_interfaces::DeviceProperty::INTERFACE, "/boolean_endpoint",
+                             AstartePropertyIndividual(std::nullopt))),
+          TestActionTransmitMQTTData::Create(
+              AstarteMessage(astarte_interfaces::DeviceProperty::INTERFACE,
+                             "/integerarray_endpoint", AstartePropertyIndividual(std::nullopt))),
+          TestActionTransmitMQTTData::Create(
+              AstarteMessage(astarte_interfaces::DeviceProperty::INTERFACE, "/doublearray_endpoint",
+                             AstartePropertyIndividual(std::nullopt))),
+
+          TestActionSleep::Create(std::chrono::seconds(1)), TestActionDisconnect::Create(),
+          TestActionSleep::Create(std::chrono::seconds(1))});
+}
+
 }  // namespace testcases

@@ -92,6 +92,8 @@ file_patterns=(
     "unit/"*.cpp
     "end_to_end/src/"*.cpp
     "end_to_end/include/"*.hpp
+    "end_to_end/include/constants/"*.hpp
+    "end_to_end/include/testcases/"*.hpp
 )
 
 command_args=("--style=file")

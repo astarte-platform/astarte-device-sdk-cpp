@@ -13,7 +13,6 @@
 #include <optional>
 #include <string>
 #include <string_view>
-#include <utility>
 #include <variant>
 
 #include "astarte_device_sdk/individual.hpp"
@@ -32,8 +31,8 @@ class AstarteMessage {
    * @param data The data for the message.
    */
   template <typename T>
-  AstarteMessage(std::string_view interface, std::string path, T data)
-      : interface_(interface), path_(std::move(path)), data_(data) {}
+  AstarteMessage(std::string_view interface, std::string_view path, T data)
+      : interface_(interface), path_(path), data_(data) {}
 
   /**
    * @brief Get the interface of the message.

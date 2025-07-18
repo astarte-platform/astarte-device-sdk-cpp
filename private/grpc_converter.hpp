@@ -7,9 +7,12 @@
 
 #include <astarteplatform/msghub/astarte_data.pb.h>
 #include <astarteplatform/msghub/astarte_message.pb.h>
+#include <astarteplatform/msghub/interface.pb.h>
+#include <astarteplatform/msghub/property.pb.h>
 
 #include <chrono>
 #include <cstdint>
+#include <list>
 #include <memory>
 #include <optional>
 #include <string>
@@ -19,7 +22,9 @@
 #include "astarte_device_sdk/individual.hpp"
 #include "astarte_device_sdk/msg.hpp"
 #include "astarte_device_sdk/object.hpp"
+#include "astarte_device_sdk/ownership.hpp"
 #include "astarte_device_sdk/property.hpp"
+#include "astarte_device_sdk/stored_property.hpp"
 
 namespace AstarteDeviceSdk {
 
@@ -28,6 +33,8 @@ using gRPCAstarteDatastreamIndividual = astarteplatform::msghub::AstarteDatastre
 using gRPCAstarteDatastreamObject = astarteplatform::msghub::AstarteDatastreamObject;
 using gRPCAstartePropertyIndividual = astarteplatform::msghub::AstartePropertyIndividual;
 using gRPCAstarteMessage = astarteplatform::msghub::AstarteMessage;
+using gRPCStoredProperties = astarteplatform::msghub::StoredProperties;
+using gRPCOwnership = astarteplatform::msghub::Ownership;
 
 class GrpcConverterTo {
  public:
@@ -64,6 +71,8 @@ class GrpcConverterFrom {
   auto operator()(const gRPCAstarteDatastreamObject &value) -> AstarteDatastreamObject;
   auto operator()(const gRPCAstartePropertyIndividual &value) -> AstartePropertyIndividual;
   auto operator()(const gRPCAstarteMessage &value) -> AstarteMessage;
+  auto operator()(const gRPCOwnership &value) -> AstarteOwnership;
+  auto operator()(const gRPCStoredProperties &value) -> std::list<AstarteStoredProperty>;
 };
 
 }  // namespace AstarteDeviceSdk

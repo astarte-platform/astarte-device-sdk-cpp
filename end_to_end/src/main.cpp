@@ -50,6 +50,7 @@ int main() {
   orchestrator.add_test_case(testcases::device_aggregate());
   orchestrator.add_test_case(testcases::server_aggregate());
   orchestrator.add_test_case(testcases::device_property());
+  orchestrator.add_test_case(testcases::device_property_getter());
   orchestrator.add_test_case(testcases::server_property());
   orchestrator.add_test_case(testcases::server_property_on_new_device());
 
