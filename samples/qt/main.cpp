@@ -11,6 +11,7 @@
 
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/device_grpc.hpp"
+#include "astarte_device_sdk/formatter.hpp"
 #include "astarte_device_sdk/msg.hpp"
 
 using namespace AstarteDeviceSdk;
@@ -40,7 +41,7 @@ class AstarteWorker : public QObject {
     if (incoming.has_value()) {
       AstarteMessage msg(incoming.value());
 #if defined(ASTARTE_FORMAT_ENABLED)
-      qDebug() << "Received:" << QString::fromStdString(msg.format());
+      qDebug() << "Received:" << QString::fromStdString(NS_FORMAT::format("{}", msg));
 #endif
     }
   }

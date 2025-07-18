@@ -160,8 +160,6 @@ tidy_options_array+=("-p=${build_dir}")
 
 # Define source files for clang-tidy
 source_files=(
-    "include/astarte_device_sdk/"*.hpp
-    "private/"*.hpp
     "src/"*.cpp
 )
 

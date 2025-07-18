@@ -5,8 +5,6 @@
 #include "astarte_device_sdk/property.hpp"
 
 #include <optional>
-#include <sstream>
-#include <string>
 
 #include "astarte_device_sdk/data.hpp"
 
@@ -25,14 +23,5 @@ auto AstartePropertyIndividual::operator==(const AstartePropertyIndividual &othe
 auto AstartePropertyIndividual::operator!=(const AstartePropertyIndividual &other) const -> bool {
   return this->get_value() != other.get_value();
 }
-#if defined(ASTARTE_FORMAT_ENABLED)
-auto AstartePropertyIndividual::format() const -> std::string {
-  std::ostringstream oss;
-  if (data_.has_value()) {
-    oss << data_.value().format();
-  }
-  return oss.str();
-}
-#endif
 
 }  // namespace AstarteDeviceSdk

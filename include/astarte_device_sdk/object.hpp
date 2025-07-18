@@ -122,13 +122,6 @@ class AstarteDatastreamObject {
    * @return An iterator to the requested element.
    */
   auto find(const std::string& key) const -> const_iterator;
-#if defined(ASTARTE_FORMAT_ENABLED)
-  /**
-   * @brief Pretty format the Astarte object.
-   * @return A string representing in human readable format the content of the class instance.
-   */
-  auto format() const -> std::string;
-#endif
   /**
    * @brief Return the raw data contained in this class instance.
    * @return The raw data contained in this class instance.

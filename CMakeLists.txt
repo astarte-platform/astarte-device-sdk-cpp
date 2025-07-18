@@ -4,6 +4,11 @@
 
 cmake_minimum_required(VERSION 3.15)
 
+# TODO: remove once the minimum required C++ standard becomes C++20
+if(CMAKE_CXX_STANDARD GREATER 17)
+    set(SPDLOG_USE_STD_FORMAT true)
+endif()
+
 project(
   AstarteDeviceSDKcpp
   VERSION 0.5.99
