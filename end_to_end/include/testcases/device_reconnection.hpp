@@ -17,12 +17,11 @@ TestCase device_reconnection() {
           TestActionConnect::Create(), TestActionSleep::Create(std::chrono::seconds(1)),
           TestActionDisconnect::Create(), TestActionSleep::Create(std::chrono::seconds(1)),
 
-          // before reconnecting, we try to send an AstarteIndividual, which should print a
-          // warning and avoid sending the data
+          // before reconnecting, we try to send an AstarteIndividual, which should fail
           TestActionTransmitMQTTData::Create(
               AstarteMessage(astarte_interfaces::DeviceDatastream::INTERFACE, "/integer_endpoint",
                              AstarteDatastreamIndividual(AstarteData(12))),
-              astarte_time::TIMESTAMP),
+              astarte_time::TIMESTAMP, true),
           TestActionSleep::Create(std::chrono::seconds(1)),
 
           TestActionConnect::Create(), TestActionSleep::Create(std::chrono::seconds(1)),

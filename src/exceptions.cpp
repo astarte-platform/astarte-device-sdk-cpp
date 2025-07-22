@@ -5,21 +5,24 @@
 #include "astarte_device_sdk/exceptions.hpp"
 
 #include <string>
-#include <utility>
+#include <string_view>
 
 namespace AstarteDeviceSdk {
 
-AstarteException::AstarteException(std::string message) : message_(std::move(message)) {}
+AstarteException::AstarteException(std::string_view message) : message_(message) {}
 auto AstarteException::what() const noexcept -> const char* { return message_.c_str(); }
 
-AstarteFileOpenException::AstarteFileOpenException(const std::string& filename)
-    : AstarteException("Failed to open file: " + filename), filename_(filename) {}
+AstarteFileOpenException::AstarteFileOpenException(std::string_view filename)
+    : AstarteException("Failed to open file: " + std::string(filename)), filename_(filename) {}
 auto AstarteFileOpenException::get_filename() const -> const std::string& { return filename_; }
 
-AstarteInvalidInputException::AstarteInvalidInputException(const std::string& err_message)
+AstarteInvalidInputException::AstarteInvalidInputException(std::string_view err_message)
     : AstarteException(err_message) {}
 
-AstarteInternalException::AstarteInternalException(const std::string& err_message)
+AstarteInternalException::AstarteInternalException(std::string_view err_message)
+    : AstarteException(err_message) {}
+
+AstarteOperationRefusedException::AstarteOperationRefusedException(std::string_view err_message)
     : AstarteException(err_message) {}
 
 }  // namespace AstarteDeviceSdk

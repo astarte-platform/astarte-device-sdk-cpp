@@ -6,11 +6,13 @@
 
 #include <astarteplatform/msghub/astarte_data.pb.h>
 #include <astarteplatform/msghub/astarte_message.pb.h>
+#include <astarteplatform/msghub/property.pb.h>
 #include <google/protobuf/timestamp.pb.h>
 #include <spdlog/spdlog.h>
 
 #include <chrono>
 #include <cstdint>
+#include <list>
 #include <memory>
 #include <optional>
 #include <string>
@@ -22,7 +24,9 @@
 #include "astarte_device_sdk/individual.hpp"
 #include "astarte_device_sdk/msg.hpp"
 #include "astarte_device_sdk/object.hpp"
+#include "astarte_device_sdk/ownership.hpp"
 #include "astarte_device_sdk/property.hpp"
+#include "astarte_device_sdk/stored_property.hpp"
 #include "grpc_formatter.hpp"  // NOLINT
 
 namespace AstarteDeviceSdk {
@@ -43,6 +47,7 @@ using gRPCAstarteDatastreamIndividual = astarteplatform::msghub::AstarteDatastre
 using gRPCAstarteDatastreamObject = astarteplatform::msghub::AstarteDatastreamObject;
 using gRPCAstartePropertyIndividual = astarteplatform::msghub::AstartePropertyIndividual;
 using gRPCAstarteMessage = astarteplatform::msghub::AstarteMessage;
+using gRPCProperty = astarteplatform::msghub::Property;
 
 auto GrpcConverterTo::operator()(int32_t value) -> std::unique_ptr<gRPCAstarteData> {
   spdlog::trace("Converting integer to gRPC Astarte data.");
@@ -397,6 +402,23 @@ auto GrpcConverterFrom::operator()(const gRPCAstarteMessage &value) -> AstarteMe
     return {value.interface_name(), value.path(), parsed_data};
   }
   throw AstarteInternalException("Found an unrecognized gRPC gRPCAstarteDataType.");
+}
+
+auto GrpcConverterFrom::operator()(const gRPCOwnership &value) -> AstarteOwnership {
+  spdlog::trace("Converting Astarte ownership from gRPC.");
+  return (value == gRPCOwnership::DEVICE) ? AstarteOwnership::kDevice : AstarteOwnership::kServer;
+}
+
+auto GrpcConverterFrom::operator()(const gRPCStoredProperties &value)
+    -> std::list<AstarteStoredProperty> {
+  spdlog::trace("Converting Astarte stored property from gRPC.");
+  std::list<AstarteStoredProperty> stored_properties;
+  for (const gRPCProperty &stored_property : value.properties()) {
+    stored_properties.emplace_back(
+        stored_property.interface_name(), stored_property.path(), stored_property.version_major(),
+        (*this)(stored_property.ownership()), (*this)(stored_property.data()));
+  }
+  return stored_properties;
 }
 
 }  // namespace AstarteDeviceSdk

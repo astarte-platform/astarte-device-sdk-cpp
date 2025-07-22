@@ -13,10 +13,12 @@
 
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/device_grpc.hpp"
+#include "astarte_device_sdk/exceptions.hpp"
 #include "astarte_device_sdk/msg.hpp"
 #include "astarte_device_sdk/object.hpp"
 #include "exceptions.hpp"
 #include "shared_queue.hpp"
+#include "utils.hpp"
 
 using json = nlohmann::json;
 
@@ -24,8 +26,11 @@ using AstarteDeviceSdk::AstarteData;
 using AstarteDeviceSdk::AstarteDatastreamIndividual;
 using AstarteDeviceSdk::AstarteDatastreamObject;
 using AstarteDeviceSdk::AstarteDeviceGRPC;
+using AstarteDeviceSdk::AstarteException;
 using AstarteDeviceSdk::AstarteMessage;
+using AstarteDeviceSdk::AstarteOwnership;
 using AstarteDeviceSdk::AstartePropertyIndividual;
+using AstarteDeviceSdk::AstarteStoredProperty;
 
 /// @brief Convert a time_point to a UTC string
 /// @param timestamp
@@ -185,50 +190,62 @@ class TestActionCheckDeviceStatus : public TestAction {
 
 class TestActionTransmitMQTTData : public TestAction {
  public:
-  static std::shared_ptr<TestActionTransmitMQTTData> Create(const AstarteMessage& message) {
-    return std::shared_ptr<TestActionTransmitMQTTData>(new TestActionTransmitMQTTData(message));
+  static std::shared_ptr<TestActionTransmitMQTTData> Create(const AstarteMessage& message,
+                                                            bool fails = false) {
+    return std::shared_ptr<TestActionTransmitMQTTData>(
+        new TestActionTransmitMQTTData(message, fails));
   }
 
   static std::shared_ptr<TestActionTransmitMQTTData> Create(
-      const AstarteMessage& message, const std::chrono::system_clock::time_point timestamp) {
+      const AstarteMessage& message, const std::chrono::system_clock::time_point timestamp,
+      bool fails = false) {
     return std::shared_ptr<TestActionTransmitMQTTData>(
-        new TestActionTransmitMQTTData(message, timestamp));
+        new TestActionTransmitMQTTData(message, timestamp, fails));
   }
 
   void execute(const std::string& case_name) const override {
     spdlog::info("[{}] Transmitting MQTT data...", case_name);
-    if (message_.is_datastream()) {
-      if (message_.is_individual()) {
-        const auto& data(message_.into<AstarteDatastreamIndividual>());
-        device_->send_individual(message_.get_interface(), message_.get_path(), data.get_value(),
-                                 timestamp_.get());
-      } else {
-        const auto& data(message_.into<AstarteDatastreamObject>());
-        device_->send_object(message_.get_interface(), message_.get_path(), data, timestamp_.get());
-      }
-    } else {  // handle properties
-      const auto& data(message_.into<AstartePropertyIndividual>());
+    try {
+      if (message_.is_datastream()) {
+        if (message_.is_individual()) {
+          const auto& data(message_.into<AstarteDatastreamIndividual>());
+          device_->send_individual(message_.get_interface(), message_.get_path(), data.get_value(),
+                                   timestamp_.get());
+        } else {
+          const auto& data(message_.into<AstarteDatastreamObject>());
+          device_->send_object(message_.get_interface(), message_.get_path(), data,
+                               timestamp_.get());
+        }
+      } else {  // handle properties
+        const auto& data(message_.into<AstartePropertyIndividual>());
 
-      if (data.get_value().has_value()) {
-        device_->set_property(message_.get_interface(), message_.get_path(),
-                              data.get_value().value());
-      } else {  // Unsetting property
-        device_->unset_property(message_.get_interface(), message_.get_path());
+        if (data.get_value().has_value()) {
+          device_->set_property(message_.get_interface(), message_.get_path(),
+                                data.get_value().value());
+        } else {  // Unsetting property
+          device_->unset_property(message_.get_interface(), message_.get_path());
+        }
+      }
+    } catch (const AstarteException& e) {
+      if (!fails_) {
+        throw e;
       }
     }
   }
 
  private:
-  TestActionTransmitMQTTData(const AstarteMessage& message)
-      : message_(message), timestamp_(nullptr) {}
+  TestActionTransmitMQTTData(const AstarteMessage& message, bool fails)
+      : message_(message), timestamp_(nullptr), fails_(fails) {}
 
   TestActionTransmitMQTTData(const AstarteMessage& message,
-                             const std::chrono::system_clock::time_point timestamp)
+                             const std::chrono::system_clock::time_point timestamp, bool fails)
       : message_(message),
-        timestamp_(std::make_unique<std::chrono::system_clock::time_point>(timestamp)) {}
+        timestamp_(std::make_unique<std::chrono::system_clock::time_point>(timestamp)),
+        fails_(fails) {}
 
   AstarteMessage message_;
   std::unique_ptr<std::chrono::system_clock::time_point> timestamp_;
+  bool fails_;
 };
 
 class TestActionReadReceivedMQTTData : public TestAction {
@@ -489,4 +506,93 @@ class TestActionFetchRESTData : public TestAction {
 
   AstarteMessage message_;
   std::unique_ptr<std::chrono::system_clock::time_point> timestamp_;
+};
+
+class TestActionGetDeviceProperty : public TestAction {
+ public:
+  static std::shared_ptr<TestActionGetDeviceProperty> Create(
+      std::string_view interface_name, const std::string& path,
+      const AstartePropertyIndividual& property) {
+    return std::shared_ptr<TestActionGetDeviceProperty>(
+        new TestActionGetDeviceProperty(interface_name, path, property));
+  }
+
+  void execute(const std::string& case_name) const override {
+    spdlog::info("[{}] Getting property from device...", case_name);
+    AstartePropertyIndividual property = device_->get_property(interface_name_, path_);
+    if (property != property_) {
+      spdlog::error("Fetched property differs from expected.");
+      spdlog::error("Fetched: {}", property.format());
+      spdlog::error("Expected: {}", property_.format());
+      throw EndToEndMismatchException("Fetched and expected properties differ.");
+    }
+  }
+
+ private:
+  TestActionGetDeviceProperty(std::string_view interface_name, const std::string& path,
+                              const AstartePropertyIndividual& property)
+      : interface_name_(interface_name), path_(path), property_(property) {}
+
+  std::string interface_name_;
+  std::string path_;
+  AstartePropertyIndividual property_;
+};
+
+class TestActionGetDeviceProperties : public TestAction {
+ public:
+  static std::shared_ptr<TestActionGetDeviceProperties> Create(
+      std::string_view interface_name, const std::list<AstarteStoredProperty>& properties) {
+    return std::shared_ptr<TestActionGetDeviceProperties>(
+        new TestActionGetDeviceProperties(interface_name, properties));
+  }
+
+  void execute(const std::string& case_name) const override {
+    spdlog::info("[{}] Getting properties from device...", case_name);
+    std::list<AstarteStoredProperty> properties = device_->get_properties(interface_name_);
+    if (!compare_lists(properties, properties_)) {
+      spdlog::error("Fetched properties differs from expected.");
+      spdlog::error("Fetched: {}", format_list(properties));
+      spdlog::error("Expected: {}", format_list(properties_));
+
+      throw EndToEndMismatchException("Fetched and expected properties differ.");
+    }
+  }
+
+ private:
+  TestActionGetDeviceProperties(std::string_view interface_name,
+                                const std::list<AstarteStoredProperty>& properties)
+      : interface_name_(interface_name), properties_(properties) {}
+
+  std::string interface_name_;
+  std::list<AstarteStoredProperty> properties_;
+};
+
+class TestActionGetAllFilteredProperties : public TestAction {
+ public:
+  static std::shared_ptr<TestActionGetAllFilteredProperties> Create(
+      const std::optional<AstarteOwnership>& ownership,
+      const std::list<AstarteStoredProperty>& properties) {
+    return std::shared_ptr<TestActionGetAllFilteredProperties>(
+        new TestActionGetAllFilteredProperties(ownership, properties));
+  }
+
+  void execute(const std::string& case_name) const override {
+    spdlog::info("[{}] Getting all properties from device...", case_name);
+    std::list<AstarteStoredProperty> properties = device_->get_all_properties(ownership_);
+    if (!compare_lists(properties, properties_)) {
+      spdlog::error("Fetched properties differs from expected.");
+      spdlog::error("Fetched: {}", format_list(properties));
+      spdlog::error("Expected: {}", format_list(properties_));
+
+      throw EndToEndMismatchException("Fetched and expected properties differ.");
+    }
+  }
+
+ private:
+  TestActionGetAllFilteredProperties(const std::optional<AstarteOwnership>& ownership,
+                                     const std::list<AstarteStoredProperty>& properties)
+      : ownership_(ownership), properties_(properties) {}
+
+  std::optional<AstarteOwnership> ownership_;
+  std::list<AstarteStoredProperty> properties_;
 };

@@ -13,9 +13,11 @@
 #include <atomic>
 #include <chrono>
 #include <filesystem>
+#include <list>
 #include <memory>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <thread>
 #include <vector>
 
@@ -23,6 +25,9 @@
 #include "astarte_device_sdk/device_grpc.hpp"
 #include "astarte_device_sdk/msg.hpp"
 #include "astarte_device_sdk/object.hpp"
+#include "astarte_device_sdk/ownership.hpp"
+#include "astarte_device_sdk/property.hpp"
+#include "astarte_device_sdk/stored_property.hpp"
 #include "shared_queue.hpp"
 
 namespace AstarteDeviceSdk {
@@ -59,7 +64,7 @@ struct AstarteDeviceGRPC::AstarteDeviceGRPCImpl {
    * @brief Parse an interface definition from a JSON string and adds it to the device.
    * @param json The interface to add.
    */
-  void add_interface_from_str(std::string json);
+  void add_interface_from_str(std::string_view json);
   /**
    * @brief Connect the device to Astarte.
    * @details This is an asynchronous funciton. It will start a management thread that will
@@ -84,7 +89,7 @@ struct AstarteDeviceGRPC::AstarteDeviceGRPCImpl {
    * @param data The data point to send.
    * @param timestamp An optional timestamp for the data point.
    */
-  void send_individual(const std::string& interface_name, const std::string& path,
+  void send_individual(std::string_view interface_name, std::string_view path,
                        const AstarteData& data,
                        const std::chrono::system_clock::time_point* timestamp);
   /**
@@ -94,7 +99,7 @@ struct AstarteDeviceGRPC::AstarteDeviceGRPCImpl {
    * @param object The key-value map representing the object to send.
    * @param timestamp An optional timestamp for the data.
    */
-  void send_object(const std::string& interface_name, const std::string& path,
+  void send_object(std::string_view interface_name, std::string_view path,
                    const AstarteDatastreamObject& object,
                    const std::chrono::system_clock::time_point* timestamp);
   /**
@@ -103,7 +108,7 @@ struct AstarteDeviceGRPC::AstarteDeviceGRPCImpl {
    * @param path The path of the property to set.
    * @param data The value to set for the property.
    */
-  void set_property(const std::string& interface_name, const std::string& path,
+  void set_property(std::string_view interface_name, std::string_view path,
                     const AstarteData& data);
   /**
    * @brief Unset a device property on an interface.
@@ -111,7 +116,7 @@ struct AstarteDeviceGRPC::AstarteDeviceGRPCImpl {
    * @param interface_name The name of the interface where the property is defined.
    * @param path The path of the property to unset.
    */
-  void unset_property(const std::string& interface_name, const std::string& path);
+  void unset_property(std::string_view interface_name, std::string_view path);
   /**
    * @brief Poll for a new message received from the message hub.
    * @details This method checks an internal queue for parsed messages from the server.
@@ -120,6 +125,27 @@ struct AstarteDeviceGRPC::AstarteDeviceGRPCImpl {
    * std::nullopt.
    */
   auto poll_incoming(const std::chrono::milliseconds& timeout) -> std::optional<AstarteMessage>;
+  /**
+   * @brief Get all stored properties matching the input filter.
+   * @param ownership Optional ownership filter.
+   * @return A list of stored properties, as returned by the message hub.
+   */
+  auto get_all_properties(const std::optional<AstarteOwnership>& ownership)
+      -> std::list<AstarteStoredProperty>;
+  /**
+   * @brief Get stored propertied matching the interface.
+   * @param interface_name The name of the interface for the property.
+   * @return A list of stored properties, as returned by the message hub.
+   */
+  auto get_properties(std::string_view interface_name) -> std::list<AstarteStoredProperty>;
+  /**
+   * @brief Get a single stored property matching the interface name and path.
+   * @param interface_name The name of the interface for the property.
+   * @param path Exact path for the property.
+   * @return The stored property, as returned by the message hub.
+   */
+  auto get_property(std::string_view interface_name, std::string_view path)
+      -> AstartePropertyIndividual;
 
  private:
   void connection_attempt();

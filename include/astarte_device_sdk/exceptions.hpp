@@ -12,6 +12,7 @@
 
 #include <exception>
 #include <string>
+#include <string_view>
 
 namespace AstarteDeviceSdk {
 
@@ -24,7 +25,7 @@ class AstarteException : public std::exception {
    * @brief Constructor for the Astarte exception.
    * @param message The exception message.
    */
-  explicit AstarteException(std::string message);
+  explicit AstarteException(std::string_view message);
   /**
    * @brief Implementation of the virtual method what from the partent std::exception class.
    * @return The exception message.
@@ -44,7 +45,7 @@ class AstarteFileOpenException : public AstarteException {
    * @brief Constructor for the Astarte file open exception.
    * @param filename The file which could not be opened.
    */
-  explicit AstarteFileOpenException(const std::string& filename);
+  explicit AstarteFileOpenException(std::string_view filename);
   /**
    * @brief Get the file name for the file which could not be opened.
    * @return The file name for the file whick could not be opened.
@@ -64,7 +65,7 @@ class AstarteInvalidInputException : public AstarteException {
    * @brief Constructor for the Astarte incompatible input exception.
    * @param err_message The error message with the specific of the incompatible input.
    */
-  explicit AstarteInvalidInputException(const std::string& err_message);
+  explicit AstarteInvalidInputException(std::string_view err_message);
 };
 
 /**
@@ -76,7 +77,19 @@ class AstarteInternalException : public AstarteException {
    * @brief Constructor for the Astarte internal exception.
    * @param err_message The error message for the exception.
    */
-  explicit AstarteInternalException(const std::string& err_message);
+  explicit AstarteInternalException(std::string_view err_message);
+};
+
+/**
+ * @brief Generic exception for when an operation is refused by the Astarte device.
+ */
+class AstarteOperationRefusedException : public AstarteException {
+ public:
+  /**
+   * @brief Constructor for the Astarte operation refused exception.
+   * @param err_message The error message for the exception.
+   */
+  explicit AstarteOperationRefusedException(std::string_view err_message);
 };
 
 }  // namespace AstarteDeviceSdk
