@@ -10,8 +10,6 @@
  * @brief Astarte individual datastream class and its related methods.
  */
 
-#include <string>
-
 #include "astarte_device_sdk/data.hpp"
 
 namespace AstarteDeviceSdk {
@@ -41,13 +39,6 @@ class AstarteDatastreamIndividual {
    * @return True when different, false otherwise.
    */
   [[nodiscard]] auto operator!=(const AstarteDatastreamIndividual &other) const -> bool;
-#if defined(ASTARTE_FORMAT_ENABLED)
-  /**
-   * @brief Pretty format the Astarte individual datastream.
-   * @return A string representing in human readable format the content of the class instance.
-   */
-  [[nodiscard]] auto format() const -> std::string;
-#endif
 
  private:
   AstarteData data_;

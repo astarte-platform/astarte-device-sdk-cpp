@@ -5,6 +5,10 @@
 cmake_minimum_required(VERSION 3.15)
 project(unit)
 
+# Bring in the main project FIRST. This defines the astarte_device_sdk,
+# spdlog::spdlog, and fmt::fmt targets.
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/.. ${CMAKE_CURRENT_BINARY_DIR}/lib_build)
+
 include(FetchContent)
 FetchContent_Declare(
   googletest
@@ -25,9 +29,8 @@ add_executable(
 )
 
 # Add the Astarte sdk root directory
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/.. ${CMAKE_CURRENT_BINARY_DIR}/lib_build)
+# here we can link against the targets that are guaranteed to exist.
 target_include_directories(unit_test PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../private)
-
 target_link_libraries(
   unit_test
   astarte_device_sdk

@@ -93,7 +93,6 @@ cmake_options_array=()
 cmake_options_array+=("-DCMAKE_CXX_STANDARD=$cpp_standard")
 cmake_options_array+=("-DCMAKE_CXX_STANDARD_REQUIRED=ON")
 cmake_options_array+=("-DCMAKE_POLICY_VERSION_MINIMUM=3.15")
-cmake_options_array+=("-DASTARTE_ENABLE_FORMAT=ON")
 cmake_options_array+=("-DASTARTE_PUBLIC_SPDLOG_DEP=ON")
 cmake_options_array+=("-DASTARTE_PUBLIC_PROTO_DEP=ON")
 if [ "$system_grpc" = true ]; then

@@ -11,6 +11,9 @@ install/
 # Python venv
 .venv/
 
+# direnv
+.envrc
+
 # VSCode configuration folder
 .vscode/
 

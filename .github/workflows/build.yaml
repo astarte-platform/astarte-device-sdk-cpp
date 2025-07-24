@@ -50,15 +50,9 @@ jobs:
       - name: Build example for C++ 20
         working-directory: ./astarte-device-sdk-cpp
         run: ./build_sample.sh simple --fresh --system_grpc --stdcpp 20
-      - name: Build example for C++ 20 [no format]
-        working-directory: ./astarte-device-sdk-cpp
-        run: ./build_sample.sh simple --fresh --system_grpc --stdcpp 20 --no_format
       - name: Build example for C++ 17
         working-directory: ./astarte-device-sdk-cpp
         run: ./build_sample.sh simple --fresh --system_grpc --stdcpp 17
-      - name: Build example for C++ 17 [no format]
-        working-directory: ./astarte-device-sdk-cpp
-        run: ./build_sample.sh simple --fresh --system_grpc --stdcpp 17 --no_format
   build-qt-sample:
     runs-on: ubuntu-latest
     needs: build-simple-sample-install-grpc
@@ -100,6 +94,3 @@ jobs:
       - name: Build Qt example
         run: |
           ./build_sample.sh qt --qt_version "$QT_MAJOR_VERSION" --qt_path "$QT_PATH" --fresh --system_grpc
-      - name: Build Qt example [no format]
-        run: |
-          ./build_sample.sh qt --qt_version "$QT_MAJOR_VERSION" --qt_path "$QT_PATH" --fresh --system_grpc --no_format

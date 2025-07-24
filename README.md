@@ -20,18 +20,16 @@ This library requires at least C++ 17.
 This library relies on the Astarte message hub for connectivity with Astarte.
 The message hub should be at least at version X.X for this library to function properly.
 
+## Formatting Astarte data
+
+Astarte data, both in transmission and reception is encapsulated in C++ objects.
+It is possible to pretty print data objects. The resulting string will be in a JSON compabile format and
+can be used to interact with the Astarte REST APIs during developement.
+
 ## Optional features
 
 Some features of the library can be enabled or disabled using CMake options.
 
-### Formatting Astarte data
-
-Astarte data, both in transmission and reception is encapsulated in C++ objects.
-This feature enables a set of format methods of such objects making it possible to pretty print
-data objects. The resulting string will be in a JSON compabile format and can be used to
-interact with the Astarte REST APIs during developement.
-
-The option to enable this feature is: `ASTARTE_ENABLE_FORMAT`.
 
 ### Public spdlog dependency
 

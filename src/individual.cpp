@@ -4,8 +4,6 @@
 
 #include "astarte_device_sdk/individual.hpp"
 
-#include <sstream>
-#include <string>
 #include <utility>
 
 #include "astarte_device_sdk/data.hpp"
@@ -25,12 +23,5 @@ auto AstarteDatastreamIndividual::operator!=(const AstarteDatastreamIndividual &
     -> bool {
   return this->get_value() != other.get_value();
 }
-#if defined(ASTARTE_FORMAT_ENABLED)
-auto AstarteDatastreamIndividual::format() const -> std::string {
-  std::ostringstream oss;
-  oss << data_.format();
-  return oss.str();
-}
-#endif
 
 }  // namespace AstarteDeviceSdk

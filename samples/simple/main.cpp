@@ -10,6 +10,7 @@
 
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/device_grpc.hpp"
+#include "astarte_device_sdk/formatter.hpp"
 #include "astarte_device_sdk/msg.hpp"
 
 using AstarteDeviceSdk::AstarteData;
@@ -31,22 +32,16 @@ void reception_handler(std::shared_ptr<AstarteDeviceGRPC> msghub_client) {
         if (msg.is_individual()) {
           spdlog::info("Type: individual datastream");
           const auto &data(msg.into<AstarteDatastreamIndividual>());
-#if defined(ASTARTE_FORMAT_ENABLED)
-          spdlog::info("Value: {}", data.format());
-#endif
+          spdlog::info("Value: {}", data);
         } else {
           spdlog::info("Type: object datastream");
           const auto &data(msg.into<AstarteDatastreamObject>());
-#if defined(ASTARTE_FORMAT_ENABLED)
-          spdlog::info("Value: {}", data.format());
-#endif
+          spdlog::info("Value: {}", data);
         }
       } else {
         spdlog::info("Type: individual property");
         const auto &data(msg.into<AstartePropertyIndividual>());
-#if defined(ASTARTE_FORMAT_ENABLED)
-        spdlog::info("Value: {}", data.format());
-#endif
+        spdlog::info("Value: {}", data);
       }
     }
   }

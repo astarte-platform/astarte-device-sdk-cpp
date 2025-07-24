@@ -7,7 +7,6 @@
 # --- Configuration ---
 fresh_mode=false
 system_grpc=false
-no_format=false
 cpp_standard=20
 jobs=$(nproc --all)
 sample_to_build=""
@@ -26,7 +25,6 @@ Common Options:
   --fresh         Build the sample from scratch (removes its build directory).
   --stdcpp <VER>  Specify the C++ standard to use (17 or 20). Default: $cpp_standard.
   --system_grpc   Use the system gRPC instead of building it from scratch.
-  --no_format     Do not include the formatting feature in the astarte device library.
   -j, --jobs <N>  Specify the number of parallel jobs for make. Default: $jobs.
   -h, --help      Display this help message.
 
@@ -67,7 +65,6 @@ while [[ "$#" -gt 0 ]]; do
             shift 2
             ;;
         --system_grpc) system_grpc=true; shift ;;
-        --no_format) no_format=true; shift ;;
         -j|--jobs)
             jobs="$2"
             if ! [[ "$jobs" =~ ^[0-9]+$ && "$jobs" -gt 0 ]]; then
@@ -126,10 +123,6 @@ cmake_options_array+=("-DCMAKE_CXX_STANDARD=$cpp_standard")
 cmake_options_array+=("-DCMAKE_CXX_STANDARD_REQUIRED=ON")
 cmake_options_array+=("-DCMAKE_POLICY_VERSION_MINIMUM=3.15")
 cmake_options_array+=("-DASTARTE_PUBLIC_SPDLOG_DEP=ON")
-
-if [ "$no_format" = false ]; then
-    cmake_options_array+=("-DASTARTE_ENABLE_FORMAT=ON")
-fi
 
 if [ "$system_grpc" = true ]; then
     cmake_options_array+=("-DASTARTE_USE_SYSTEM_GRPC=ON")

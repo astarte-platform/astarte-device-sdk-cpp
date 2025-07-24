@@ -68,7 +68,7 @@ class TestCase {
       auto incoming = device_->poll_incoming(std::chrono::milliseconds(100));
       if (incoming.has_value()) {
         AstarteMessage msg(incoming.value());
-        spdlog::debug("Handler received message: {}", msg.format());
+        spdlog::debug("Handler received message: {}", msg);
         rx_queue_->push(msg);
       }
     }

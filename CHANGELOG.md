@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Method to add a json interface as a string directly, without reading it from a file
 - Method to convert an AstarteMessage and AstarteData that returns an std::option instead of an exception
 - A new Qt sample showing how to use the Astarte device library in a Qt project.
-- `ASTARTE_ENABLE_FORMAT` and `ASTARTE_PUBLIC_PROTO_DEP` CMake options.
+- `ASTARTE_PUBLIC_PROTO_DEP` CMake options.
 - `AstarteDatastreamIndividual`, `AstartePropertyIndividual` and `AstarteDatastreamObject` (renaming
   of `AstarteObject`) classes, representing the different Astarte data types.
 - `get_starded.md`, a step by step guide useful to try the SDK functionalities
