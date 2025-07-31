@@ -193,8 +193,11 @@ auto GrpcConverter::operator()(const gRPCAstarteDataTypeIndividual &value) -> As
                                               value.astarte_binary_blob().end()));
     case gRPCAstarteDataTypeIndividual::kAstarteDateTime: {
       const google::protobuf::Timestamp &timestamp = value.astarte_date_time();
-      return AstarteData(std::chrono::system_clock::time_point{
-          std::chrono::seconds{timestamp.seconds()} + std::chrono::nanoseconds{timestamp.nanos()}});
+      auto secs = std::chrono::seconds{timestamp.seconds()};
+      auto nanos = std::chrono::nanoseconds{timestamp.nanos()};
+      auto duration = std::chrono::duration_cast<std::chrono::system_clock::duration>(secs + nanos);
+      const std::chrono::system_clock::time_point timepoint(duration);
+      return AstarteData(timepoint);
     }
     case gRPCAstarteDataTypeIndividual::kAstarteDoubleArray:
       return AstarteData(std::vector<double>(value.astarte_double_array().values().begin(),
@@ -221,8 +224,11 @@ auto GrpcConverter::operator()(const gRPCAstarteDataTypeIndividual &value) -> As
     case gRPCAstarteDataTypeIndividual::kAstarteDateTimeArray: {
       std::vector<std::chrono::system_clock::time_point> timestamp_vect;
       for (const auto &timestamp : value.astarte_date_time_array().values()) {
-        timestamp_vect.emplace_back(std::chrono::seconds{timestamp.seconds()} +
-                                    std::chrono::nanoseconds{timestamp.nanos()});
+        auto secs = std::chrono::seconds{timestamp.seconds()};
+        auto nanos = std::chrono::nanoseconds{timestamp.nanos()};
+        auto duration =
+            std::chrono::duration_cast<std::chrono::system_clock::duration>(secs + nanos);
+        timestamp_vect.emplace_back(duration);
       }
       return AstarteData(timestamp_vect);
     }

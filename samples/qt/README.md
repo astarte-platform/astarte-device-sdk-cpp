@@ -53,6 +53,20 @@ To run the example from root:
 ./samples/qt/build/Desktop_Qt_6_8_1-Debug/qt
 ```
 
+### ⚠️ Qt 5 build configuration: Disable USE_QT6 option in Qt Creator
+
+If you're using Qt 5, make sure to manually disable the **USE_QT6** CMake option inside Qt Creator:
+
+1. In Qt Creator, open the **Projects** tab (🔧 wrench icon on the left).
+
+2. Select the active build kit.
+
+3. Under the **CMake** section, locate the **Key: USE_QT6** entry.
+
+4. Set its value to **OFF**.
+
+This step ensures that the project builds properly with Qt 5.
+
 ## 🧰 Building from terminal with script
 
 Instead of using **Qt Creator**, you can build the project directly from the terminal using the provided script:
