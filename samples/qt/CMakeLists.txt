@@ -8,7 +8,7 @@ project(qt LANGUAGES CXX)
 # Option to select Qt version
 option(USE_QT6 "Use Qt 6 instead of Qt 5" ON)
 
-if (USE_QT6)
+if(USE_QT6)
     set(QT_VERSION_MAJOR 6)
 else()
     set(QT_VERSION_MAJOR 5)
@@ -41,22 +41,17 @@ if(QT_VERSION_MAJOR EQUAL 6)
         main.cpp
     )
 else()
-    add_executable(qt
-        main.cpp
-    )
+    add_executable(qt main.cpp)
 endif()
 
 # Link against Qt and Astarte SDK
-target_link_libraries(qt
-    PRIVATE
-        Qt${QT_VERSION_MAJOR}::Core
-        astarte_device_sdk
-)
+target_link_libraries(qt PRIVATE Qt${QT_VERSION_MAJOR}::Core astarte_device_sdk)
 
 # Install rules
 include(GNUInstallDirs)
 
-install(TARGETS qt
+install(
+    TARGETS qt
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
