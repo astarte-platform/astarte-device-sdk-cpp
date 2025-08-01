@@ -9,6 +9,8 @@ check_only=false
 venv_dir=".venv"
 clang_format_package_name="clang-format"
 clang_format_package_version="19.1.6"
+gersemi_package_name="gersemi"
+gersemi_package_version="0.21.0"
 
 # --- Helper Functions ---
 display_help() {
@@ -42,7 +44,7 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 # --- Environment and Dependency Setup ---
-echo "Setting up Python environment and dependencies for clang-format..."
+echo "Setting up Python environment and dependencies for clang-format and gersemi..."
 
 # Check for python3
 if ! command -v python3 &> /dev/null; then
@@ -76,6 +78,18 @@ if [ "$installed_version" != "$clang_format_package_version" ]; then
     echo "Installing $clang_format_package_name==$clang_format_package_version..."
     if ! pip install "$clang_format_package_name==$clang_format_package_version"; then
         error_exit "Failed to install $clang_format_package_name version $clang_format_package_version."
+    fi
+else
+    echo "$clang_format_package_name version $clang_format_package_version is already installed."
+fi
+
+# Install or verify gersemi version
+echo "Checking/installing $gersemi_package_name version $gersemi_package_version..."
+installed_version=$(pip show "$gersemi_package_name" | grep Version | awk '{print $2}' || true)
+if [ "$installed_version" != "$gersemi_package_version" ]; then
+    echo "Installing $gersemi_package_name==$gersemi_package_version..."
+    if ! pip install "$gersemi_package_name==$gersemi_package_version"; then
+        error_exit "Failed to install $gersemi_package_name version $gersemi_package_version."
     fi
 else
     echo "$clang_format_package_name version $clang_format_package_version is already installed."
@@ -119,4 +133,38 @@ if [ "$check_only" = true ]; then
     echo "Clang-format check passed. All specified files are correctly formatted."
 else
     echo "Clang-format applied successfully."
+fi
+
+# Define cmake files to format/check
+cmake_files=(
+    "CMakeLists.txt"
+    "unit/CMakeLists.txt"
+    "end_to_end/CMakeLists.txt"
+    "samples/qt/CMakeLists.txt"
+    "samples/simple/CMakeLists.txt"
+)
+
+gersemi_args=("--config" ".gersemirc")
+if [ "$check_only" = true ]; then
+    echo "Running gersemi in check mode..."
+    gersemi_args+=("-c")
+else
+    echo "Applying gersemi to files..."
+    gersemi_args+=("-i")
+fi
+
+# Run gersemi on all files at once
+echo "Executing: gersemi ${gersemi_args[*]} ${cmake_files[*]}"
+if ! gersemi "${gersemi_args[@]}" "${cmake_files[@]}"; then
+    if [ "$check_only" = true ]; then
+        error_exit "gersemi check failed. Some files need formatting."
+    else
+        error_exit "gersemi application failed."
+    fi
+fi
+
+if [ "$check_only" = true ]; then
+    echo "gersemi check passed. All specified files are correctly formatted."
+else
+    echo "gersemi applied successfully."
 fi
