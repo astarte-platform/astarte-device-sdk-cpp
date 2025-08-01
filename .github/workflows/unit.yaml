@@ -38,9 +38,6 @@ jobs:
       - name: Compile gRPC from source
         run: |
           ./astarte-device-sdk-cpp/.github/scripts/build-grpc.sh
-      - name: Run the unit tests (C++ 20)
+      - name: Run the unit tests for C++ 20
         working-directory: ./astarte-device-sdk-cpp
-        run: ./unit.sh --system_grpc --stdcpp 20
-      - name: Build the unit tests (C++ 17)
-        working-directory: ./astarte-device-sdk-cpp
-        run: ./unit.sh --system_grpc --stdcpp 17
+        run: ./unit.sh --system_grpc

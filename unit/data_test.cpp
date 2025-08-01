@@ -94,43 +94,21 @@ TEST(AstarteTestData, FormatBinaryBlob) {
 }
 
 TEST(AstarteTestData, InstantiationDatetime) {
-#if __cplusplus >= 202002L
   std::chrono::system_clock::time_point value =
       std::chrono::sys_days(std::chrono::year_month_day(
           std::chrono::year(1994), std::chrono::month(4), std::chrono::day(12))) +
       std::chrono::hours(10) + std::chrono::minutes(15) + std::chrono::seconds(0);
-#else   // __cplusplus >= 202002L
-  std::tm dtm = {};
-  dtm.tm_year = 1994 - 1900;
-  dtm.tm_mon = 4 - 1;
-  dtm.tm_mday = 12;
-  dtm.tm_hour = 10;
-  dtm.tm_min = 15;
-  dtm.tm_sec = 0;
-  std::time_t time = std::mktime(&dtm);
-  std::chrono::system_clock::time_point value = std::chrono::system_clock::from_time_t(time);
-#endif  // __cplusplus >= 202002L
+
   auto data = AstarteData(value);
   auto original = data.into<std::chrono::system_clock::time_point>();
   EXPECT_EQ(value, original);
 }
 TEST(AstarteTestData, FormatDatetime) {
-#if __cplusplus >= 202002L
   std::chrono::system_clock::time_point value =
       std::chrono::sys_days(std::chrono::year_month_day(
           std::chrono::year(1994), std::chrono::month(4), std::chrono::day(12))) +
       std::chrono::hours(10) + std::chrono::minutes(15) + std::chrono::seconds(0);
-#else   // __cplusplus >= 202002L
-  std::tm dtm = {};
-  dtm.tm_year = 1994 - 1900;
-  dtm.tm_mon = 4 - 1;
-  dtm.tm_mday = 12;
-  dtm.tm_hour = 10;
-  dtm.tm_min = 15;
-  dtm.tm_sec = 0;
-  std::time_t time = std::mktime(&dtm);
-  std::chrono::system_clock::time_point value = std::chrono::system_clock::from_time_t(time);
-#endif  // __cplusplus >= 202002L
+
   auto data = AstarteData(value);
   auto str = data.format();
   EXPECT_STREQ(str.c_str(), "\"1994-04-12T10:15:00.000Z\"");
@@ -215,7 +193,6 @@ TEST(AstarteTestData, FormatBinaryBlobArray) {
 }
 
 TEST(AstarteTestData, InstantiationDatetimeArray) {
-#if __cplusplus >= 202002L
   std::chrono::system_clock::time_point datetime0 =
       std::chrono::sys_days(std::chrono::year_month_day(
           std::chrono::year(1994), std::chrono::month(4), std::chrono::day(12))) +
@@ -225,32 +202,12 @@ TEST(AstarteTestData, InstantiationDatetimeArray) {
           std::chrono::year(1984), std::chrono::month(5), std::chrono::day(2))) +
       std::chrono::hours(10) + std::chrono::minutes(15) + std::chrono::seconds(0);
   std::vector<std::chrono::system_clock::time_point> value{datetime0, datetime1};
-#else   // __cplusplus >= 202002L
-  std::tm tm0 = {};
-  tm0.tm_year = 1994 - 1900;
-  tm0.tm_mon = 4 - 1;
-  tm0.tm_mday = 12;
-  tm0.tm_hour = 10;
-  tm0.tm_min = 15;
-  tm0.tm_sec = 0;
-  std::time_t time0 = std::mktime(&tm0);
-  std::tm tm1 = {};
-  tm1.tm_year = 1984 - 1900;
-  tm1.tm_mon = 5 - 1;
-  tm1.tm_mday = 2;
-  tm1.tm_hour = 10;
-  tm1.tm_min = 15;
-  tm1.tm_sec = 0;
-  std::time_t time1 = std::mktime(&tm1);
-  std::vector<std::chrono::system_clock::time_point> value{
-      std::chrono::system_clock::from_time_t(time0), std::chrono::system_clock::from_time_t(time1)};
-#endif  // __cplusplus >= 202002L
+
   auto data = AstarteData(value);
   auto original = data.into<std::vector<std::chrono::system_clock::time_point>>();
   EXPECT_THAT(original, ContainerEq(value));
 }
 TEST(AstarteTestData, FormatDatetimeArray) {
-#if __cplusplus >= 202002L
   std::chrono::system_clock::time_point datetime0 =
       std::chrono::sys_days(std::chrono::year_month_day(
           std::chrono::year(1994), std::chrono::month(4), std::chrono::day(12))) +
@@ -260,26 +217,6 @@ TEST(AstarteTestData, FormatDatetimeArray) {
           std::chrono::year(1984), std::chrono::month(5), std::chrono::day(2))) +
       std::chrono::hours(10) + std::chrono::minutes(15) + std::chrono::seconds(0);
   std::vector<std::chrono::system_clock::time_point> value{datetime0, datetime1};
-#else   // __cplusplus >= 202002L
-  std::tm tm0 = {};
-  tm0.tm_year = 1994 - 1900;
-  tm0.tm_mon = 4 - 1;
-  tm0.tm_mday = 12;
-  tm0.tm_hour = 10;
-  tm0.tm_min = 15;
-  tm0.tm_sec = 0;
-  std::time_t time0 = std::mktime(&tm0);
-  std::tm tm1 = {};
-  tm1.tm_year = 1984 - 1900;
-  tm1.tm_mon = 5 - 1;
-  tm1.tm_mday = 2;
-  tm1.tm_hour = 10;
-  tm1.tm_min = 15;
-  tm1.tm_sec = 0;
-  std::time_t time1 = std::mktime(&tm1);
-  std::vector<std::chrono::system_clock::time_point> value{
-      std::chrono::system_clock::from_time_t(time0), std::chrono::system_clock::from_time_t(time1)};
-#endif  // __cplusplus >= 202002L
 
   auto data = AstarteData(value);
   auto str = data.format();
@@ -323,22 +260,11 @@ TEST(AstarteTestData, TryIntoBinaryBlob) {
   EXPECT_THAT(value, ContainerEq(original.value()));
 }
 TEST(AstarteTestData, TryIntoDatetime) {
-#if __cplusplus >= 202002L
   std::chrono::system_clock::time_point value =
       std::chrono::sys_days(std::chrono::year_month_day(
           std::chrono::year(1994), std::chrono::month(4), std::chrono::day(12))) +
       std::chrono::hours(10) + std::chrono::minutes(15) + std::chrono::seconds(0);
-#else   // __cplusplus >= 202002L
-  std::tm dtm = {};
-  dtm.tm_year = 1994 - 1900;
-  dtm.tm_mon = 4 - 1;
-  dtm.tm_mday = 12;
-  dtm.tm_hour = 10;
-  dtm.tm_min = 15;
-  dtm.tm_sec = 0;
-  std::time_t time = std::mktime(&dtm);
-  std::chrono::system_clock::time_point value = std::chrono::system_clock::from_time_t(time);
-#endif  // __cplusplus >= 202002L
+
   auto data = AstarteData(value);
   auto original = data.try_into<std::chrono::system_clock::time_point>();
   EXPECT_EQ(value, original.value());
@@ -381,7 +307,6 @@ TEST(AstarteTestData, TryIntoBinaryBlobArray) {
   EXPECT_THAT(original.value(), ContainerEq(value));
 }
 TEST(AstarteTestData, TryIntoDatetimeArray) {
-#if __cplusplus >= 202002L
   std::chrono::system_clock::time_point datetime0 =
       std::chrono::sys_days(std::chrono::year_month_day(
           std::chrono::year(1994), std::chrono::month(4), std::chrono::day(12))) +
@@ -391,26 +316,7 @@ TEST(AstarteTestData, TryIntoDatetimeArray) {
           std::chrono::year(1984), std::chrono::month(5), std::chrono::day(2))) +
       std::chrono::hours(10) + std::chrono::minutes(15) + std::chrono::seconds(0);
   std::vector<std::chrono::system_clock::time_point> value{datetime0, datetime1};
-#else   // __cplusplus >= 202002L
-  std::tm tm0 = {};
-  tm0.tm_year = 1994 - 1900;
-  tm0.tm_mon = 4 - 1;
-  tm0.tm_mday = 12;
-  tm0.tm_hour = 10;
-  tm0.tm_min = 15;
-  tm0.tm_sec = 0;
-  std::time_t time0 = std::mktime(&tm0);
-  std::tm tm1 = {};
-  tm1.tm_year = 1984 - 1900;
-  tm1.tm_mon = 5 - 1;
-  tm1.tm_mday = 2;
-  tm1.tm_hour = 10;
-  tm1.tm_min = 15;
-  tm1.tm_sec = 0;
-  std::time_t time1 = std::mktime(&tm1);
-  std::vector<std::chrono::system_clock::time_point> value{
-      std::chrono::system_clock::from_time_t(time0), std::chrono::system_clock::from_time_t(time1)};
-#endif  // __cplusplus >= 202002L
+
   auto data = AstarteData(value);
   auto original = data.try_into<std::vector<std::chrono::system_clock::time_point>>();
   EXPECT_THAT(original.value(), ContainerEq(value));

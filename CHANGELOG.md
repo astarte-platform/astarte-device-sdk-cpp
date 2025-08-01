@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   to connect untill the `disconnect` function is called or the object is destroyed. The device will
   use an exponential backoff to avoid network congestion.
 - Enums elements are now named using a k prefix and camel case format.
+- Use C++20 as the minimum required library version
 
 ## [0.5.0-beta] - 2025-03-20
 ### Added

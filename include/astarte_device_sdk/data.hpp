@@ -16,15 +16,12 @@
 #include <string>
 #include <variant>
 #include <vector>
-#if !(__cplusplus >= 202002L)
-#include <type_traits>
-#endif  // !(__cplusplus >= 202002L)
+// #include <type_traits>
 
 #include "astarte_device_sdk/type.hpp"
 
 namespace AstarteDeviceSdk {
 
-#if __cplusplus >= 202002L
 /** @brief Restricts the allowed types for instances of an Astarte data class. */
 template <typename T>
 concept AstarteDataAllowedType = requires {
@@ -38,44 +35,10 @@ concept AstarteDataAllowedType = requires {
                std::is_same_v<T, std::vector<std::vector<uint8_t>>> ||
                std::is_same_v<T, std::vector<std::chrono::system_clock::time_point>>;
 };
-#else   // __cplusplus >= 202002L
-template <typename T>
-struct astarte_data_is_allowed_type : std::false_type {};
-template <>
-struct astarte_data_is_allowed_type<int32_t> : std::true_type {};
-template <>
-struct astarte_data_is_allowed_type<int64_t> : std::true_type {};
-template <>
-struct astarte_data_is_allowed_type<double> : std::true_type {};
-template <>
-struct astarte_data_is_allowed_type<bool> : std::true_type {};
-template <>
-struct astarte_data_is_allowed_type<std::string> : std::true_type {};
-template <>
-struct astarte_data_is_allowed_type<std::vector<uint8_t>> : std::true_type {};
-template <>
-struct astarte_data_is_allowed_type<std::chrono::system_clock::time_point> : std::true_type {};
-template <>
-struct astarte_data_is_allowed_type<std::vector<int32_t>> : std::true_type {};
-template <>
-struct astarte_data_is_allowed_type<std::vector<int64_t>> : std::true_type {};
-template <>
-struct astarte_data_is_allowed_type<std::vector<double>> : std::true_type {};
-template <>
-struct astarte_data_is_allowed_type<std::vector<bool>> : std::true_type {};
-template <>
-struct astarte_data_is_allowed_type<std::vector<std::string>> : std::true_type {};
-template <>
-struct astarte_data_is_allowed_type<std::vector<std::vector<uint8_t>>> : std::true_type {};
-template <>
-struct astarte_data_is_allowed_type<std::vector<std::chrono::system_clock::time_point>>
-    : std::true_type {};
-#endif  // __cplusplus >= 202002L
 
 /** @brief Astarte data class, representing the basic Astarte types. */
 class AstarteData {
  public:
-#if __cplusplus >= 202002L
   /**
    * @brief Constructor for the AstarteData class.
    * @param value The content of the Astarte data instance.
@@ -103,39 +66,6 @@ class AstarteData {
 
     return std::nullopt;
   }
-#else   // __cplusplus >= 202002L
-  /**
-   * @brief Constructor for the AstarteData class.
-   * @param value The content of the Astarte data instance.
-   */
-  template <typename T>
-  explicit AstarteData(
-      T value, std::enable_if_t<astarte_data_is_allowed_type<T>::value, bool> /*unused*/ = true)
-      : data_(value) {}
-
-  /**
-   * @brief Convert the Astarte data class to the appropriate data type.
-   * @return The value contained in the class instance.
-   */
-  template <typename T>
-  auto into(std::enable_if_t<astarte_data_is_allowed_type<T>::value, bool> /*unused*/ = true) const
-      -> const T& {
-    return std::get<T>(data_);
-  }
-  /**
-   * @brief Convert the Astarte data class to the given type if it's the correct variant.
-   * @return The value contained in the class instance or nullopt.
-   */
-  template <typename T>
-  auto try_into(std::enable_if_t<astarte_data_is_allowed_type<T>::value, bool> /*unused*/ =
-                    true) const -> std::optional<T> {
-    if (std::holds_alternative<T>(data_)) {
-      return std::get<T>(data_);
-    }
-
-    return std::nullopt;
-  }
-#endif  // __cplusplus >= 202002L
 
 #if defined(ASTARTE_FORMAT_ENABLED)
   /**

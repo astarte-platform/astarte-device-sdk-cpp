@@ -7,7 +7,6 @@
 # --- Configuration ---
 fresh_mode=false
 system_grpc=false
-cpp_standard=20
 jobs=$(nproc --all)
 build_dir="unit/build"
 
@@ -20,7 +19,6 @@ Build and run unit tests.
 
 Options:
   --fresh             Build from scratch (removes $build_dir).
-  --stdcpp <VER>      Specify the C++ standard to use (17 or 20). Default: $cpp_standard.
   --system_grpc       Use system gRPC. If not set, gRPC will be built from source (if configured in CMake).
   -j, --jobs <N>      Specify the number of parallel jobs for make. Default: $jobs.
   -h, --help          Display this help message.
@@ -35,13 +33,6 @@ error_exit() {
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --fresh) fresh_mode=true; shift ;;
-        --stdcpp)
-            cpp_standard="$2"
-            if [[ ! "$cpp_standard" =~ ^(17|20)$ ]]; then
-                error_exit "Invalid C++ standard '$cpp_standard'. Use 17 or 20."
-            fi
-            shift 2
-            ;;
         --system_grpc) system_grpc=true; shift ;;
         -j|--jobs)
             jobs="$2"
@@ -58,7 +49,6 @@ done
 # --- Build Logic ---
 
 echo "Configuration:"
-echo "  C++ Standard: $cpp_standard"
 echo "  Jobs: $jobs"
 echo "  Build Directory: $build_dir"
 echo "  Fresh Mode: $fresh_mode"
@@ -90,7 +80,7 @@ fi
 # Configure CMake
 echo "Running CMake..."
 cmake_options_array=()
-cmake_options_array+=("-DCMAKE_CXX_STANDARD=$cpp_standard")
+cmake_options_array+=("-DCMAKE_CXX_STANDARD=20")
 cmake_options_array+=("-DCMAKE_CXX_STANDARD_REQUIRED=ON")
 cmake_options_array+=("-DCMAKE_POLICY_VERSION_MINIMUM=3.15")
 cmake_options_array+=("-DASTARTE_ENABLE_FORMAT=ON")

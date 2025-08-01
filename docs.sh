@@ -11,7 +11,6 @@
 
 # --- Configuration ---
 doxygen_version="1.13.2"
-cpp_standard="20"
 fresh_mode=false
 docs_dir="doc"
 docs_build_dir_name="_build"
@@ -28,7 +27,6 @@ Generates Doxygen documentation.
 
 Options:
   --fresh          Clean the documentation build directory ($docs_dir/$docs_build_dir_name) before generation.
-  --stdcpp <VER>   Specify the C++ standard for Doxygen macros (17 or 20). Default: $cpp_standard.
   --help           Display this help message and exit.
 EOF
 }
@@ -42,13 +40,6 @@ error_exit() {
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --fresh) fresh_mode=true; shift ;;
-        --stdcpp)
-            cpp_standard="$2"
-            if [[ ! "$cpp_standard" =~ ^(17|20)$ ]]; then
-                error_exit "Invalid C++ standard '$cpp_standard'. Use 17 or 20."
-            fi
-            shift 2
-            ;;
         --help) display_help; exit 0 ;;
         *) display_help; error_exit "Unknown option: $1" ;;
     esac
@@ -66,17 +57,10 @@ fi
 
 # Determine Doxygen C++ standard macro value based on CLI argument
 doxygen_cpp_standard_macro_value=""
-if [[ "$cpp_standard" == "17" ]]; then
-    doxygen_cpp_standard_macro_value="201703L"
-elif [[ "$cpp_standard" == "20" ]]; then
-    doxygen_cpp_standard_macro_value="202002L"
-else
-    error_exit "Internal error: Invalid C++ standard CLI value '$cpp_standard'."
-fi
+doxygen_cpp_standard_macro_value="202002L"
 
 echo "Configuration:"
 echo "  Doxygen Version: $doxygen_version"
-echo "  C++ Standard (CLI): $cpp_standard (Macro: $doxygen_cpp_standard_macro_value)"
 echo "  Fresh Mode: $fresh_mode"
 echo "  Documentation Directory: $docs_dir"
 echo "  Build Subdirectory: $docs_build_dir_name"
