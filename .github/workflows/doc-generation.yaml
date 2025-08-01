@@ -38,7 +38,7 @@ jobs:
         echo "${PWD}/doxygen-${DOXYGEN_VERSION}/bin" >> $GITHUB_PATH
     - name: Build API docs for C++ 20
       working-directory: astarte-device-sdk-cpp
-      run: ./docs.sh --fresh --stdcpp 20
+      run: ./docs.sh --fresh
     - name: Upload HTML documentation
       uses: actions/upload-artifact@v4
       with:

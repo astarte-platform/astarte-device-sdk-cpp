@@ -7,7 +7,6 @@
 # --- Configuration ---
 fresh_mode=false
 system_grpc=false
-cpp_standard=20
 jobs=$(nproc --all)
 build_dir="samples/simple/build"
 venv_dir=".venv"
@@ -24,7 +23,6 @@ Description:
 
 Options:
   --fresh            Clear out the build directory ($build_dir) before processing.
-  --stdcpp <VER>     Specify the C++ standard to use (17 or 20). Default: $cpp_standard.
   --system_grpc      Use the system gRPC instead of building it from scratch.
   -j, --jobs <N>     Specify the number of parallel jobs for make.
                      Default: $jobs (uses N-1 cores, or 1 if only 1 core).
@@ -40,13 +38,6 @@ error_exit() {
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --fresh) fresh_mode=true; shift ;;
-        --stdcpp)
-            cpp_standard="$2"
-            if [[ ! "$cpp_standard" =~ ^(17|20)$ ]]; then
-                error_exit "Invalid C++ standard '$cpp_standard'. Use 17 or 20."
-            fi
-            shift 2
-            ;;
         --system_grpc) system_grpc=true; shift ;;
         -j|--jobs)
             jobs="$2"
@@ -125,7 +116,7 @@ if [ "$system_grpc" = true ]; then
 fi
 cmake_options_array+=("-DCMAKE_POLICY_VERSION_MINIMUM=3.15")
 cmake_options_array+=("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON")
-cmake_options_array+=("-DCMAKE_CXX_STANDARD=${cpp_standard}")
+cmake_options_array+=("-DCMAKE_CXX_STANDARD=20")
 cmake_options_array+=("-DCMAKE_CXX_STANDARD_REQUIRED=ON")
 cmake_options_array+=("-DASTARTE_ENABLE_FORMAT=ON")
 cmake_options_array+=("-DASTARTE_PUBLIC_SPDLOG_DEP=ON")
@@ -154,7 +145,7 @@ echo "Running clang-tidy..."
 # Prepare clang-tidy options
 tidy_options_array=()
 tidy_options_array+=("-warnings-as-errors=*")
-tidy_options_array+=("-extra-arg=-std=c++${cpp_standard}")
+tidy_options_array+=("-extra-arg=-std=c++20")
 tidy_options_array+=("-header-filter='.*(?<!pb)\.hpp$'")
 tidy_options_array+=("-p=${build_dir}")
 

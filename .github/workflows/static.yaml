@@ -55,7 +55,4 @@ jobs:
           ./astarte-device-sdk-cpp/.github/scripts/build-grpc.sh
       - name: Check library with C++ 20
         working-directory: ./astarte-device-sdk-cpp
-        run: ./tidy.sh --fresh --system_grpc --stdcpp 20
-      - name: Configure library for C++ 17
-        working-directory: ./astarte-device-sdk-cpp
-        run: ./tidy.sh --fresh --system_grpc --stdcpp 17
+        run: ./tidy.sh --fresh --system_grpc

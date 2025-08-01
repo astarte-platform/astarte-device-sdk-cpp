@@ -8,7 +8,6 @@
 fresh_mode=false
 system_grpc=false
 no_format=false
-cpp_standard=20
 jobs=$(nproc --all)
 sample_to_build=""
 qt_path="$HOME/Qt/6.8.1/gcc_64/lib/cmake/Qt6"
@@ -24,7 +23,6 @@ Usage: $0 <sample_name> [OPTIONS]
 
 Common Options:
   --fresh         Build the sample from scratch (removes its build directory).
-  --stdcpp <VER>  Specify the C++ standard to use (17 or 20). Default: $cpp_standard.
   --system_grpc   Use the system gRPC instead of building it from scratch.
   --no_format     Do not include the formatting feature in the astarte device library.
   -j, --jobs <N>  Specify the number of parallel jobs for make. Default: $jobs.
@@ -59,13 +57,6 @@ fi
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --fresh) fresh_mode=true; shift ;;
-        --stdcpp)
-            cpp_standard="$2"
-            if [[ ! "$cpp_standard" =~ ^(17|20)$ ]]; then
-                error_exit "Invalid C++ standard '$cpp_standard'. Use 17 or 20."
-            fi
-            shift 2
-            ;;
         --system_grpc) system_grpc=true; shift ;;
         --no_format) no_format=true; shift ;;
         -j|--jobs)
@@ -122,7 +113,7 @@ cd "$build_dir" || error_exit "Failed to navigate to $build_dir"
 # --- Configure CMake Options ---
 echo "Running CMake for $sample_to_build sample..."
 cmake_options_array=()
-cmake_options_array+=("-DCMAKE_CXX_STANDARD=$cpp_standard")
+cmake_options_array+=("-DCMAKE_CXX_STANDARD=20")
 cmake_options_array+=("-DCMAKE_CXX_STANDARD_REQUIRED=ON")
 cmake_options_array+=("-DCMAKE_POLICY_VERSION_MINIMUM=3.15")
 cmake_options_array+=("-DASTARTE_PUBLIC_SPDLOG_DEP=ON")

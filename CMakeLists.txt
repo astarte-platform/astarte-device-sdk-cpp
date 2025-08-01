@@ -60,7 +60,7 @@ endif()
 
 # Create a library from the source code
 add_library(astarte_device_sdk)
-target_compile_features(astarte_device_sdk PUBLIC cxx_std_17)
+target_compile_features(astarte_device_sdk PUBLIC cxx_std_20)
 target_include_directories(astarte_device_sdk PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 target_include_directories(astarte_device_sdk PRIVATE ${CMAKE_CURRENT_LIST_DIR}/private)
 file(GLOB astarte_sdk_src "${CMAKE_CURRENT_LIST_DIR}/src/*.cpp")
