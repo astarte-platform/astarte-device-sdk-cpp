@@ -18,7 +18,7 @@
 #include "astarte_device_sdk/ownership.hpp"
 #include "astarte_device_sdk/property.hpp"
 #include "astarte_device_sdk/stored_property.hpp"
-#include "device_grpc_impl.hpp"
+#include "grpc/device_grpc_impl.hpp"
 
 namespace AstarteDeviceSdk {
 
