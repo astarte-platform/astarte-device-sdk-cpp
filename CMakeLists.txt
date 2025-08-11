@@ -8,6 +8,7 @@ project(AstarteDeviceSDKcpp VERSION 0.6.1 LANGUAGES CXX)
 
 include(FetchContent)
 include(cmake/AstarteGRPCTransport.cmake)
+include(cmake/AstarteMQTTTransport.cmake)
 
 # Setup libraries
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
@@ -47,7 +48,7 @@ message(STATUS "    gRPC enabled:                ${ASTARTE_TRANSPORT_GRPC}")
 if(ASTARTE_TRANSPORT_GRPC)
     astarte_sdk_add_grpc_options()
 else()
-    # TODO
+    astarte_sdk_add_mqtt_options()
 endif()
 
 message(STATUS "--------------------------------------------------")
@@ -61,7 +62,7 @@ FetchContent_MakeAvailable(spdlog)
 if(ASTARTE_TRANSPORT_GRPC)
     astarte_sdk_configure_grpc_dependencies()
 else()
-    # TODO
+    astarte_sdk_configure_mqtt_dependencies()
 endif()
 
 # --- Core Library Target Definition ---
@@ -88,7 +89,7 @@ if(ASTARTE_TRANSPORT_GRPC)
     target_compile_definitions(astarte_device_sdk PUBLIC ASTARTE_TRANSPORT_GRPC)
     astarte_sdk_add_grpc_transport()
 else()
-    # TODO
+    astarte_sdk_add_mqtt_transport()
 endif()
 
 # --- Generic Installation Rules ---
@@ -111,5 +112,5 @@ install(
 if(ASTARTE_TRANSPORT_GRPC)
     astarte_sdk_install_grpc_pkgconfig()
 else()
-    # TODO
+    astarte_sdk_install_grpc_pkgconfig()
 endif()

@@ -11,6 +11,8 @@
 #include "astarte_device_sdk/data.hpp"
 #if defined(ASTARTE_TRANSPORT_GRPC)
 #include "astarte_device_sdk/device_grpc.hpp"
+#else
+#include "astarte_device_sdk/device_mqtt.hpp"
 #endif
 #include "astarte_device_sdk/formatter.hpp"
 #include "astarte_device_sdk/msg.hpp"
@@ -21,6 +23,8 @@ using AstarteDeviceSdk::AstarteDatastreamObject;
 using AstarteDeviceSdk::AstarteDevice;
 #if defined(ASTARTE_TRANSPORT_GRPC)
 using AstarteDeviceSdk::AstarteDeviceGRPC;
+#else
+using AstarteDeviceSdk::AstarteDeviceMQTT;
 #endif
 using AstarteDeviceSdk::AstarteMessage;
 using AstarteDeviceSdk::AstartePropertyIndividual;
@@ -59,6 +63,9 @@ int main(int argc, char** argv) {
 #if defined(ASTARTE_TRANSPORT_GRPC)
   std::shared_ptr<AstarteDeviceGRPC> msghub_client =
       std::make_shared<AstarteDeviceGRPC>(server_addr, node_id);
+#else
+  std::shared_ptr<AstarteDeviceMQTT> msghub_client =
+      std::make_shared<AstarteDeviceMQTT>(server_addr, node_id);
 #endif
 
   // Those paths assume the user is calling the Astarte executable from the root of this project.

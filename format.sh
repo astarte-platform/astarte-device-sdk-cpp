@@ -139,6 +139,7 @@ fi
 cmake_files=(
     "CMakeLists.txt"
     "cmake/AstarteGRPCTransport.cmake"
+    "cmake/AstarteMQTTTransport.cmake"
     "unit/CMakeLists.txt"
     "end_to_end/CMakeLists.txt"
     "samples/qt/CMakeLists.txt"
