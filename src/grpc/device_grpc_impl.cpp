@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "device_grpc_impl.hpp"
+#include "grpc/device_grpc_impl.hpp"
 
 #include <astarteplatform/msghub/astarte_data.pb.h>
 #include <astarteplatform/msghub/astarte_message.pb.h>
@@ -45,8 +45,8 @@
 #include "astarte_device_sdk/property.hpp"
 #include "astarte_device_sdk/stored_property.hpp"
 #include "exponential_backoff.hpp"
-#include "grpc_converter.hpp"
-#include "grpc_interceptors.hpp"
+#include "grpc/grpc_converter.hpp"
+#include "grpc/grpc_interceptors.hpp"
 #include "shared_queue.hpp"
 
 namespace AstarteDeviceSdk {

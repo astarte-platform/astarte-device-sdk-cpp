@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "grpc_converter.hpp"
+#include "grpc/grpc_converter.hpp"
 
 #include <astarteplatform/msghub/astarte_data.pb.h>
 #include <astarteplatform/msghub/astarte_message.pb.h>
@@ -27,7 +27,7 @@
 #include "astarte_device_sdk/ownership.hpp"
 #include "astarte_device_sdk/property.hpp"
 #include "astarte_device_sdk/stored_property.hpp"
-#include "grpc_formatter.hpp"  // NOLINT
+#include "grpc/grpc_formatter.hpp"  // NOLINT
 
 namespace AstarteDeviceSdk {
 
