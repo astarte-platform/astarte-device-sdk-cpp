@@ -35,6 +35,9 @@ class Pkg(ConanFile):
             self.requires("protobuf/6.30.1", override = True)
         else:
             self.requires("paho-mqtt-cpp/1.5.3")
+            self.requires("cpr/1.12.0")
+            self.requires("nlohmann_json/3.12.0")
+            self.requires("tomlplusplus/3.4.0", transitive_headers=True, transitive_libs=True)
         self.requires("spdlog/1.15.3", options={"use_std_fmt": "True"}, transitive_headers=True, transitive_libs=True)
 
     def build_requirements(self):
