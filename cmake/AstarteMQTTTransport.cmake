@@ -26,6 +26,12 @@ function(astarte_sdk_configure_mqtt_dependencies)
     set(PAHO_WITH_MQTT_C ON CACHE BOOL "")
 
     FetchContent_MakeAvailable(paho-mqtt-cpp)
+
+    # Library to handle HTTP requests
+    set(CPR_GIT_REPOSITORY https://github.com/libcpr/cpr.git)
+    set(CPR_GIT_TAG 1.12.0)
+    FetchContent_Declare(cpr GIT_REPOSITORY ${CPR_GIT_REPOSITORY} GIT_TAG ${CPR_GIT_TAG})
+    FetchContent_MakeAvailable(cpr)
 endfunction()
 
 # Adds MQTT source files and links required libraries to the main target.
@@ -36,6 +42,9 @@ function(astarte_sdk_add_mqtt_transport)
 
     # Link with MQTT
     target_link_libraries(astarte_device_sdk PRIVATE PahoMqttCpp::paho-mqttpp3)
+
+    # Link with cpr HTTP library
+    target_link_libraries(astarte_device_sdk PRIVATE cpr::cpr)
 endfunction()
 
 # Creates and installs the pkg-config file for the mqtt-enabled SDK.
