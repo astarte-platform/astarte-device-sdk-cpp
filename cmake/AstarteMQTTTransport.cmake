@@ -32,6 +32,19 @@ function(astarte_sdk_configure_mqtt_dependencies)
     set(CPR_GIT_TAG 1.12.0)
     FetchContent_Declare(cpr GIT_REPOSITORY ${CPR_GIT_REPOSITORY} GIT_TAG ${CPR_GIT_TAG})
     FetchContent_MakeAvailable(cpr)
+
+    # Library to manage json
+    set(JSON_GIT_URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
+    FetchContent_Declare(json URL ${JSON_GIT_URL})
+    FetchContent_MakeAvailable(json)
+
+    # Library to manage toml files
+    set(TOML_GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git)
+    set(TOML_GIT_TAG v3.4.0)
+    FetchContent_Declare(tomlplusplus GIT_REPOSITORY ${TOML_GIT_REPOSITORY} GIT_TAG ${TOML_GIT_TAG})
+    FetchContent_MakeAvailable(tomlplusplus)
+
+    # TODO: add libraries to parse/create url
 endfunction()
 
 # Adds MQTT source files and links required libraries to the main target.
@@ -44,7 +57,12 @@ function(astarte_sdk_add_mqtt_transport)
     target_link_libraries(astarte_device_sdk PRIVATE PahoMqttCpp::paho-mqttpp3)
 
     # Link with cpr HTTP library
-    target_link_libraries(astarte_device_sdk PRIVATE cpr::cpr)
+    target_link_libraries(
+        astarte_device_sdk
+        PRIVATE cpr::cpr
+        PRIVATE nlohmann_json::nlohmann_json
+        PRIVATE tomlplusplus::tomlplusplus
+    )
 endfunction()
 
 # Creates and installs the pkg-config file for the mqtt-enabled SDK.
