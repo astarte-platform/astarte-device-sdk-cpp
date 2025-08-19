@@ -5,6 +5,7 @@
 #pragma once
 
 #include <spdlog/spdlog.h>
+
 #include <optional>
 #include <string>
 #include <string_view>
@@ -55,7 +56,7 @@ class Config {
 
   Modes modes;
 
-  private:
+ private:
   void general_config(Config& cfg, toml::table& toml) {
     try {
       cfg.pairing_url = toml.at("general").at_path("pairing_url").value<std::string>().value();
@@ -69,7 +70,7 @@ class Config {
   void mode_config(Config& cfg, toml::table& toml) {
     try {
       bool registration_enabled =
-      toml.at("mode").at_path("DEVICE_REGISTRATION").value<bool>().value();
+          toml.at("mode").at_path("DEVICE_REGISTRATION").value<bool>().value();
 
       if (registration_enabled) {
         modes.set_registration_mode();
@@ -83,10 +84,8 @@ class Config {
     try {
       assert(cfg.modes.registration_enabled());
 
-      cfg.pairing_jwt = toml.at("mode")
-      .at_path("registration")
-      .at_path("pairing_jwt")
-      .value<std::string>();
+      cfg.pairing_jwt =
+          toml.at("mode").at_path("registration").at_path("pairing_jwt").value<std::string>();
     } catch (const toml::parse_error& err) {
       throw err;
     }

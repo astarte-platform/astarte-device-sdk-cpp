@@ -16,6 +16,7 @@ class Pkg(ConanFile):
             del self.options.fPIC
 
     def requirements(self):
+        self.requires("tomlplusplus/3.4.0")
         self.requires("astarte-device-sdk/0.7.0")
 
     def generate(self):

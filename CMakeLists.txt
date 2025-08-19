@@ -113,7 +113,11 @@ if(NOT ASTARTE_USE_SYSTEM_SPDLOG)
 endif()
 if(ASTARTE_TRANSPORT_GRPC)
     astarte_sdk_add_grpc_install_targets(INSTALL_TARGETS_LIST)
+else()
+    astarte_sdk_add_mqtt_install_targets(INSTALL_TARGETS_LIST)
 endif()
+
+set_target_properties(astarte_device_sdk PROPERTIES POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS})
 
 install(
     TARGETS ${INSTALL_TARGETS_LIST}
