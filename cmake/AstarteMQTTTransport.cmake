@@ -44,7 +44,11 @@ function(astarte_sdk_configure_mqtt_dependencies)
     FetchContent_Declare(tomlplusplus GIT_REPOSITORY ${TOML_GIT_REPOSITORY} GIT_TAG ${TOML_GIT_TAG})
     FetchContent_MakeAvailable(tomlplusplus)
 
-    # TODO: add libraries to parse/create url
+    # Library to manage ulr
+    set(URL_GIT_REPOSITORY https://github.com/ada-url/ada.git)
+    set(URL_GIT_TAG v3.2.7)
+    FetchContent_Declare(url GIT_REPOSITORY ${URL_GIT_REPOSITORY} GIT_TAG ${URL_GIT_TAG})
+    FetchContent_MakeAvailable(url)
 endfunction()
 
 # Adds MQTT source files and links required libraries to the main target.
@@ -62,6 +66,7 @@ function(astarte_sdk_add_mqtt_transport)
         PRIVATE cpr::cpr
         PRIVATE nlohmann_json::nlohmann_json
         PRIVATE tomlplusplus::tomlplusplus
+        PRIVATE ada::ada
     )
 endfunction()
 
