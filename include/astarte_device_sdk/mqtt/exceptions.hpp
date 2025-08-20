@@ -93,3 +93,14 @@ class JsonAccessErrorException : public PairingApiException {
   explicit JsonAccessErrorException(const std::string& err_message)
       : PairingApiException(err_message) {}
 };
+
+/** @brief Exception thrown when failing to retrieve the Astarte MQTT broker URL. */
+class RetrieveBrokerUrlException : public PairingApiException {
+ public:
+  /**
+   * @brief Constructs the RetrieveBrokerUrlException object.
+   * @param err_message A descriptive error message.
+   */
+  explicit RetrieveBrokerUrlException(const std::string& err_message)
+      : PairingApiException(err_message) {}
+};
