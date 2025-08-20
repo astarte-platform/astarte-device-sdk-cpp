@@ -66,7 +66,7 @@ function(astarte_sdk_add_mqtt_transport)
         PRIVATE cpr::cpr
         PRIVATE nlohmann_json::nlohmann_json
         PRIVATE tomlplusplus::tomlplusplus
-        PRIVATE ada::ada
+        PUBLIC ada::ada
     )
 endfunction()
 
