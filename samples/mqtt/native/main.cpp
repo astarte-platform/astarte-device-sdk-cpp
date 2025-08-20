@@ -54,6 +54,9 @@ int main(int argc, char** argv) {
       query_insert.bind(2, secret);
       int nb = query_insert.exec();
       spdlog::debug("{} entry stored in db", nb);
+
+      auto broker_url = api.get_broker_url(secret);
+      spdlog::info("broker url: {}", broker_url);
     }
   } catch (const std::exception& e) {
     spdlog::error("Exception thown: {}", e.what());
