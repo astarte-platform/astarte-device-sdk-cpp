@@ -12,12 +12,15 @@ int main(int argc, char** argv) {
 
   auto cfg = Config("samples/mqtt/native/config.toml");
 
-  if (cfg.modes.registration_enabled()) {
-    auto secret = AstarteDeviceSdk::register_device(cfg.pairing_jwt.value(), cfg.pairing_url,
-                                                    cfg.realm, cfg.device_id);
-    if (secret.has_value()) {
-      spdlog::info("credential secret: {}", secret.value());
+  try {
+    auto api = AstarteDeviceSdk::PairingApi(cfg.realm, cfg.device_id, cfg.pairing_url);
+
+    if (cfg.features.registration_enabled()) {
+      auto secret = api.register_device(cfg.pairing_jwt.value());
+      spdlog::info("credential secret: {}", secret);
     }
+  } catch (const std::exception& e) {
+    spdlog::error("Exception thown: {}", e.what());
   }
 
   return 0;

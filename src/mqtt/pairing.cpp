@@ -7,9 +7,8 @@
 #include <cpr/cpr.h>
 #include <spdlog/spdlog.h>
 
+#include <format>
 #include <nlohmann/json.hpp>
-#include <optional>
-#include <sstream>
 #include <string>
 #include <string_view>
 
@@ -19,41 +18,54 @@ using json = nlohmann::json;
 
 namespace AstarteDeviceSdk {
 
-auto register_device(std::string_view pairing_jwt, std::string_view pairing_url,
-                     std::string_view realm, std::string_view device_id, int timeout_ms)
-    -> std::optional<std::string> {
-  // perform url validity check
-  auto url = ada::parse(pairing_url);
-  if (!url) {
-    spdlog::error("Failed to register device. Provided wrong pairing URL: {}", pairing_url);
-    return std::nullopt;
+auto PairingApi::parse_and_validate_url(std::string_view url) -> ada::url_aggregator {
+  auto parsed_url = ada::parse(url);
+  if (!parsed_url) {
+    throw InvalidUrlException(
+        std::format("Failed to register device. Provided wrong pairing URL: {}", url));
   }
-  std::stringstream pathname;
-  pathname << url->get_pathname() << "/v1/" << realm << "/agent/devices";
-  url->set_pathname(pathname.str());
+  return std::move(*parsed_url);
+}
+
+// check if the response code of an HTTP is successfull (i.e., 2XX) or not
+auto is_successful(long status_code) -> bool { return (status_code / 100) == 2; }
+
+auto PairingApi::register_device(std::string_view pairing_jwt, int timeout_ms) const
+    -> std::string {
+  auto request_url = pairing_url;
+  std::string pathname = std::format("{}/v1/{}/agent/devices", request_url.get_pathname(), realm);
+  request_url.set_pathname(pathname);
+  spdlog::debug("request url: {}", request_url.get_href());
 
   cpr::Header header{{"Content-Type", "application/json"}};
   cpr::Bearer auth_token{pairing_jwt};
 
   json body;
   body["data"] = {{"hw_id", device_id}};
+  spdlog::debug("request body: {}", body.dump());
 
-  cpr::Response res = cpr::Post(cpr::Url{url->get_href()}, header, auth_token,
+  cpr::Response res = cpr::Post(cpr::Url{request_url.get_href()}, header, auth_token,
                                 cpr::Body{body.dump()}, cpr::Timeout{timeout_ms});
 
-  // check for transport-level errors first (like timeouts, connection refused, etc.)
+  // it tells whether a generic error occurred (e.g., a timeout, the device was already registeres
+  // and its certificate expired, etc.)
   if (res.error) {
-    spdlog::error("Failed to register device. CPR error: {}", res.error.message);
-    return std::nullopt;
+    throw DeviceRegistrationException(
+        std::format("Failed to register device. CPR error: {}", res.error.message));
   }
 
-  if (res.status_code != 201) {
-    spdlog::error("Failed to register device. HTTP status code: {}. Body: {}", res.status_code,
-                  res.text);
-    return std::nullopt;
+  if (!is_successful(res.status_code)) {
+    throw DeviceRegistrationException(
+        std::format("Failed to register device. HTTP status code: {}", res.status_code));
   }
 
-  return json::parse(res.text)["data"]["credentials_secret"];
+  try {
+    json response_json = json::parse(res.text);
+    return response_json.at("data").at("credentials_secret");
+  } catch (const json::exception& e) {
+    throw JsonAccessErrorException(
+        std::format("Failed to parse JSON: {}. Body: {}", e.what(), res.text));
+  }
 }
 
 }  // namespace AstarteDeviceSdk
