@@ -35,6 +35,14 @@ class PairingApi {
    */
   auto register_device(std::string_view pairing_jwt, int timeout_ms = 0) const -> std::string;
 
+  /**
+   * @brief Retrieve the URL of the Astarte MQTT broker.
+   * @param credential_secret The Astarte device credential necessary to authenticate to the broker.
+   * @param timeout_ms A timeout value to perform the HTTP request.
+   * @return The broker URL.
+   */
+  auto get_broker_url(std::string_view credential_secret, int timeout_ms = 0) const -> std::string;
+
   /** @brief The Astarte realm name. */
   const std::string realm;
   /** @brief The Astarte device id. */
