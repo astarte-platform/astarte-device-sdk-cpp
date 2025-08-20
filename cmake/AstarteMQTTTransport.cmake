@@ -20,7 +20,7 @@ function(astarte_sdk_configure_mqtt_dependencies)
         find_package(cpr REQUIRED)
         find_package(nlohmann_json REQUIRED)
 
-        if(NOT TARGET ada)
+        if(NOT TARGET ada::ada)
             find_package(ada REQUIRED)
         endif()
     else()
@@ -74,7 +74,7 @@ function(astarte_sdk_add_mqtt_transport)
         astarte_device_sdk
         PRIVATE cpr::cpr
         PRIVATE nlohmann_json::nlohmann_json
-        PRIVATE ada::ada
+        PUBLIC ada::ada
     )
 endfunction()
 
