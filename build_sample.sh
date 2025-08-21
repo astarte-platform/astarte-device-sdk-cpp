@@ -42,15 +42,15 @@ error_exit() {
 # --- Argument Parsing ---
 if [[ -z "$1" ]]; then
     display_help
-    error_exit "No sample specified. Please choose 'grpc_native' or 'grpc_qt'."
+    error_exit "No sample specified. Please choose 'grpc_native', 'grpc_qt' or 'mqtt_registration'"
 fi
 
 sample_to_build="$1"
 shift
 
-if [[ "$sample_to_build" != "grpc_native" && "$sample_to_build" != "grpc_qt" ]]; then
+if [[ "$sample_to_build" != "grpc_native" && "$sample_to_build" != "grpc_qt" && "$sample_to_build" != "mqtt_registration" ]]; then
     display_help
-    error_exit "Invalid sample name: '$sample_to_build'. Must be 'grpc_native' or 'grpc_qt'."
+    error_exit "Invalid sample name: '$sample_to_build'. Must be 'grpc_native', 'grpc_qt' or 'mqtt_registration'."
 fi
 
 # Now parse the rest of the arguments
@@ -100,6 +100,10 @@ case "$sample_to_build" in
         ;;
     grpc_qt)
         sample_src_dir="samples/grpc/qt"
+        build_dir="${sample_src_dir}/build"
+        ;;
+    mqtt_registration)
+        sample_src_dir="samples/mqtt/registration"
         build_dir="${sample_src_dir}/build"
         ;;
 esac
