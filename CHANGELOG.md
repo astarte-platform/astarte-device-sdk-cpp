@@ -11,6 +11,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [unreleased]
+### Added
+- Implement Astarte pairing mechanism to register a device, retrieve MQTT broker URL and retrieve and check
+a device certificate.
+
 ### Changed
 - Introduced an `AstarteDeviceMQTT` class that uses the MQTT protocol as a transport layer.
 - The `simple` sample has been renamed to `grpc_native`.
