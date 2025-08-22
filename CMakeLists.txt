@@ -113,6 +113,7 @@ else()
             src/mqtt/device_mqtt_impl.cpp
             src/mqtt/device_mqtt.cpp
             src/mqtt/pairing.cpp
+            src/mqtt/crypto.cpp
     )
 endif()
 

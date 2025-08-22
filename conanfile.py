@@ -39,6 +39,7 @@ class Pkg(ConanFile):
             self.requires("nlohmann_json/3.12.0")
             self.requires("ada/3.2.4", transitive_headers=True)
             self.requires("sqlitecpp/3.3.2", transitive_headers=True)
+            self.requires("mbedtls/3.6.4")
         self.requires("spdlog/1.15.3", options={"use_std_fmt": "True"}, transitive_headers=True, transitive_libs=True)
 
     def build_requirements(self):
