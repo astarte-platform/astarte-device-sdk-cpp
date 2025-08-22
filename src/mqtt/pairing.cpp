@@ -152,6 +152,45 @@ auto PairingApi::get_device_cert(std::string_view credential_secret, int timeout
   }
 }
 
+auto PairingApi::device_cert_valid(std::string_view certificate, std::string_view credential_secret,
+                                   int timeout_ms) const -> bool {
+  auto request_url = pairing_url;
+  std::string pathname =
+      std::format("{}/v1/{}/devices/{}/protocols/astarte_mqtt_v1/credentials/verify",
+                  request_url.get_pathname(), realm, device_id);
+  request_url.set_pathname(pathname);
+  spdlog::debug("request url: {}", request_url.get_href());
+
+  cpr::Header header{{"Content-Type", "application/json"}};
+  cpr::Bearer auth_token{credential_secret};
+
+  json body;
+  body["data"] = {{"client_crt", certificate}};
+  spdlog::debug("request body: {}", body.dump());
+
+  cpr::Response res = cpr::Post(cpr::Url{request_url.get_href()}, header, auth_token,
+                                cpr::Body{body.dump()}, cpr::Timeout{timeout_ms});
+
+  if (res.error) {
+    throw DeviceRegistrationException(std::format(
+        "Failed to check Astarte device certificate validity. CPR error: {}", res.error.message));
+  }
+
+  if (!is_successful(res.status_code)) {
+    throw DeviceRegistrationException(
+        std::format("Failed to check Astarte device certificate validity. HTTP status code: {}",
+                    res.status_code));
+  }
+
+  try {
+    json response_json = json::parse(res.text);
+    return response_json.at("data").at("valid");
+  } catch (const json::exception& e) {
+    throw JsonAccessErrorException(
+        std::format("Failed to parse JSON: {}. Body: {}", e.what(), res.text));
+  }
+}
+
 auto PairingApi::get_device_csr() const -> std::string {
   auto priv_key = Crypto::create_key();
   return Crypto::create_csr(priv_key);
