@@ -18,9 +18,6 @@ int main(int argc, char** argv) {
     if (cfg.features.registration_enabled()) {
       auto secret = api.register_device(cfg.pairing_jwt.value());
       spdlog::info("credential secret: {}", secret);
-
-      auto broker_url = api.get_broker_url(secret);
-      spdlog::info("broker url: {}", broker_url);
     }
   } catch (const std::exception& e) {
     spdlog::error("Exception thown: {}", e.what());
