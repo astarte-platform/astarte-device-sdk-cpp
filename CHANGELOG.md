@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - Support for the [Conan](https://conan.io/) package manager. Users can build the library as a conan package and import it in their Conan projects.
+- Implement Astarte pairing mechanism to register a device, retrieve MQTT broker URL and retrieve and check a device certificate.
 
 ## [0.7.0] - 2025-08-13
 ### Added
