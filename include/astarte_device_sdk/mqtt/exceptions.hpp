@@ -104,3 +104,15 @@ class RetrieveBrokerUrlException : public PairingApiException {
   explicit RetrieveBrokerUrlException(const std::string& err_message)
       : PairingApiException(err_message) {}
 };
+
+/**
+ * @brief Base exception for errors related to the cryptographic operations.
+ */
+class CryptoException : public MqttException {
+ public:
+  /**
+   * @brief Constructs the CryptoException object.
+   * @param err_message A descriptive error message.
+   */
+  explicit CryptoException(const std::string& err_message) : MqttException(err_message) {}
+};

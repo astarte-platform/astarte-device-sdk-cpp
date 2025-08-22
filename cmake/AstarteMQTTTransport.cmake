@@ -19,6 +19,7 @@ function(astarte_sdk_configure_mqtt_dependencies)
         find_package(PahoMqttCpp REQUIRED)
         find_package(cpr REQUIRED)
         find_package(nlohmann_json REQUIRED)
+        find_package(MbedTLS REQUIRED)
 
         if(NOT TARGET ada::ada)
             find_package(ada REQUIRED)
@@ -53,6 +54,19 @@ function(astarte_sdk_configure_mqtt_dependencies)
         set(URL_GIT_TAG v3.2.4)
         FetchContent_Declare(ada GIT_REPOSITORY ${URL_GIT_REPOSITORY} GIT_TAG ${URL_GIT_TAG})
         FetchContent_MakeAvailable(ada)
+
+        # Cryptographic library
+        set(CRYPTO_GIT_REPOSITORY https://github.com/Mbed-TLS/mbedtls.git)
+        set(CRYPTO_GIT_TAG v3.6.4)
+        FetchContent_Declare(
+            MbedTLS
+            GIT_REPOSITORY ${CRYPTO_GIT_REPOSITORY}
+            GIT_TAG ${CRYPTO_GIT_TAG}
+        )
+        # Disable programs and tests to keep the build fast and minimal.
+        set(ENABLE_TESTING OFF CACHE BOOL "Disable Mbed TLS tests")
+        set(ENABLE_PROGRAMS OFF CACHE BOOL "Disable Mbed TLS example programs")
+        FetchContent_MakeAvailable(MbedTLS)
     endif()
 endfunction()
 
@@ -74,6 +88,8 @@ function(astarte_sdk_add_mqtt_transport)
         astarte_device_sdk
         PRIVATE cpr::cpr
         PRIVATE nlohmann_json::nlohmann_json
+        PRIVATE MbedTLS::mbedtls
+        PRIVATE MbedTLS::mbedx509
         PUBLIC ada::ada
     )
 endfunction()
