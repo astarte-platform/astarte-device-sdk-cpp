@@ -27,6 +27,7 @@ int main() {
   toml::table config = toml::parse_file("end_to_end/config.toml");
 
   // Create orchestrator and add test cases
+  // TODO: change orchestrator so that it can accept eithe gRPC or MQTT configuration
   TestOrchestrator orchestrator(
       {.server_addr = config["server_addr"].value<std::string>().value(),
        .node_id = config["node_id"].value<std::string>().value(),

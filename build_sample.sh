@@ -42,15 +42,15 @@ error_exit() {
 # --- Argument Parsing ---
 if [[ -z "$1" ]]; then
     display_help
-    error_exit "No sample specified. Please choose 'grpc_native' or 'grpc_qt'."
+    error_exit "No sample specified. Please choose 'grpc_native', 'grpc_qt' or 'mqtt_registration'"
 fi
 
 sample_to_build="$1"
 shift
 
-if [[ "$sample_to_build" != "grpc_native" && "$sample_to_build" != "grpc_qt" ]]; then
+if [[ "$sample_to_build" != "grpc_native" && "$sample_to_build" != "grpc_qt" && "$sample_to_build" != "mqtt_registration" ]]; then
     display_help
-    error_exit "Invalid sample name: '$sample_to_build'. Must be 'grpc_native' or 'grpc_qt'."
+    error_exit "Invalid sample name: '$sample_to_build'. Must be 'grpc_native', 'grpc_qt' or 'mqtt_registration'."
 fi
 
 # Now parse the rest of the arguments
@@ -102,6 +102,10 @@ case "$sample_to_build" in
         sample_src_dir="samples/grpc/qt"
         build_dir="${sample_src_dir}/build"
         ;;
+    mqtt_registration)
+        sample_src_dir="samples/mqtt/registration"
+        build_dir="${sample_src_dir}/build"
+        ;;
 esac
 
 # Clean build if --fresh is set
@@ -123,6 +127,7 @@ cmake_options_array+=("-DCMAKE_CXX_STANDARD=20")
 cmake_options_array+=("-DCMAKE_CXX_STANDARD_REQUIRED=ON")
 cmake_options_array+=("-DCMAKE_POLICY_VERSION_MINIMUM=3.15")
 cmake_options_array+=("-DASTARTE_PUBLIC_SPDLOG_DEP=ON")
+cmake_options_array+=("-DCMAKE_POSITION_INDEPENDENT_CODE=ON")
 
 if [[ "$transport" == "grpc" ]]; then
     cmake_options_array+=("-DASTARTE_TRANSPORT_GRPC=ON")
