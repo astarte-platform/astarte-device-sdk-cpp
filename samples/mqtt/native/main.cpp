@@ -4,6 +4,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include "astarte_device_sdk/mqtt/crypto.hpp"
 #include "astarte_device_sdk/mqtt/pairing.hpp"
 #include "config.hpp"
 
@@ -13,7 +14,10 @@ int main(int argc, char** argv) {
   auto cfg = Config("samples/mqtt/native/config.toml");
 
   try {
-    auto api = AstarteDeviceSdk::PairingApi(cfg.realm, cfg.device_id, cfg.pairing_url);
+    auto device_id = AstarteDeviceSdk::Crypto::create_random_device_id();
+    spdlog::info("random device id: {}", device_id);
+
+    auto api = AstarteDeviceSdk::PairingApi(cfg.realm, device_id, cfg.pairing_url);
 
     if (cfg.features.registration_enabled()) {
       auto secret = api.register_device(cfg.pairing_jwt.value());

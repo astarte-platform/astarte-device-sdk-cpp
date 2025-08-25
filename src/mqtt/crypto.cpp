@@ -6,9 +6,11 @@
 
 #include <cstring>
 #include <format>
+#include <random>
 #include <stdexcept>
 #include <vector>
 
+#include "astarte_device_sdk/formatter.hpp"
 #include "astarte_device_sdk/mqtt/exceptions.hpp"
 
 // Mbed TLS Headers
@@ -20,6 +22,7 @@
 #include "mbedtls/pk.h"
 #include "mbedtls/x509_crt.h"
 #include "mbedtls/x509_csr.h"
+#include "uuid.h"
 
 namespace AstarteDeviceSdk {
 
@@ -132,4 +135,49 @@ auto Crypto::create_csr(std::string_view privkey_pem) -> std::string {
 
   return std::string(reinterpret_cast<const char*>(buf.data()));
 }
+
+// Generate a random Asatrte device id follow Astarte specifications as described here
+// https://docs.astarte-platform.org/astarte/latest/010-design_principles.html#device-id
+auto Crypto::create_random_device_id() -> std::string {
+  // create a seed for the uuid generator
+  std::random_device rd;
+  auto seed_data = std::array<int, std::mt19937::state_size>{};
+  std::generate(std::begin(seed_data), std::end(seed_data), std::ref(rd));
+  std::seed_seq seq(std::begin(seed_data), std::end(seed_data));
+  std::mt19937 engine(seq);
+
+  // pass the engine to the UUID generator's constructor
+  uuids::uuid_random_generator gen(engine);
+
+  // generate a v4 UUID
+  uuids::uuid const uuid = gen();
+  auto const bytes_span = uuid.as_bytes();
+  std::vector<uint8_t> bytes(
+      reinterpret_cast<const uint8_t*>(bytes_span.data()),
+      reinterpret_cast<const uint8_t*>(bytes_span.data()) + bytes_span.size());
+  return utils::format_base64_url_safe(bytes);
+}
+
+// // Generate a deterministic Asatrte device id follow Astarte specifications as described here
+// // https://docs.astarte-platform.org/astarte/latest/010-design_principles.html#device-id
+// auto Crypto::create_deterministic_device_id(std::string_view namespc) -> std::string {
+//   // generate a v5 (name-based, SHA-1) UUID
+
+//   // ??????????????????????????????????????????????????????????????????????????????????????
+//   // First, create the namespace UUID from its string representation
+//   auto maybe_namespace = uuids::uuid::from_string("6ba7b811-9dad-11d1-80b4-00c04fd430c8");
+//   if (maybe_namespace.has_value()) {
+//     uuids::uuid const namespace_url = maybe_namespace.value();
+
+//     // Create a name generator seeded with the namespace
+//     uuids::uuid_name_generator v5_generator(namespace_url);
+
+//     std::string name = "https://www.example.com";
+//     uuids::uuid const v5_uuid = v5_generator(name);
+
+//     std::cout << "Generated v5 UUID for '" << name << "': " << uuids::to_string(v5_uuid)
+//               << std::endl;
+//   }
+// }
+
 }  // namespace AstarteDeviceSdk

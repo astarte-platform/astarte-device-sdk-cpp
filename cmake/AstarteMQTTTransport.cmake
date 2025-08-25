@@ -57,6 +57,12 @@ function(astarte_sdk_configure_mqtt_dependencies)
     set(ENABLE_TESTING OFF CACHE BOOL "Disable Mbed TLS tests")
     set(ENABLE_PROGRAMS OFF CACHE BOOL "Disable Mbed TLS example programs")
     FetchContent_MakeAvailable(mbedtls)
+
+    # Library to manage UUIDs.
+    set(UUID_GIT_REPOSITORY https://github.com/mariusbancila/stduuid.git)
+    set(UUID_GIT_TAG v1.2.3)
+    FetchContent_Declare(stduuid GIT_REPOSITORY ${UUID_GIT_REPOSITORY} GIT_TAG ${UUID_GIT_TAG})
+    FetchContent_MakeAvailable(stduuid)
 endfunction()
 
 # Adds MQTT source files and links required libraries to the main target.
@@ -76,6 +82,7 @@ function(astarte_sdk_add_mqtt_transport)
         PRIVATE tomlplusplus::tomlplusplus
         PRIVATE mbedtls
         PRIVATE mbedx509
+        PRIVATE stduuid
         PUBLIC ada::ada
     )
 endfunction()
