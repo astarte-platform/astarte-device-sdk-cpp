@@ -29,7 +29,10 @@ int main(int argc, char** argv) {
   auto cfg = Config("samples/mqtt/native/config.toml");
 
   try {
-    auto api = AstarteDeviceSdk::PairingApi(cfg.realm, cfg.device_id, cfg.astarte_base_url);
+    auto device_id = AstarteDeviceSdk::create_random_device_id();
+    spdlog::info("random device id: {}", device_id);
+
+    auto api = AstarteDeviceSdk::PairingApi(cfg.realm, device_id, cfg.astarte_base_url);
 
     if (cfg.features.registration_enabled()) {
       auto db = init_db("samples/mqtt/native/example.db");

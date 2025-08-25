@@ -82,6 +82,45 @@ void format_base64(OutputIt& out, const std::vector<uint8_t>& data) {
 }
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
+auto format_base64_url_safe(const std::vector<uint8_t>& data) -> std::string {
+  static constexpr std::string_view base64_chars =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      "abcdefghijklmnopqrstuvwxyz"
+      "0123456789-_";
+
+  std::string out;
+  out.reserve(((data.size() + 2) / 3) * 4);  // pre-allocate memory for efficiency
+
+  size_t idx = 0;
+  const size_t len = data.size();
+
+  // process full 3-byte chunks
+  while (idx + 2 < len) {
+    const uint32_t chunk = (static_cast<uint32_t>(data[idx]) << 16) |
+                           (static_cast<uint32_t>(data[idx + 1]) << 8) | data[idx + 2];
+    out += base64_chars[(chunk >> 18) & 0x3F];
+    out += base64_chars[(chunk >> 12) & 0x3F];
+    out += base64_chars[(chunk >> 6) & 0x3F];
+    out += base64_chars[chunk & 0x3F];
+    idx += 3;
+  }
+
+  // handle remaining bytes
+  if (idx < len) {
+    uint32_t chunk = static_cast<uint32_t>(data[idx]) << 16;
+
+    out += base64_chars[(chunk >> 18) & 0x3F];
+    out += base64_chars[(chunk >> 12) & 0x3F];
+
+    if (idx + 1 < len) {  // two bytes left
+      chunk |= static_cast<uint32_t>(data[idx + 1]) << 8;
+      out += base64_chars[(chunk >> 6) & 0x3F];
+    }
+  }
+
+  return out;
+}
+
 /**
  * @brief Format a timestamp into an ISO 8601 string literal.
  * @tparam OutputIt The type of the output iterator.

@@ -10,11 +10,14 @@
 #include <chrono>
 #include <format>
 #include <nlohmann/json.hpp>
+#include <random>
 #include <string>
 #include <string_view>
 
 #include "ada.h"
+#include "astarte_device_sdk/formatter.hpp"
 #include "mqtt/crypto.hpp"
+#include "uuid.h"
 
 using json = nlohmann::json;
 
@@ -185,6 +188,26 @@ auto PairingApi::device_cert_valid(std::string_view certificate, std::string_vie
     throw JsonAccessErrorException(
         std::format("Failed to parse JSON: {}. Body: {}", e.what(), res.text));
   }
+}
+
+auto create_random_device_id() -> std::string {
+  // create a seed for the uuid generator
+  std::random_device rd;
+  auto seed_data = std::array<int, std::mt19937::state_size>{};
+  std::generate(std::begin(seed_data), std::end(seed_data), std::ref(rd));
+  std::seed_seq seq(std::begin(seed_data), std::end(seed_data));
+  std::mt19937 engine(seq);
+
+  // pass the engine to the UUID generator's constructor
+  uuids::uuid_random_generator gen(engine);
+
+  // generate a v4 UUID
+  uuids::uuid const uuid = gen();
+  auto const bytes_span = uuid.as_bytes();
+  std::vector<uint8_t> bytes(
+      reinterpret_cast<const uint8_t*>(bytes_span.data()),
+      reinterpret_cast<const uint8_t*>(bytes_span.data()) + bytes_span.size());
+  return utils::format_base64_url_safe(bytes);
 }
 
 }  // namespace AstarteDeviceSdk
