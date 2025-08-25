@@ -100,7 +100,9 @@ fi
 # Define file patterns to format/check
 file_patterns=(
     "src/"*.cpp
+    "src/mqtt/"*.cpp
     "include/astarte_device_sdk/"*.hpp
+    "include/astarte_device_sdk/mqtt/"*.hpp
     "private/"*.hpp
     "samples/"*/*/*.cpp
     "unit/"*.cpp
@@ -144,6 +146,7 @@ cmake_files=(
     "end_to_end/CMakeLists.txt"
     "samples/grpc/qt/CMakeLists.txt"
     "samples/grpc/native/CMakeLists.txt"
+    "samples/mqtt/native/CMakeLists.txt"
 )
 
 gersemi_args=("--config" ".gersemirc")
