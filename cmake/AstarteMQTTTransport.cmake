@@ -22,6 +22,7 @@ function(astarte_sdk_configure_mqtt_dependencies)
         find_package(cpr REQUIRED)
         find_package(nlohmann_json REQUIRED)
         find_package(MbedTLS REQUIRED)
+        find_package(stduuid REQUIRED)
 
         if(NOT TARGET ada::ada)
             find_package(ada REQUIRED)
@@ -70,6 +71,15 @@ function(astarte_sdk_configure_mqtt_dependencies)
         set(ENABLE_PROGRAMS OFF CACHE BOOL "Disable Mbed TLS example programs")
         set(CONFIG_MBEDTLS_PSA_CRYPTO_C ON CACHE BOOL "Enable PSA in Mbed TLS")
         FetchContent_MakeAvailable(MbedTLS)
+
+        # Library to manage UUIDs.
+        set(UUID_GIT_REPOSITORY https://github.com/mariusbancila/stduuid.git)
+        set(UUID_GIT_TAG v1.2.3)
+        FetchContent_Declare(stduuid GIT_REPOSITORY ${UUID_GIT_REPOSITORY} GIT_TAG ${UUID_GIT_TAG})
+        FetchContent_MakeAvailable(stduuid)
+        # FetchContent creates the target stduuid, instead conan creates target 'stduuid::stduuid', so
+        # we create a namespaced alias for the native target to avoid naming mismatch when linking the liibrary below.
+        add_library(stduuid::stduuid ALIAS stduuid)
     endif()
 endfunction()
 
@@ -127,6 +137,7 @@ function(astarte_sdk_add_mqtt_transport)
         astarte_device_sdk
         PRIVATE cpr::cpr
         PRIVATE nlohmann_json::nlohmann_json
+        PRIVATE stduuid::stduuid
         PUBLIC MbedTLS::mbedtls
         PUBLIC MbedTLS::mbedx509
         PUBLIC ada::ada

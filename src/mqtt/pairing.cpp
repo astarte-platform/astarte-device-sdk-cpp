@@ -16,16 +16,63 @@
 #include <cstdint>
 #include <format>
 #include <nlohmann/json.hpp>
+#include <random>
 #include <string>
 #include <string_view>
 #include <utility>
 
 #include "astarte_device_sdk/errors.hpp"
+#include "astarte_device_sdk/formatter.hpp"
 #include "mqtt/crypto.hpp"
+#include "uuid.h"
 
 using json = nlohmann::json;
 
 namespace AstarteDeviceSdk {
+
+/**
+ * @brief Format a vector of bytes into a Base64 URL safe string literal.
+ * @param data The vector of bytes to format.
+ * @return Base64 URL safe encoded string
+ */
+auto format_base64_url_safe(const std::vector<uint8_t>& data) -> std::string {
+  static constexpr std::string_view base64_chars =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      "abcdefghijklmnopqrstuvwxyz"
+      "0123456789-_";
+
+  std::string out;
+  out.reserve(((data.size() + 2) / 3) * 4);  // pre-allocate memory for efficiency
+
+  size_t idx = 0;
+  const size_t len = data.size();
+
+  // process full 3-byte chunks
+  while (idx + 2 < len) {
+    const uint32_t chunk = (static_cast<uint32_t>(data[idx]) << 16) |
+                           (static_cast<uint32_t>(data[idx + 1]) << 8) | data[idx + 2];
+    out += base64_chars[(chunk >> 18) & 0x3F];
+    out += base64_chars[(chunk >> 12) & 0x3F];
+    out += base64_chars[(chunk >> 6) & 0x3F];
+    out += base64_chars[chunk & 0x3F];
+    idx += 3;
+  }
+
+  // handle remaining bytes
+  if (idx < len) {
+    uint32_t chunk = static_cast<uint32_t>(data[idx]) << 16;
+
+    out += base64_chars[(chunk >> 18) & 0x3F];
+    out += base64_chars[(chunk >> 12) & 0x3F];
+
+    if (idx + 1 < len) {  // two bytes left
+      chunk |= static_cast<uint32_t>(data[idx + 1]) << 8;
+      out += base64_chars[(chunk >> 6) & 0x3F];
+    }
+  }
+
+  return out;
+}
 
 namespace {
 
@@ -258,6 +305,26 @@ auto PairingApi::device_cert_valid(std::string_view certificate, std::string_vie
         return AstarteMqttError(
             AstartePairingApiError("Failed to check Astarte device certificate validity.", err));
       });
+}
+
+auto create_random_device_id() -> std::string {
+  // create a seed for the uuid generator
+  std::random_device rd;
+  auto seed_data = std::array<int, std::mt19937::state_size>{};
+  std::generate(std::begin(seed_data), std::end(seed_data), std::ref(rd));
+  std::seed_seq seq(std::begin(seed_data), std::end(seed_data));
+  std::mt19937 engine(seq);
+
+  // pass the engine to the UUID generator's constructor
+  uuids::uuid_random_generator gen(engine);
+
+  // generate a v4 UUID
+  uuids::uuid const uuid = gen();
+  auto const bytes_span = uuid.as_bytes();
+  std::vector<uint8_t> bytes(
+      reinterpret_cast<const uint8_t*>(bytes_span.data()),
+      reinterpret_cast<const uint8_t*>(bytes_span.data()) + bytes_span.size());
+  return format_base64_url_safe(bytes);
 }
 
 }  // namespace AstarteDeviceSdk

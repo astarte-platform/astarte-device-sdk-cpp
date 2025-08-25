@@ -87,6 +87,16 @@ class PairingApi {
   const ada::url_aggregator pairing_url_;
 };
 
+/**
+ * @brief Creates a random Astarte device id.
+ *
+ * Generate a random Asatrte device id follow Astarte specifications as described here
+ * https://docs.astarte-platform.org/astarte/latest/010-design_principles.html#device-id
+ *
+ * @return A string containing the device id.
+ */
+auto create_random_device_id() -> std::string;
+
 }  // namespace AstarteDeviceSdk
 
 #endif  // ASTARTE_MQTT_PAIRING_H
