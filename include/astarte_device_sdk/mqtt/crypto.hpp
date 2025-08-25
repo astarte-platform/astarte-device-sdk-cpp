@@ -29,6 +29,12 @@ class Crypto {
    * @throws CryptoException on failure.
    */
   static auto create_csr(std::string_view privkey_pem) -> std::string;
+
+  /**
+   * @brief Creates a random Astarte device id.
+   * @return A string containing the device id.
+   */
+  static auto create_random_device_id() -> std::string;
 };
 
 }  // namespace AstarteDeviceSdk

@@ -68,6 +68,12 @@ class PairingApi {
   auto device_cert_valid(std::string_view certificate, std::string_view credential_secret,
                          int timeout_ms = 0) const -> bool;
 
+  /**
+   * @brief Generate a random Astarte device id.
+   * @return a string containing the device id.
+   */
+  static auto generate_device_id() -> std::string;
+
   // static helper function to handle URL parsing.
   static auto parse_and_validate_url(std::string_view url) -> ada::url_aggregator;
 
