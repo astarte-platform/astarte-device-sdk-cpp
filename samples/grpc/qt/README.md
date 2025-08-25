@@ -81,7 +81,7 @@ After building, the executable can be found in `build` folder.
 To run the example from root:
 
 ```bash
-./samples/grpc_qt/build/grpc_qt
+./samples/grpc/qt/build/app
 ```
 
 ## ⚠️ Notes
