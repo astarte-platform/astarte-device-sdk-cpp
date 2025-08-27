@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Implement Astarte pairing mechanism to register a device, retrieve MQTT broker URL and retrieve and check
 a device certificate.
+- Implement device id generation.
 
 ### Changed
 - Introduced an `AstarteDeviceMQTT` class that uses the MQTT protocol as a transport layer.

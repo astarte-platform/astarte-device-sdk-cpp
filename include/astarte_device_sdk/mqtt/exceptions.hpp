@@ -116,3 +116,15 @@ class CryptoException : public MqttException {
    */
   explicit CryptoException(const std::string& err_message) : MqttException(err_message) {}
 };
+
+/**
+ * @brief Base exception for errors related to the UUID generation operations.
+ */
+class UuidException : public MqttException {
+ public:
+  /**
+   * @brief Constructs the UuidException object.
+   * @param err_message A descriptive error message.
+   */
+  explicit UuidException(const std::string& err_message) : MqttException(err_message) {}
+};
