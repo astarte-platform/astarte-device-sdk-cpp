@@ -31,10 +31,19 @@ class Crypto {
   static auto create_csr(std::string_view privkey_pem) -> std::string;
 
   /**
-   * @brief Creates a random Astarte device id.
+   * @brief Creates a random Astarte device id starting from a UUIDv4.
    * @return A string containing the device id.
    */
   static auto create_random_device_id() -> std::string;
+
+  /**
+   * @brief Creates a deterministic Astarte device id using a UUIDv5.
+   * @param namespc namespace necessary to generate a UUIDv5.
+   * @param unique_data unique necessary to generate a UUIDv5.
+   * @return A string containing the device id.
+   */
+  static auto create_deterministic_device_id(std::string_view namespc, std::string_view unique_data)
+      -> std::string;
 };
 
 }  // namespace AstarteDeviceSdk
