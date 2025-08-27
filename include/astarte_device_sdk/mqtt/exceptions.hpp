@@ -115,6 +115,19 @@ class CryptoException : public MqttException {
       : MqttException("CryptoException(" + err_message + ")") {}
 };
 
+/**
+ * @brief Base exception for errors related to the UUID generation operations.
+ */
+class UuidException : public MqttException {
+ public:
+  /**
+   * @brief Constructs the UuidException object.
+   * @param err_message A descriptive error message.
+   */
+  explicit UuidException(const std::string& err_message)
+      : MqttException("UuidException(" + err_message + ")") {}
+};
+
 }  // namespace AstarteDeviceSdk
 
 #endif  // ASTARTE_MQTT_EXCEPTIONS_HPP

@@ -190,6 +190,13 @@ auto PairingApi::device_cert_valid(std::string_view certificate, std::string_vie
   }
 }
 
+auto bytes_to_uuid_str(const std::span<std::byte const, 16> bytes) -> std::string {
+  std::vector<uint8_t> bytes_v(reinterpret_cast<const uint8_t*>(bytes.data()),
+                               reinterpret_cast<const uint8_t*>(bytes.data()) + bytes.size());
+
+  return utils::format_base64_url_safe(bytes_v);
+}
+
 auto create_random_device_id() -> std::string {
   // create a seed for the uuid generator
   std::random_device rd;
@@ -203,11 +210,25 @@ auto create_random_device_id() -> std::string {
 
   // generate a v4 UUID
   uuids::uuid const uuid = gen();
-  auto const bytes_span = uuid.as_bytes();
-  std::vector<uint8_t> bytes(
-      reinterpret_cast<const uint8_t*>(bytes_span.data()),
-      reinterpret_cast<const uint8_t*>(bytes_span.data()) + bytes_span.size());
-  return utils::format_base64_url_safe(bytes);
+
+  return bytes_to_uuid_str(uuid.as_bytes());
+}
+
+auto create_deterministic_device_id(std::string_view namespc, std::string_view unique_data)
+    -> std::string {
+  // generate a v5 (name-based, SHA-1) UUID starting from the string namespace UUID representation
+  auto ns = uuids::uuid::from_string(namespc);
+
+  if (!ns.has_value()) {
+    throw UuidException(
+        std::format("Couldn't parse namespace to UUID, invalid value: {}", namespc));
+  }
+
+  // Create a name generator seeded with the namespace
+  uuids::uuid_name_generator v5_generator(ns.value());
+  uuids::uuid const uuid = v5_generator(unique_data);
+
+  return bytes_to_uuid_str(uuid.as_bytes());
 }
 
 }  // namespace AstarteDeviceSdk
