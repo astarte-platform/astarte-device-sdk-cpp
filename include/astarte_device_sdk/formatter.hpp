@@ -81,7 +81,12 @@ void format_base64(OutputIt& out, const std::vector<uint8_t>& data) {
 }
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
-auto format_base64_url_safe(const std::vector<uint8_t>& data) -> std::string {
+/**
+ * @brief Format a vector of bytes into a Base64 URL safe string literal.
+ * @param data The vector of bytes to format.
+ * @return Base64 URL safe encoded string
+ */
+inline auto format_base64_url_safe(const std::vector<uint8_t>& data) -> std::string {
   static constexpr std::string_view base64_chars =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
       "abcdefghijklmnopqrstuvwxyz"

@@ -14,7 +14,8 @@ int main(int argc, char** argv) {
   auto cfg = Config("samples/mqtt/native/config.toml");
 
   try {
-    auto device_id = AstarteDeviceSdk::Crypto::create_random_device_id();
+    auto device_id = AstarteDeviceSdk::Crypto::create_deterministic_device_id(
+        "149cb5bc-199d-4251-b946-47a813f20057", "unique_data");
     spdlog::info("random device id: {}", device_id);
 
     auto api = AstarteDeviceSdk::PairingApi(cfg.realm, device_id, cfg.pairing_url);
