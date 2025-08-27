@@ -174,6 +174,27 @@ class AstarteCryptoError : public AstarteErrorBase {
 };
 
 /**
+ * @brief Specific error for when a UUID operation failed.
+ */
+class AstarteUuidError : public AstarteErrorBase {
+ public:
+  /**
+   * @brief Standard error constructor.
+   * @param message The error message.
+   */
+  explicit AstarteUuidError(std::string_view message);
+  /**
+   * @brief Nested error constructor.
+   * @param message The error message.
+   * @param other The error to nest.
+   */
+  explicit AstarteUuidError(std::string_view message, const AstarteError& other);
+
+ private:
+  static constexpr std::string_view k_type_ = "AstarteUuidError";
+};
+
+/**
  * @brief Specific error for when an operation failed due to an internal error.
  */
 class AstarteHttpError : public AstarteErrorBase {

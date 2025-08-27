@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Support for the [Conan](https://conan.io/) package manager. Users can build the library as a conan package and import it in their Conan projects.
 - Implement Astarte pairing mechanism to register a device, retrieve MQTT broker URL and retrieve and check a device certificate.
+- Implement device id generation.
 
 ### Fixed
 - Bug preventing build with the Microsoft compiler [#113](https://github.com/astarte-platform/astarte-device-sdk-cpp/pull/131).
