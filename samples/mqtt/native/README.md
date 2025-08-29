@@ -19,10 +19,12 @@ An example of `config.toml` file is the following:
 astarte_base_url = ""
 realm = ""
 device_id = ""
+store_dir = ""
 pairing_token = ""
 
 [features]
 DEVICE_REGISTRATION = true
+DEVICE_CONNECTION = true
 
 ```
 

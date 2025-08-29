@@ -106,8 +106,8 @@ auto PairingApi::get_broker_url(std::string_view credential_secret, int timeout_
   }
 }
 
-auto PairingApi::get_device_cert(std::string_view credential_secret, int timeout_ms) const
-    -> std::string {
+auto PairingApi::get_device_key_and_cert(std::string_view credential_secret, int timeout_ms) const
+    -> std::tuple<std::string, std::string> {
   auto request_url = pairing_url;
   std::string pathname = std::format("{}/v1/{}/devices/{}/protocols/astarte_mqtt_v1/credentials",
                                      request_url.get_pathname(), realm, device_id);
@@ -119,7 +119,8 @@ auto PairingApi::get_device_cert(std::string_view credential_secret, int timeout
 
   auto priv_key = PsaKey();
   priv_key.generate();
-  auto device_csr = Crypto::create_csr(std::move(priv_key));
+  auto device_priv_key = priv_key.to_pem();
+  auto device_csr = Crypto::create_csr(priv_key);
 
   json body;
   body["data"] = {{"csr", device_csr}};
@@ -141,7 +142,8 @@ auto PairingApi::get_device_cert(std::string_view credential_secret, int timeout
 
   try {
     json response_json = json::parse(res.text);
-    return response_json.at("data").at("client_crt");
+    // TODO: check if the certificate is valid, otherwise generate a new one
+    return {device_priv_key, response_json.at("data").at("client_crt")};
   } catch (const json::exception& e) {
     throw JsonAccessErrorException(
         std::format("Failed to parse JSON: {}. Body: {}", e.what(), res.text));

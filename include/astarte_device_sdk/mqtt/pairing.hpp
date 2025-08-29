@@ -9,6 +9,7 @@
 #include <format>
 #include <string>
 #include <string_view>
+#include <tuple>
 
 #include "ada.h"
 #include "exceptions.hpp"
@@ -39,7 +40,6 @@ class PairingApi {
   auto register_device(std::string_view pairing_token,
                        std::chrono::milliseconds timeout_ms = 0ms) const -> std::string;
 
- private:
   /**
    * @brief Retrieve the URL of the Astarte MQTT broker.
    * @param credential_secret The Astarte device credential necessary to authenticate to the broker.
@@ -49,13 +49,16 @@ class PairingApi {
   auto get_broker_url(std::string_view credential_secret, int timeout_ms = 0) const -> std::string;
 
   /**
-   * @brief Retrieve the Astarte device certificate.
+   * @brief Retrieve the Astarte device private key and certificate.
    * @param credential_secret The Astarte device credential necessary to authenticate to the broker.
    * @param timeout_ms A timeout value to perform the HTTP request.
-   * @return The device certificate.
+   * @return The device private key in PEM format.
+   * @return The device certificate in PEM format.
    */
-  auto get_device_cert(std::string_view credential_secret, int timeout_ms = 0) const -> std::string;
+  auto get_device_key_and_cert(std::string_view credential_secret, int timeout_ms = 0) const
+      -> std::tuple<std::string, std::string>;
 
+ private:
   /**
    * @brief Check if the Astarte device certificate is valid.
    * @param certificate The Astarte device certificate.
@@ -72,6 +75,13 @@ class PairingApi {
    * @return The Astarte Pairing API broker URL.
    */
   static auto create_pairing_url(std::string_view astarte_base_url) -> ada::url_aggregator;
+
+  /**
+   * @brief Retrieve the Astarte device private key and CSR.
+   * @return The device private key.
+   * @return The device CSR.
+   */
+  auto get_device_key_and_csr() const -> std::tuple<std::string, std::string>;
 
   /** @brief The Astarte realm name. */
   const std::string realm;

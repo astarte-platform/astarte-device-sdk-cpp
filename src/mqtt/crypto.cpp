@@ -65,6 +65,16 @@ auto PsaKey::operator=(PsaKey&& other) -> PsaKey& {
 
 auto PsaKey::get() const -> const mbedtls_svc_key_id_t& { return key_id_; }
 
+auto PsaKey::to_pem() const -> const std::string {
+  auto key = MbedPk(*this);
+
+  std::vector<unsigned char> buf(1024, 0);
+  mbedtls_check(mbedtls_pk_write_key_pem(&key.ctx(), buf.data(), buf.size()),
+                "mbedtls_pk_write_key_pem");
+
+  return std::string(reinterpret_cast<const char*>(buf.data()));
+}
+
 void PsaKey::generate() {
   // generate the PSA EC key
   psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;

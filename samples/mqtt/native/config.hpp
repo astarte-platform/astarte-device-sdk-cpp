@@ -23,12 +23,20 @@ class Features {
 
   void set_registration_feature() { active_features |= features::REGISTRATION; }
 
+  // check whether the connection feature is enabled
+  bool connection_enabled() {
+    return (active_features & features::CONNECTION == features::CONNECTION) ? true : false;
+  }
+
+  void set_connection_feature() { active_features |= features::CONNECTION; }
+
   int active_features;
 
  private:
   // use this enum as bitmask to obtain the active features.
   enum features {
     REGISTRATION = (1u << 0),
+    CONNECTION = (1u << 1),
   };
 };
 
@@ -50,7 +58,9 @@ class Config {
   std::string astarte_base_url;
   std::string realm;
   std::string device_id;
+  std::string store_dir;
   std::optional<std::string> pairing_token;
+  std::optional<std::string> credential_secret;
 
   Features features;
 
@@ -62,15 +72,24 @@ class Config {
     cfg.astarte_base_url = astarte_base_url.get_href();
     cfg.realm = toml.at("realm").value<std::string>().value();
     cfg.device_id = toml.at("device_id").value<std::string>().value();
-    cfg.pairing_token = toml.at("pairing_token").value<std::string>();
+    cfg.store_dir = toml.at("store_dir").value<std::string>().value();
+    cfg.pairing_token = toml.at_path("pairing_token").value<std::string>();
+    cfg.credential_secret = toml.at_path("credential_secret").value<std::string>();
   }
 
   void feature_config(Config& cfg, toml::table& toml) {
     bool registration_enabled =
         toml.at("features").at_path("DEVICE_REGISTRATION").value<bool>().value();
 
+    bool connection_enabled =
+        toml.at("features").at_path("DEVICE_CONNECTION").value<bool>().value();
+
     if (registration_enabled) {
       features.set_registration_feature();
+    }
+
+    if (connection_enabled) {
+      features.set_connection_feature();
     }
   }
 };
