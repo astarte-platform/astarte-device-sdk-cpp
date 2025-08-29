@@ -180,6 +180,25 @@ PsaKey::PsaKey(PsaKey&& other) noexcept : key_id_(other.key_id_) {
 
 auto PsaKey::get() const -> const mbedtls_svc_key_id_t& { return key_id_; }
 
+auto PsaKey::to_pem() const -> astarte_tl::expected<const std::string, AstarteError> {
+  auto key = MbedPk::create(*this);
+  if (!key) {
+    spdlog::error("Failed to create MBedPk key from PsaKey. Error: {}", key.error());
+  }
+
+  std::vector<unsigned char> buf(1024, 0);
+  auto res = mbedtls_ret_to_astarte_errors(
+      mbedtls_pk_write_key_pem(&key.value().ctx(), buf.data(), buf.size()),
+      "mbedtls_pk_write_key_pem");
+  if (!res) {
+    spdlog::error("PsaKey failed to write the key. Key ID {} may be leaked. Error: {}", key_id_,
+                  res.error());
+    return astarte_tl::unexpected(res.error());
+  }
+
+  return std::string(reinterpret_cast<const char*>(buf.data()));
+}
+
 auto PsaKey::generate() -> astarte_tl::expected<void, AstarteError> {
   // generate the PSA EC key
   psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;

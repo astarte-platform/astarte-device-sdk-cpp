@@ -39,9 +39,13 @@ class AstartePairingApiError;
 class AstarteMqttError;
 class AstarteInvalidUrlError;
 class AstarteRetrieveBrokerUrlError;
+class AstarteReadCredentialError;
+class AstarteWriteCredentialError;
+class AstartePairingConfigError;
 class AstarteCryptoError;
 class AstarteUuidError;
 class AstarteHttpError;
+class AstarteMqttConnectionError;
 #endif
 
 /**
@@ -55,7 +59,9 @@ using AstarteError =
                  AstarteOperationRefusedError, AstarteGrpcLibError, AstarteMsgHubError,
                  AstarteJsonParsingError, AstarteDeviceRegistrationError, AstartePairingApiError,
                  AstarteMqttError, AstarteInvalidUrlError, AstarteRetrieveBrokerUrlError,
-                 AstarteCryptoError, AstarteUuidError, AstarteHttpError>;
+                 AstarteReadCredentialError, AstarteWriteCredentialError, AstartePairingConfigError,
+                 AstarteCryptoError, AstarteUuidError, AstarteHttpError,
+                 AstarteMqttConnectionError>;
 #else
                  AstarteOperationRefusedError, AstarteGrpcLibError, AstarteMsgHubError>;
 #endif

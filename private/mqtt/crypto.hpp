@@ -57,7 +57,11 @@ class PsaKey {
    * @return The managed mbedtls_svc_key_id_t. Returns PSA_KEY_ID_NULL if this object is empty.
    */
   auto get() const -> const mbedtls_svc_key_id_t&;
-
+  /**
+   * @brief Get the PEM representation of the underlying key ID
+   * @return The PEM representation of the underlying key ID, an error otherwise.
+   */
+  auto to_pem() const -> astarte_tl::expected<const std::string, AstarteError>;
   /**
    * @brief Creates a new ECDSA (secp256r1) private key.
    * @return An error on failure.

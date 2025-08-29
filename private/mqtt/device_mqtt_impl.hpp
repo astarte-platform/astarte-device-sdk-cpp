@@ -15,7 +15,9 @@
 
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/mqtt/config.hpp"
+#include "astarte_device_sdk/mqtt/connection.hpp"
 #include "astarte_device_sdk/mqtt/device_mqtt.hpp"
+#include "astarte_device_sdk/mqtt/errors.hpp"
 #include "astarte_device_sdk/msg.hpp"
 #include "astarte_device_sdk/object.hpp"
 #include "astarte_device_sdk/ownership.hpp"
@@ -29,8 +31,11 @@ struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
   /**
    * @brief Construct an AstarteDeviceMqttImpl instance.
    * @param cfg set of MQTT configuration options used to connect a device to Astarte.
+   * @return a shared pointer to the AstarteDeviceMqttImpl object, an error otherwise.
    */
-  AstarteDeviceMqttImpl(const MqttConfig cfg);
+  static auto create(const MqttConfig cfg)
+      -> astarte_tl::expected<std::shared_ptr<AstarteDeviceMqttImpl>, AstarteError>;
+
   /** @brief Destructor for the Astarte device class. */
   ~AstarteDeviceMqttImpl();
   /** @brief Copy constructor for the Astarte device class. */
@@ -146,8 +151,20 @@ struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
       -> astarte_tl::expected<AstartePropertyIndividual, AstarteError>;
 
  private:
+  /**
+   * @brief Private constructor for an AstarteDeviceMqttImpl instance.
+   * @param cfg set of MQTT configuration options used to connect a device to Astarte.
+   * @param MQTT connection object.
+   */
+  AstarteDeviceMqttImpl(MqttConfig cfg, MqttConnection connection);
+
   MqttConfig cfg_;
+  // TODO: probably we will have to move the connection handling to a separate thread (see
+  // device_grpc_impl.hpp)
+  MqttConnection connection_;
+  // TODO: the following paramenters can be gathered into SharedState struct
   std::atomic_bool connected_{false};
+  std::vector<std::string> introspection_;
 };
 
 }  // namespace AstarteDeviceSdk

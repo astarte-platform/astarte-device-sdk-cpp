@@ -38,10 +38,11 @@ namespace AstarteDeviceSdk {
 class AstarteDeviceMqtt : public AstarteDevice {
  public:
   /**
-   * @brief Construct an AstarteDeviceMqttImpl instance.
+   * @brief static fallable constructor method.
    * @param cfg set of MQTT configuration options used to connect a device to Astarte.
    */
-  AstarteDeviceMqtt(const MqttConfig cfg);
+  [[nodiscard]] static auto create(MqttConfig cfg)
+      -> astarte_tl::expected<AstarteDeviceMqtt, AstarteError>;
   /** @brief Destructor for the Astarte device class. */
   ~AstarteDeviceMqtt() override;
   /** @brief Copy constructor for the Astarte device class. */
@@ -49,9 +50,9 @@ class AstarteDeviceMqtt : public AstarteDevice {
   /** @brief Copy assignment operator for the Astarte device class. */
   auto operator=(AstarteDeviceMqtt& other) -> AstarteDeviceMqtt& = delete;
   /** @brief Move constructor for the Astarte device class. */
-  AstarteDeviceMqtt(AstarteDeviceMqtt&& other) = delete;
+  AstarteDeviceMqtt(AstarteDeviceMqtt&& other) = default;
   /** @brief Move assignment operator for the Astarte device class. */
-  auto operator=(AstarteDeviceMqtt&& other) -> AstarteDeviceMqtt& = delete;
+  auto operator=(AstarteDeviceMqtt&& other) -> AstarteDeviceMqtt& = default;
 
   /**
    * @brief Add an interface for the device from a json file.
@@ -166,6 +167,12 @@ class AstarteDeviceMqtt : public AstarteDevice {
  private:
   struct AstarteDeviceMqttImpl;
   std::shared_ptr<AstarteDeviceMqttImpl> astarte_device_impl_;
+
+  /**
+   * @brief Construct an AstarteDeviceMqttImpl instance.
+   * @param impl a shared pointer to the AstarteDeviceMqttImpl object.
+   */
+  AstarteDeviceMqtt(std::shared_ptr<AstarteDeviceMqttImpl> impl);
 };
 
 }  // namespace AstarteDeviceSdk
