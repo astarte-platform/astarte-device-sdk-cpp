@@ -14,6 +14,15 @@ env:
   GRPC_VERSION: "1.69.0"
 
 jobs:
+  build-simple-sample-conan:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: build-simple-sample-conan-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build sample with conan
+        run: ./build_sample_conan.sh simple
   build-simple-sample-fetch-grpc:
     runs-on: ubuntu-latest
     concurrency:
