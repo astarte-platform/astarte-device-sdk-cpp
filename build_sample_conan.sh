@@ -6,6 +6,7 @@
 
 # --- Configuration ---
 fresh_mode=false
+external_tools=false
 sample_to_build=""
 venv_dir=".venv"
 conan_package_name="conan"
@@ -20,6 +21,7 @@ Usage: $0 <sample_name> [OPTIONS]
 
 Common Options:
   --fresh         Build the sample from scratch (removes its build directory).
+  --ext-tools     Do not setup the venv and python tooling for the build within the script.
   -h, --help      Display this help message.
 EOF
 }
@@ -47,49 +49,53 @@ fi
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --fresh) fresh_mode=true; shift ;;
+        --ext-tools) external_tools=true; shift ;;
         -h|--help) display_help; exit 0 ;;
         *) display_help; error_exit "Unknown option: $1" ;;
     esac
 done
 
 # --- Environment and dependency setup ---
-echo "Setting up Python environment and dependencies for conan..."
+if [ "$external_tools" = false ]; then
+    echo "Setting up Python environment and dependencies for conan..."
 
-# Check for python3
-if ! command -v python3 &> /dev/null; then
-    error_exit "python3 could not be found. Please install Python 3."
-fi
-
-# Create virtual environment if it doesn't exist
-if [ ! -d "$venv_dir" ]; then
-    echo "Creating Python virtual environment in $venv_dir..."
-    if ! python3 -m venv "$venv_dir"; then
-        error_exit "Failed to create Python virtual environment."
+    # Check for python3
+    if ! command -v python3 &> /dev/null; then
+        error_exit "python3 could not be found. Please install Python 3."
     fi
-fi
 
-# Activate virtual environment
-# shellcheck source=/dev/null
-if ! source "$venv_dir/bin/activate"; then
-    error_exit "Failed to activate Python virtual environment."
-fi
-
-# Upgrade pip
-echo "Upgrading pip..."
-if ! pip install --upgrade pip; then
-    error_exit "Failed to upgrade pip."
-fi
-
-# Install or verify conan version
-echo "Checking/installing $conan_package_name version $conan_package_version..."
-installed_version=$(pip show "$conan_package_name" | grep Version | awk '{print $2}' || true)
-if [ "$installed_version" != "$conan_package_version" ]; then
-    echo "Installing $conan_package_name==$conan_package_version..."
-    if ! pip install "$conan_package_name==$conan_package_version"; then
-        error_exit "Failed to install $conan_package_name version $conan_package_version."
+    # Create virtual environment if it doesn't exist
+    if [ ! -d "$venv_dir" ]; then
+        echo "Creating Python virtual environment in $venv_dir..."
+        if ! python3 -m venv "$venv_dir"; then
+            error_exit "Failed to create Python virtual environment."
+        fi
     fi
-else
-    echo "$conan_package_name version $conan_package_version is already installed."
+
+    # Activate virtual environment
+    # shellcheck source=/dev/null
+    if ! source "$venv_dir/bin/activate"; then
+        error_exit "Failed to activate Python virtual environment."
+    fi
+
+    # Upgrade pip
+    echo "Upgrading pip..."
+    if ! pip install --upgrade pip; then
+        error_exit "Failed to upgrade pip."
+    fi
+
+    # Install or verify conan version
+    echo "Checking/installing $conan_package_name version $conan_package_version..."
+    installed_version=$(pip show "$conan_package_name" | grep Version | awk '{print $2}' || true)
+    if [ "$installed_version" != "$conan_package_version" ]; then
+        echo "Installing $conan_package_name==$conan_package_version..."
+        if ! pip install "$conan_package_name==$conan_package_version"; then
+            error_exit "Failed to install $conan_package_name version $conan_package_version."
+        fi
+    else
+        echo "$conan_package_name version $conan_package_version is already installed."
+    fi
+
 fi
 
 # --- Build Logic ---
@@ -118,10 +124,9 @@ fi
 echo "Creating the library using Conan..."
 
 conan_options_array=()
-conan_options_array+=("--build=missing")
 conan_options_array+=("--settings=build_type=Debug")
 conan_options_array+=("--settings=compiler.cppstd=20")
-if ! conan create . "${conan_options_array[@]}"; then
+if ! conan create . --build=missing "${conan_options_array[@]}"; then
     error_exit "Conan package creation failed for the library."
 fi
 
@@ -131,14 +136,9 @@ echo "Running Conan for $sample_to_build sample..."
 # Enter the sample folder
 cd "${sample_src_dir}" || error_exit "Failed to navigate to $sample_src_dir"
 
-# Install the sample
-if ! conan install . --output-folder=build "${conan_options_array[@]}"; then
-    error_exit "Conan install failed for $sample_to_build sample."
-fi
-
 # Build the sample
 if ! conan build . --output-folder=build "${conan_options_array[@]}"; then
-    error_exit "Conan install failed for $sample_to_build sample."
+    error_exit "Conan build failed for $sample_to_build sample."
 fi
 
 echo "Build complete for $sample_to_build sample. Executable should be in: $build_dir/"
