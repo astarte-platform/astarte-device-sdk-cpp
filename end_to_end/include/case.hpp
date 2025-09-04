@@ -50,7 +50,8 @@ class TestCase {
 
   void start() {
     if (!thread_) {
-      thread_ = std::make_unique<std::jthread>(&TestCase::reception_handler, this);
+      thread_ = std::make_unique<std::jthread>(
+          [this](std::stop_token stoken) { this->reception_handler(stoken); });
     }
   }
 
