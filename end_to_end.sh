@@ -6,9 +6,13 @@
 
 # --- Configuration ---
 fresh_mode=false
-system_grpc=false
-jobs=$(nproc --all)
-build_dir="end_to_end/build"
+external_tools=false
+end_to_end_src_dir="end_to_end"
+build_dir="${end_to_end_src_dir}/build"
+cmake_user_presets="${end_to_end_src_dir}/CMakeUserPresets.json"
+venv_dir=".venv"
+conan_package_name="conan"
+conan_package_version="2.20.1"
 
 # --- Helper Functions ---
 display_help() {
@@ -19,8 +23,7 @@ Builds the end-to-end samples.
 
 Options:
   --fresh         Build from scratch (removes $build_dir).
-  --system_grpc   Use the system gRPC instead of building it from scratch.
-  -j, --jobs <N>  Specify the number of parallel jobs for make. Default: $jobs.
+  --ext-tools     Do not setup the venv and python tooling for the build within the script.
   -h, --help      Display this help message.
 EOF
 }
@@ -33,14 +36,7 @@ error_exit() {
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --fresh) fresh_mode=true; shift ;;
-        --system_grpc) system_grpc=true; shift ;;
-        -j|--jobs)
-            jobs="$2"
-            if ! [[ "$jobs" =~ ^[0-9]+$ && "$jobs" -gt 0 ]]; then
-                error_exit "Invalid argument for --jobs. Please provide a positive number."
-            fi
-            shift 2
-            ;;
+        --ext-tools) external_tools=true; shift ;;
         -h|--help) display_help; exit 0 ;;
         *) display_help; error_exit "Unknown option: $1" ;;
     esac
@@ -49,52 +45,85 @@ done
 # --- Build Logic ---
 echo "Configuration:"
 echo "  Fresh Mode: $fresh_mode"
-echo "  Build Directory: $build_dir"
-echo "  Parallel Jobs (make): $jobs"
-echo "  Use System gRPC: $system_grpc"
+echo "  External tools: $external_tools"
 echo ""
+
+# --- Environment and dependency setup ---
+if [ "$external_tools" = false ]; then
+    echo "Setting up Python environment and dependencies for conan..."
+
+    # Check for python3
+    if ! command -v python3 &> /dev/null; then
+        error_exit "python3 could not be found. Please install Python 3."
+    fi
+
+    # Create virtual environment if it doesn't exist
+    if [ ! -d "$venv_dir" ]; then
+        echo "Creating Python virtual environment in $venv_dir..."
+        if ! python3 -m venv "$venv_dir"; then
+            error_exit "Failed to create Python virtual environment."
+        fi
+    fi
+
+    # Activate virtual environment
+    # shellcheck source=/dev/null
+    if ! source "$venv_dir/bin/activate"; then
+        error_exit "Failed to activate Python virtual environment."
+    fi
+
+    # Upgrade pip
+    echo "Upgrading pip..."
+    if ! pip install --upgrade pip; then
+        error_exit "Failed to upgrade pip."
+    fi
+
+    # Install or verify conan version
+    echo "Checking/installing $conan_package_name version $conan_package_version..."
+    installed_version=$(pip show "$conan_package_name" | grep Version | awk '{print $2}' || true)
+    if [ "$installed_version" != "$conan_package_version" ]; then
+        echo "Installing $conan_package_name==$conan_package_version..."
+        if ! pip install "$conan_package_name==$conan_package_version"; then
+            error_exit "Failed to install $conan_package_name version $conan_package_version."
+        fi
+    else
+        echo "$conan_package_name version $conan_package_version is already installed."
+    fi
+
+fi
 
 # Clean build directory if --fresh is set
 if [ "$fresh_mode" = true ]; then
-    if [ -d "$build_dir" ]; then
-        echo "Fresh build requested. Removing $build_dir..."
-        if ! rm -rf "$build_dir"; then
-            error_exit "Failed to remove build directory '$build_dir'."
-        fi
-    else
-        echo "Fresh build requested, but $build_dir does not exist. Skipping removal."
-    fi
+    echo "Fresh build requested. Removing $build_dir, $cmake_user_presets and conan library..."
+    rm -rf "$build_dir"
+    rm -f "$cmake_user_presets"
+    conan remove astarte-device-sdk -c
 fi
 
-# Create build directory if it doesn't exist
-echo "Ensuring build directory '$build_dir' exists..."
-if ! mkdir -p "$build_dir"; then
-    error_exit "Failed to create build directory '$build_dir'."
+# Detect the default conan profile
+if ! conan profile detect --exist-ok; then
+    error_exit "Conan profile detection failed."
 fi
 
-# Navigate to build directory
-echo "Changing directory to '$build_dir'..."
-if ! cd "$build_dir"; then
-    error_exit "Failed to navigate to '$build_dir'."
+# --- Run conan conan on the library ---
+echo "Creating the library using Conan..."
+
+conan_options_array=()
+conan_options_array+=("--build=missing")
+conan_options_array+=("--settings=build_type=Debug")
+conan_options_array+=("--settings=compiler.cppstd=20")
+if ! conan create . "${conan_options_array[@]}"; then
+    error_exit "Conan package creation failed for the library."
 fi
 
-# Configure CMake
-echo "Running CMake..."
-cmake_options_array=()
-if [ "$system_grpc" = true ]; then
-    cmake_options_array+=("-DASTARTE_USE_SYSTEM_GRPC=ON")
-fi
-cmake_options_array+=("-DCMAKE_POSITION_INDEPENDENT_CODE=ON")
-cmake_options_array+=("-DCMAKE_POLICY_VERSION_MINIMUM=3.15")
-cmake_options_array+=("-DASTARTE_PUBLIC_SPDLOG_DEP=ON")
+# --- Run conan conan on the sample ---
+echo "Running Conan for the end to end tests..."
 
-echo "CMake options: ${cmake_options_array[*]}"
-if ! cmake "${cmake_options_array[@]}" ..; then
-    error_exit "CMake configuration failed."
+# Enter the sample folder
+cd "${end_to_end_src_dir}" || error_exit "Failed to navigate to $end_to_end_src_dir"
+
+# Build the sample
+if ! conan build . --output-folder=build "${conan_options_array[@]}"; then
+    error_exit "Conan build failed for the end to end tests."
 fi
 
-# Build the project
-echo "Building with make -j $jobs ..."
-if ! make -j "$jobs"; then
-    error_exit "Make build failed."
-fi
+echo "Build complete the end to end tests. Executable should be in: $build_dir/"
