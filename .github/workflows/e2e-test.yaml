@@ -108,7 +108,7 @@ jobs:
         run: ./end_to_end.sh --fresh --ext-tools
       - name: Run the end to end tests
         working-directory: ./astarte-device-sdk-cpp
-        run: ./end_to_end/build/end_to_end_runner
+        run: ./end_to_end/build/app
       - name: Install valgrind
         working-directory: ./astarte-device-sdk-cpp
         run: |
@@ -116,4 +116,4 @@ jobs:
           sudo apt install valgrind
       - name: Run the end to end tests with valgrind
         working-directory: ./astarte-device-sdk-cpp
-        run: valgrind --leak-check=summary --track-origins=no --error-exitcode=1 ./end_to_end/build/end_to_end_runner
+        run: valgrind --leak-check=summary --track-origins=no --error-exitcode=1 ./end_to_end/build/app
