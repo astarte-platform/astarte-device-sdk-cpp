@@ -114,6 +114,7 @@ cmake_options_array+=("-DCMAKE_CXX_STANDARD=20")
 cmake_options_array+=("-DCMAKE_CXX_STANDARD_REQUIRED=ON")
 cmake_options_array+=("-DCMAKE_POLICY_VERSION_MINIMUM=3.15")
 cmake_options_array+=("-DASTARTE_PUBLIC_SPDLOG_DEP=ON")
+cmake_options_array+=("-DSAMPLE_USE_SYSTEM_ASTARTE_LIB=OFF")
 
 if [ "$system_grpc" = true ]; then
     cmake_options_array+=("-DASTARTE_USE_SYSTEM_GRPC=ON")

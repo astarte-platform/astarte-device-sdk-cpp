@@ -7,9 +7,7 @@
 # --- Configuration ---
 fresh_mode=false
 external_tools=false
-end_to_end_src_dir="end_to_end"
-build_dir="${end_to_end_src_dir}/build"
-cmake_user_presets="${end_to_end_src_dir}/CMakeUserPresets.json"
+sample_to_build=""
 venv_dir=".venv"
 conan_package_name="conan"
 conan_package_version="2.20.1"
@@ -17,22 +15,37 @@ conan_package_version="2.20.1"
 # --- Helper Functions ---
 display_help() {
     cat << EOF
-Usage: $0 [OPTIONS]
+Usage: $0 <sample_name> [OPTIONS]
 
-Builds the end-to-end samples.
+<sample_name> can be 'simple'.
 
-Options:
-  --fresh         Build from scratch (removes $build_dir).
+Common Options:
+  --fresh         Build the sample from scratch (removes its build directory).
   --ext-tools     Do not setup the venv and python tooling for the build within the script.
   -h, --help      Display this help message.
 EOF
 }
+
 error_exit() {
     echo "Error: $1" >&2
     exit 1
 }
 
 # --- Argument Parsing ---
+if [[ -z "$1" ]]; then
+    display_help
+    error_exit "No sample specified. Please choose 'simple'."
+fi
+
+sample_to_build="$1"
+shift
+
+if [[ "$sample_to_build" != "simple" ]]; then
+    display_help
+    error_exit "Invalid sample name: '$sample_to_build'. Must be 'simple'."
+fi
+
+# Now parse the rest of the arguments
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --fresh) fresh_mode=true; shift ;;
@@ -41,12 +54,6 @@ while [[ "$#" -gt 0 ]]; do
         *) display_help; error_exit "Unknown option: $1" ;;
     esac
 done
-
-# --- Build Logic ---
-echo "Configuration:"
-echo "  Fresh Mode: $fresh_mode"
-echo "  External tools: $external_tools"
-echo ""
 
 # --- Environment and dependency setup ---
 if [ "$external_tools" = false ]; then
@@ -91,7 +98,16 @@ if [ "$external_tools" = false ]; then
 
 fi
 
-# Clean build directory if --fresh is set
+# --- Build Logic ---
+case "$sample_to_build" in
+    simple)
+        sample_src_dir="samples/simple"
+        build_dir="${sample_src_dir}/build"
+        cmake_user_presets="${sample_src_dir}/CMakeUserPresets.json"
+        ;;
+esac
+
+# Clean build if --fresh is set
 if [ "$fresh_mode" = true ]; then
     echo "Fresh build requested. Removing $build_dir, $cmake_user_presets and conan library..."
     rm -rf "$build_dir"
@@ -108,22 +124,21 @@ fi
 echo "Creating the library using Conan..."
 
 conan_options_array=()
-conan_options_array+=("--build=missing")
 conan_options_array+=("--settings=build_type=Debug")
 conan_options_array+=("--settings=compiler.cppstd=20")
-if ! conan create . "${conan_options_array[@]}"; then
+if ! conan create . --build=missing "${conan_options_array[@]}"; then
     error_exit "Conan package creation failed for the library."
 fi
 
 # --- Run conan conan on the sample ---
-echo "Running Conan for the end to end tests..."
+echo "Running Conan for $sample_to_build sample..."
 
 # Enter the sample folder
-cd "${end_to_end_src_dir}" || error_exit "Failed to navigate to $end_to_end_src_dir"
+cd "${sample_src_dir}" || error_exit "Failed to navigate to $sample_src_dir"
 
 # Build the sample
 if ! conan build . --output-folder=build "${conan_options_array[@]}"; then
-    error_exit "Conan build failed for the end to end tests."
+    error_exit "Conan build failed for $sample_to_build sample."
 fi
 
-echo "Build complete the end to end tests. Executable should be in: $build_dir/"
+echo "Build complete for $sample_to_build sample. Executable should be in: $build_dir/"
