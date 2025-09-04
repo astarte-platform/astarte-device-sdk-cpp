@@ -18,14 +18,14 @@ class Features {
  public:
   // check whether the registration feature is enabled
   bool registration_enabled() {
-    return (active_features & features::REGISTRATION == features::REGISTRATION) ? true : false;
+    return (active_features & features::REGISTRATION) == features::REGISTRATION ? true : false;
   }
 
   void set_registration_feature() { active_features |= features::REGISTRATION; }
 
   // check whether the connection feature is enabled
   bool connection_enabled() {
-    return (active_features & features::CONNECTION == features::CONNECTION) ? true : false;
+    return (active_features & features::CONNECTION) == features::CONNECTION ? true : false;
   }
 
   void set_connection_feature() { active_features |= features::CONNECTION; }
@@ -80,9 +80,11 @@ class Config {
   void feature_config(Config& cfg, toml::table& toml) {
     bool registration_enabled =
         toml.at("features").at_path("DEVICE_REGISTRATION").value<bool>().value();
+    spdlog::debug("registration flag {}enabled", registration_enabled ? "" : "not ");
 
     bool connection_enabled =
         toml.at("features").at_path("DEVICE_CONNECTION").value<bool>().value();
+    spdlog::debug("connection flag {}enabled", connection_enabled ? "" : "not ");
 
     if (registration_enabled) {
       features.set_registration_feature();

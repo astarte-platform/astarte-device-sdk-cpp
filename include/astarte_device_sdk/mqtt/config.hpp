@@ -21,10 +21,10 @@
 namespace AstarteDeviceSdk {
 
 /** @brief Default keep alive interval in seconds for the MQTT connection. */
-constexpr int DEFAULT_KEEP_ALIVE = 30;
+constexpr u_int32_t DEFAULT_KEEP_ALIVE = 30;
 
 /** @brief Default connection timeout in seconds for the MQTT connection. */
-constexpr int DEFAULT_CONNECTION_TIMEOUT = 5;
+constexpr u_int32_t DEFAULT_CONNECTION_TIMEOUT = 5;
 
 /** @brief Default file name inside the store directory where the credential secret is stored. */
 constexpr std::string_view CREDENTIAL_FILE = "credential";
@@ -45,21 +45,40 @@ constexpr std::string_view PRIVATE_KEY_FILE = "client-priv-key.pem";
 /**
  * @brief Represent an Astarte device credential.
  */
+/**
+ * @brief Reads the entire content of a file into a string.
+ * @param file_path The path to the file to be read.
+ * @return An std::optional containing the file content as a string, or std::nullopt if the file
+ * cannot be opened.
+ */
+auto read_from_file(const std::filesystem::path& file_path) -> std::optional<std::string>;
+
+/**
+ * @brief Writes a string to a file, overwriting any existing content.
+ * @param file_path The path to the file to be written.
+ * @param credential The string content to write to the file.
+ */
+void write_to_file(const std::filesystem::path& file_path, const std::string credential);
+
+/**
+ * @brief A type-safe wrapper for Astarte credentials, distinguishing between a credential secret
+ * and a pairing token.
+ */
 class Credential {
  public:
   /**
-   * @brief Create a Credential instance from a pairing token.
+   * @brief Creates a Credential instance from a pairing token.
    * @param credential The pairing token string.
-   * @return A new Credential object of type PAIRING_TOKEN.
+   * @return A new Credential instance of type PAIRING_TOKEN.
    */
   static auto pairing_token(std::string_view credential) -> Credential {
     return Credential{CredentialType::PAIRING_TOKEN, std::string(credential)};
   }
 
   /**
-   * @brief Create a Credential instance from a credential secret.
+   * @brief Creates a Credential instance from a credential secret.
    * @param credential The credential secret string.
-   * @return A new Credential object of type CREDENTIAL_SECRET.
+   * @return A new Credential instance of type CREDENTIAL_SECRET.
    */
   static auto secret(std::string_view credential) -> Credential {
     return Credential{CredentialType::CREDENTIAL_SECRET, std::string(credential)};
@@ -101,6 +120,7 @@ class Credential {
                                        const std::string credential);
 
  private:
+  /// @brief Enum to differentiate credential types.
   enum CredentialType {
     CREDENTIAL_SECRET,
     PAIRING_TOKEN,
@@ -109,6 +129,7 @@ class Credential {
   CredentialType typ_;
   std::string credential_;
 
+  /// @brief Private constructor to enforce creation through static factory methods.
   Credential(CredentialType t, std::string cred) : typ_(t), credential_(std::move(cred)) {}
 };
 
@@ -216,15 +237,12 @@ class MqttConfig {
   auto build_mqtt_options() -> mqtt::connect_options;
 
  private:
-  std::string realm_;
-  std::string device_id_;
-  std::string pairing_url_;
-  Credential credential_;
-  std::string store_dir_;
-  bool ignore_ssl_;
-  u_int32_t keepalive_;
-  u_int32_t conn_timeout_;
-
+  /**
+   * @brief Create a new instance of MqttConfig.
+   *
+   * This constructor is private to enforce instance creation through the provided static factory
+   * methods, ensuring that a valid credential type is always supplied.
+   */
   MqttConfig(std::string_view realm, std::string_view device_id, Credential credential,
              std::string_view pairing_url, std::string_view store_dir)
       : realm_(realm),
@@ -238,6 +256,15 @@ class MqttConfig {
         keepalive_(DEFAULT_KEEP_ALIVE),
         // default has a connection timeout of 5 seconds
         conn_timeout_(DEFAULT_CONNECTION_TIMEOUT) {}
+
+  std::string realm_;
+  std::string device_id_;
+  std::string pairing_url_;
+  Credential credential_;
+  std::string store_dir_;
+  bool ignore_ssl_;
+  u_int32_t keepalive_;
+  u_int32_t conn_timeout_;
 };
 
 }  // namespace AstarteDeviceSdk

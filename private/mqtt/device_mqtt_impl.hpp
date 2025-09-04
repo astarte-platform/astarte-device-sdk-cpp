@@ -21,7 +21,7 @@
 #include "astarte_device_sdk/ownership.hpp"
 #include "astarte_device_sdk/property.hpp"
 #include "astarte_device_sdk/mqtt/device_mqtt.hpp"
-
+#include "astarte_device_sdk/mqtt/connection.hpp"
 
 namespace AstarteDeviceSdk {
 
@@ -142,7 +142,11 @@ struct AstarteDeviceMQTT::AstarteDeviceMQTTImpl {
 
  private:
   MqttConfig cfg_;
+  // TODO: probably we will have to move the connection handling to a separate thread (see device_grpc_impl.hpp)
+  MqttConnection connection_;
+  // TODO: the following paramenters can be gathered into SharedState struct
   std::atomic_bool connected_{false};
+  std::vector<std::string> introspection_;
 };
 
 }  // namespace AstarteDeviceSdk

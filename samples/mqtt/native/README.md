@@ -21,6 +21,7 @@ realm = ""
 device_id = ""
 store_dir = ""
 pairing_token = ""
+#credential_secret = ""
 
 [features]
 DEVICE_REGISTRATION = true
