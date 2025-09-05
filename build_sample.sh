@@ -19,7 +19,7 @@ display_help() {
     cat << EOF
 Usage: $0 <sample_name> [OPTIONS]
 
-<sample_name> can be 'grpc_native' or 'grpc_qt'.
+<sample_name> can be 'grpc_native', 'grpc_qt' or 'mqtt_native'.
 
 Common Options:
   --fresh               Build the sample from scratch (removes its build directory).
@@ -127,6 +127,7 @@ cmake_options_array+=("-DCMAKE_CXX_STANDARD=20")
 cmake_options_array+=("-DCMAKE_CXX_STANDARD_REQUIRED=ON")
 cmake_options_array+=("-DCMAKE_POLICY_VERSION_MINIMUM=3.15")
 cmake_options_array+=("-DASTARTE_PUBLIC_SPDLOG_DEP=ON")
+cmake_options_array+=("-DCMAKE_POSITION_INDEPENDENT_CODE=ON")
 
 if [[ "$transport" == "grpc" ]]; then
     cmake_options_array+=("-DASTARTE_TRANSPORT_GRPC=ON")

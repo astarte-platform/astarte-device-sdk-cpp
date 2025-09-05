@@ -26,6 +26,37 @@ function(astarte_sdk_configure_mqtt_dependencies)
     set(PAHO_WITH_MQTT_C ON CACHE BOOL "")
 
     FetchContent_MakeAvailable(paho-mqtt-cpp)
+
+    # Library to handle HTTP requests
+    set(CPR_GIT_REPOSITORY https://github.com/libcpr/cpr.git)
+    set(CPR_GIT_TAG 1.12.0)
+    FetchContent_Declare(cpr GIT_REPOSITORY ${CPR_GIT_REPOSITORY} GIT_TAG ${CPR_GIT_TAG})
+    FetchContent_MakeAvailable(cpr)
+
+    # Library to manage json
+    set(JSON_GIT_URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
+    FetchContent_Declare(json URL ${JSON_GIT_URL})
+    FetchContent_MakeAvailable(json)
+
+    # Library to manage toml files
+    set(TOML_GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git)
+    set(TOML_GIT_TAG v3.4.0)
+    FetchContent_Declare(tomlplusplus GIT_REPOSITORY ${TOML_GIT_REPOSITORY} GIT_TAG ${TOML_GIT_TAG})
+    FetchContent_MakeAvailable(tomlplusplus)
+
+    # Library to manage ulr
+    set(URL_GIT_REPOSITORY https://github.com/ada-url/ada.git)
+    set(URL_GIT_TAG v3.2.7)
+    FetchContent_Declare(url GIT_REPOSITORY ${URL_GIT_REPOSITORY} GIT_TAG ${URL_GIT_TAG})
+    FetchContent_MakeAvailable(url)
+
+    set(CRYPTO_GIT_REPOSITORY https://github.com/Mbed-TLS/mbedtls.git)
+    set(CRYPTO_GIT_TAG v3.6.4)
+    FetchContent_Declare(mbedtls GIT_REPOSITORY ${CRYPTO_GIT_REPOSITORY} GIT_TAG ${CRYPTO_GIT_TAG})
+    # Disable programs and tests to keep the build fast and minimal.
+    set(ENABLE_TESTING OFF CACHE BOOL "Disable Mbed TLS tests")
+    set(ENABLE_PROGRAMS OFF CACHE BOOL "Disable Mbed TLS example programs")
+    FetchContent_MakeAvailable(mbedtls)
 endfunction()
 
 # Adds MQTT source files and links required libraries to the main target.
@@ -36,6 +67,17 @@ function(astarte_sdk_add_mqtt_transport)
 
     # Link with MQTT
     target_link_libraries(astarte_device_sdk PRIVATE PahoMqttCpp::paho-mqttpp3)
+
+    # Link with cpr HTTP library
+    target_link_libraries(
+        astarte_device_sdk
+        PRIVATE cpr::cpr
+        PRIVATE nlohmann_json::nlohmann_json
+        PRIVATE tomlplusplus::tomlplusplus
+        PRIVATE mbedtls
+        PRIVATE mbedx509
+        PUBLIC ada::ada
+    )
 endfunction()
 
 # Creates and installs the pkg-config file for the mqtt-enabled SDK.
