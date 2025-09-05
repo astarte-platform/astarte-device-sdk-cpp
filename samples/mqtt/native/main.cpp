@@ -2,9 +2,31 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include <spdlog/spdlog.h>
+
+#include "astarte_device_sdk/mqtt/crypto.hpp"
+#include "astarte_device_sdk/mqtt/pairing.hpp"
+#include "config.hpp"
+
 int main(int argc, char** argv) {
-  // TODO: read device configuration from file and perform actions
-  // (e.g., registration, connection, sending data, etc.)
+  spdlog::set_level(spdlog::level::debug);
+
+  auto cfg = Config("samples/mqtt/native/config.toml");
+
+  try {
+    auto device_id = AstarteDeviceSdk::Crypto::create_deterministic_device_id(
+        "0444d8c3-f3f1-4b89-9e68-6ffb50ec1839", "unique_data");
+    spdlog::info("random device id: {}", device_id);
+
+    auto api = AstarteDeviceSdk::PairingApi(cfg.realm, device_id, cfg.pairing_url);
+
+    if (cfg.features.registration_enabled()) {
+      auto secret = api.register_device(cfg.pairing_jwt.value());
+      spdlog::info("credential secret: {}", secret);
+    }
+  } catch (const std::exception& e) {
+    spdlog::error("Exception thown: {}", e.what());
+  }
 
   return 0;
 }
