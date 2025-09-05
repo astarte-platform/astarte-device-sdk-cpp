@@ -6,7 +6,6 @@ from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps
 from conan import ConanFile
 
 class Pkg(ConanFile):
-    build_policy = "missing"
     # Binary configuration
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False]}

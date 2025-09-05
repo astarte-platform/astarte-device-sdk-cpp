@@ -21,8 +21,13 @@ jobs:
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@v5
+      - name: Install Conan
+        uses: conan-io/setup-conan@v1
+        with:
+          cache_packages: true
+          use_venv: true
       - name: Build sample with conan
-        run: ./build_sample_conan.sh simple
+        run: ./build_sample_conan.sh simple --ext-tools
   build-simple-sample-fetch-grpc:
     runs-on: ubuntu-latest
     concurrency:
