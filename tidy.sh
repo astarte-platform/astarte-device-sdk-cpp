@@ -8,7 +8,9 @@
 fresh_mode=false
 system_grpc=false
 jobs=$(nproc --all)
-build_dir="samples/simple/build"
+project_root=$(pwd) # Assuming this script is always run from the root of this project
+sample_src_dir="samples/simple"
+build_dir="${sample_src_dir}/build"
 venv_dir=".venv"
 clang_tidy_package_name="clang-tidy"
 clang_tidy_package_version="19.1.0"
@@ -103,27 +105,24 @@ fi
 mkdir -p "$build_dir"
 
 # Navigate to build directory
-original_dir=$(pwd)
-if ! cd "$build_dir"; then
-    error_exit "Failed to navigate to build directory: $build_dir"
-fi
+cd "$build_dir" || error_exit "Failed to navigate to $build_dir"
 
 # Run CMake
 echo "Running CMake..."
 cmake_options_array=()
+cmake_options_array+=("-DCMAKE_CXX_STANDARD=20")
+cmake_options_array+=("-DCMAKE_CXX_STANDARD_REQUIRED=ON")
+cmake_options_array+=("-DCMAKE_POLICY_VERSION_MINIMUM=3.15")
+cmake_options_array+=("-DASTARTE_PUBLIC_SPDLOG_DEP=ON")
+cmake_options_array+=("-DSAMPLE_USE_SYSTEM_ASTARTE_LIB=OFF")
+cmake_options_array+=("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON")
 if [ "$system_grpc" = true ]; then
     cmake_options_array+=("-DASTARTE_USE_SYSTEM_GRPC=ON")
 fi
-cmake_options_array+=("-DCMAKE_POLICY_VERSION_MINIMUM=3.15")
-cmake_options_array+=("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON")
-cmake_options_array+=("-DCMAKE_CXX_STANDARD=20")
-cmake_options_array+=("-DCMAKE_CXX_STANDARD_REQUIRED=ON")
-cmake_options_array+=("-DASTARTE_PUBLIC_SPDLOG_DEP=ON")
-cmake_options_array+=("-DASTARTE_PUBLIC_PROTO_DEP=ON")
-if ! cmake "${cmake_options_array[@]}" ..; then
+
+if ! cmake "${cmake_options_array[@]}" "$project_root/$sample_src_dir"; then
     error_exit "CMake configuration failed."
 fi
-
 
 # Build the project
 echo "Building with make -j $jobs ..."
@@ -133,9 +132,9 @@ fi
 
 # Return to the original directory from where the script was called,
 # before running clang-tidy, as clang-tidy paths might be relative to project root.
-echo "Returning to $original_dir..."
-if ! cd "$original_dir"; then
-    error_exit "Failed to return to original directory: $original_dir"
+echo "Returning to $project_root..."
+if ! cd "$project_root"; then
+    error_exit "Failed to return to original directory: $project_root"
 fi
 
 # --- Run clang-tidy ---

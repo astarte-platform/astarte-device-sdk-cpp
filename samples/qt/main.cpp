@@ -145,7 +145,7 @@ class AstarteWorker : public QObject {
     qInfo() << "Adding interfaces";
     std::filesystem::path qt_dir = QCoreApplication::applicationDirPath().toStdString();
     std::filesystem::path interfaces_dir =
-        qt_dir.parent_path().parent_path().parent_path() / "simple" / "interfaces";
+        qt_dir.parent_path().parent_path() / "simple" / "interfaces";
     // Those paths assume the user is calling the Astarte executable from the root of this project.
     std::filesystem::path device_individual_interface_file_path =
         interfaces_dir / "org.astarte-platform.cpp.examples.DeviceDatastream.json";
