@@ -100,6 +100,7 @@ build_dir="${sample_src_dir}/build"
 cmake_user_presets="${sample_src_dir}/CMakeUserPresets.json"
 
 if [[ "$deps_management" = "conan" && "$external_tools" = false ]]; then
+    # shellcheck source=/dev/null
     source ./scripts/setup_conan_env.sh
     setup_python_conan_env $venv_dir $conan_package_name $conan_package_version
 fi
@@ -116,14 +117,17 @@ fi
 
 # --- Perform a build with the desired dependency manager ---
 if [[ "$deps_management" == "conan" ]]; then
+    # shellcheck source=/dev/null
     source ./scripts/build_sample_conan.sh
-    build_sample_with_conan $(pwd) $sample_to_build $qt_version
+    build_sample_with_conan "$(pwd)" "$sample_to_build" "$qt_version"
 elif [[ "$deps_management" == "fetch" ]]; then
+    # shellcheck source=/dev/null
     source ./scripts/build_sample_cmake.sh
-    build_sample_with_cmake $(pwd) $sample_to_build "false" $(nproc --all) $qt_path $qt_version
+    build_sample_with_cmake "$(pwd)" "$sample_to_build" "false" "$(nproc --all)" "$qt_path" "$qt_version"
 else # "system"
+    # shellcheck source=/dev/null
     source ./scripts/build_sample_cmake.sh
-    build_sample_with_cmake $(pwd) $sample_to_build "true" $(nproc --all) $qt_path $qt_version
+    build_sample_with_cmake "$(pwd)" "$sample_to_build" "true" "$(nproc --all)" "$qt_path" "$qt_version"
 fi
 
 echo "Build complete for $sample_to_build sample. Executable should be in: $build_dir/"

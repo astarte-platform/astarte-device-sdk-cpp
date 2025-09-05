@@ -47,12 +47,6 @@ build_sample_with_cmake() {
     local sample_src_dir="${lib_src_dir}/samples/${sample_to_build}"
     local build_dir="${sample_src_dir}/build"
 
-    # Clean build if --fresh is set
-    if [ "$fresh_mode" = true ]; then
-        echo "Fresh build requested. Removing $build_dir..."
-        rm -rf "$build_dir"
-    fi
-
     # Create build directory if it doesn't exist
     mkdir -p "$build_dir"
 

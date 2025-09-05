@@ -44,7 +44,7 @@ build_sample_with_conan() {
     local conan_options_array=()
     conan_options_array+=("--settings=build_type=Debug")
     conan_options_array+=("--settings=compiler.cppstd=20")
-    if ! conan create ${lib_src_dir} --build=missing "${conan_options_array[@]}"; then
+    if ! conan create "${lib_src_dir}" --build=missing "${conan_options_array[@]}"; then
         error_exit "Conan package creation failed for the library."
     fi
 
