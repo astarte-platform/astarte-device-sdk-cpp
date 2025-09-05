@@ -79,7 +79,13 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt update
-          sudo apt install -y libx11-dev libx11-xcb-dev libfontenc-dev libice-dev libsm-dev libxau-dev libxaw7-dev libxcomposite-dev libxdamage-dev libxkbfile-dev libxmu-dev libxmuu-dev libxpm-dev libxres-dev libxtst-dev libxcb-glx0-dev libxcb-xkb-dev libxcb-icccm4-dev libxcb-keysyms1-dev libxcb-randr0-dev libxcb-shape0-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-xinerama0-dev libxcb-dri3-dev libxcb-dri2-0-dev libxcb-present-dev libxcb-composite0-dev libxcb-ewmh-dev libxcb-res0-dev libxcb-util-dev libgl1-mesa-dev
-          sudo apt install libxcursor-dev libxinerama-dev libxrandr-dev libxrender-dev libxss-dev libxv-dev libxxf86vm-dev libxcb-render-util0-dev libxcb-image0-dev uuid-dev libxcb-cursor-dev
+          sudo apt install libx11-dev libx11-xcb-dev libxau-dev libxaw7-dev libxcb-cursor-dev libxcb-image0-dev
+          sudo apt install libxcomposite-dev libxdamage-dev libxkbfile-dev libxmu-dev libxmuu-dev libxpm-dev
+          sudo apt install libxres-dev libxtst-dev libxcb-glx0-dev libxcb-xkb-dev libxcb-icccm4-dev libxcb-keysyms1-dev
+          sudo apt install libxcb-randr0-dev libxcb-shape0-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-xinerama0-dev
+          sudo apt install libxcb-dri3-dev libxcb-dri2-0-dev libxcb-present-dev libxcb-composite0-dev libxcb-ewmh-dev
+          sudo apt install libxcb-res0-dev libxcb-util-dev libxcursor-dev libxinerama-dev libxrandr-dev
+          sudo apt install libxrender-dev libxss-dev libxv-dev libxxf86vm-dev libxcb-render-util0-dev
+          sudo apt install uuid-dev libfontenc-dev libice-dev libsm-dev libgl1-mesa-dev
       - name: Build sample with conan
         run: ./build_sample_conan.sh qt --ext-tools
