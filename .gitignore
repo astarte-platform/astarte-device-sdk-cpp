@@ -28,3 +28,6 @@ CMakeLists.txt.user*
 
 grpc/
 grpc-install/
+
+# Conan stuff
+CMakeUserPresets.json
