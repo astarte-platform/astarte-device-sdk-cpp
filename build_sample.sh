@@ -19,7 +19,7 @@ display_help() {
     cat << EOF
 Usage: $0 <sample_name> [OPTIONS]
 
-<sample_name> can be 'grpc_native' or 'grpc_qt'.
+<sample_name> can be 'grpc_native', 'grpc_qt' or 'mqtt_native'.
 
 Common Options:
   --fresh               Build the sample from scratch (removes its build directory).

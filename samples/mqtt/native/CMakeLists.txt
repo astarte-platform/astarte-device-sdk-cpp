@@ -18,4 +18,4 @@ endif()
 add_executable(app main.cpp)
 
 # Link the library created in the root directory
-target_link_libraries(app PRIVATE astarte_device_sdk)
+target_link_libraries(app PRIVATE astarte_device_sdk PRIVATE tomlplusplus::tomlplusplus)
