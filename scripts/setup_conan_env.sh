@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# (C) Copyright 2025, SECO Mind Srl
+#
+# SPDX-License-Identifier: Apache-2.0
+
 error_exit() {
     echo "Error: $1" >&2
     exit 1
