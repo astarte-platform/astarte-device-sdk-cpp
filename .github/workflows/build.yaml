@@ -64,44 +64,19 @@ jobs:
       - name: Build example for C++ 20
         working-directory: ./astarte-device-sdk-cpp
         run: ./build_sample.sh simple --fresh --system_grpc
-  build-qt-sample:
+  build-qt-sample-conan:
     runs-on: ubuntu-latest
-    needs: build-simple-sample-install-grpc
-    strategy:
-      matrix:
-        qt_version: [5.15.2, 6.5.3]
+    concurrency:
+      group: build-qt-sample-conan-${{ github.ref }}
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v5
-      - name: Setup gRPC build cache
-        id: cache-grpc-cpp
-        uses: actions/cache@v4
+      - name: Install Conan
+        uses: conan-io/setup-conan@v1
         with:
-          path: |
-            ./grpc
-            ./grpc-install
-          # Cache the hash of the build script for the CMAKE flags
-          key: grpc-cpp-v${{ env.GRPC_VERSION }}-${{ hashFiles('.github/scripts/build-grpc.sh') }}
-      - name: Setup already built gRPC
-        run: |
-          ./.github/scripts/setup-grpc.sh "$GRPC_VERSION"
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: ${{ matrix.qt_version }}
-          target: desktop
-          arch: gcc_64
-          cache: true
-          cache-key-prefix: install-qt-action
-      - name: Detect Qt path
-        id: qt-path
-        run: |
-          if [[ "${{ matrix.qt_version }}" == 5* ]]; then
-            echo "QT_PATH=$Qt/5.15.2/gcc_64/lib/cmake/Qt5" >> $GITHUB_ENV
-            echo "QT_MAJOR_VERSION=5" >> $GITHUB_ENV
-          else
-            echo "QT_PATH=$Qt/6.5.3/gcc_64/lib/cmake/Qt6" >> $GITHUB_ENV
-            echo "QT_MAJOR_VERSION=6" >> $GITHUB_ENV
-          fi
-      - name: Build Qt example
-        run: |
-          ./build_sample.sh qt --qt_version "$QT_MAJOR_VERSION" --qt_path "$QT_PATH" --fresh --system_grpc
+          cache_packages: true
+          use_venv: true
+      - name: Install system dependencies
+        run: sudo apt update && sudo apt install -y libx11-dev libx11-xcb-dev libfontenc-dev libice-dev libsm-dev libxau-dev libxaw7-dev libxcomposite-dev libxdamage-dev libxkbfile-dev libxmu-dev libxmuu-dev libxpm-dev libxres-dev libxtst-dev libxcb-glx0-dev libxcb-xkb-dev libxcb-icccm4-dev libxcb-keysyms1-dev libxcb-randr0-dev libxcb-shape0-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-xinerama0-dev libxcb-dri3-dev libxcb-dri2-0-dev libxcb-present-dev libxcb-composite0-dev libxcb-ewmh-dev libxcb-res0-dev libxcb-util-dev
+      - name: Build sample with conan
+        run: ./build_sample_conan.sh qt --ext-tools

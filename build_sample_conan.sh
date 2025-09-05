@@ -8,6 +8,7 @@
 fresh_mode=false
 external_tools=false
 sample_to_build=""
+qt_version=6
 venv_dir=".venv"
 conan_package_name="conan"
 conan_package_version="2.20.1"
@@ -17,11 +18,12 @@ display_help() {
     cat << EOF
 Usage: $0 <sample_name> [OPTIONS]
 
-<sample_name> can be 'simple'.
+<sample_name> can be 'simple' or 'qt'.
 
 Common Options:
   --fresh         Build the sample from scratch (removes its build directory).
   --ext-tools     Do not setup the venv and python tooling for the build within the script.
+  --qt_version    Qt version to use (5 or 6). Default: $qt_version.
   -h, --help      Display this help message.
 EOF
 }
@@ -34,15 +36,15 @@ error_exit() {
 # --- Argument Parsing ---
 if [[ -z "$1" ]]; then
     display_help
-    error_exit "No sample specified. Please choose 'simple'."
+    error_exit "No sample specified. Please choose 'simple' or 'qt'."
 fi
 
 sample_to_build="$1"
 shift
 
-if [[ "$sample_to_build" != "simple" ]]; then
+if [[ "$sample_to_build" != "simple" && "$sample_to_build" != "qt" ]]; then
     display_help
-    error_exit "Invalid sample name: '$sample_to_build'. Must be 'simple'."
+    error_exit "Invalid sample name: '$sample_to_build'. Must be 'simple' or 'qt'."
 fi
 
 # Now parse the rest of the arguments
@@ -50,6 +52,16 @@ while [[ "$#" -gt 0 ]]; do
     case $1 in
         --fresh) fresh_mode=true; shift ;;
         --ext-tools) external_tools=true; shift ;;
+        --qt_version)
+            if [[ "$2" == "6" ]]; then
+                qt_version=6
+            elif [[ "$2" == "5" ]]; then
+                qt_version=5
+            else
+                error_exit "Invalid Qt version: $2 (expected 5 or 6)."
+            fi
+            shift 2
+            ;;
         -h|--help) display_help; exit 0 ;;
         *) display_help; error_exit "Unknown option: $1" ;;
     esac
@@ -100,12 +112,12 @@ fi
 
 # --- Build Logic ---
 case "$sample_to_build" in
-    simple)
-        sample_src_dir="samples/simple"
-        build_dir="${sample_src_dir}/build"
-        cmake_user_presets="${sample_src_dir}/CMakeUserPresets.json"
-        ;;
+    simple) sample_src_dir="samples/simple" ;;
+    qt) sample_src_dir="samples/qt" ;;
 esac
+
+build_dir="${sample_src_dir}/build"
+cmake_user_presets="${sample_src_dir}/CMakeUserPresets.json"
 
 # Clean build if --fresh is set
 if [ "$fresh_mode" = true ]; then
@@ -120,7 +132,7 @@ if ! conan profile detect --exist-ok; then
     error_exit "Conan profile detection failed."
 fi
 
-# --- Run conan conan on the library ---
+# --- Run conan create on the library ---
 echo "Creating the library using Conan..."
 
 conan_options_array=()
@@ -130,13 +142,17 @@ if ! conan create . --build=missing "${conan_options_array[@]}"; then
     error_exit "Conan package creation failed for the library."
 fi
 
-# --- Run conan conan on the sample ---
+# --- Run conan build on the sample ---
 echo "Running Conan for $sample_to_build sample..."
 
 # Enter the sample folder
 cd "${sample_src_dir}" || error_exit "Failed to navigate to $sample_src_dir"
 
 # Build the sample
+if [[ "$sample_to_build" == "qt" ]]; then
+    conan_options_array+=("--build=missing")
+    conan_options_array+=("--options=qt6=$([ "$qt_version" == "6" ] && echo "True" || echo "False")")
+fi
 if ! conan build . --output-folder=build "${conan_options_array[@]}"; then
     error_exit "Conan build failed for $sample_to_build sample."
 fi
