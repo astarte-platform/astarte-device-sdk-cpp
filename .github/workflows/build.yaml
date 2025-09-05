@@ -27,20 +27,20 @@ jobs:
           cache_packages: true
           use_venv: true
       - name: Build sample with conan
-        run: ./build_sample_conan.sh simple --ext-tools
-  build-simple-sample-fetch-grpc:
+        run: ./build_sample.sh simple --fresh --deps-mgmt conan --ext-tools
+  build-simple-sample-fetch:
     runs-on: ubuntu-latest
     concurrency:
-      group: build-simple-sample-fetch-grpc-${{ github.ref }}
+      group: build-simple-sample-fetch-${{ github.ref }}
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@v5
       - name: Build library for C++ 20
-        run: ./build_sample.sh simple
-  build-simple-sample-install-grpc:
+        run: ./build_sample.sh simple --fresh --deps-mgmt fetch
+  build-simple-sample-install:
     runs-on: ubuntu-latest
     concurrency:
-      group: build-simple-sample-install-grpc-${{ github.ref }}
+      group: build-simple-sample-install-${{ github.ref }}
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@v5
@@ -63,29 +63,45 @@ jobs:
           ./astarte-device-sdk-cpp/.github/scripts/build-grpc.sh
       - name: Build example for C++ 20
         working-directory: ./astarte-device-sdk-cpp
-        run: ./build_sample.sh simple --fresh --system_grpc
-  build-qt-sample-conan:
+        run: ./build_sample.sh simple --fresh --deps-mgmt system
+  build-qt-sample-install:
     runs-on: ubuntu-latest
-    concurrency:
-      group: build-qt-sample-conan-${{ github.ref }}
-      cancel-in-progress: true
+    needs: build-simple-sample-install
+    strategy:
+      matrix:
+        qt_version: [5.15.2, 6.5.3]
     steps:
       - uses: actions/checkout@v5
-      - name: Install Conan
-        uses: conan-io/setup-conan@v1
+      - name: Setup gRPC build cache
+        id: cache-grpc-cpp
+        uses: actions/cache@v4
         with:
-          cache_packages: true
-          use_venv: true
-      - name: Install system dependencies
+          path: |
+            ./grpc
+            ./grpc-install
+          # Cache the hash of the build script for the CMAKE flags
+          key: grpc-cpp-v${{ env.GRPC_VERSION }}-${{ hashFiles('.github/scripts/build-grpc.sh') }}
+      - name: Setup already built gRPC
         run: |
-          sudo apt update
-          sudo apt install libx11-dev libx11-xcb-dev libxau-dev libxaw7-dev libxcb-cursor-dev libxcb-image0-dev
-          sudo apt install libxcomposite-dev libxdamage-dev libxkbfile-dev libxmu-dev libxmuu-dev libxpm-dev
-          sudo apt install libxres-dev libxtst-dev libxcb-glx0-dev libxcb-xkb-dev libxcb-icccm4-dev libxcb-keysyms1-dev
-          sudo apt install libxcb-randr0-dev libxcb-shape0-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-xinerama0-dev
-          sudo apt install libxcb-dri3-dev libxcb-dri2-0-dev libxcb-present-dev libxcb-composite0-dev libxcb-ewmh-dev
-          sudo apt install libxcb-res0-dev libxcb-util-dev libxcursor-dev libxinerama-dev libxrandr-dev
-          sudo apt install libxrender-dev libxss-dev libxv-dev libxxf86vm-dev libxcb-render-util0-dev
-          sudo apt install uuid-dev libfontenc-dev libice-dev libsm-dev libgl1-mesa-dev
-      - name: Build sample with conan
-        run: ./build_sample_conan.sh qt --ext-tools
+          ./.github/scripts/setup-grpc.sh "$GRPC_VERSION"
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ matrix.qt_version }}
+          target: desktop
+          arch: gcc_64
+          cache: true
+          cache-key-prefix: install-qt-action
+      - name: Detect Qt path
+        id: qt-path
+        run: |
+          if [[ "${{ matrix.qt_version }}" == 5* ]]; then
+            echo "QT_PATH=$Qt/5.15.2/gcc_64/lib/cmake/Qt5" >> $GITHUB_ENV
+            echo "QT_MAJOR_VERSION=5" >> $GITHUB_ENV
+          else
+            echo "QT_PATH=$Qt/6.5.3/gcc_64/lib/cmake/Qt6" >> $GITHUB_ENV
+            echo "QT_MAJOR_VERSION=6" >> $GITHUB_ENV
+          fi
+      - name: Build Qt example
+        run: |
+          ./build_sample.sh qt --fresh --deps-mgmt system --qt_version "$QT_MAJOR_VERSION" --qt_path "$QT_PATH"
