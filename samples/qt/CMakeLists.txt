@@ -62,7 +62,10 @@ endif()
 
 # Link against Qt and Astarte SDK
 if(SAMPLE_USE_SYSTEM_ASTARTE_LIB)
-    target_link_libraries(app PRIVATE Qt${QT_VERSION_MAJOR}::Core astarte_device_sdk::astarte_device_sdk)
+    target_link_libraries(
+        app
+        PRIVATE Qt${QT_VERSION_MAJOR}::Core astarte_device_sdk::astarte_device_sdk
+    )
 else()
     target_link_libraries(app PRIVATE Qt${QT_VERSION_MAJOR}::Core astarte_device_sdk)
 endif()
