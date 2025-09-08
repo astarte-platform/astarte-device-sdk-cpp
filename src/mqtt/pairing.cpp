@@ -37,15 +37,15 @@ auto PairingApi::register_device(std::string_view pairing_jwt, int timeout_ms) c
   request_url.set_pathname(pathname);
   spdlog::debug("request url: {}", request_url.get_href());
 
-  cpr::Header header{{"Content-Type", "application/json"}};
-  cpr::Bearer auth_token{pairing_jwt};
+  cpr::Header header{{"Content-Type", "application/json"},
+                     {"Authorization", std::format("Bearer {}", pairing_jwt)}};
 
   json body;
   body["data"] = {{"hw_id", device_id}};
   spdlog::debug("request body: {}", body.dump());
 
-  cpr::Response res = cpr::Post(cpr::Url{request_url.get_href()}, header, auth_token,
-                                cpr::Body{body.dump()}, cpr::Timeout{timeout_ms});
+  cpr::Response res = cpr::Post(cpr::Url{request_url.get_href()}, header, cpr::Body{body.dump()},
+                                cpr::Timeout{timeout_ms});
 
   // it tells whether a generic error occurred (e.g., a timeout, the device was already registeres
   // and its certificate expired, etc.)
@@ -55,8 +55,8 @@ auto PairingApi::register_device(std::string_view pairing_jwt, int timeout_ms) c
   }
 
   if (!is_successful(res.status_code)) {
-    throw DeviceRegistrationException(
-        std::format("Failed to register device. HTTP status code: {}", res.status_code));
+    throw DeviceRegistrationException(std::format(
+        "Failed to register device. HTTP status code: {}, Reason: {}", res.status_code, res.text));
   }
 
   try {
