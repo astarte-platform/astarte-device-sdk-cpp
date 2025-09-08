@@ -29,7 +29,7 @@ function(astarte_sdk_configure_mqtt_dependencies)
 
     # Library to handle HTTP requests
     set(CPR_GIT_REPOSITORY https://github.com/libcpr/cpr.git)
-    set(CPR_GIT_TAG 1.12.0)
+    set(CPR_GIT_TAG 1.11.2)
     FetchContent_Declare(cpr GIT_REPOSITORY ${CPR_GIT_REPOSITORY} GIT_TAG ${CPR_GIT_TAG})
     FetchContent_MakeAvailable(cpr)
 
