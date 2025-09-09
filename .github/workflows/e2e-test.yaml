@@ -18,7 +18,7 @@ jobs:
   end-to-end-test-grpc:
     runs-on: ubuntu-latest
     concurrency:
-      group: end-to-end-test--${{ matrix.msghub-version }}${{ github.ref }}
+      group: end-to-end-test-grpc--${{ matrix.msghub-version }}${{ github.ref }}
       cancel-in-progress: true
     strategy:
       matrix:
@@ -99,7 +99,7 @@ jobs:
           echo "appengine_url = \"$E2E_APPENGINE_URL\"" >> config.toml
           echo "appengine_token = \"$E2E_APPENGINE_TOKEN\"" >> config.toml
           echo "device_id = \"$E2E_DEVICE_ID\"" >> config.toml
-          echo "transport = \"grpc\"" >> config.toml
+          echo "[grpc]" >> config.toml
           echo "server_addr = \"localhost:50051\"" >> config.toml
           echo "node_id = \"aa04dade-9401-4c37-8c6a-d8da15b083ae\"" >> config.toml
           cat config.toml
@@ -117,3 +117,52 @@ jobs:
       - name: Run the end to end tests with valgrind
         working-directory: ./astarte-device-sdk-cpp
         run: valgrind --leak-check=summary --track-origins=no --error-exitcode=1 ./end_to_end/build/app
+  end-to-end-test-mqtt:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: end-to-end-test-mqtt-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - name: Checkout C++ client
+        uses: actions/checkout@v5
+        with:
+          path: astarte-device-sdk-cpp
+      - name: Create Astarte Cluster
+        uses: astarte-platform/astarte-cluster-action@v1
+        with:
+          astarte_version: "1.2.0"
+      - name: Install interfaces
+        working-directory: ./astarte-device-sdk-cpp/.github/workflows
+        timeout-minutes: 3
+        run: ./install_interfaces.sh $GITHUB_WORKSPACE/astarte-device-sdk-cpp/end_to_end/interfaces
+      - name: Store environment variables
+        run: |
+          APPENGINE_TOKEN=$(astartectl utils gen-jwt appengine)
+          PAIRING_TOKEN=$(astartectl utils gen-jwt pairing)
+          DEVICE_ID=$(astartectl utils device-id generate-random)
+          echo "E2E_REALM=test" >> $GITHUB_ENV
+          echo "E2E_APPENGINE_TOKEN=$APPENGINE_TOKEN" >> $GITHUB_ENV
+          echo "E2E_PAIRING_TOKEN=$PAIRING_TOKEN" >> $GITHUB_ENV
+          echo "E2E_APPENGINE_URL=https://api.autotest.astarte-platform.org/appengine" >> $GITHUB_ENV
+          echo "E2E_PAIRING_URL=https://api.autotest.astarte-platform.org/pairing" >> $GITHUB_ENV
+          echo "E2E_DEVICE_ID=$DEVICE_ID" >> $GITHUB_ENV
+      - name: Fill in C++ client config
+        working-directory: ./astarte-device-sdk-cpp/end_to_end
+        run: |
+          echo "realm = \"$E2E_REALM\"" > config.toml
+          echo "appengine_url = \"$E2E_APPENGINE_URL\"" >> config.toml
+          echo "appengine_token = \"$E2E_APPENGINE_TOKEN\"" >> config.toml
+          echo "device_id = \"$E2E_DEVICE_ID\"" >> config.toml
+          echo "[mqtt]" >> config.toml
+          echo "store_dir = \"./tmp\"" >> config.toml
+          echo "pairing_url = \"$E2E_PAIRING_URL\"" >> config.toml
+          echo "pairing_jwt = \"$E2E_PAIRING_TOKEN\"" >> config.toml
+
+          cat config.toml
+      - name: Build the end to end tests with mqtt
+        working-directory: ./astarte-device-sdk-cpp
+        run: ./end_to_end.sh --fresh --ext-tools --transport mqtt
+      - name: Run the end to end tests
+        working-directory: ./astarte-device-sdk-cpp
+        run: ./end_to_end/build/app
+        # TODO: missing valgrind
