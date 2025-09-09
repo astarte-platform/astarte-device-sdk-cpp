@@ -40,7 +40,7 @@ namespace AstarteDeviceSdk {
 class Credential {
  public:
   /**
-   * @brief Creates a Credential object from a one-time pairing token.
+   * @brief Create a Credential object from a one-time pairing token.
    * @param credential The pairing token string used to register a new device.
    * @return A new Credential instance configured for pairing.
    */
@@ -49,7 +49,7 @@ class Credential {
   }
 
   /**
-   * @brief Creates a Credential object from a credential secret.
+   * @brief Create a Credential object from a credential secret.
    * @param credential The credential secret string used for authenticating an existing device.
    * @return A new Credential instance configured for standard authentication.
    */
@@ -72,7 +72,7 @@ class Credential {
   // TODO: this method is only used for testing. Remove it once the connection to the MQTT will be
   // implemented.
   /**
-   * @brief Gets the credential.
+   * @brief Get the credential.
    * @return a string containing the credential
    */
   auto credential() const -> std::string { return credential_; }
@@ -136,25 +136,25 @@ class MqttConfig {
   };
 
   /**
-   * @brief Gets the configured realm.
+   * @brief Get the configured realm.
    * @return a string containing the realm
    */
   auto realm() -> std::string_view;
 
   /**
-   * @brief Gets the configured device ID.
+   * @brief Get the configured device ID.
    * @return a string containing the device ID
    */
   auto device_id() -> std::string_view;
 
   /**
-   * @brief Gets the configured Pairing API URL.
+   * @brief Get the configured Pairing API URL.
    * @return a string containing the pairing URL
    */
   auto pairing_url() -> std::string_view;
 
   /**
-   * @brief Gets the configured local storage directory.
+   * @brief Get the configured local storage directory.
    * @return a string containing the store directory
    */
   auto store_dir() -> std::string_view;
@@ -162,14 +162,14 @@ class MqttConfig {
   // TODO: this method is only used for testing. Remove it once the connection to the MQTT will be
   // implemented.
   /**
-   * @brief Gets the pairing token.
+   * @brief Get the pairing token.
    * @return a string containing the pairing token, nullopt if the Credential is the
    * credential_secret
    */
   auto pairing_token() -> std::optional<std::string>;
 
   /**
-   * @brief Sets the MQTT keep-alive interval.
+   * @brief Set the MQTT keep-alive interval.
    * @param duration The keep-alive duration in seconds.
    * @return A reference to the MqttConfig object for chaining.
    */
@@ -182,7 +182,7 @@ class MqttConfig {
   auto ignore_ssl_errors() -> MqttConfig&;
 
   /**
-   * @brief Sets the MQTT connection timeout.
+   * @brief Set the MQTT connection timeout.
    * @param duration The timeout duration in seconds.
    * @return A reference to the MqttConfig object for chaining.
    */
