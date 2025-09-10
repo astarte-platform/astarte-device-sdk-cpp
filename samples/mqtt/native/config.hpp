@@ -6,10 +6,13 @@
 
 #include <spdlog/spdlog.h>
 
+#include <format>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <toml++/toml.hpp>
+
+#include "ada.h"
 
 class Features {
  public:
@@ -38,7 +41,7 @@ class Config {
 
       this->general_config(*this, toml);
       this->feature_config(*this, toml);
-    } catch (const toml::parse_error& err) {
+    } catch (const std::exception& err) {
       spdlog::error("Config file parsing failed due to {}", err.what());
       throw err;
     }
@@ -47,16 +50,20 @@ class Config {
   std::string pairing_url;
   std::string realm;
   std::string device_id;
-  std::optional<std::string> pairing_jwt;
+  std::optional<std::string> pairing_token;
 
   Features features;
 
  private:
   void general_config(Config& cfg, toml::table& toml) {
-    cfg.pairing_url = toml.at("general").at_path("pairing_url").value<std::string>().value();
-    cfg.realm = toml.at("general").at_path("realm").value<std::string>().value();
-    cfg.device_id = toml.at("general").at_path("device_id").value<std::string>().value();
-    cfg.pairing_jwt = toml.at("general").at_path("pairing_jwt").value<std::string>();
+    auto astarte_base_url = toml.at("astarte_base_url").value<std::string>().value();
+    auto pairing_url = ada::parse(astarte_base_url).value();
+    pairing_url.set_pathname("pairing");
+
+    cfg.pairing_url = pairing_url.get_href();
+    cfg.realm = toml.at("realm").value<std::string>().value();
+    cfg.device_id = toml.at("device_id").value<std::string>().value();
+    cfg.pairing_token = toml.at("pairing_token").value<std::string>();
   }
 
   void feature_config(Config& cfg, toml::table& toml) {

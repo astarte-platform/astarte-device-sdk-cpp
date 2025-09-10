@@ -45,20 +45,13 @@ void AstarteDeviceMQTT::AstarteDeviceMQTTImpl::remove_interface(const std::strin
   TODO("not yet implemented");
 }
 
-void AstarteDeviceMQTT::AstarteDeviceMQTTImpl::connect() {
-  // FIXME: at the moment this method just serves to retrieve the credential secret from Astarte,
-  // so that the device appears to be registered to astarte. It does not establishing an effective
-  // connection to Astarte.
-  auto pairing_api = PairingApi(cfg_.realm(), cfg_.device_id(), cfg_.pairing_url());
-  pairing_api.register_device(cfg_.pairing_token().value());
-  connected_ = true;
-}
+void AstarteDeviceMQTT::AstarteDeviceMQTTImpl::connect() { TODO("not yet implemented"); }
 
 [[nodiscard]] auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::is_connected() const -> bool {
-  return connected_.load();
+  TODO("not yet implemented");
 }
 
-void AstarteDeviceMQTT::AstarteDeviceMQTTImpl::disconnect() { connected_ = false; }
+void AstarteDeviceMQTT::AstarteDeviceMQTTImpl::disconnect() { TODO("not yet implemented"); }
 
 void AstarteDeviceMQTT::AstarteDeviceMQTTImpl::send_individual(
     std::string_view interface_name, std::string_view path, const AstarteData& data,
@@ -81,7 +74,7 @@ void AstarteDeviceMQTT::AstarteDeviceMQTTImpl::unset_property(std::string_view i
 }
 auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::poll_incoming(
     const std::chrono::milliseconds& timeout) -> std::optional<AstarteMessage> {
-  return std::nullopt;
+  TODO("not yet implemented");
 }
 auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::get_all_properties(
     const std::optional<AstarteOwnership>& ownership) -> std::list<AstarteStoredProperty> {

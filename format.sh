@@ -111,6 +111,7 @@ file_patterns=(
     "end_to_end/include/"*.hpp
     "end_to_end/include/constants/"*.hpp
     "end_to_end/include/testcases/"*.hpp
+	"end_to_end/include/testcases/mqtt/"*.hpp
 )
 
 command_args=("--style=file")

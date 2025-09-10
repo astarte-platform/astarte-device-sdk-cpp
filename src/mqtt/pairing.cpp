@@ -24,13 +24,13 @@ auto PairingApi::parse_and_validate_url(std::string_view url) -> ada::url_aggreg
     throw InvalidUrlException(
         std::format("Failed to register device. Provided wrong pairing URL: {}", url));
   }
-  return std::move(*parsed_url);
+  return std::move(parsed_url.value());
 }
 
 // check if the response code of an HTTP is successfull (i.e., 2XX) or not
 auto is_successful(long status_code) -> bool { return (status_code / 100) == 2; }
 
-auto PairingApi::register_device(std::string_view pairing_jwt, int timeout_ms) const
+auto PairingApi::register_device(std::string_view pairing_token, int timeout_ms) const
     -> std::string {
   auto request_url = pairing_url;
   std::string pathname = std::format("{}/v1/{}/agent/devices", request_url.get_pathname(), realm);
@@ -38,7 +38,7 @@ auto PairingApi::register_device(std::string_view pairing_jwt, int timeout_ms) c
   spdlog::debug("request url: {}", request_url.get_href());
 
   cpr::Header header{{"Content-Type", "application/json"},
-                     {"Authorization", std::format("Bearer {}", pairing_jwt)}};
+                     {"Authorization", std::format("Bearer {}", pairing_token)}};
 
   json body;
   body["data"] = {{"hw_id", device_id}};

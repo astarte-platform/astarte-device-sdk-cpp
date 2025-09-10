@@ -16,11 +16,10 @@ example functionalities.
 
 An example of `config.toml` file is the following:
 ```
-[general]
-pairing_url = ""
+astarte_base_url = ""
 realm = ""
 device_id = ""
-pairing_jwt = ""
+pairing_token = ""
 
 [features]
 DEVICE_REGISTRATION = true
@@ -30,10 +29,10 @@ DEVICE_REGISTRATION = true
 The sample is configured to perform a device registration to an Astarte instance.
 
 The parameters you need to provide are:
-- `pairing_url`, an URL of the Astarte component responsible for device registration
+- `astarte_base_url`, the URL of the Astarte instance
 - `realm`, the name of the Astarte realm where the device will be registered
 - `device_id`, a 128bit URL encoded base64 string uniquelly identifying a device
-- `pairing_jwt`, a token necessary to authenticate though Astarte
+- `pairing_token`, a token necessary to authenticate though Astarte
 
 ## Building and running
 
