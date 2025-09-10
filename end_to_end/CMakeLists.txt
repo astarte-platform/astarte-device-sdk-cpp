@@ -9,20 +9,25 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(FetchContent)
-FetchContent_Declare(cpr GIT_REPOSITORY https://github.com/libcpr/cpr.git GIT_TAG 1.11.2)
+
+# TODO: the following 3 deps are the same of the one that must be installed in MQTT
+# find a way to import them only once.
+
+# Library to handle HTTP requests
+set(CPR_GIT_REPOSITORY https://github.com/libcpr/cpr.git)
+set(CPR_GIT_TAG 1.11.2)
+FetchContent_Declare(cpr GIT_REPOSITORY ${CPR_GIT_REPOSITORY} GIT_TAG ${CPR_GIT_TAG})
 FetchContent_MakeAvailable(cpr)
 
-FetchContent_Declare(
-    json
-    URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
-)
+# Library to manage json
+set(JSON_GIT_URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
+FetchContent_Declare(json URL ${JSON_GIT_URL})
 FetchContent_MakeAvailable(json)
 
-FetchContent_Declare(
-    tomlplusplus
-    GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
-    GIT_TAG v3.4.0
-)
+# Library to manage toml files
+set(TOML_GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git)
+set(TOML_GIT_TAG v3.4.0)
+FetchContent_Declare(tomlplusplus GIT_REPOSITORY ${TOML_GIT_REPOSITORY} GIT_TAG ${TOML_GIT_TAG})
 FetchContent_MakeAvailable(tomlplusplus)
 
 # Add the root directory to make the library definition available
