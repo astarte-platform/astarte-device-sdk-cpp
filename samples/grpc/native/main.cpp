@@ -10,11 +10,7 @@
 #include <thread>
 
 #include "astarte_device_sdk/data.hpp"
-#if defined(ASTARTE_TRANSPORT_GRPC)
 #include "astarte_device_sdk/device_grpc.hpp"
-#else
-#include "astarte_device_sdk/device_mqtt.hpp"
-#endif
 #include "astarte_device_sdk/formatter.hpp"
 #include "astarte_device_sdk/msg.hpp"
 
@@ -22,11 +18,7 @@ using AstarteDeviceSdk::AstarteData;
 using AstarteDeviceSdk::AstarteDatastreamIndividual;
 using AstarteDeviceSdk::AstarteDatastreamObject;
 using AstarteDeviceSdk::AstarteDevice;
-#if defined(ASTARTE_TRANSPORT_GRPC)
 using AstarteDeviceSdk::AstarteDeviceGRPC;
-#else
-using AstarteDeviceSdk::AstarteDeviceMQTT;
-#endif
 using AstarteDeviceSdk::AstarteMessage;
 using AstarteDeviceSdk::AstartePropertyIndividual;
 
@@ -63,32 +55,28 @@ int main(int argc, char** argv) {
   spdlog::set_level(spdlog::level::debug);
   std::string server_addr = "localhost:50051";
   std::string node_id("aa04dade-9401-4c37-8c6a-d8da15b083ae");
-#if defined(ASTARTE_TRANSPORT_GRPC)
+
   std::shared_ptr<AstarteDeviceGRPC> device =
       std::make_shared<AstarteDeviceGRPC>(server_addr, node_id);
-#else
-  std::shared_ptr<AstarteDeviceMQTT> device =
-      std::make_shared<AstarteDeviceMQTT>(server_addr, node_id);
-#endif
 
   // Those paths assume the user is calling the Astarte executable from the root of this project.
   std::filesystem::path device_individual_interface_file_path =
-      "samples/grpc_native/interfaces/org.astarte-platform.cpp.examples.DeviceDatastream.json";
+      "samples/grpc/native/interfaces/org.astarte-platform.cpp.examples.DeviceDatastream.json";
   device->add_interface_from_file(device_individual_interface_file_path);
   std::filesystem::path server_individual_interface_file_path =
-      "samples/grpc_native/interfaces/org.astarte-platform.cpp.examples.ServerDatastream.json";
+      "samples/grpc/native/interfaces/org.astarte-platform.cpp.examples.ServerDatastream.json";
   device->add_interface_from_file(server_individual_interface_file_path);
   std::filesystem::path device_property_interface_file_path =
-      "samples/grpc_native/interfaces/org.astarte-platform.cpp.examples.DeviceProperty.json";
+      "samples/grpc/native/interfaces/org.astarte-platform.cpp.examples.DeviceProperty.json";
   device->add_interface_from_file(device_property_interface_file_path);
   std::filesystem::path device_aggregated_interface_file_path =
-      "samples/grpc_native/interfaces/org.astarte-platform.cpp.examples.DeviceAggregate.json";
+      "samples/grpc/native/interfaces/org.astarte-platform.cpp.examples.DeviceAggregate.json";
   device->add_interface_from_file(device_aggregated_interface_file_path);
   std::filesystem::path server_aggregated_interface_file_path =
-      "samples/grpc_native/interfaces/org.astarte-platform.cpp.examples.ServerAggregate.json";
+      "samples/grpc/native/interfaces/org.astarte-platform.cpp.examples.ServerAggregate.json";
   device->add_interface_from_file(server_aggregated_interface_file_path);
   std::filesystem::path server_property_interface_file_path =
-      "samples/grpc_native/interfaces/org.astarte-platform.cpp.examples.ServerProperty.json";
+      "samples/grpc/native/interfaces/org.astarte-platform.cpp.examples.ServerProperty.json";
   device->add_interface_from_file(server_property_interface_file_path);
 
   device->connect();

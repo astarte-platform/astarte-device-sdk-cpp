@@ -5,6 +5,7 @@
 #pragma once
 
 #include <filesystem>
+#include <optional>
 #include <string>
 #include <variant>
 #include <vector>
@@ -24,18 +25,18 @@ using AstarteDeviceSdk::MqttConfig;
 
 // config structures
 #ifdef ASTARTE_TRANSPORT_GRPC
-struct GRPCConfig {
+struct GrpcTestConfig {
   std::string server_addr;
   std::string node_id;
   std::vector<std::filesystem::path> interfaces;
 };
 
-using TransportConfigVariant = std::variant<struct GRPCConfig>;
+using TransportConfigVariant = std::variant<struct GrpcTestConfig>;
 #else   // ASTARTE_TRANSPORT_GRPC
-struct MQTTConfig {
+struct MqttTestConfig {
   MqttConfig cfg;
   std::vector<std::filesystem::path> interfaces;
 };
 
-using TransportConfigVariant = std::variant<struct MQTTConfig>;
+using TransportConfigVariant = std::variant<struct MqttTestConfig>;
 #endif  // ASTARTE_TRANSPORT_GRPC

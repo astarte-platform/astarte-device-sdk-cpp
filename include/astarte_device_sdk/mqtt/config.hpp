@@ -14,16 +14,6 @@
  * platform over the MQTT transport.
  */
 
-/** @brief Default keep alive interval in seconds for the MQTT connection. */
-#ifndef DEFAULT_KEEP_ALIVE
-#define DEFAULT_KEEP_ALIVE 30
-#endif
-
-/** @brief Default connection timeout in seconds for the MQTT connection. */
-#ifndef DEFAULT_CONNECTION_TIMEOUT
-#define DEFAULT_CONNECTION_TIMEOUT 5
-#endif
-
 #include <optional>
 #include <string>
 #include <string_view>
@@ -31,71 +21,11 @@
 /** @brief Umbrella namespace for the Astarte C++ Device SDK. */
 namespace AstarteDeviceSdk {
 
-/**
- * @brief A factory class for creating device authentication credentials.
- * @details This class provides a type-safe way to handle the two different authentication
- * methods in Astarte: a credential secret for registered devices, and a
- * one-time pairing token for new devices.
- */
-class Credential {
- public:
-  /**
-   * @brief Create a Credential object from a one-time pairing token.
-   * @param credential The pairing token string used to register a new device.
-   * @return A new Credential instance configured for pairing.
-   */
-  static auto pairing_token(std::string_view credential) -> Credential {
-    return Credential{CredentialType::PAIRING_TOKEN, std::string(credential)};
-  }
+/** @brief Default keep alive interval in seconds for the MQTT connection. */
+constexpr int DEFAULT_KEEP_ALIVE = 30;
 
-  /**
-   * @brief Create a Credential object from a credential secret.
-   * @param credential The credential secret string used for authenticating an existing device.
-   * @return A new Credential instance configured for standard authentication.
-   */
-  static auto secret(std::string_view credential) -> Credential {
-    return Credential{CredentialType::CREDENTIAL_SECRET, std::string(credential)};
-  }
-
-  /**
-   * @brief Check if the credential stored is the pairing token.
-   * @return true if the credential stored is the pairing token.
-   */
-  auto is_pairing_token() const -> bool { return typ_ == CredentialType::PAIRING_TOKEN; }
-
-  /**
-   * @brief Check if the credential stored is the credential secret.
-   * @return true if the credential stored is the credential secret.
-   */
-  auto is_credential_secret() const -> bool { return typ_ == CredentialType::CREDENTIAL_SECRET; }
-
-  // TODO: this method is only used for testing. Remove it once the connection to the MQTT will be
-  // implemented.
-  /**
-   * @brief Get the credential.
-   * @return a string containing the credential
-   */
-  auto credential() const -> std::string { return credential_; }
-
- private:
-  // The type of credential being stored.
-  enum CredentialType {
-    CREDENTIAL_SECRET,
-    PAIRING_TOKEN,
-  };
-
-  // The internal type of the credential.
-  CredentialType typ_;
-  // The credential payload (either the secret or the token).
-  std::string credential_;
-
-  /**
-   * @brief Private constructor to enforce object creation via static factory methods.
-   * @param t The type of the credential.
-   * @param cred The credential string.
-   */
-  Credential(CredentialType t, std::string cred) : typ_(t), credential_(std::move(cred)) {}
-};
+/** @brief Default connection timeout in seconds for the MQTT connection. */
+constexpr int DEFAULT_CONNECTION_TIMEOUT = 5;
 
 /**
  * @brief Configuration for the Astarte MQTT connection.
@@ -105,35 +35,23 @@ class Credential {
 class MqttConfig {
  public:
   /**
-   * @brief Create a new instance with a credential secret for authentication.
+   * @brief Constructor to enforce object creation via static factory methods.
    * @param realm The Astarte realm the device belongs to.
    * @param device_id The unique identifier for the device.
-   * @param credential The credential secret for this device.
+   * @param credential_secret The credential secret for this device.
    * @param pairing_url The base URL of the Astarte Pairing API.
    * @param store_dir Path to a local directory for persisting certificates and state.
-   * @return A new MqttConfig instance.
    */
-  static auto with_credential_secret(std::string_view realm, std::string_view device_id,
-                                     std::string_view credential, std::string_view pairing_url,
-                                     std::string_view store_dir) -> MqttConfig {
-    return MqttConfig{realm, device_id, Credential::secret(credential), pairing_url, store_dir};
-  };
-
-  /**
-   * @brief Create a new instance with a pairing token to register the device.
-   * @param realm The Astarte realm the device will be registered in.
-   * @param device_id The unique identifier for the device.
-   * @param credential The one-time pairing token.
-   * @param pairing_url The base URL of the Astarte Pairing API.
-   * @param store_dir Path to a local directory for persisting certificates and state.
-   * @return A new MqttConfig instance.
-   */
-  static auto with_pairing_token(std::string_view realm, std::string_view device_id,
-                                 std::string_view credential, std::string_view pairing_url,
-                                 std::string_view store_dir) -> MqttConfig {
-    return MqttConfig{realm, device_id, Credential::pairing_token(credential), pairing_url,
-                      store_dir};
-  };
+  MqttConfig(std::string_view realm, std::string_view device_id, std::string_view credential_secret,
+             std::string_view pairing_url, std::string_view store_dir)
+      : realm_(realm),
+        device_id_(device_id),
+        credential_secret_(credential_secret),
+        pairing_url_(pairing_url),
+        store_dir_(store_dir),
+        ignore_ssl_(false),
+        keepalive_(DEFAULT_KEEP_ALIVE),
+        conn_timeout_(DEFAULT_CONNECTION_TIMEOUT) {}
 
   /**
    * @brief Get the configured realm.
@@ -159,14 +77,11 @@ class MqttConfig {
    */
   auto store_dir() -> std::string_view;
 
-  // TODO: this method is only used for testing. Remove it once the connection to the MQTT will be
-  // implemented.
   /**
-   * @brief Get the pairing token.
-   * @return a string containing the pairing token, nullopt if the Credential is the
-   * credential_secret
+   * @brief Get the configured credential secret.
+   * @return a string containing the credential secret
    */
-  auto pairing_token() -> std::optional<std::string>;
+  auto credential_secret() -> std::string_view;
 
   /**
    * @brief Set the MQTT keep-alive interval.
@@ -189,28 +104,14 @@ class MqttConfig {
   auto connection_timeout(int duration) -> MqttConfig&;
 
  private:
-  /**
-   * @brief Private constructor to enforce object creation via static factory methods.
-   */
-  MqttConfig(std::string_view realm, std::string_view device_id, Credential credential,
-             std::string_view pairing_url, std::string_view store_dir)
-      : realm_(realm),
-        device_id_(device_id),
-        credential_(credential),
-        pairing_url_(pairing_url),
-        store_dir_(store_dir),
-        ignore_ssl_(false),
-        keepalive_(DEFAULT_KEEP_ALIVE),
-        conn_timeout_(DEFAULT_CONNECTION_TIMEOUT) {}
-
   // The Astarte realm.
   std::string realm_;
   // The unique device identifier.
   std::string device_id_;
   // The base URL for the Pairing API.
   std::string pairing_url_;
-  // The device's authentication credential.
-  Credential credential_;
+  // The device's authentication credential secret.
+  std::string credential_secret_;
   // The local directory for storing persistent data.
   std::string store_dir_;
   // Flag to ignore SSL/TLS certificate errors.

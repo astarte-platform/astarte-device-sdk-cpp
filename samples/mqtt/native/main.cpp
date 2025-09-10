@@ -16,7 +16,7 @@ int main(int argc, char** argv) {
     auto api = AstarteDeviceSdk::PairingApi(cfg.realm, cfg.device_id, cfg.pairing_url);
 
     if (cfg.features.registration_enabled()) {
-      auto secret = api.register_device(cfg.pairing_jwt.value());
+      auto secret = api.register_device(cfg.pairing_token.value());
       spdlog::info("credential secret: {}", secret);
     }
   } catch (const std::exception& e) {
