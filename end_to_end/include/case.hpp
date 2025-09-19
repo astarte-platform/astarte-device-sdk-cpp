@@ -12,6 +12,11 @@
 #include <vector>
 
 #include "action.hpp"
+
+#ifndef ASTARTE_TRANSPORT_GRPC
+#include "action_mqtt.hpp"
+#endif  // ASTARTE_TRANSPORT_GRPC
+
 #include "astarte_device_sdk/device.hpp"
 
 using AstarteDeviceSdk::AstarteDevice;
@@ -34,10 +39,10 @@ class TestCase {
   TestCase(TestCase&&) = default;
   auto operator=(TestCase&& other) -> TestCase& = default;
 
-  void configure_curl(const std::string& appengine_url, const std::string& appengine_token,
+  void configure_curl(const std::string& astarte_base_url, const std::string& appengine_token,
                       const std::string& realm, const std::string& device_id) {
     for (const auto& action : actions_) {
-      action->configure_curl(appengine_url, appengine_token, realm, device_id);
+      action->configure_curl(astarte_base_url, appengine_token, realm, device_id);
     }
   }
 
