@@ -99,13 +99,6 @@ else()
 endif()
 
 # --- Generic Installation Rules ---
-file(GLOB_RECURSE SDK_PUBLIC_HEADERS "${CMAKE_CURRENT_LIST_DIR}/include/*.hpp")
-
-set_target_properties(
-    astarte_device_sdk
-    PROPERTIES PUBLIC_HEADER "${SDK_PUBLIC_HEADERS}" POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS}
-)
-
 include(CMakePackageConfigHelpers)
 
 configure_package_config_file(
@@ -120,7 +113,11 @@ if(NOT ASTARTE_USE_SYSTEM_SPDLOG)
 endif()
 if(ASTARTE_TRANSPORT_GRPC)
     astarte_sdk_add_grpc_install_targets(INSTALL_TARGETS_LIST)
+else()
+    astarte_sdk_add_mqtt_install_targets(INSTALL_TARGETS_LIST)
 endif()
+
+set_target_properties(astarte_device_sdk PROPERTIES POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS})
 
 install(
     TARGETS ${INSTALL_TARGETS_LIST}
@@ -128,8 +125,11 @@ install(
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/astarte_device_sdk
 )
+
+# install the entire public include directory, preserving its structure.
+# This way we don't miss out any header file, such as those in subdirecotries
+install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 install(
     EXPORT astarte_device_sdk-target

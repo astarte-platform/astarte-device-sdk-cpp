@@ -85,7 +85,7 @@ conan_options_array=()
 conan_options_array+=("--build=missing")
 conan_options_array+=("--settings=build_type=Debug")
 conan_options_array+=("--settings=compiler.cppstd=20")
-if ! conan create .  --options=transport=$transport "${conan_options_array[@]}"; then
+if ! conan create . --options=transport=$transport "${conan_options_array[@]}"; then
     error_exit "Conan package creation failed for the library."
 fi
 
