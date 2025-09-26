@@ -6,10 +6,7 @@ cmake_minimum_required(VERSION 3.23)
 
 project(AstarteDeviceSDKcpp VERSION 0.7.0 LANGUAGES CXX)
 
-# Setup libraries
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
+# Setup library options
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 
 include(FetchContent)
@@ -146,6 +143,13 @@ endif()
 
 # Set target properties
 set_target_properties(astarte_device_sdk PROPERTIES POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS})
+set_target_properties(
+    astarte_device_sdk
+    PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY "${AstarteDeviceSDKcpp_BINARY_DIR}"
+        LIBRARY_OUTPUT_DIRECTORY "${AstarteDeviceSDKcpp_BINARY_DIR}"
+        RUNTIME_OUTPUT_DIRECTORY "${AstarteDeviceSDKcpp_BINARY_DIR}"
+)
 
 include(GNUInstallDirs)
 
@@ -154,7 +158,7 @@ include(CMakePackageConfigHelpers)
 configure_package_config_file(
     "cmake/Config.cmake.in"
     "${CMAKE_CURRENT_BINARY_DIR}/astarte_device_sdkConfig.cmake"
-    INSTALL_DESTINATION "lib/cmake/astarte_device_sdk"
+    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/astarte_device_sdk"
 )
 
 set(INSTALL_TARGETS_LIST astarte_device_sdk astarte_msghub_proto)
@@ -206,12 +210,12 @@ install(
     EXPORT astarte_device_sdk-target
     FILE astarte_device_sdk-target.cmake
     NAMESPACE astarte_device_sdk::
-    DESTINATION lib/cmake/astarte_device_sdk
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/astarte_device_sdk
 )
 
 install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/astarte_device_sdkConfig.cmake"
-    DESTINATION "lib/cmake/astarte_device_sdk"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/astarte_device_sdk"
 )
 
 # create pkg-conf .pc for astarte_device_sdk
@@ -224,4 +228,7 @@ set(PC_LIB "-lastarte_device_sdk -lgrpc++_reflection -laddress_sorting -lre2 -lu
 set(PC_LIBS_PRIVATE "")
 configure_file(cmake/pkg-config-template.pc.in astarte_device_sdk.pc @ONLY)
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/astarte_device_sdk.pc DESTINATION lib/pkgconfig)
+install(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/astarte_device_sdk.pc
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+)
