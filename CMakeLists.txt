@@ -84,13 +84,22 @@ endif()
 # Create a library from the source code
 add_library(astarte_device_sdk)
 target_compile_features(astarte_device_sdk PUBLIC cxx_std_20)
-target_include_directories(
-    astarte_device_sdk
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include> $<INSTALL_INTERFACE:include>
-)
-target_include_directories(astarte_device_sdk PRIVATE ${CMAKE_CURRENT_LIST_DIR}/private)
+# target_include_directories(
+#     astarte_device_sdk
+#     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include> $<INSTALL_INTERFACE:include>
+# )
 file(GLOB astarte_sdk_src "${CMAKE_CURRENT_LIST_DIR}/src/*.cpp")
 target_sources(astarte_device_sdk PRIVATE ${astarte_sdk_src})
+target_include_directories(astarte_device_sdk PRIVATE ${CMAKE_CURRENT_LIST_DIR}/private)
+file(GLOB_RECURSE SDK_PUBLIC_HEADERS "${CMAKE_CURRENT_LIST_DIR}/include/*.hpp")
+target_sources(astarte_device_sdk
+    PUBLIC
+        FILE_SET HEADERS
+        BASE_DIRS
+            "${CMAKE_CURRENT_LIST_DIR}/include"
+        FILES
+            ${SDK_PUBLIC_HEADERS}
+)
 
 # Link with the msghub grpc
 target_link_libraries(
@@ -109,12 +118,10 @@ else()
     target_link_libraries(astarte_device_sdk PRIVATE astarte_msghub_proto)
 endif()
 
-# Set public headers to install
-file(GLOB_RECURSE SDK_PUBLIC_HEADERS "${CMAKE_CURRENT_LIST_DIR}/include/*.hpp")
-
+# Set target properties
 set_target_properties(
     astarte_device_sdk
-    PROPERTIES PUBLIC_HEADER "${SDK_PUBLIC_HEADERS}" POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS}
+    PROPERTIES POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS}
 )
 
 include(GNUInstallDirs)
@@ -169,7 +176,7 @@ install(
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/astarte_device_sdk
+    FILE_SET HEADERS DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
 install(
