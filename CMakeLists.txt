@@ -88,7 +88,7 @@ target_sources(
     astarte_device_sdk
     PUBLIC
         FILE_SET HEADERS
-            BASE_DIRS "${CMAKE_CURRENT_LIST_DIR}/include"
+            BASE_DIRS "include"
             FILES
                 "include/astarte_device_sdk/data.hpp"
                 "include/astarte_device_sdk/device_grpc.hpp"
@@ -114,7 +114,17 @@ target_sources(
         "src/object.cpp"
         "src/property.cpp"
         "src/stored_property.cpp"
-    PRIVATE FILE_SET private_headers TYPE HEADERS BASE_DIRS "${CMAKE_CURRENT_LIST_DIR}/private"
+    PRIVATE
+        FILE_SET private_headers
+            TYPE HEADERS
+            BASE_DIRS "private"
+            FILES
+                "private/device_grpc_impl.hpp"
+                "private/exponential_backoff.hpp"
+                "private/grpc_converter.hpp"
+                "private/grpc_formatter.hpp"
+                "private/grpc_interceptors.hpp"
+                "private/shared_queue.hpp"
 )
 
 # Link with the msghub grpc
