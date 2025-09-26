@@ -84,24 +84,37 @@ endif()
 # Create a library from the source code
 add_library(astarte_device_sdk)
 target_compile_features(astarte_device_sdk PUBLIC cxx_std_20)
-file(GLOB astarte_sdk_src "${CMAKE_CURRENT_LIST_DIR}/src/*.cpp")
-file(GLOB_RECURSE files_public_headers "${CMAKE_CURRENT_LIST_DIR}/include/*.hpp")
-target_sources(astarte_device_sdk
+target_sources(
+    astarte_device_sdk
     PUBLIC
         FILE_SET HEADERS
-        BASE_DIRS
-            "${CMAKE_CURRENT_LIST_DIR}/include"
-        FILES
-            ${files_public_headers}
+            BASE_DIRS "${CMAKE_CURRENT_LIST_DIR}/include"
+            FILES
+                "include/astarte_device_sdk/data.hpp"
+                "include/astarte_device_sdk/device_grpc.hpp"
+                "include/astarte_device_sdk/device.hpp"
+                "include/astarte_device_sdk/exceptions.hpp"
+                "include/astarte_device_sdk/formatter.hpp"
+                "include/astarte_device_sdk/individual.hpp"
+                "include/astarte_device_sdk/msg.hpp"
+                "include/astarte_device_sdk/object.hpp"
+                "include/astarte_device_sdk/ownership.hpp"
+                "include/astarte_device_sdk/property.hpp"
+                "include/astarte_device_sdk/stored_property.hpp"
+                "include/astarte_device_sdk/type.hpp"
     PRIVATE
-        ${astarte_sdk_src}
-    PRIVATE
-        FILE_SET private_headers
-        TYPE HEADERS
-        BASE_DIRS
-            "${CMAKE_CURRENT_LIST_DIR}/private"
-        FILES
-            ${SDK_PRIVATE_HEADERS}
+        "src/data.cpp"
+        "src/device_grpc_impl.cpp"
+        "src/device_grpc.cpp"
+        "src/exceptions.cpp"
+        "src/grpc_converter.cpp"
+        "src/grpc_interceptors.cpp"
+        "src/individual.cpp"
+        "src/msg.cpp"
+        "src/object.cpp"
+        "src/property.cpp"
+        "src/stored_property.cpp"
+    PRIVATE FILE_SET private_headers TYPE HEADERS BASE_DIRS "${CMAKE_CURRENT_LIST_DIR}/private"
 )
 
 # Link with the msghub grpc
@@ -122,10 +135,7 @@ else()
 endif()
 
 # Set target properties
-set_target_properties(
-    astarte_device_sdk
-    PROPERTIES POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS}
-)
+set_target_properties(astarte_device_sdk PROPERTIES POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS})
 
 include(GNUInstallDirs)
 
