@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.23)
 
 project(AstarteDeviceSDKcpp VERSION 0.7.0 LANGUAGES CXX)
 
@@ -84,21 +84,24 @@ endif()
 # Create a library from the source code
 add_library(astarte_device_sdk)
 target_compile_features(astarte_device_sdk PUBLIC cxx_std_20)
-# target_include_directories(
-#     astarte_device_sdk
-#     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include> $<INSTALL_INTERFACE:include>
-# )
 file(GLOB astarte_sdk_src "${CMAKE_CURRENT_LIST_DIR}/src/*.cpp")
-target_sources(astarte_device_sdk PRIVATE ${astarte_sdk_src})
-target_include_directories(astarte_device_sdk PRIVATE ${CMAKE_CURRENT_LIST_DIR}/private)
-file(GLOB_RECURSE SDK_PUBLIC_HEADERS "${CMAKE_CURRENT_LIST_DIR}/include/*.hpp")
+file(GLOB_RECURSE files_public_headers "${CMAKE_CURRENT_LIST_DIR}/include/*.hpp")
 target_sources(astarte_device_sdk
     PUBLIC
         FILE_SET HEADERS
         BASE_DIRS
             "${CMAKE_CURRENT_LIST_DIR}/include"
         FILES
-            ${SDK_PUBLIC_HEADERS}
+            ${files_public_headers}
+    PRIVATE
+        ${astarte_sdk_src}
+    PRIVATE
+        FILE_SET private_headers
+        TYPE HEADERS
+        BASE_DIRS
+            "${CMAKE_CURRENT_LIST_DIR}/private"
+        FILES
+            ${SDK_PRIVATE_HEADERS}
 )
 
 # Link with the msghub grpc
