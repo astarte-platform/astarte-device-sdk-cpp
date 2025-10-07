@@ -81,8 +81,40 @@ target_include_directories(
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include> $<INSTALL_INTERFACE:include>
 )
 target_include_directories(astarte_device_sdk PRIVATE ${CMAKE_CURRENT_LIST_DIR}/private)
-file(GLOB astarte_sdk_src "${CMAKE_CURRENT_LIST_DIR}/src/*.cpp")
-target_sources(astarte_device_sdk PRIVATE ${astarte_sdk_src})
+
+# Add all common source files that are always needed for both transports
+target_sources(
+    astarte_device_sdk
+    PRIVATE
+        src/data.cpp
+        src/exceptions.cpp
+        src/individual.cpp
+        src/msg.cpp
+        src/object.cpp
+        src/property.cpp
+        src/stored_property.cpp
+)
+
+# Conditionally add transport-specific source files that are only compiled when building either with gRPC or MQTT
+if(ASTARTE_TRANSPORT_GRPC)
+    target_sources(
+        astarte_device_sdk
+        PRIVATE
+            src/grpc/device_grpc_impl.cpp
+            src/grpc/device_grpc.cpp
+            src/grpc/grpc_converter.cpp
+            src/grpc/grpc_interceptors.cpp
+    )
+else()
+    target_sources(
+        astarte_device_sdk
+        PRIVATE
+            src/mqtt/config.cpp
+            src/mqtt/device_mqtt_impl.cpp
+            src/mqtt/device_mqtt.cpp
+            src/mqtt/pairing.cpp
+    )
+endif()
 
 # Link generic dependencies
 if(ASTARTE_PUBLIC_SPDLOG_DEP)
@@ -91,8 +123,9 @@ else()
     target_link_libraries(astarte_device_sdk PRIVATE spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 endif()
 
+target_compile_definitions(astarte_device_sdk PUBLIC ASTARTE_TRANSPORT_GRPC)
+
 if(ASTARTE_TRANSPORT_GRPC)
-    target_compile_definitions(astarte_device_sdk PUBLIC ASTARTE_TRANSPORT_GRPC)
     astarte_sdk_add_grpc_transport()
 else()
     astarte_sdk_add_mqtt_transport()

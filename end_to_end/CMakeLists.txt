@@ -26,6 +26,11 @@ target_link_libraries(
     PRIVATE tomlplusplus::tomlplusplus
 )
 
+if(ASTARTE_TRANSPORT_GRPC)
+    message(STATUS "Propagating ASTARTE_TRANSPORT_GRPC definition to app target.")
+    target_compile_definitions(app PRIVATE ASTARTE_TRANSPORT_GRPC)
+endif()
+
 if(NOT ASTARTE_TRANSPORT_GRPC)
     # Link the library used only for MQTT
     target_link_libraries(app PRIVATE ada::ada)
