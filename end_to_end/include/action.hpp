@@ -8,6 +8,7 @@
 #include <spdlog/spdlog.h>
 
 #include <chrono>
+#include <format>
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <stop_token>
@@ -83,9 +84,9 @@ class TestAction {
     rx_queue_ = rx_queue;
   }
 
-  void configure_curl(const std::string& appengine_url, const std::string& appengine_token,
+  void configure_curl(const std::string& astarte_base_url, const std::string& appengine_token,
                       const std::string& realm, const std::string& device_id) {
-    appengine_url_ = appengine_url;
+    astarte_base_url_ = astarte_base_url;
     appengine_token_ = appengine_token;
     realm_ = realm;
     device_id_ = device_id;
@@ -94,7 +95,7 @@ class TestAction {
  protected:
   std::shared_ptr<AstarteDevice> device_;
   std::shared_ptr<SharedQueue<AstarteMessage>> rx_queue_;
-  std::string appengine_url_;
+  std::string astarte_base_url_;
   std::string appengine_token_;
   std::string realm_;
   std::string device_id_;
@@ -221,22 +222,26 @@ class TestActionDisconnect : public TestAction {
 class TestActionCheckDeviceStatus : public TestAction {
  public:
   static std::shared_ptr<TestActionCheckDeviceStatus> Create(
-      bool connected, const std::vector<std::string>& introspection) {
+      bool connected, const std::optional<std::vector<std::string>>& introspection = std::nullopt) {
     return std::shared_ptr<TestActionCheckDeviceStatus>(
         new TestActionCheckDeviceStatus(connected, introspection));
   }
 
   void execute_unchecked(const std::string& case_name) const override {
     spdlog::info("[{}] Checking device status...", case_name);
-    std::string request_url = appengine_url_ + "/v1/" + realm_ + "/devices/" + device_id_;
+    std::string request_url =
+        astarte_base_url_ + "/appengine/v1/" + realm_ + "/devices/" + device_id_;
     spdlog::trace("HTTP GET: {}", request_url);
+
     cpr::Response get_response =
         cpr::Get(cpr::Url{request_url}, cpr::Header{{"Content-Type", "application/json"}},
                  cpr::Header{{"Authorization", "Bearer " + appengine_token_}});
+
     if (get_response.status_code != 200) {
       spdlog::error("HTTP GET failed, status code: {}", get_response.status_code);
       throw EndToEndHTTPException("Fetching device status through REST API failed.");
     }
+
     json response_json = json::parse(get_response.text)["data"];
     bool connected = response_json["connected"];
     if (connected != connected_) {
@@ -244,22 +249,26 @@ class TestActionCheckDeviceStatus : public TestAction {
       spdlog::error("Actual: {}", connected_ ? "connected" : "disconnected");
       throw EndToEndMismatchException("Mismatch in connection status.");
     }
-    json introspection = response_json["introspection"];
-    for (const std::string& interface : introspection_) {
-      spdlog::debug("Searching for interface {} in introspection.", interface);
-      if (!introspection.contains(interface)) {
-        spdlog::error("Device introspection is missing interface: {}", interface);
-        throw EndToEndMismatchException("Device introspection is missing one interface.");
+
+    if (introspection_) {
+      json introspection = response_json["introspection"];
+      for (const std::string& interface : introspection_.value()) {
+        spdlog::debug("Searching for interface {} in introspection.", interface);
+        if (!introspection.contains(interface)) {
+          spdlog::error("Device introspection is missing interface: {}", interface);
+          throw EndToEndMismatchException("Device introspection is missing one interface.");
+        }
       }
     }
   }
 
  private:
-  TestActionCheckDeviceStatus(bool connected, const std::vector<std::string>& introspection)
+  TestActionCheckDeviceStatus(bool connected,
+                              const std::optional<std::vector<std::string>>& introspection)
       : connected_(connected), introspection_(introspection) {}
 
   bool connected_;
-  std::vector<std::string> introspection_;
+  std::optional<std::vector<std::string>> introspection_;
 };
 
 class TestActionTransmitMQTTData : public TestAction {
@@ -363,8 +372,9 @@ class TestActionTransmitRESTData : public TestAction {
 
   void execute_unchecked(const std::string& case_name) const override {
     spdlog::info("[{}] Transmitting REST data...", case_name);
-    std::string request_url = appengine_url_ + "/v1/" + realm_ + "/devices/" + device_id_ +
-                              "/interfaces/" + message_.get_interface() + message_.get_path();
+    std::string request_url = astarte_base_url_ + "/appengine/v1/" + realm_ + "/devices/" +
+                              device_id_ + "/interfaces/" + message_.get_interface() +
+                              message_.get_path();
 
     spdlog::info("REQUEST: {}", request_url);
 
@@ -444,8 +454,8 @@ class TestActionFetchRESTData : public TestAction {
   void execute_unchecked(const std::string& case_name) const override {
     spdlog::info("[{}] Fetching REST data...", case_name);
 
-    std::string request_url = appengine_url_ + "/v1/" + realm_ + "/devices/" + device_id_ +
-                              "/interfaces/" + message_.get_interface();
+    std::string request_url = astarte_base_url_ + "/appengine/v1/" + realm_ + "/devices/" +
+                              device_id_ + "/interfaces/" + message_.get_interface();
     cpr::Response get_response =
         cpr::Get(cpr::Url{request_url}, cpr::Header{{"Content-Type", "application/json"}},
                  cpr::Header{{"Authorization", "Bearer " + appengine_token_}});

@@ -20,6 +20,7 @@
 
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/device.hpp"
+#include "astarte_device_sdk/mqtt/config.hpp"
 #include "astarte_device_sdk/msg.hpp"
 #include "astarte_device_sdk/object.hpp"
 #include "astarte_device_sdk/ownership.hpp"
@@ -36,11 +37,10 @@ namespace AstarteDeviceSdk {
 class AstarteDeviceMQTT : public AstarteDevice {
  public:
   /**
-   * @brief Constructor for the Astarte device class.
-   * @param server_addr The MQTT server address of the Astarte message hub.
-   * @param node_uuid The UUID identifier for this device with the Astarte message hub.
+   * @brief Construct an AstarteDeviceMQTTImpl instance.
+   * @param cfg set of MQTT configuration options used to connect a device to Astarte.
    */
-  AstarteDeviceMQTT(const std::string& server_addr, const std::string& node_uuid);
+  AstarteDeviceMQTT(const MqttConfig cfg);
   /** @brief Destructor for the Astarte device class. */
   ~AstarteDeviceMQTT() override;
   /** @brief Copy constructor for the Astarte device class. */
@@ -144,9 +144,9 @@ class AstarteDeviceMQTT : public AstarteDevice {
   auto get_property(std::string_view interface_name, std::string_view path)
       -> AstartePropertyIndividual;
 
-  //  private:
-  //   struct AstarteDeviceMQTTImpl;
-  //   std::shared_ptr<AstarteDeviceMQTTImpl> astarte_device_impl_;
+ private:
+  struct AstarteDeviceMQTTImpl;
+  std::shared_ptr<AstarteDeviceMQTTImpl> astarte_device_impl_;
 };
 
 }  // namespace AstarteDeviceSdk
