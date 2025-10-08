@@ -14,6 +14,26 @@ It is possible to configure the example by creating and modifying a `config.toml
 During the sdk development several paramenters will be added to this file to extend the
 example functionalities.
 
+An example of `config.toml` file is the following:
+```
+astarte_base_url = ""
+realm = ""
+device_id = ""
+pairing_token = ""
+
+[features]
+DEVICE_REGISTRATION = true
+
+```
+
+The sample is configured to perform a device registration to an Astarte instance.
+
+The parameters you need to provide are:
+- `astarte_base_url`, the URL of the Astarte instance
+- `realm`, the name of the Astarte realm where the device will be registered
+- `device_id`, a 128bit URL encoded base64 string uniquelly identifying a device
+- `pairing_token`, a token necessary to authenticate though Astarte
+
 ## Building and running
 
 To build this sample run the `build_sample.sh` present in the root of this project with your
