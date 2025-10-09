@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include <format>
 #include <toml++/toml.hpp>
 
 #include "astarte_device_sdk/data.hpp"
@@ -14,6 +15,7 @@
 #include "testcases/device_property.hpp"
 #include "testcases/device_reconnection.hpp"
 #include "testcases/device_status.hpp"
+#include "testcases/mqtt/device_pairing.hpp"
 #include "testcases/server_aggregate.hpp"
 #include "testcases/server_datastream.hpp"
 #include "testcases/server_property.hpp"
@@ -26,45 +28,36 @@ int main() {
 
   // Parse configuration from toml
   toml::table config = toml::parse_file("end_to_end/config.toml");
-  std::optional<std::string> opt_transport = config["transport"].value<std::string>();
-  if (!opt_transport || ((opt_transport.value() != "grpc") && (opt_transport.value() != "mqtt"))) {
-    throw EndToEndConfigException("Configuration failed, transport is missing or incorrect.");
-  }
-  std::string transport = opt_transport.value();
 
-  // Create configuration structs
-  std::variant<struct GRPCConfig, struct MQTTConfig> transport_config;
-  if (transport == "grpc") {
-    transport_config = GRPCConfig{.server_addr = config["server_addr"].value<std::string>().value(),
-                                  .node_id = config["node_id"].value<std::string>().value(),
-                                  .interfaces = {
-                                      astarte_interfaces::DeviceDatastream::FILE,
-                                      astarte_interfaces::ServerDatastream::FILE,
-                                      astarte_interfaces::DeviceAggregate::FILE,
-                                      astarte_interfaces::ServerAggregate::FILE,
-                                      astarte_interfaces::DeviceProperty::FILE,
-                                      astarte_interfaces::ServerProperty::FILE,
-                                  }};
-  } else {
-    transport_config = MQTTConfig{.interfaces = {
-                                      astarte_interfaces::DeviceDatastream::FILE,
-                                      astarte_interfaces::ServerDatastream::FILE,
-                                      astarte_interfaces::DeviceAggregate::FILE,
-                                      astarte_interfaces::ServerAggregate::FILE,
-                                      astarte_interfaces::DeviceProperty::FILE,
-                                      astarte_interfaces::ServerProperty::FILE,
-                                  }};
-  }
+  auto realm = config["realm"].value<std::string>().value();
+  auto device_id = config["device_id"].value<std::string>().value();
+  auto astarte_base_url = config["astarte_base_url"].value<std::string>().value();
+
   struct CURLConfig curl_config = {
-      .appengine_url = config["appengine_url"].value<std::string>().value(),
+      .astarte_base_url = astarte_base_url,
       .appengine_token = config["appengine_token"].value<std::string>().value(),
-      .realm = config["realm"].value<std::string>().value(),
-      .device_id = config["device_id"].value<std::string>().value()};
+      .realm = realm,
+      .device_id = device_id};
 
   // Create orchestrator
-  TestOrchestrator orchestrator(transport_config, curl_config);
+  TestOrchestrator orchestrator(curl_config);
 
-  // Add test cases
+  // Create configuration structs
+#ifdef ASTARTE_TRANSPORT_GRPC
+  TransportConfigVariant transport_config =
+      GrpcTestConfig{.server_addr = config["grpc"]["server_addr"].value<std::string>().value(),
+                     .node_id = config["grpc"]["node_id"].value<std::string>().value(),
+                     .interfaces = {
+                         astarte_interfaces::DeviceDatastream::FILE,
+                         astarte_interfaces::ServerDatastream::FILE,
+                         astarte_interfaces::DeviceAggregate::FILE,
+                         astarte_interfaces::ServerAggregate::FILE,
+                         astarte_interfaces::DeviceProperty::FILE,
+                         astarte_interfaces::ServerProperty::FILE,
+                     }};
+
+  orchestrator.with_transport_config(transport_config);
+
   orchestrator.add_test_case(testcases::device_status());
   orchestrator.add_test_case(testcases::device_reconnection());
   orchestrator.add_test_case(testcases::device_add_remove_interface());
@@ -79,6 +72,39 @@ int main() {
 
   // Execute all test cases
   orchestrator.execute_all();
+#else   // ASTARTE_TRANSPORT_GRPC
+  auto pairing_token_opt = config.at("mqtt").at_path("pairing_token").value<std::string>();
+  auto credential_secret_opt = config.at("mqtt").at_path("credential_secret").value<std::string>();
+
+  if (pairing_token_opt) {
+    // execute only pairing api tests
+    orchestrator.execute_without_device(testcases::device_pairing(pairing_token_opt.value()));
+  } else if (credential_secret_opt) {
+    auto store_dir = config["mqtt"]["store_dir"].value<std::string>().value();
+
+    TransportConfigVariant transport_config =
+        MqttTestConfig{.cfg = MqttConfig(realm, device_id, credential_secret_opt.value(),
+                                         std::format("{}/pairing", astarte_base_url), store_dir),
+                       .interfaces = {
+                           astarte_interfaces::DeviceDatastream::FILE,
+                           astarte_interfaces::ServerDatastream::FILE,
+                           astarte_interfaces::DeviceAggregate::FILE,
+                           astarte_interfaces::ServerAggregate::FILE,
+                           astarte_interfaces::DeviceProperty::FILE,
+                           astarte_interfaces::ServerProperty::FILE,
+                       }};
+
+    orchestrator.with_transport_config(transport_config);
+
+    // TODO: add test cases to execute here
+
+    // Execute all test cases
+    orchestrator.execute_all();
+  } else {
+    spdlog::error("At least one between credentials secret or pairing token mut be provided");
+    return 1;
+  }
+#endif  // ASTARTE_TRANSPORT_GRPC
 
   return 0;
 }

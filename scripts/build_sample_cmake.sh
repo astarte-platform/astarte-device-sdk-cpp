@@ -70,6 +70,7 @@ build_sample_with_cmake() {
     cmake_options_array+=("-DCMAKE_POLICY_VERSION_MINIMUM=3.15")
     cmake_options_array+=("-DASTARTE_PUBLIC_SPDLOG_DEP=ON")
     cmake_options_array+=("-DSAMPLE_USE_SYSTEM_ASTARTE_LIB=OFF")
+	cmake_options_array+=("-DCMAKE_POSITION_INDEPENDENT_CODE=ON")
     if [[ "$transport" == "grpc" ]]; then
         cmake_options_array+=("-DASTARTE_TRANSPORT_GRPC=ON")
     else
