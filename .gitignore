@@ -30,3 +30,6 @@ grpc-install/
 
 # Conan stuff
 CMakeUserPresets.json
+
+# ignore db files
+**.db

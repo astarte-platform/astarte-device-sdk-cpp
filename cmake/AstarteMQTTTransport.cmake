@@ -19,7 +19,7 @@ function(astarte_sdk_configure_mqtt_dependencies)
         find_package(PahoMqttCpp REQUIRED)
         find_package(cpr REQUIRED)
         find_package(nlohmann_json REQUIRED)
-
+        find_package(SQLiteCpp REQUIRED)
         if(NOT TARGET ada::ada)
             find_package(ada REQUIRED)
         endif()
@@ -53,6 +53,12 @@ function(astarte_sdk_configure_mqtt_dependencies)
         set(URL_GIT_TAG v3.2.4)
         FetchContent_Declare(ada GIT_REPOSITORY ${URL_GIT_REPOSITORY} GIT_TAG ${URL_GIT_TAG})
         FetchContent_MakeAvailable(ada)
+
+        # Library to manage database operations
+        set(SQL_GIT_REPOSITORY https://github.com/SRombauts/SQLiteCpp.git)
+        set(SQL_GIT_TAG 3.3.2)
+        FetchContent_Declare(SQLiteCpp GIT_REPOSITORY ${SQL_GIT_REPOSITORY} GIT_TAG ${SQL_GIT_TAG})
+        FetchContent_MakeAvailable(SQLiteCpp)
     endif()
 endfunction()
 
@@ -75,6 +81,7 @@ function(astarte_sdk_add_mqtt_transport)
         PRIVATE cpr::cpr
         PRIVATE nlohmann_json::nlohmann_json
         PUBLIC ada::ada
+        PUBLIC SQLiteCpp
     )
 endfunction()
 
