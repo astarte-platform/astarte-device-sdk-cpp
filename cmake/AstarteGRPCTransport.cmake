@@ -4,6 +4,8 @@
 #
 # This file contains all functions needed to add gRPC transport support.
 
+include_guard(GLOBAL)
+
 # Defines gRPC-specific CMake options and displays them.
 function(astarte_sdk_add_grpc_options)
     option(ASTARTE_PUBLIC_PROTO_DEP "Make message hub proto dependency public" OFF)
@@ -23,7 +25,7 @@ function(astarte_sdk_configure_grpc_dependencies)
         set(MSGHUB_PROTO_GITHUB_URL
             https://github.com/astarte-platform/astarte-message-hub-proto.git
         )
-        set(MSGHUB_PROTO_GIT_TAG release-0.8)
+        set(MSGHUB_PROTO_GIT_TAG release-0.9)
         FetchContent_Declare(
             astarte_msghub_proto
             GIT_REPOSITORY ${MSGHUB_PROTO_GITHUB_URL}
@@ -35,12 +37,41 @@ function(astarte_sdk_configure_grpc_dependencies)
     endif()
 endfunction()
 
+# Adds gRPC sources and private headers to the provided lists.
+#
+# @param ASTARTE_GRPC_PUBLIC_HEADERS The name of the list variable for public headers.
+# @param ASTARTE_GRPC_SOURCES The name of the list variable for source files.
+# @param ASTARTE_GRPC_PRIVATE_HEADERS The name of the list variable for private headers.
+function(
+    astarte_sdk_add_grpc_sources
+    ASTARTE_GRPC_PUBLIC_HEADERS
+    ASTARTE_GRPC_SOURCES
+    ASTARTE_GRPC_PRIVATE_HEADERS
+)
+    list(APPEND ${ASTARTE_GRPC_PUBLIC_HEADERS} "include/astarte_device_sdk/device_grpc.hpp")
+    list(
+        APPEND
+        ${ASTARTE_GRPC_SOURCES}
+        "src/grpc/device_grpc_impl.cpp"
+        "src/grpc/device_grpc.cpp"
+        "src/grpc/grpc_converter.cpp"
+        "src/grpc/grpc_interceptors.cpp"
+    )
+    list(
+        APPEND
+        ${ASTARTE_GRPC_PRIVATE_HEADERS}
+        "private/grpc/device_grpc_impl.hpp"
+        "private/grpc/grpc_converter.hpp"
+        "private/grpc/grpc_formatter.hpp"
+        "private/grpc/grpc_interceptors.hpp"
+    )
+    set(${ASTARTE_GRPC_PUBLIC_HEADERS} ${${ASTARTE_GRPC_PUBLIC_HEADERS}} PARENT_SCOPE)
+    set(${ASTARTE_GRPC_SOURCES} ${${ASTARTE_GRPC_SOURCES}} PARENT_SCOPE)
+    set(${ASTARTE_GRPC_PRIVATE_HEADERS} ${${ASTARTE_GRPC_PRIVATE_HEADERS}} PARENT_SCOPE)
+endfunction()
+
 # Adds gRPC source files and links required libraries to the main target.
 function(astarte_sdk_add_grpc_transport)
-    # Add gRPC transport sources
-    file(GLOB astarte_sdk_src_transport "${CMAKE_CURRENT_LIST_DIR}/src/grpc/*.cpp")
-    target_sources(astarte_device_sdk PRIVATE ${astarte_sdk_src_transport})
-
     # Link with gRPC, Protobuf, and the message hub proto library
     target_link_libraries(
         astarte_device_sdk
@@ -57,37 +88,6 @@ endfunction()
 # Adds gRPC-specific targets to the installation list.
 function(astarte_sdk_add_grpc_install_targets TARGET_LIST_VAR)
     list(APPEND ${TARGET_LIST_VAR} astarte_msghub_proto)
-    if(NOT ASTARTE_USE_SYSTEM_GRPC)
-        list(
-            APPEND
-            ${TARGET_LIST_VAR}
-            # gRPC C++ libraries
-            grpc++
-            grpc++_reflection
-            # gRPC C-core libraries
-            grpc
-            gpr
-            address_sorting
-            # Protobuf library
-            libprotobuf
-            # Dependencies of gRPC revealed by CMake export errors
-            upb_json_lib
-            upb_textformat_lib
-            zlibstatic
-            re2
-            # OpenSSL libs (gRPC builds them as 'ssl' and 'crypto')
-            ssl
-            crypto
-            # Deeper dependencies of the UPB library
-            upb_mini_descriptor_lib
-            upb_wire_lib
-            # Base-level UPB and UTF8 dependencies
-            upb_base_lib
-            upb_mem_lib
-            upb_message_lib
-            utf8_range_lib
-        )
-    endif()
     set(${TARGET_LIST_VAR} ${${TARGET_LIST_VAR}} PARENT_SCOPE)
 endfunction()
 

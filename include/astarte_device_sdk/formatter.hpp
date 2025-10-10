@@ -9,8 +9,9 @@
 #include <cstddef>
 #include <type_traits>
 
-// TODO(rgallor): stop using spdlog formatter once C++20 will become the minimu required version
-#if (__cplusplus >= 202002L) && (__has_include(<format>))
+#if ((defined(_MSVC_LANG) && _MSVC_LANG >= 202002L) ||    \
+     (!defined(_MSVC_LANG) && __cplusplus >= 202002L)) && \
+    (__has_include(<format>))
 #include <format>
 #define ASTARTE_NS_FORMAT std
 #else                        // (__cplusplus >= 202002L) && (__has_include(<format>))

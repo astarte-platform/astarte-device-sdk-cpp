@@ -4,6 +4,8 @@
 #
 # This file contains all functions needed to add MQTT transport support.
 
+include_guard(GLOBAL)
+
 # Defines MQTT-specific CMake options and displays them.
 function(astarte_sdk_add_mqtt_options)
     option(ASTARTE_USE_SYSTEM_MQTT "Use the system installed MQTT library" OFF)
@@ -33,12 +35,25 @@ function(astarte_sdk_configure_mqtt_dependencies)
     endif()
 endfunction()
 
+# Adds MQTT sources and private headers to the provided lists.
+#
+# @param ASTARTE_MQTT_PUBLIC_HEADERS The name of the list variable for public headers.
+# @param ASTARTE_MQTT_SOURCES The name of the list variable for source files.
+# @param ASTARTE_MQTT_PRIVATE_HEADERS The name of the list variable for private headers.
+function(
+    astarte_sdk_add_mqtt_sources
+    ASTARTE_MQTT_PUBLIC_HEADERS
+    ASTARTE_MQTT_SOURCES
+    ASTARTE_MQTT_PRIVATE_HEADERS
+)
+    list(APPEND ${ASTARTE_MQTT_PUBLIC_HEADERS} "include/astarte_device_sdk/device_mqtt.hpp")
+    list(APPEND ${ASTARTE_MQTT_SOURCES} "src/mqtt/device_mqtt.cpp")
+    set(${ASTARTE_MQTT_PUBLIC_HEADERS} ${${ASTARTE_MQTT_PUBLIC_HEADERS}} PARENT_SCOPE)
+    set(${ASTARTE_MQTT_SOURCES} ${${ASTARTE_MQTT_SOURCES}} PARENT_SCOPE)
+endfunction()
+
 # Adds MQTT source files and links required libraries to the main target.
 function(astarte_sdk_add_mqtt_transport)
-    # Add MQTT transport sources
-    file(GLOB astarte_sdk_src_transport "${CMAKE_CURRENT_LIST_DIR}/src/mqtt/*.cpp")
-    target_sources(astarte_device_sdk PRIVATE ${astarte_sdk_src_transport})
-
     # Link with MQTT
     if(ASTARTE_USE_SYSTEM_MQTT)
         target_link_libraries(astarte_device_sdk PRIVATE PahoMqttCpp::paho-mqttpp3-static)

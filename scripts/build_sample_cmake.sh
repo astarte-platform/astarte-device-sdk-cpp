@@ -59,9 +59,6 @@ build_sample_with_cmake() {
     # Create build directory if it doesn't exist
     mkdir -p "$build_dir"
 
-    # Navigate to build directory
-    cd "$build_dir" || error_exit "Failed to navigate to $build_dir"
-
     # --- Configure CMake options ---
     echo "Running CMake for $sample_to_build sample..."
     local cmake_options_array=()
@@ -101,17 +98,16 @@ build_sample_with_cmake() {
     fi
 
     # Run CMake
-    if ! cmake "${cmake_options_array[@]}" "$sample_src_dir"; then
+    if ! cmake "${cmake_options_array[@]}" -S "$sample_src_dir" -B "$build_dir"; then
         error_exit "CMake configuration failed for $sample_to_build sample."
     fi
 
     # Build the project
     echo "Building $sample_to_build sample with make -j $jobs ..."
-    if ! make -j "$jobs"; then
+    if ! cmake --build "$build_dir" --parallel "$jobs"; then
         error_exit "Make build failed for $sample_to_build sample."
     fi
 
     # Return to the original directory to avoid side effects
-    cd - || error_exit "Failed to return to the original directory."
     echo "CMake build process complete."
 }
