@@ -41,8 +41,6 @@ class MqttConnection {
     auto broker_url = api.get_broker_url(credential_secret);
     auto client_id = std::format("{}/{}", realm, device_id);
 
-    // TODO: before building the mqtt options we must save the client certificate and private key to
-    // file
     auto [client_priv_key, client_cert] = api.get_device_key_and_cert(credential_secret);
 
     auto client_cert_dir = std::format("{}/{}", store_dir, CLIENT_CERTIFICATE_FILE);

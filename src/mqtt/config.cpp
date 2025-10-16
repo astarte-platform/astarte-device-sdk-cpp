@@ -23,6 +23,11 @@ namespace AstarteDeviceSdk {
 
 auto read_credential_from_file(const std::filesystem::path& file_path)
     -> std::optional<std::string> {
+  if(!std::filesystem::exists(file_path)) {
+    spdlog::debug("file {} does not exists", file_path.string());
+    return std::nullopt;
+  }
+
   std::ifstream interface_file(file_path, std::ios::in);
   if (!interface_file.is_open()) {
     spdlog::debug("Could not open the credential file: {}", file_path.string());
@@ -38,6 +43,11 @@ auto read_credential_from_file(const std::filesystem::path& file_path)
 }
 
 void write_to_file(const std::filesystem::path& file_path, const std::string data) {
+  if(std::filesystem::exists(file_path)) {
+    spdlog::debug("file {} already exists", file_path.string());
+    return;
+  }
+
   // open an output file stream (ofstream) using the path object
   // the file is automatically closed when 'output_file' goes out of scope
   std::ofstream output_file(file_path);
