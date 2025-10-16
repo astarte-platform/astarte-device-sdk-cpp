@@ -32,6 +32,10 @@ class MqttException : public AstarteException {
       : AstarteDeviceSdk::AstarteException("MqttException(" + std::move(message) + ")") {}
 };
 
+/************************************************
+ *             Pairing API exceptions          *
+ ***********************************************/
+
 /**
  * @brief Base exception for errors related to the Astarte API client.
  * @details This class serves as a parent for more specific API-level exceptions.
@@ -135,6 +139,10 @@ class PairingConfigException : public PairingApiException {
       : PairingApiException("PairingConfigException(" + err_message + ")") {}
 };
 
+/************************************************
+ *               Crypto exceptions             *
+ ***********************************************/
+
 /**
  * @brief Base exception for errors related to the cryptographic operations.
  */
@@ -148,8 +156,12 @@ class CryptoException : public MqttException {
       : MqttException("CryptoException(" + err_message + ")") {}
 };
 
+/************************************************
+ *             Connection exceptions           *
+ ***********************************************/
+
 /**
- * @brief Base exception for errors related to the cryptographic operations.
+ * @brief Base exception for errors related to the connection operations.
  */
 class MqttConnectionException : public MqttException {
  public:

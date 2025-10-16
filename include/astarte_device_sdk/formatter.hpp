@@ -507,6 +507,50 @@ inline std::ostream& operator<<(std::ostream& out,
   return out;
 }
 
+/**
+ * @brief ASTARTE_NS_FORMAT::formatter specialization for AstarteDeviceSdk::AstarteStoredProperty.
+ */
+template <>
+struct ASTARTE_NS_FORMAT::formatter<AstarteDeviceSdk::AstarteOwnership> {
+  /**
+   * @brief Parse the format string. Default implementation.
+   * @param ctx The parse context.
+   * @return An iterator to the end of the parsed range.
+   */
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx) const {
+    return ctx.begin();
+  }
+
+  /**
+   * @brief Format the AstarteDeviceSdk:: object.
+   * @param msg The AstarteDeviceSdk:: to format.
+   * @param ctx The format context.
+   * @return An iterator to the end of the output.
+   */
+  template <typename FormatContext>
+  auto format(const AstarteDeviceSdk::AstarteOwnership& ownership, FormatContext& ctx) const {
+    auto out = ctx.out();
+
+    switch (ownership) {
+      case AstarteDeviceSdk::AstarteOwnership::kDevice:
+        ASTARTE_NS_FORMAT::format_to(out, "device");
+        break;
+      case AstarteDeviceSdk::AstarteOwnership::kServer:
+        ASTARTE_NS_FORMAT::format_to(out, "server");
+        break;
+    }
+
+    return out;
+  }
+};
+
+inline std::ostream& operator<<(std::ostream& out,
+                                const AstarteDeviceSdk::AstarteOwnership ownership) {
+  out << ASTARTE_NS_FORMAT::format("{}", ownership);
+  return out;
+}
+
 /// @endcond
 
 #endif  // ASTARTE_FORMATTER_H

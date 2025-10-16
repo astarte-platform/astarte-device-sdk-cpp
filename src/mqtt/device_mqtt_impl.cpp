@@ -9,9 +9,12 @@
 
 #include "mqtt/device_mqtt_impl.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <chrono>
 #include <filesystem>
 #include <list>
+#include <nlohmann/json.hpp>
 #include <optional>
 #include <stdexcept>
 #include <string>
@@ -22,6 +25,8 @@
 #include "astarte_device_sdk/mqtt/config.hpp"
 #include "astarte_device_sdk/mqtt/connection.hpp"
 #include "astarte_device_sdk/mqtt/device_mqtt.hpp"
+#include "astarte_device_sdk/mqtt/formatter.hpp"
+#include "astarte_device_sdk/mqtt/introspection.hpp"
 #include "astarte_device_sdk/mqtt/pairing.hpp"
 #include "astarte_device_sdk/msg.hpp"
 #include "astarte_device_sdk/object.hpp"
@@ -30,6 +35,8 @@
 #include "astarte_device_sdk/stored_property.hpp"
 
 namespace AstarteDeviceSdk {
+
+using json = nlohmann::json;
 
 AstarteDeviceMQTT::AstarteDeviceMQTTImpl::AstarteDeviceMQTTImpl(const MqttConfig cfg)
     : cfg_(cfg), connection_(std::move(cfg)) {}
@@ -48,34 +55,33 @@ void AstarteDeviceMQTT::AstarteDeviceMQTTImpl::add_interface_from_file(
   }
 
   // Read the entire JSON file content into a string
-  const std::string interface_json((std::istreambuf_iterator<char>(interface_file)),
-                                   std::istreambuf_iterator<char>());
+  const std::string interface_str((std::istreambuf_iterator<char>(interface_file)),
+                                  std::istreambuf_iterator<char>());
 
   // Close the file
   interface_file.close();
 
   // Add the interface from the fetched string
-  add_interface_from_str(interface_json);
+  add_interface_from_str(interface_str);
 }
 
-void AstarteDeviceMQTT::AstarteDeviceMQTTImpl::add_interface_from_str(std::string_view json) {
+void AstarteDeviceMQTT::AstarteDeviceMQTTImpl::add_interface_from_str(
+    std::string_view interface_str) {
   spdlog::debug("Adding interface from string");
 
-  // If the device is connected, notify the message hub
   if (is_connected()) {
-    // gRPCInterfacesJson grpc_interfaces_json;
-    // grpc_interfaces_json.add_interfaces_json(json);
-    // ClientContext context;
-    // google::protobuf::Empty response;
-    // const Status status = stub_->AddInterfaces(&context, grpc_interfaces_json, &response);
-    // if (!status.ok()) {
-    //   spdlog::error("{}: {}", static_cast<int>(status.error_code()), status.error_message());
-    //   return;
-    // }
+    // TODO: If the device is connected, communicate the new introspection to Astarte
   }
 
-  introspection_.emplace_back(json);
-  spdlog::trace("Added interface: \n{}", json);
+  try {
+    auto interface_json = json::parse(interface_str);
+    auto interface = Interface::try_from_json(interface_json);
+    spdlog::trace("Added interface: \n{}", interface);
+    introspection_.emplace_back(std::move(interface));
+  } catch (json::parse_error& e) {
+    spdlog::error("failed to parse JSON Astarte interface: {}", e.what());
+    throw e;  // TODO: convert to a library exception type
+  }
 }
 
 void AstarteDeviceMQTT::AstarteDeviceMQTTImpl::remove_interface(const std::string& interface_name) {

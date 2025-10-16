@@ -16,7 +16,7 @@
 #include "store.hpp"
 
 int main() {
-  spdlog::set_level(spdlog::level::debug);
+  spdlog::set_level(spdlog::level::trace);
 
   auto cfg = Config("samples/mqtt/native/config.toml");
 
@@ -76,8 +76,13 @@ int main() {
       // timeout period, etc.
 
       auto device = AstarteDeviceSdk::AstarteDeviceMQTT(mqtt_cfg);
+
+      std::filesystem::path device_aggregate_interface_file_path =
+          "samples/mqtt/native/interfaces/org.astarte-platform.cpp.examples.DeviceAggregate.json";
+      device.add_interface_from_file(device_aggregate_interface_file_path);
+
       device.connect();
-      sleep(3);
+
       device.disconnect();
     }
   } catch (const std::exception& e) {

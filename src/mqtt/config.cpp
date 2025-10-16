@@ -23,7 +23,7 @@ namespace AstarteDeviceSdk {
 
 auto read_credential_from_file(const std::filesystem::path& file_path)
     -> std::optional<std::string> {
-  if(!std::filesystem::exists(file_path)) {
+  if (!std::filesystem::exists(file_path)) {
     spdlog::debug("file {} does not exists", file_path.string());
     return std::nullopt;
   }
@@ -43,7 +43,7 @@ auto read_credential_from_file(const std::filesystem::path& file_path)
 }
 
 void write_to_file(const std::filesystem::path& file_path, const std::string data) {
-  if(std::filesystem::exists(file_path)) {
+  if (std::filesystem::exists(file_path)) {
     spdlog::debug("file {} already exists", file_path.string());
     return;
   }

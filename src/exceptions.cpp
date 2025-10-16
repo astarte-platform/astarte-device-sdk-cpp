@@ -26,4 +26,27 @@ AstarteInternalException::AstarteInternalException(std::string_view err_message)
 AstarteOperationRefusedException::AstarteOperationRefusedException(std::string_view err_message)
     : AstarteException("AstarteOperationRefusedException(" + std::string(err_message) + ")") {}
 
+/************************************************
+ *       Interface validation exceptions       *
+ ***********************************************/
+
+InterfaceValidationException::InterfaceValidationException(const std::string& err_message)
+    : AstarteException("InterfaceValidationException(" + err_message + ")") {}
+
+InvalidVersionException::InvalidVersionException(const std::string& err_message)
+    : InterfaceValidationException("InvalidVersionException(" + err_message + ")") {}
+
+InvalidInterfaceTypeException::InvalidInterfaceTypeException(const std::string& err_message)
+    : InterfaceValidationException("InvalidInterfaceTypeException(" + err_message + ")") {}
+
+InvalidInterfaceOwnershipeException::InvalidInterfaceOwnershipeException(
+    const std::string& err_message)
+    : InterfaceValidationException("InvalidInterfaceOwnershipeException(" + err_message + ")") {}
+
+InvalidAggregationException::InvalidAggregationException(const std::string& err_message)
+    : InterfaceValidationException("InvalidAggregationException(" + err_message + ")") {}
+
+InvalidAstarteTypeException::InvalidAstarteTypeException(const std::string& err_message)
+    : InterfaceValidationException("InvalidAstarteTypeException(" + err_message + ")") {}
+
 }  // namespace AstarteDeviceSdk

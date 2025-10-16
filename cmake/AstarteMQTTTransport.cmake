@@ -92,6 +92,7 @@ function(
         "include/astarte_device_sdk/mqtt/exceptions.hpp"
         "include/astarte_device_sdk/mqtt/config.hpp"
         "include/astarte_device_sdk/mqtt/connection.hpp"
+        "include/astarte_device_sdk/mqtt/formatter.hpp"
     )
     list(
         APPEND

@@ -8,13 +8,17 @@
 #include <spdlog/spdlog.h>
 
 #include <format>
+#include <string_view>
 
 #include "astarte_device_sdk/mqtt/config.hpp"
 #include "astarte_device_sdk/mqtt/exceptions.hpp"
 #include "astarte_device_sdk/mqtt/pairing.hpp"
 #include "mqtt/async_client.h"
+#include "mqtt/iasync_client.h"
 
 namespace AstarteDeviceSdk {
+
+constexpr std::string_view MQTT_CONTROL_CONSUMER_PROP_TOPIC = "/control/consumer/properties";
 
 /**
  * @brief Manage the MQTT connection to an Astarte instance.
@@ -62,6 +66,10 @@ class MqttConnection {
       spdlog::debug("connecting device to the Astarte MQTT broker...");
       client_->connect(options_)->wait();
       spdlog::info("device connected to Astarte");
+
+      spdlog::debug("setting up subscription to Astarte topics...");
+      setup_subscriptions();
+      spdlog::info("subscription to Astarte topics completed");
     } catch (const mqtt::exception& e) {
       throw MqttConnectionException(
           std::format("Mqtt connection error (ID {}): {}", e.get_reason_code(), e.what()));
@@ -82,6 +90,24 @@ class MqttConnection {
           std::format("Mqtt disconnection error (ID {}): {}", e.get_reason_code(), e.what()));
     }
   }
+
+  void setup_subscriptions() {
+    // define a collection of topics to subscribe to
+    auto topics = mqtt::string_collection();
+    auto qoss = mqtt::iasync_client::qos_collection();
+
+    spdlog::debug("subscribing to topic {}", MQTT_CONTROL_CONSUMER_PROP_TOPIC);
+    topics.push_back(std::string(MQTT_CONTROL_CONSUMER_PROP_TOPIC));
+    qoss.push_back(2);
+
+    // TODO: add introspection topics (see zephyr)
+
+    client_->subscribe(std::make_shared<mqtt::string_collection>(topics), qoss)->wait();
+  }
+
+  // void send_introspection(std::vector<std::string> interfaces) {
+
+  // }
 
  private:
   /// @brief The MQTT configuration object.
