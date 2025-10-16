@@ -25,6 +25,7 @@
 #include <mbedtls/x509_csr.h>
 
 #include "astarte_device_sdk/errors.hpp"
+#include "astarte_device_sdk/formatter.hpp"
 
 namespace AstarteDeviceSdk {
 

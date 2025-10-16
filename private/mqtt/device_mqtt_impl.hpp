@@ -23,6 +23,7 @@
 #include "astarte_device_sdk/mqtt/device_mqtt.hpp"
 #include "astarte_device_sdk/mqtt/connection.hpp"
 #include "astarte_device_sdk/mqtt/errors.hpp"
+#include "astarte_device_sdk/mqtt/introspection.hpp"
 
 namespace AstarteDeviceSdk {
 
@@ -166,7 +167,7 @@ struct AstarteDeviceMQTT::AstarteDeviceMQTTImpl {
   MqttConnection connection_;
   // TODO: the following paramenters can be gathered into SharedState struct
   std::atomic_bool connected_{false};
-  std::vector<std::string> introspection_;
+  std::vector<Interface> introspection_;
 };
 
 }  // namespace AstarteDeviceSdk

@@ -7,7 +7,9 @@
 
 #include <chrono>
 #include <cstddef>
+#include <iostream>
 #include <type_traits>
+#include <variant>
 
 #if ((defined(_MSVC_LANG) && _MSVC_LANG >= 202002L) ||    \
      (!defined(_MSVC_LANG) && __cplusplus >= 202002L)) && \
@@ -22,6 +24,8 @@ namespace astarte_fmt = ::std;
 namespace astarte_fmt = ::fmt;
 #endif  // (__cplusplus >= 202002L) && (__has_include(<format>))
 
+#include "astarte_device_sdk/data.hpp"
+#include "astarte_device_sdk/errors.hpp"
 #include "astarte_device_sdk/individual.hpp"
 #include "astarte_device_sdk/msg.hpp"
 #include "astarte_device_sdk/object.hpp"
@@ -506,6 +510,119 @@ inline std::ostream& operator<<(std::ostream& out,
   out << astarte_fmt::format("{}", prop);
   return out;
 }
+
+/**
+ * @brief astarte_fmt::formatter specialization for AstarteDeviceSdk::AstarteStoredProperty.
+ */
+template <>
+struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteOwnership> {
+  /**
+   * @brief Parse the format string. Default implementation.
+   * @param ctx The parse context.
+   * @return An iterator to the end of the parsed range.
+   */
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx) const {
+    return ctx.begin();
+  }
+
+  /**
+   * @brief Format the AstarteDeviceSdk:: object.
+   * @param msg The AstarteDeviceSdk:: to format.
+   * @param ctx The format context.
+   * @return An iterator to the end of the output.
+   */
+  template <typename FormatContext>
+  auto format(const AstarteDeviceSdk::AstarteOwnership& ownership, FormatContext& ctx) const {
+    auto out = ctx.out();
+
+    switch (ownership) {
+      case AstarteDeviceSdk::AstarteOwnership::kDevice:
+        astarte_fmt::format_to(out, "device");
+        break;
+      case AstarteDeviceSdk::AstarteOwnership::kServer:
+        astarte_fmt::format_to(out, "server");
+        break;
+    }
+
+    return out;
+  }
+};
+
+inline std::ostream& operator<<(std::ostream& out,
+                                const AstarteDeviceSdk::AstarteOwnership ownership) {
+  out << astarte_fmt::format("{}", ownership);
+  return out;
+}
+
+/**
+ * @brief Formatter specialization for AstarteDeviceSdk::AstarteErrorBase.
+ */
+template <>
+struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteErrorBase> {
+  /**
+   * @brief Parse the format string. Default implementation.
+   * @param ctx The parse context.
+   * @return An iterator to the end of the parsed range.
+   */
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx) const {
+    return ctx.begin();
+  }
+
+  /**
+   * @brief Format the AstarteErrorBase object.
+   * @param err The AstarteErrorBase to format.
+   * @param ctx The format context.
+   * @return An iterator to the end of the output.
+   */
+  template <typename FormatContext>
+  auto format(const AstarteDeviceSdk::AstarteErrorBase& err, FormatContext& ctx) const {
+    auto out = astarte_fmt::format_to(ctx.out(), "{}: {}", err.type(), err.message());
+
+    std::string indent = "";
+    const AstarteDeviceSdk::AstarteErrorBase* current = &err;
+    while (const auto& nested = current->nested_error()) {
+      indent += "  ";
+      out = astarte_fmt::format_to(out, "\n{}-> {}: {}", indent, nested->type(), nested->message());
+      current = nested.get();
+    }
+
+    return out;
+  }
+};
+
+/**
+ * @brief Formatter specialization for AstarteDeviceSdk::AstarteError.
+ */
+template <>
+struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteError> {
+  /**
+   * @brief Parse the format string. Default implementation.
+   * @param ctx The parse context.
+   * @return An iterator to the end of the parsed range.
+   */
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx) const {
+    return ctx.begin();
+  }
+
+  /**
+   * @brief Format the AstarteError object.
+   * @param err_variant The AstarteError to format.
+   * @param ctx The format context.
+   * @return An iterator to the end of the output.
+   */
+  template <typename FormatContext>
+  auto format(const AstarteDeviceSdk::AstarteError& err_variant, FormatContext& ctx) const {
+    return std::visit(
+        [&ctx](const auto& err) {
+          const auto& base_err = static_cast<const AstarteDeviceSdk::AstarteErrorBase&>(err);
+          return astarte_fmt::format_to(ctx.out(), "{}", base_err);
+        },
+        err_variant);
+  }
+};
 
 /// @endcond
 

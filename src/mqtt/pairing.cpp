@@ -21,6 +21,7 @@
 #include <utility>
 
 #include "astarte_device_sdk/errors.hpp"
+#include "astarte_device_sdk/formatter.hpp"
 #include "mqtt/crypto.hpp"
 
 using json = nlohmann::json;
