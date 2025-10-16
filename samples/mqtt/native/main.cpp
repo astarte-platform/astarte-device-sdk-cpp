@@ -9,6 +9,8 @@
 #include <string>
 #include <string_view>
 
+#include "astarte_device_sdk/errors.hpp"
+#include "astarte_device_sdk/formatter.hpp"
 #include "astarte_device_sdk/mqtt/config.hpp"
 #include "astarte_device_sdk/mqtt/device_mqtt.hpp"
 #include "astarte_device_sdk/mqtt/pairing.hpp"
@@ -99,13 +101,30 @@ int main() {
     }
     auto device = *std::move(device_res);
 
+    const std::vector<std::string_view> interfaces = {
+        "samples/mqtt/native/interfaces/org.astarte-platform.cpp.examples.DeviceAggregate.json",
+        "samples/mqtt/native/interfaces/org.astarte-platform.cpp.examples.DeviceDatastream.json",
+        "samples/mqtt/native/interfaces/org.astarte-platform.cpp.examples.DeviceProperty.json",
+        "samples/mqtt/native/interfaces/org.astarte-platform.cpp.examples.ServerAggregate.json",
+        "samples/mqtt/native/interfaces/org.astarte-platform.cpp.examples.ServerDatastream.json",
+        "samples/mqtt/native/interfaces/org.astarte-platform.cpp.examples.ServerProperty.json"};
+
+    for (const auto interface : interfaces) {
+      auto add_interface_res = device.add_interface_from_file(interface);
+      if (!add_interface_res) {
+        spdlog::error("Failed to add interface {}. Error: {}", interface,
+                      add_interface_res.error());
+        return 1;
+      }
+    }
+
     auto conn_res = device.connect();
     if (!conn_res) {
       spdlog::error("connection error: {}", conn_res.error());
       return 1;
     }
 
-    sleep(3);
+    sleep(10);
 
     auto disconn_res = device.disconnect();
     if (!disconn_res) {

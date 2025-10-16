@@ -101,6 +101,7 @@ function(
         "include/astarte_device_sdk/mqtt/errors.hpp"
         "include/astarte_device_sdk/mqtt/pairing.hpp"
         "include/astarte_device_sdk/mqtt/connection.hpp"
+        "include/astarte_device_sdk/mqtt/formatter.hpp"
     )
     list(
         APPEND

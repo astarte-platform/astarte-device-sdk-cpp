@@ -10,8 +10,10 @@
  * @brief Ownership definitions for communication with Astarte.
  */
 
+#include <astarte_device_sdk/errors.hpp>
 #include <cstdint>
-#include <string_view>
+#include <format>
+#include <string>
 
 namespace AstarteDeviceSdk {
 
@@ -23,14 +25,24 @@ enum AstarteOwnership : int8_t {
   kServer
 };
 
-static constexpr auto ownership_as_str(AstarteOwnership ownership) -> std::string_view {
-  switch (ownership) {
-    case AstarteOwnership::kDevice:
-      return "device";
-    case AstarteOwnership::kServer:
-      return "server";
+/**
+ * @brief Convert a string to an AstarteOwnership enum.
+ *
+ * @param ownership The string representation of the interface ownership.
+ * @return The corresponding AstarteOwnership enum value, an error if the string is not a valid
+ * ownership.
+ */
+// TODO: use static or move function definition to .cpp file
+inline auto ownership_from_str(std::string ownership)
+    -> astarte_tl::expected<AstarteOwnership, AstarteError> {
+  if (ownership == "device") {
+    return AstarteOwnership::kDevice;
+  } else if (ownership == "server") {
+    return AstarteOwnership::kServer;
+  } else {
+    return astarte_tl::unexpected(AstarteInvalidInterfaceOwnershipeError(
+        std::format("interface ownershipe not valid: {}", ownership)));
   }
-  return "unknown";
 }
 
 }  // namespace AstarteDeviceSdk
