@@ -22,20 +22,6 @@ namespace AstarteDeviceSdk {
 using json = nlohmann::json;
 
 // TODO: remove inline once the function definition is moved to its respective .cpp file
-inline auto convert_version(std::string_view maj_min, int64_t version) -> u_int32_t {
-  if (std::cmp_less(version, 0)) {
-    throw InvalidVersionException(
-        std::format("received negative {} version value: {}", maj_min, version));
-  }
-
-  if (std::cmp_greater(version, std::numeric_limits<u_int32_t>::max())) {
-    throw InvalidVersionException(std::format("{} version value too large: {}", maj_min, version));
-  }
-
-  return static_cast<u_int32_t>(version);
-}
-
-// TODO: remove inline once the function definition is moved to its respective .cpp file
 template <typename T>
 inline auto optional_value_from_json_interface(const json& interface, std::string_view key)
     -> std::optional<T> {
@@ -231,6 +217,20 @@ inline auto mappings_from_interface(json& interface) -> std::vector<Mapping> {
   }
 
   return mappings;
+}
+
+// TODO: remove inline once the function definition is moved to its respective .cpp file
+inline auto convert_version(std::string_view maj_min, int64_t version) -> u_int32_t {
+  if (std::cmp_less(version, 0)) {
+    throw InvalidVersionException(
+        std::format("received negative {} version value: {}", maj_min, version));
+  }
+
+  if (std::cmp_greater(version, std::numeric_limits<u_int32_t>::max())) {
+    throw InvalidVersionException(std::format("{} version value too large: {}", maj_min, version));
+  }
+
+  return static_cast<u_int32_t>(version);
 }
 
 class Interface {

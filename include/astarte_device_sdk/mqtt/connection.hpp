@@ -12,7 +12,9 @@
 
 #include "astarte_device_sdk/mqtt/config.hpp"
 #include "astarte_device_sdk/mqtt/exceptions.hpp"
+#include "astarte_device_sdk/mqtt/introspection.hpp"
 #include "astarte_device_sdk/mqtt/pairing.hpp"
+#include "astarte_device_sdk/ownership.hpp"
 #include "mqtt/async_client.h"
 #include "mqtt/iasync_client.h"
 
@@ -61,14 +63,14 @@ class MqttConnection {
    * @brief Connect the client to the Astarte MQTT broker.
    * @throws AstarteDeviceSdk::MqttConnectionException if the connection fails.
    */
-  void connect() {
+  void connect(std::vector<Interface>& introspection) {
     try {
       spdlog::debug("connecting device to the Astarte MQTT broker...");
       client_->connect(options_)->wait();
       spdlog::info("device connected to Astarte");
 
       spdlog::debug("setting up subscription to Astarte topics...");
-      setup_subscriptions();
+      setup_subscriptions(introspection);
       spdlog::info("subscription to Astarte topics completed");
     } catch (const mqtt::exception& e) {
       throw MqttConnectionException(
@@ -91,7 +93,7 @@ class MqttConnection {
     }
   }
 
-  void setup_subscriptions() {
+  void setup_subscriptions(std::vector<Interface>& introspection) {
     // define a collection of topics to subscribe to
     auto topics = mqtt::string_collection();
     auto qoss = mqtt::iasync_client::qos_collection();
@@ -100,7 +102,15 @@ class MqttConnection {
     topics.push_back(std::string(MQTT_CONTROL_CONSUMER_PROP_TOPIC));
     qoss.push_back(2);
 
-    // TODO: add introspection topics (see zephyr)
+    for (Interface interface : introspection) {
+      // consider only server-owned properties
+      if (interface.ownership == AstarteOwnership::kDevice) {
+        continue;
+      }
+
+      topics.push_back(std::format("/{}/{}/#", cfg_.device_id(), interface.interface_name));
+      qoss.push_back(2);
+    }
 
     client_->subscribe(std::make_shared<mqtt::string_collection>(topics), qoss)->wait();
   }

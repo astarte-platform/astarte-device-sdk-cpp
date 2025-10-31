@@ -90,7 +90,7 @@ void AstarteDeviceMQTT::AstarteDeviceMQTTImpl::remove_interface(const std::strin
 
 void AstarteDeviceMQTT::AstarteDeviceMQTTImpl::connect() {
   try {
-    connection_.connect();
+    connection_.connect(introspection_);
   } catch (const std::exception& e) {
     throw e;
   }
