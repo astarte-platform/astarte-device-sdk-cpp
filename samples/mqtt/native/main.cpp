@@ -77,11 +77,22 @@ int main() {
 
       auto device = AstarteDeviceSdk::AstarteDeviceMQTT(mqtt_cfg);
 
-      std::filesystem::path device_aggregate_interface_file_path =
-          "samples/mqtt/native/interfaces/org.astarte-platform.cpp.examples.DeviceAggregate.json";
-      device.add_interface_from_file(device_aggregate_interface_file_path);
+      device.add_interface_from_file(
+          "samples/mqtt/native/interfaces/org.astarte-platform.cpp.examples.DeviceAggregate.json");
+      device.add_interface_from_file(
+          "samples/mqtt/native/interfaces/org.astarte-platform.cpp.examples.DeviceDatastream.json");
+      device.add_interface_from_file(
+          "samples/mqtt/native/interfaces/org.astarte-platform.cpp.examples.DeviceProperty.json");
+      device.add_interface_from_file(
+          "samples/mqtt/native/interfaces/org.astarte-platform.cpp.examples.ServerAggregate.json");
+      device.add_interface_from_file(
+          "samples/mqtt/native/interfaces/org.astarte-platform.cpp.examples.ServerDatastream.json");
+      device.add_interface_from_file(
+          "samples/mqtt/native/interfaces/org.astarte-platform.cpp.examples.ServerProperty.json");
 
       device.connect();
+
+      sleep(10);
 
       device.disconnect();
     }

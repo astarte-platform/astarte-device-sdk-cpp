@@ -12,6 +12,7 @@
 
 #include "astarte_device_sdk/mqtt/config.hpp"
 #include "astarte_device_sdk/mqtt/exceptions.hpp"
+#include "astarte_device_sdk/mqtt/formatter.hpp"
 #include "astarte_device_sdk/mqtt/introspection.hpp"
 #include "astarte_device_sdk/mqtt/pairing.hpp"
 #include "astarte_device_sdk/ownership.hpp"
@@ -21,6 +22,105 @@
 namespace AstarteDeviceSdk {
 
 constexpr std::string_view MQTT_CONTROL_CONSUMER_PROP_TOPIC = "/control/consumer/properties";
+
+class ConnectionCallback : public virtual mqtt::callback, public virtual mqtt::iaction_listener {
+  void setup_subscriptions() {
+    // define a collection of topics to subscribe to
+    auto topics = mqtt::string_collection();
+    auto qoss = mqtt::iasync_client::qos_collection();
+
+    spdlog::debug("subscribing to topic {}", MQTT_CONTROL_CONSUMER_PROP_TOPIC);
+    topics.push_back(std::string(MQTT_CONTROL_CONSUMER_PROP_TOPIC));
+    qoss.push_back(2);
+
+    for (auto interface : introspection_) {
+      // consider only server-owned properties
+      if (interface.ownership == AstarteOwnership::kDevice) {
+        continue;
+      }
+
+      auto topic = std::format("/{}/{}/#", device_id_, interface.interface_name);
+      spdlog::debug("subscribing to topic {}", topic);
+      topics.push_back(std::move(topic));
+      qoss.push_back(2);
+    }
+
+    client_->subscribe(std::make_shared<mqtt::string_collection>(topics), qoss);
+    spdlog::info("subscribed to Astarte topics");
+  }
+
+  void send_introspection() {
+    // create the stringified representation of the introspection to send to Astarte
+    auto introspection_str = std::string();
+    for (auto i : introspection_) {
+      introspection_str +=
+          std::format("{}:{}:{};", i.interface_name, i.version_major, i.version_minor);
+    }
+    // remove last unnecessary ";"
+    introspection_str.pop_back();
+
+    auto base_topic = std::format("testrg/{}", device_id_);
+    client_->publish(base_topic, introspection_str, 2, false);
+  }
+
+  void reconnect() {
+    try {
+      // TODO: call exponential backoff inside reconnect
+      client_->connect(options_, nullptr, *this);
+    } catch (const mqtt::exception& e) {
+      spdlog::error("error while trying to reconnect to Astarte: {}", e.what());
+      throw MqttConnectionException(
+          std::format("Mqtt reconnection error (ID {}): {}", e.get_reason_code(), e.what()));
+    }
+  }
+
+  // (Re)connection success
+  void connected(const std::string& cause) override {
+    spdlog::info("device connected to Astarte");
+
+    spdlog::debug("setting up subscription to Astarte topics...");
+    setup_subscriptions();
+    spdlog::info("subscription to Astarte topics completed");
+
+    spdlog::debug("sending introspection to Astarte...");
+    send_introspection();
+    spdlog::info("introspection sent to Astarte");
+  }
+
+  // Callback for when the connection is lost.
+  // This will initiate the attempt to manually reconnect.
+  void connection_lost(const std::string& cause) override {
+    spdlog::warn("connection lost: {}, reconnecting...", cause);
+    reconnect();
+  }
+
+  // Callback for when a message arrives.
+  void message_arrived(mqtt::const_message_ptr msg) override {
+    // TODO: handle message reception
+    spdlog::trace("message received at {}: {}", msg->get_topic(), msg->to_string());
+  }
+
+  void delivery_complete(mqtt::delivery_token_ptr token) override {}
+
+  // Re-connection failure
+  void on_failure(const mqtt::token& tok) override {
+    spdlog::error("failed to reconnect, retrying...");
+    reconnect();
+  }
+
+  // (Re)connection success
+  void on_success(const mqtt::token& tok) override {}
+
+ public:
+  ConnectionCallback(mqtt::iasync_client* client, mqtt::connect_options options,
+                     std::string device_id, std::vector<Interface>& introspection)
+      : client_(client), options_(options), device_id_(device_id), introspection_(introspection) {}
+
+  mqtt::iasync_client* client_;
+  mqtt::connect_options options_;
+  std::string device_id_;
+  std::vector<Interface>& introspection_;
+};
 
 /**
  * @brief Manage the MQTT connection to an Astarte instance.
@@ -65,14 +165,15 @@ class MqttConnection {
    */
   void connect(std::vector<Interface>& introspection) {
     try {
+      spdlog::debug("setting up connection callback...");
+      cb_ = std::make_unique<ConnectionCallback>(client_.get(), options_,
+                                                 std::string(cfg_.device_id()), introspection);
+      client_->set_callback(*cb_);
+
       spdlog::debug("connecting device to the Astarte MQTT broker...");
       client_->connect(options_)->wait();
-      spdlog::info("device connected to Astarte");
-
-      spdlog::debug("setting up subscription to Astarte topics...");
-      setup_subscriptions(introspection);
-      spdlog::info("subscription to Astarte topics completed");
     } catch (const mqtt::exception& e) {
+      spdlog::error("error while trying to connect to Astarte: {}", e.what());
       throw MqttConnectionException(
           std::format("Mqtt connection error (ID {}): {}", e.get_reason_code(), e.what()));
     }
@@ -84,6 +185,9 @@ class MqttConnection {
    */
   void disconnect() {
     try {
+      auto toks = client_->get_pending_delivery_tokens();
+      if (!toks.empty()) spdlog::error("Error: There are pending delivery tokens!");
+
       spdlog::debug("disconnecting device from astarte...");
       client_->disconnect()->wait();
       spdlog::info("device disconnected from Astarte");
@@ -93,32 +197,6 @@ class MqttConnection {
     }
   }
 
-  void setup_subscriptions(std::vector<Interface>& introspection) {
-    // define a collection of topics to subscribe to
-    auto topics = mqtt::string_collection();
-    auto qoss = mqtt::iasync_client::qos_collection();
-
-    spdlog::debug("subscribing to topic {}", MQTT_CONTROL_CONSUMER_PROP_TOPIC);
-    topics.push_back(std::string(MQTT_CONTROL_CONSUMER_PROP_TOPIC));
-    qoss.push_back(2);
-
-    for (Interface interface : introspection) {
-      // consider only server-owned properties
-      if (interface.ownership == AstarteOwnership::kDevice) {
-        continue;
-      }
-
-      topics.push_back(std::format("/{}/{}/#", cfg_.device_id(), interface.interface_name));
-      qoss.push_back(2);
-    }
-
-    client_->subscribe(std::make_shared<mqtt::string_collection>(topics), qoss)->wait();
-  }
-
-  // void send_introspection(std::vector<std::string> interfaces) {
-
-  // }
-
  private:
   /// @brief The MQTT configuration object.
   MqttConfig cfg_;
@@ -126,6 +204,7 @@ class MqttConnection {
   mqtt::connect_options options_;
   /// @brief The underlying Paho MQTT async client.
   std::unique_ptr<mqtt::async_client> client_;
+  std::unique_ptr<ConnectionCallback> cb_;
 };
 
 }  // namespace AstarteDeviceSdk
