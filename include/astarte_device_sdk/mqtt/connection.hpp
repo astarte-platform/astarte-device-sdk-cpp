@@ -63,6 +63,11 @@ class ConnectionCallback : public virtual mqtt::callback, public virtual mqtt::i
     client_->publish(base_topic, introspection_str, 2, false);
   }
 
+  void send_emptycache() {
+    auto emptycache_topic = std::format("/{}/emptyCache", device_id_);
+    client_->publish(emptycache_topic, "1", 2, false);
+  }
+
   void reconnect() {
     try {
       // TODO: call exponential backoff inside reconnect
@@ -85,6 +90,10 @@ class ConnectionCallback : public virtual mqtt::callback, public virtual mqtt::i
     spdlog::debug("sending introspection to Astarte...");
     send_introspection();
     spdlog::info("introspection sent to Astarte");
+
+    spdlog::debug("sending emptycache to Astarte...");
+    send_emptycache();
+    spdlog::debug("emptycache sent to Astarte");
   }
 
   // Callback for when the connection is lost.
