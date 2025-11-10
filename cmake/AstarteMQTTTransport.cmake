@@ -102,6 +102,8 @@ function(
         "src/mqtt/pairing.cpp"
         "src/mqtt/config.cpp"
         "src/mqtt/crypto.cpp"
+        "src/mqtt/connection.cpp"
+        "src/mqtt/introspection.cpp"
     )
     list(
         APPEND
