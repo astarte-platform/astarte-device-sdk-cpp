@@ -38,9 +38,9 @@ int main() {
 
       auto secret = api.register_device(cfg.pairing_token.value());
       spdlog::info("credential secret: {}", secret);
-        auto [key, cert] = api.get_device_key_and_cert(secret);
-        spdlog::info("key: {}", key);
-        spdlog::info("cert: {}", cert);
+      auto [key, cert] = api.get_device_key_and_cert(secret);
+      spdlog::info("key: {}", key);
+      spdlog::info("cert: {}", cert);
 
       store_cred_secret(db, cfg.device_id, secret);
       in_db = true;

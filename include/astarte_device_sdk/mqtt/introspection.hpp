@@ -19,8 +19,19 @@
 
 namespace AstarteDeviceSdk {
 
+/**
+ * @brief alias for nlohmann json
+ */
 using json = nlohmann::json;
 
+/**
+ * @brief Extract an optional value from a JSON object.
+ *
+ * @tparam T The type of the value to extract.
+ * @param interface The JSON object to parse.
+ * @param key The key of the value to extract.
+ * @return An std::optional<T> containing the value if the key exists, or std::nullopt otherwise.
+ */
 // TODO: remove inline once the function definition is moved to its respective .cpp file
 template <typename T>
 inline auto optional_value_from_json_interface(const json& interface, std::string_view key)
@@ -28,11 +39,27 @@ inline auto optional_value_from_json_interface(const json& interface, std::strin
   return interface.contains(key) ? std::optional<T>(interface.at(key)) : std::nullopt;
 }
 
+/**
+ * @brief Define the type of an Astarte interface.
+ */
 enum InterfaceType {
+  /**
+   * @brief A datastream interface, used for time-series data.
+   */
   kDatastream,
+  /**
+   * @brief A properties interface, used for device state properties.
+   */
   kProperty,
 };
 
+/**
+ * @brief Convert a string to an InterfaceType enum.
+ *
+ * @param typ The string representation of the interface type.
+ * @return The corresponding InterfaceType enum value.
+ * @throws InvalidInterfaceTypeException if the string is not a valid interface type.
+ */
 // TODO: remove inline once the function definition is moved to its respective .cpp file
 inline auto interface_type_from_str(std::string typ) -> InterfaceType {
   if (typ == "datastream") {
@@ -44,11 +71,27 @@ inline auto interface_type_from_str(std::string typ) -> InterfaceType {
   }
 }
 
+/**
+ * @brief Define the aggregation type for interface mappings.
+ */
 enum Aggregation {
+  /**
+   * @brief Data is collected as individual, distinct values.
+   */
   kIndividual,
+  /**
+   * @brief Data is collected as a single object or document.
+   */
   kObject,
 };
 
+/**
+ * @brief Convert a string to an Aggregation enum.
+ *
+ * @param aggr The string representation of the aggregation (e.g., "individual", "object").
+ * @return The corresponding Aggregation enum value.
+ * @throws InvalidAggregationException if the string is not a valid aggregation type.
+ */
 // TODO: remove inline once the function definition is moved to its respective .cpp file
 inline auto aggregation_from_str(std::string aggr) -> Aggregation {
   if (aggr == "individual") {
@@ -60,21 +103,26 @@ inline auto aggregation_from_str(std::string aggr) -> Aggregation {
   }
 }
 
-/// Reliability of a data stream.
-///
-/// Defines whether the sent data should be considered delivered.
-///
-/// Properties have always a unique reliability.
-///
-/// See
-/// [Reliability](https://docs.astarte-platform.org/astarte/latest/040-interface_schema.html#astarte-mapping-schema-reliability)
-/// for more information.
+/**
+ * @brief Reliability of a datastream.
+ *
+ * Defines whether the sent data should be considered delivered. Properties have always a unique
+ * reliability. See
+ * [Reliability](https://docs.astarte-platform.org/astarte/latest/040-interface_schema.html#astarte-mapping-schema-reliability)
+ * for more information.
+ */
 enum Reliability {
-  /// If the transport sends the data. It is the default value. Default.
+  /**
+   * @brief If the transport sends the data. Default.
+   */
   kUnreliable,
-  /// When we know the data has been received at least once.
+  /**
+   * @brief When we know the data has been received at least once.
+   */
   kGuaranteed,
-  /// When we know the data has been received exactly once.
+  /**
+   * @brief When we know the data has been received exactly once.
+   */
   kUnique,
 };
 
@@ -84,19 +132,26 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Reliability, {
                                               {kUnique, "unique"},
                                           })
 
-/// Defines the retention of a data stream.
-///
-/// Describes what to do with the sent data if the transport is incapable of delivering it.
-///
-/// See
-/// [Retention](https://docs.astarte-platform.org/astarte/latest/040-interface_schema.html#astarte-mapping-schema-retention)
-/// for more information.
+/**
+ * @brief Define the retention of a datastream.
+ *
+ * Describes what to do with the sent data if the transport is incapable of delivering it.
+ * See
+ * [Retention](https://docs.astarte-platform.org/astarte/latest/040-interface_schema.html#astarte-mapping-schema-retention)
+ * for more information.
+ */
 enum Retention {
-  /// Data is discarded. Default.
+  /**
+   * @brief Data is discarded. Default.
+   */
   kDiscard,
-  /// Data is kept in a cache in memory.
+  /**
+   * @brief Data is kept in a cache in memory.
+   */
   kVolatile,
-  /// Data is kept on disk.
+  /**
+   * @brief Data is kept on non-volatile storage.
+   */
   kStored,
 };
 
@@ -106,19 +161,24 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Retention, {
                                             {kStored, "stored"},
                                         })
 
-/// Defines whether data should expire from the database after a given interval.
-///
-/// See
-/// [Database Retention
-/// Policy](https://docs.astarte-platform.org/astarte/latest/040-interface_schema.html#astarte-mapping-schema-database_retention_policy)
-/// for more information.
+/**
+ * @brief Define whether data should expire from the database after a given interval.
+ *
+ * See [Database Retention
+ * Policy](https://docs.astarte-platform.org/astarte/latest/040-interface_schema.html#astarte-mapping-schema-database_retention_policy)
+ * for more information.
+ */
 enum DatabaseRetentionPolicy {
-  /// The data will never expiry. Default.
+  /**
+   * @brief The data will never expiry. Default.
+   */
   kNoTtl,
-  /// The data will expire after the ttl.
-  ///
-  /// The field [`database_retention_ttl`](Mapping::database_retention_ttl) will be used to
-  /// determine how many seconds the data is kept in the database.
+  /**
+   * @brief The data will expire after the ttl.
+   *
+   * The field `database_retention_ttl` will be used to determine how many seconds the data is kept
+   * in the database.
+   */
   kUseTtl,
 };
 
@@ -129,58 +189,84 @@ NLOHMANN_JSON_SERIALIZE_ENUM(DatabaseRetentionPolicy, {
 
 struct Mapping {
  public:
-  /// Path of the mapping.
-  ///
-  /// It can be parametrized (e.g. `/foo/%{path}/baz`).
+  /**
+   * @brief Path of the mapping.
+   *
+   * It can be parametrized (e.g. `/foo/%{path}/baz`).
+   */
   std::string endpoint;
-  /// Defines the type of the mapping.
-  ///
-  /// This represent the data that will be published on the mapping.
+  /**
+   * @brief Define the type of the mapping.
+   *
+   * This represent the data that will be published on the mapping.
+   */
   AstarteType mapping_type;
-  /// Allow to set a custom timestamp.
+  /**
+   * @brief Allow to set a custom timestamp.
+   */
   std::optional<bool> explicit_timestamp;
-  /// Defines when to consider the data delivered.
-  ///
-  /// Useful only with datastream. Defines whether the sent data should be considered delivered
-  /// when the transport successfully sends the data (unreliable), when we know that the data has
-  /// been received at least once (guaranteed) or when we know that the data has been received
-  /// exactly once (unique). Unreliable by default.
+  /**
+   * @brief Define when to consider the data delivered.
+   *
+   * Useful only with datastream. Defines whether the sent data should be considered delivered
+   * when the transport successfully sends the data (unreliable), when we know that the data has
+   * been received at least once (guaranteed) or when we know that the data has been received
+   * exactly once (unique). Unreliable by default.
+   */
   std::optional<Reliability> reliability;
-  /// Retention of the data when not deliverable.
-  ///
-  /// Useful only with datastream. Defines whether the sent data should be discarded if the
-  /// transport is temporarily uncapable of delivering it (discard) or should be kept in a cache in
-  /// memory (volatile) or on disk (stored), and guaranteed to be delivered in the timeframe
-  /// defined by the expiry.
+  /**
+   * @brief Retention of the data when not deliverable.
+   *
+   * Useful only with datastream. Defines whether the sent data should be discarded if the
+   * transport is temporarily uncapable of delivering it (discard) or should be kept in a cache in
+   * memory (volatile) or on disk (stored), and guaranteed to be delivered in the timeframe
+   * defined by the expiry.
+   */
   std::optional<Retention> retention;
-  /// Expiry for the retain data.
-  ///
-  /// Useful when retention is stored. Defines after how many seconds a specific data entry should
-  /// be kept before giving up and erasing it from the persistent cache. A value <= 0 means the
-  /// persistent cache never expires, and is the default.
+  /**
+   * @brief Expiry for the retain data.
+   *
+   * Useful when retention is stored. Defines after how many seconds a specific data entry should
+   * be kept before giving up and erasing it from the persistent cache. A value <= 0 means the
+   * persistent cache never expires, and is the default.
+   */
   std::optional<int64_t> expiry;
-  /// Expiry for the retain data.
-  ///
-  /// Retention policy for the database.
-  ///
-  /// Useful only with datastream. Defines whether data should expire from the database after a
-  /// given interval. Valid values are: `no_ttl` and `use_ttl`.
+  /**
+   * @brief Expiry for the retain data.
+   *
+   * Useful only with datastream. Defines whether data should expire from the database after a
+   * given interval. Valid values are: `no_ttl` and `use_ttl`.
+   */
   std::optional<DatabaseRetentionPolicy> database_retention_policy;
-  /// Seconds to keep the data in the database.
-  ///
-  /// Useful when `database_retention_policy` is "`use_ttl`". Defines how many seconds a specific
-  /// data entry should be kept before erasing it from the database.
+  /**
+   * @brief Seconds to keep the data in the database.
+   *
+   * Useful when `database_retention_policy` is "`use_ttl`". Defines how many seconds a specific
+   * data entry should be kept before erasing it from the database.
+   */
   std::optional<int64_t> database_retention_ttl;
-  /// Allows the property to be unset.
-  ///
-  /// Used only with properties.
+  /**
+   * @brief Allow the property to be unset.
+   *
+   * Used only with properties.
+   */
   std::optional<bool> allow_unset;
-  /// An optional description of the mapping.
+  /**
+   * @brief An optional description of the mapping.
+   */
   std::optional<std::string> description;
-  /// A string containing documentation that will be injected in the generated client code.
+  /**
+   * @brief A string containing documentation that will be injected in the generated client code.
+   */
   std::optional<std::string> doc;
 };
 
+/**
+ * @brief Parses the "mappings" array from an interface JSON object.
+ *
+ * @param interface The JSON object representing an Astarte interface.
+ * @return A vector of Mapping objects parsed from the interface.
+ */
 // TODO: remove inline once the function definition is moved to its respective .cpp file
 inline auto mappings_from_interface(json& interface) -> std::vector<Mapping> {
   std::vector<Mapping> mappings;
@@ -219,6 +305,16 @@ inline auto mappings_from_interface(json& interface) -> std::vector<Mapping> {
   return mappings;
 }
 
+/**
+ * @brief Converts and validates an interface version number.
+ *
+ * Checks if the version is non-negative and fits within a u_int32_t.
+ *
+ * @param maj_min A string literal ("major" or "minor") used for error messages.
+ * @param version The version number as int64_t (from JSON parsing).
+ * @return The version number as u_int32_t.
+ * @throws InvalidVersionException if the version is negative or too large.
+ */
 // TODO: remove inline once the function definition is moved to its respective .cpp file
 inline auto convert_version(std::string_view maj_min, int64_t version) -> u_int32_t {
   if (std::cmp_less(version, 0)) {
@@ -233,8 +329,16 @@ inline auto convert_version(std::string_view maj_min, int64_t version) -> u_int3
   return static_cast<u_int32_t>(version);
 }
 
+/**
+ * @brief Represents a parsed Astarte interface.
+ */
 class Interface {
  public:
+  /**
+   * @brief Try to convert a json into an Interface object.
+   * @param interface json representation of the Astarte interface.
+   * @return An Interface object containg all the parsed Astarte interface information.
+   */
   static auto try_from_json(json interface) -> Interface {
     auto interface_name = interface.at("interface_name");
     auto version_major = convert_version("major", interface.at("version_major"));
@@ -255,29 +359,47 @@ class Interface {
                      aggregation,    description,   doc,           mappings};
   }
 
-  /// The name of the interface.
+  /**
+   * @brief The name of the interface.
+   */
   std::string interface_name;
-  /// The Major version qualifier for this interface.
+  /**
+   * @brief The Major version qualifier for this interface.
+   */
   u_int32_t version_major;
-  /// The Minor version qualifier for this interface.
+  /**
+   * @brief The Minor version qualifier for this interface.
+   */
   u_int32_t version_minor;
-  /// Identifies the type of this Interface. It could be Datastream or Property.
+  /**
+   * @brief Identify the type of this Interface. It could be Datastream or Property.
+   */
   InterfaceType interface_type;
-  /// Identifies the quality of the interface.
+  /**
+   * @brief Identify the quality of the interface.
+   */
   AstarteOwnership ownership;
-  /// Identifies the aggregation of the mappings of the interface. It could be Individual or
-  // Object.
+  /**
+   * @brief Identify the aggregation of the mappings of the interface. It could be Individual or
+   * Object.
+   */
   std::optional<Aggregation> aggregation;
-  /// An optional description of the interface.
+  /**
+   * @brief An optional description of the interface.
+   */
   std::optional<std::string> description;
-  /// A string containing documentation that will be injected in the generated client code.
+  /**
+   * @brief A string containing documentation that will be injected in the generated client code.
+   */
   std::optional<std::string> doc;
-  /// Mappings define the endpoint of the interface, where actual data is stored/streamed.
-  ///
-  /// They are defined as relative URLs (e.g. /my/path) and can be parametrized (e.g.:
-  /// /%{myparam}/path). A valid interface must have no mappings clash, which means that every
-  /// mapping must resolve to a unique path or collection of paths (including
-  /// parametrization). Every mapping acquires type, quality and aggregation of the interface.
+  /**
+   * @brief Define the endpoint of the interface.
+   *
+   * They are defined as relative URLs (e.g. /my/path) and can be parametrized (e.g.:
+   * /%{myparam}/path). A valid interface must have no mappings clash, which means that every
+   * mapping must resolve to a unique path or collection of paths (including
+   * parametrization). Every mapping acquires type, quality and aggregation of the interface.
+   */
   std::vector<Mapping> mappings;
 };
 

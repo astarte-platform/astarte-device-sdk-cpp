@@ -48,6 +48,13 @@ enum AstarteType : int8_t {
   kStringArray
 };
 
+/**
+ * @brief Convert a string to an AstarteType enum.
+ *
+ * @param typ The string representation of the astarte type.
+ * @return The corresponding AstarteType enum value.
+ * @throws InvalidAstarteTypeException if the string is not a valid Astarte type.
+ */
 // TODO: use static or move function definition to .cpp file
 inline auto astarte_type_from_str(std::string typ) -> AstarteType {
   if (typ == "binaryblob") {

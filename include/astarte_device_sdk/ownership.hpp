@@ -25,6 +25,13 @@ enum AstarteOwnership : int8_t {
   kServer
 };
 
+/**
+ * @brief Convert a string to an AstarteOwnership enum.
+ *
+ * @param ownership The string representation of the interface ownership.
+ * @return The corresponding AstarteOwnership enum value.
+ * @throws InvalidInterfaceOwnershipeException if the string is not a valid ownership.
+ */
 // TODO: use static or move function definition to .cpp file
 inline auto ownership_from_str(std::string ownership) -> AstarteOwnership {
   if (ownership == "device") {

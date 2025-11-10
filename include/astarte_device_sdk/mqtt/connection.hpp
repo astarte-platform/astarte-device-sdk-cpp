@@ -21,9 +21,21 @@
 
 namespace AstarteDeviceSdk {
 
+/**
+ * @brief The MQTT topic for Astarte control consumer properties.
+ */
 constexpr std::string_view MQTT_CONTROL_CONSUMER_PROP_TOPIC = "/control/consumer/properties";
 
+/**
+ * @brief Implement MQTT callbacks for handling connection events.
+ */
 class ConnectionCallback : public virtual mqtt::callback, public virtual mqtt::iaction_listener {
+  /**
+   * @brief Subscribe the client to all required Astarte topics.
+   *
+   * This includes the control topic and all topics for server-owned
+   * interfaces defined in the device's introspection.
+   */
   void setup_subscriptions() {
     // define a collection of topics to subscribe to
     auto topics = mqtt::string_collection();
@@ -49,6 +61,9 @@ class ConnectionCallback : public virtual mqtt::callback, public virtual mqtt::i
     spdlog::info("subscribed to Astarte topics");
   }
 
+  /**
+   * @brief Publishe the device's introspection to Astarte.
+   */
   void send_introspection() {
     // create the stringified representation of the introspection to send to Astarte
     auto introspection_str = std::string();
@@ -63,11 +78,18 @@ class ConnectionCallback : public virtual mqtt::callback, public virtual mqtt::i
     client_->publish(base_topic, introspection_str, 2, false);
   }
 
+  /**
+   * @brief Send an "emptyCache" message to Astarte.
+   */
   void send_emptycache() {
     auto emptycache_topic = std::format("/{}/emptyCache", device_id_);
     client_->publish(emptycache_topic, "1", 2, false);
   }
 
+  /**
+   * @brief Attempt to reconnect to the MQTT broker.
+   * @throws MqttConnectionException if the reconnection attempt fails.
+   */
   void reconnect() {
     try {
       // TODO: call exponential backoff inside reconnect
@@ -109,6 +131,10 @@ class ConnectionCallback : public virtual mqtt::callback, public virtual mqtt::i
     spdlog::trace("message received at {}: {}", msg->get_topic(), msg->to_string());
   }
 
+  /**
+   * @brief Called when a message delivery is complete.
+   * @param token The delivery token associated with the message.
+   */
   void delivery_complete(mqtt::delivery_token_ptr token) override {}
 
   // Re-connection failure
@@ -121,13 +147,25 @@ class ConnectionCallback : public virtual mqtt::callback, public virtual mqtt::i
   void on_success(const mqtt::token& tok) override {}
 
  public:
+  /**
+   * @brief Construct a new Connection Callback object.
+   *
+   * @param client Pointer to the MQTT asynchronous client.
+   * @param options The MQTT Paho connection options.
+   * @param device_id The Astarte Device ID.
+   * @param introspection A reference to the vector of device interfaces.
+   */
   ConnectionCallback(mqtt::iasync_client* client, mqtt::connect_options options,
                      std::string device_id, std::vector<Interface>& introspection)
       : client_(client), options_(options), device_id_(device_id), introspection_(introspection) {}
 
+  /// @brief Pointer to the MQTT client, used for operations like subscribe.
   mqtt::iasync_client* client_;
+  /// @brief MQTT connection options, used for reconnection.
   mqtt::connect_options options_;
+  /// @brief The Astarte Device ID.
   std::string device_id_;
+  /// @brief Reference to the device's introspection (list of interfaces).
   std::vector<Interface>& introspection_;
 };
 
@@ -170,6 +208,7 @@ class MqttConnection {
 
   /**
    * @brief Connect the client to the Astarte MQTT broker.
+   * @param introspection A vector of interfaces defining the device.
    * @throws AstarteDeviceSdk::MqttConnectionException if the connection fails.
    */
   void connect(std::vector<Interface>& introspection) {
@@ -213,6 +252,7 @@ class MqttConnection {
   mqtt::connect_options options_;
   /// @brief The underlying Paho MQTT async client.
   std::unique_ptr<mqtt::async_client> client_;
+  /// @brief The callback handler for MQTT events.
   std::unique_ptr<ConnectionCallback> cb_;
 };
 
