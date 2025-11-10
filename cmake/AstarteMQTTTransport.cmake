@@ -103,6 +103,8 @@ function(
         "src/mqtt/device_mqtt.cpp"
         "src/mqtt/errors.cpp"
         "src/mqtt/pairing.cpp"
+        "src/mqtt/connection.cpp"
+        "src/mqtt/introspection.cpp"
     )
     list(
         APPEND

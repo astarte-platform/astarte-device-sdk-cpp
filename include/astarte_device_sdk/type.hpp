@@ -90,8 +90,6 @@ inline auto astarte_type_from_str(std::string typ)
     return astarte_tl::unexpected(
         AstarteInvalidAstarteTypeError("interface ownershipe not valid: " + typ));
   }
-
-  // InvalidMappingTypeException
 }
 
 }  // namespace AstarteDeviceSdk
