@@ -4,6 +4,8 @@
 
 #include "astarte_device_sdk/mqtt/connection.hpp"
 
+#include "exponential_backoff.hpp"
+
 // All other necessary headers (spdlog, format, pairing.hpp, etc.)
 // are included by "astarte_device_sdk/mqtt/connection.hpp"
 
@@ -58,14 +60,21 @@ void ConnectionCallback::send_emptycache() {
 }
 
 void ConnectionCallback::reconnect() {
-  try {
-    // TODO: call exponential backoff inside reconnect
-    client_->connect(options_, nullptr, *this);
-  } catch (const mqtt::exception& e) {
-    spdlog::error("error while trying to reconnect to Astarte: {}", e.what());
-    throw MqttConnectionException(
-        std::format("Mqtt reconnection error (ID {}): {}", e.get_reason_code(), e.what()));
-  }
+  ExponentialBackoff backoff(std::chrono::seconds(2), std::chrono::minutes(1));
+
+  while (!client_->is_connected()) {
+    try {
+      // TODO: call exponential backoff inside reconnect
+      client_->connect(options_, nullptr, *this);
+    } catch (const mqtt::exception& e) {
+      spdlog::error("error while trying to reconnect to Astarte: {}", e.what());
+    }
+
+    auto delay = backoff.getNextDelay();
+    spdlog::info("will attempt to reconnect in {} seconds.",
+                 std::chrono::duration_cast<std::chrono::seconds>(delay).count());
+    std::this_thread::sleep_for(delay);
+  };
 }
 
 void ConnectionCallback::connected(const std::string& cause) {
