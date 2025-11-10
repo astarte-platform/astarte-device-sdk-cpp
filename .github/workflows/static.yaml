@@ -26,10 +26,10 @@ jobs:
           python-version: "3.13"
       - name: Check formatting
         run: ./format.sh --check-only
-  clang-tidy-check:
+  clang-tidy-check-grpc:
     runs-on: ubuntu-latest
     concurrency:
-      group: clang-tidy-check-${{ github.ref }}
+      group: clang-tidy-check-grpc-${{ github.ref }}
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@v5
@@ -55,4 +55,21 @@ jobs:
           ./astarte-device-sdk-cpp/.github/scripts/build-grpc.sh
       - name: Check library with C++ 20
         working-directory: ./astarte-device-sdk-cpp
-        run: ./tidy.sh --fresh --system_transport
+        run: ./tidy.sh --fresh --system_transport --transport grpc
+  clang-tidy-check-mqtt:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: clang-tidy-check-mqtt-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          path: astarte-device-sdk-cpp
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Instal python deps
+        run: pip install jinja2 jsonschema
+      - name: Check library with C++ 20
+        working-directory: ./astarte-device-sdk-cpp
+        run: ./tidy.sh --fresh --transport mqtt

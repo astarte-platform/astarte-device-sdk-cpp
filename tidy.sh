@@ -89,6 +89,12 @@ if ! pip install --upgrade pip; then
     error_exit "Failed to upgrade pip."
 fi
 
+# TODO: in CI these imports are redundant (look static.yaml)
+# Install python dependencies
+if ! pip install jinja2 jsonschema; then
+    error_exit "Failed to install pip dependencies."
+fi
+
 # Install or verify clang-tidy version
 echo "Checking/installing $clang_tidy_package_name version $clang_tidy_package_version..."
 installed_version=$(pip show "$clang_tidy_package_name" | grep Version | awk '{print $2}' || true)
@@ -124,8 +130,19 @@ cmake_options_array+=("-DCMAKE_POLICY_VERSION_MINIMUM=3.15")
 cmake_options_array+=("-DASTARTE_PUBLIC_SPDLOG_DEP=ON")
 cmake_options_array+=("-DSAMPLE_USE_SYSTEM_ASTARTE_LIB=OFF")
 cmake_options_array+=("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON")
+cmake_options_array+=("-DCMAKE_POSITION_INDEPENDENT_CODE=ON")
+cmake_options_array+=("-DPython3_EXECUTABLE=$venv_dir/bin/python3")
+
+if [[ "$transport" == "grpc" ]]; then
+    cmake_options_array+=("-DASTARTE_TRANSPORT_GRPC=ON")
+else
+    cmake_options_array+=("-DASTARTE_TRANSPORT_GRPC=OFF")
+fi
+
 if [[ "$transport" == "grpc" && "$system_transport" == true ]]; then
     cmake_options_array+=("-DASTARTE_USE_SYSTEM_GRPC=ON")
+elif [[ "$transport" == "mqtt" && "$system_transport" == true ]]; then
+    cmake_options_array+=("-DASTARTE_USE_SYSTEM_MQTT=ON")
 fi
 
 if ! cmake "${cmake_options_array[@]}" "$project_root/$sample_src_dir"; then
