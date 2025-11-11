@@ -4,6 +4,30 @@
 
 #include "astarte_device_sdk/mqtt/connection.hpp"
 
+#include <spdlog/spdlog.h>
+
+#include <chrono>
+#include <format>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <thread>
+#include <utility>
+#include <vector>
+
+#include "astarte_device_sdk/mqtt/config.hpp"
+#include "astarte_device_sdk/mqtt/errors.hpp"
+#include "astarte_device_sdk/mqtt/introspection.hpp"
+#include "astarte_device_sdk/mqtt/pairing.hpp"
+#include "astarte_device_sdk/ownership.hpp"
+#include "exponential_backoff.hpp"
+#include "mqtt/async_client.h"
+#include "mqtt/delivery_token.h"
+#include "mqtt/exception.h"
+#include "mqtt/iasync_client.h"
+#include "mqtt/message.h"
+#include "mqtt/token.h"
+
 // All other necessary headers (spdlog, format, pairing.hpp, etc.)
 // are included by "astarte_device_sdk/mqtt/connection.hpp"
 
@@ -74,9 +98,9 @@ void ConnectionCallback::setup_subscriptions() {
 void ConnectionCallback::send_introspection() {
   // create the stringified representation of the introspection to send to Astarte
   auto introspection_str = std::string();
-  for (auto i : introspection_) {
-    introspection_str +=
-        std::format("{}:{}:{};", i.interface_name, i.version_major, i.version_minor);
+  for (auto interface : introspection_) {
+    introspection_str += std::format("{}:{}:{};", interface.interface_name, interface.version_major,
+                                     interface.version_minor);
   }
   // remove last unnecessary ";"
   introspection_str.pop_back();
@@ -85,12 +109,12 @@ void ConnectionCallback::send_introspection() {
   client_->publish(base_topic, introspection_str, 2, false);
 }
 
-void ConnectionCallback::send_emptycache(){
-    auto emptycache_topic = std::format("/{}/emptyCache", device_id_);
-    client_->publish(emptycache_topic, "1", 2, false);
-  }
+void ConnectionCallback::send_emptycache() {
+  auto emptycache_topic = std::format("/{}/emptyCache", device_id_);
+  client_->publish(emptycache_topic, "1", 2, false);
+}
 
-void ConnectionCallback::connected(const std::string& cause) {
+void ConnectionCallback::connected(const std::string& /* cause */) {
   spdlog::info("device connected to Astarte");
 
   spdlog::debug("setting up subscription to Astarte topics...");
@@ -106,26 +130,29 @@ void ConnectionCallback::connected(const std::string& cause) {
   spdlog::debug("emptycache sent to Astarte");
 }
 
-void ConnectionCallback::connection_lost(const std::string& cause){
-    spdlog::warn("connection lost: {}, reconnecting...", cause);
-  }
+void ConnectionCallback::connection_lost(const std::string& cause) {
+  spdlog::warn("connection lost: {}, reconnecting...", cause);
+}
 
 void ConnectionCallback::message_arrived(mqtt::const_message_ptr msg) {
-  // TODO: handle message reception
+  // TODO(rgwork): handle message reception
   spdlog::trace("message received at {}: {}", msg->get_topic(), msg->to_string());
 }
 
 void ConnectionCallback::delivery_complete(mqtt::delivery_token_ptr token) {}
 
-void ConnectionCallback::on_failure(const mqtt::token& tok) {
-    spdlog::error("failed to reconnect, retrying...");
-  }
+void ConnectionCallback::on_failure(const mqtt::token& /* tok */) {
+  spdlog::error("failed to reconnect, retrying...");
+}
 
 void ConnectionCallback::on_success(const mqtt::token& tok) {}
 
 ConnectionCallback::ConnectionCallback(mqtt::iasync_client* client, mqtt::connect_options options,
                                        std::string device_id, std::vector<Interface>& introspection)
-    : client_(client), options_(options), device_id_(device_id), introspection_(introspection) {}
+    : client_(client),
+      options_(std::move(options)),
+      device_id_(std::move(device_id)),
+      introspection_(introspection) {}
 
 auto MqttConnection::create(MqttConfig cfg) -> astarte_tl::expected<MqttConnection, AstarteError> {
   auto realm = cfg.realm();
@@ -197,7 +224,9 @@ auto MqttConnection::connect(std::vector<Interface>& introspection)
 auto MqttConnection::disconnect() -> astarte_tl::expected<void, AstarteError> {
   try {
     auto toks = client_->get_pending_delivery_tokens();
-    if (!toks.empty()) spdlog::error("Error: There are pending delivery tokens!");
+    if (!toks.empty()) {
+      spdlog::error("Error: There are pending delivery tokens!");
+    }
 
     spdlog::debug("disconnecting device from astarte...");
     client_->disconnect()->wait();

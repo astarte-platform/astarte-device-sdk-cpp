@@ -21,10 +21,10 @@
 namespace AstarteDeviceSdk {
 
 /** @brief Default keep alive interval in seconds for the MQTT connection. */
-constexpr u_int32_t DEFAULT_KEEP_ALIVE = 30;
+constexpr uint32_t DEFAULT_KEEP_ALIVE = 30;
 
 /** @brief Default connection timeout in seconds for the MQTT connection. */
-constexpr u_int32_t DEFAULT_CONNECTION_TIMEOUT = 5;
+constexpr uint32_t DEFAULT_CONNECTION_TIMEOUT = 5;
 
 /** @brief Default file name inside the store directory where the certificate is stored in PEM
  * format. */
@@ -40,9 +40,6 @@ constexpr std::string_view PRIVATE_KEY_FILE = "client-priv-key.pem";
 #include <string_view>
 
 /**
- * @brief Represent an Astarte device credential.
- */
-/**
  * @brief Reads the entire content of a file into a string.
  * @param file_path The path to the file to be read.
  * @return the file content as a string, or an error if the file cannot be opened.
@@ -53,10 +50,10 @@ auto read_from_file(const std::filesystem::path& file_path)
 /**
  * @brief Writes a string to a file, overwriting any existing content.
  * @param file_path The path to the file to be written.
- * @param credential The string content to write to the file.
+ * @param data The string content to write to the file.
  * @return an error in case the write operation failed, nothing otherwise.
  */
-auto write_to_file(const std::filesystem::path& file_path, const std::string credential)
+auto write_to_file(const std::filesystem::path& file_path, std::string_view data)
     -> astarte_tl::expected<void, AstarteError>;
 
 /**
@@ -182,7 +179,7 @@ class MqttConfig {
    * @param duration The keep-alive duration in seconds.
    * @return A reference to the MqttConfig object for chaining.
    */
-  auto keepalive(u_int32_t duration) -> MqttConfig& {
+  auto keepalive(uint32_t duration) -> MqttConfig& {
     this->keepalive_ = duration;
     return *this;
   }
@@ -201,7 +198,7 @@ class MqttConfig {
    * @param duration The timeout duration in seconds.
    * @return A reference to the MqttConfig object for chaining.
    */
-  auto connection_timeout(u_int32_t duration) -> MqttConfig& {
+  auto connection_timeout(uint32_t duration) -> MqttConfig& {
     this->conn_timeout_ = duration;
     return *this;
   }
@@ -245,8 +242,8 @@ class MqttConfig {
   Credential credential_;
   std::string store_dir_;
   bool ignore_ssl_;
-  u_int32_t keepalive_;
-  u_int32_t conn_timeout_;
+  uint32_t keepalive_;
+  uint32_t conn_timeout_;
 };
 
 }  // namespace AstarteDeviceSdk

@@ -34,7 +34,7 @@ struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
    * @param cfg set of MQTT configuration options used to connect a device to Astarte.
    * @return a shared pointer to the AstarteDeviceMqttImpl object, an error otherwise.
    */
-  static auto create(const MqttConfig cfg)
+  static auto create(const MqttConfig& cfg)
       -> astarte_tl::expected<std::shared_ptr<AstarteDeviceMqttImpl>, AstarteError>;
 
   /** @brief Destructor for the Astarte device class. */
@@ -57,9 +57,10 @@ struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
       -> astarte_tl::expected<void, AstarteError>;
   /**
    * @brief Parse an interface definition from a JSON string and adds it to the device.
-   * @param json The interface to add.
+   * @param interface_str The interface to add.
    */
-  auto add_interface_from_str(std::string_view json) -> astarte_tl::expected<void, AstarteError>;
+  auto add_interface_from_str(std::string_view interface_str)
+      -> astarte_tl::expected<void, AstarteError>;
   /**
    * @brief Remove an installed interface.
    * @param interface_name The interface name.

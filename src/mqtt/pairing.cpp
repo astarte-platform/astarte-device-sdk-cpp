@@ -8,7 +8,10 @@
 #include "astarte_device_sdk/mqtt/pairing.hpp"
 
 #include <ada.h>
-#include <cpr/cpr.h>
+#include <cpr/api.h>
+#include <cpr/cprtypes.h>
+#include <cpr/response.h>
+#include <cpr/status_codes.h>
 #include <spdlog/spdlog.h>
 
 #include <boost/uuid/uuid.hpp>
@@ -28,7 +31,7 @@
 #include "astarte_device_sdk/mqtt/errors.hpp"
 #include "mqtt/crypto.hpp"
 
-using json = nlohmann::json;
+using json = nlohmann::json;  // NOLINT(misc-include-cleaner)
 
 namespace AstarteDeviceSdk {
 
@@ -191,6 +194,7 @@ auto PairingApi::register_device(std::string_view pairing_token,
     -> astarte_tl::expected<std::string, AstarteError> {
   auto request_url = pairing_url_;
   const std::string pathname =
+
       astarte_fmt::format("{}/v1/{}/agent/devices", request_url.get_pathname(), realm_);
   request_url.set_pathname(pathname);
   spdlog::debug("request url: {}", request_url.get_href());

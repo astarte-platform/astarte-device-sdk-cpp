@@ -40,6 +40,7 @@ class AstarteDeviceMqtt : public AstarteDevice {
   /**
    * @brief static fallable constructor method.
    * @param cfg set of MQTT configuration options used to connect a device to Astarte.
+   * @return An AstarteDeviceMqtt object, an error otherwise.
    */
   [[nodiscard]] static auto create(MqttConfig cfg)
       -> astarte_tl::expected<AstarteDeviceMqtt, AstarteError>;
