@@ -34,19 +34,19 @@ struct AstarteDeviceMQTT::AstarteDeviceMQTTImpl {
    * @param cfg set of MQTT configuration options used to connect a device to Astarte.
    * @return a shared pointer to the AstarteDeviceMQTTImpl object, an error otherwise.
    */
-    static auto create(const MqttConfig cfg)
+    static auto create(const MqttConfig& cfg)
     -> astarte_tl::expected<std::shared_ptr<AstarteDeviceMQTTImpl>, AstarteError>;
 
   /** @brief Destructor for the Astarte device class. */
   ~AstarteDeviceMQTTImpl();
   /** @brief Copy constructor for the Astarte device class. */
   AstarteDeviceMQTTImpl(AstarteDeviceMQTTImpl& other) = delete;
-  /** @brief Move constructor for the Astarte device class. */
   AstarteDeviceMQTTImpl(AstarteDeviceMQTTImpl&& other) = delete;
+  /** @brief Move constructor for the Astarte device class. */
   /** @brief Copy assignment operator for the Astarte device class. */
   auto operator=(AstarteDeviceMQTTImpl& other) -> AstarteDeviceMQTTImpl& = delete;
-  /** @brief Move assignment operator for the Astarte device class. */
   auto operator=(AstarteDeviceMQTTImpl&& other) -> AstarteDeviceMQTTImpl& = delete;
+  /** @brief Move assignment operator for the Astarte device class. */
 
   /**
    * @brief Parse an interface definition from a JSON file and adds it to the device.
@@ -57,9 +57,9 @@ struct AstarteDeviceMQTT::AstarteDeviceMQTTImpl {
       -> astarte_tl::expected<void, AstarteError>;
   /**
    * @brief Parse an interface definition from a JSON string and adds it to the device.
-   * @param json The interface to add.
+   * @param interface_str The interface to add.
    */
-  auto add_interface_from_str(std::string_view json)
+  auto add_interface_from_str(std::string_view interface_str)
       -> astarte_tl::expected<void, AstarteError>;
   /**
    * @brief Remove an installed interface.

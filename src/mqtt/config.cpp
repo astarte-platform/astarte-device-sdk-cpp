@@ -8,14 +8,17 @@
 
 #include <chrono>
 #include <filesystem>
+#include <format>
 #include <fstream>
+#include <ios>
+#include <iterator>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 
-#include "ada.h"
-#include "astarte_device_sdk/mqtt/connection.hpp"
 #include "astarte_device_sdk/mqtt/errors.hpp"
+#include "astarte_device_sdk/mqtt/formatter.hpp"
 #include "astarte_device_sdk/mqtt/pairing.hpp"
 #include "mqtt/connect_options.h"
 
@@ -30,14 +33,14 @@ auto read_from_file(const std::filesystem::path& file_path)
   }
 
   // read the entire file content into a string
-  const std::string credential((std::istreambuf_iterator<char>(interface_file)),
-                               std::istreambuf_iterator<char>());
+  std::string data((std::istreambuf_iterator<char>(interface_file)),
+                   std::istreambuf_iterator<char>());
   interface_file.close();
 
-  return credential;
+  return data;
 }
 
-auto write_to_file(const std::filesystem::path& file_path, const std::string data)
+auto write_to_file(const std::filesystem::path& file_path, std::string_view data)
     -> astarte_tl::expected<void, AstarteError> {
   // open an output file stream (ofstream) using the path object
   // the file is automatically closed when 'output_file' goes out of scope
@@ -83,7 +86,7 @@ auto MqttConfig::build_mqtt_options() -> astarte_tl::expected<mqtt::connect_opti
   auto ssl_opts =
       mqtt::ssl_options_builder()
           .ssl_version(3)  // TLS 1.2
-          // TODO: enable for server authentication
+          // TODO(rgwork): enable for server authentication
           .enable_server_cert_auth(false)
           .verify(false)
           // Astarte MQTT broker requires client authentication (mutual TLS),

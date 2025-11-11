@@ -497,11 +497,10 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteStoredProperty> {
    */
   template <typename FormatContext>
   auto format(const AstarteDeviceSdk::AstarteStoredProperty& prop, FormatContext& ctx) const {
-    return astarte_fmt::format_to(
-        ctx.out(), "Interface: {} v{}, Path: {}, Ownership: {}, Value: {}",
-        prop.get_interface_name(), prop.get_version_major(), prop.get_path(),
-        (prop.get_ownership() == AstarteDeviceSdk::AstarteOwnership::kDevice ? "device" : "server"),
-        prop.get_value());
+    return astarte_fmt::format_to(ctx.out(),
+                                  "Interface: {} v{}, Path: {}, Ownership: {}, Value: {}",
+                                  prop.get_interface_name(), prop.get_version_major(),
+                                  prop.get_path(), prop.get_ownership(), prop.get_value());
   }
 };
 
