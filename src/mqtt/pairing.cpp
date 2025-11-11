@@ -10,11 +10,14 @@
 #include <chrono>
 #include <format>
 #include <nlohmann/json.hpp>
+#include <random>
 #include <string>
 #include <string_view>
 
 #include "ada.h"
+#include "astarte_device_sdk/formatter.hpp"
 #include "mqtt/crypto.hpp"
+#include "uuid.h"
 
 using json = nlohmann::json;
 
@@ -185,6 +188,47 @@ auto PairingApi::device_cert_valid(std::string_view certificate, std::string_vie
     throw JsonAccessErrorException(
         std::format("Failed to parse JSON: {}. Body: {}", e.what(), res.text));
   }
+}
+
+auto bytes_to_uuid_str(const std::span<std::byte const, 16> bytes) -> std::string {
+  std::vector<uint8_t> bytes_v(reinterpret_cast<const uint8_t*>(bytes.data()),
+                               reinterpret_cast<const uint8_t*>(bytes.data()) + bytes.size());
+
+  return utils::format_base64_url_safe(bytes_v);
+}
+
+auto create_random_device_id() -> std::string {
+  // create a seed for the uuid generator
+  std::random_device rd;
+  auto seed_data = std::array<int, std::mt19937::state_size>{};
+  std::generate(std::begin(seed_data), std::end(seed_data), std::ref(rd));
+  std::seed_seq seq(std::begin(seed_data), std::end(seed_data));
+  std::mt19937 engine(seq);
+
+  // pass the engine to the UUID generator's constructor
+  uuids::uuid_random_generator gen(engine);
+
+  // generate a v4 UUID
+  uuids::uuid const uuid = gen();
+
+  return bytes_to_uuid_str(uuid.as_bytes());
+}
+
+auto create_deterministic_device_id(std::string_view namespc, std::string_view unique_data)
+    -> std::string {
+  // generate a v5 (name-based, SHA-1) UUID starting from the string namespace UUID representation
+  auto ns = uuids::uuid::from_string(namespc);
+
+  if (!ns.has_value()) {
+    throw UuidException(
+        std::format("Couldn't parse namespace to UUID, invalid value: {}", namespc));
+  }
+
+  // Create a name generator seeded with the namespace
+  uuids::uuid_name_generator v5_generator(ns.value());
+  uuids::uuid const uuid = v5_generator(unique_data);
+
+  return bytes_to_uuid_str(uuid.as_bytes());
 }
 
 }  // namespace AstarteDeviceSdk
