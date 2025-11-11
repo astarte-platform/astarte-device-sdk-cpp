@@ -21,10 +21,10 @@
 namespace AstarteDeviceSdk {
 
 /** @brief Default keep alive interval in seconds for the MQTT connection. */
-constexpr u_int32_t DEFAULT_KEEP_ALIVE = 30;
+constexpr uint32_t DEFAULT_KEEP_ALIVE = 30;
 
 /** @brief Default connection timeout in seconds for the MQTT connection. */
-constexpr u_int32_t DEFAULT_CONNECTION_TIMEOUT = 5;
+constexpr uint32_t DEFAULT_CONNECTION_TIMEOUT = 5;
 
 /** @brief Default file name inside the store directory where the certificate is stored in PEM
  * format. */
@@ -40,9 +40,6 @@ constexpr std::string_view PRIVATE_KEY_FILE = "client-priv-key.pem";
 #include <string_view>
 
 /**
- * @brief Represent an Astarte device credential.
- */
-/**
  * @brief Reads the entire content of a file into a string.
  * @param file_path The path to the file to be read.
  * @return An std::optional containing the file content as a string, or std::nullopt if the file
@@ -53,9 +50,9 @@ auto read_from_file(const std::filesystem::path& file_path) -> std::optional<std
 /**
  * @brief Writes a string to a file, overwriting any existing content.
  * @param file_path The path to the file to be written.
- * @param credential The string content to write to the file.
+ * @param data The string content to write to the file.
  */
-void write_to_file(const std::filesystem::path& file_path, const std::string credential);
+void write_to_file(const std::filesystem::path& file_path, std::string_view data);
 
 /**
  * @brief A type-safe wrapper for Astarte credentials, distinguishing between a credential secret
@@ -98,23 +95,6 @@ class Credential {
    * @return The stored credential (token or secret) as a string.
    */
   auto value() const -> std::string { return credential_; }
-
-  /**
-   * @brief Read a credential string from a specified file.
-   * @param file_path The path to the file containing the credential.
-   * @return An option value containing the credential if read successfully, or std::nullopt
-   * if the file does not exist or an error occurs.
-   */
-  static auto read_credential_from_file(const std::filesystem::path& file_path)
-      -> std::optional<std::string>;
-
-  /**
-   * @brief Write a credential string to a specified file.
-   * @param file_path The path to the file to be written.
-   * @param credential The credential string to write to the file.
-   */
-  static void write_credential_to_file(const std::filesystem::path& file_path,
-                                       const std::string credential);
 
  private:
   /// @brief Enum to differentiate credential types.
@@ -197,7 +177,7 @@ class MqttConfig {
    * @param duration The keep-alive duration in seconds.
    * @return A reference to the MqttConfig object for chaining.
    */
-  auto keepalive(u_int32_t duration) -> MqttConfig& {
+  auto keepalive(uint32_t duration) -> MqttConfig& {
     this->keepalive_ = duration;
     return *this;
   }
@@ -216,7 +196,7 @@ class MqttConfig {
    * @param duration The timeout duration in seconds.
    * @return A reference to the MqttConfig object for chaining.
    */
-  auto connection_timeout(u_int32_t duration) -> MqttConfig& {
+  auto connection_timeout(uint32_t duration) -> MqttConfig& {
     this->conn_timeout_ = duration;
     return *this;
   }
@@ -260,8 +240,8 @@ class MqttConfig {
   Credential credential_;
   std::string store_dir_;
   bool ignore_ssl_;
-  u_int32_t keepalive_;
-  u_int32_t conn_timeout_;
+  uint32_t keepalive_;
+  uint32_t conn_timeout_;
 };
 
 }  // namespace AstarteDeviceSdk

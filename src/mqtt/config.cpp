@@ -8,21 +8,22 @@
 
 #include <chrono>
 #include <filesystem>
+#include <format>
 #include <fstream>
+#include <ios>
+#include <iterator>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 
-#include "ada.h"
-#include "astarte_device_sdk/mqtt/connection.hpp"
 #include "astarte_device_sdk/mqtt/exceptions.hpp"
 #include "astarte_device_sdk/mqtt/pairing.hpp"
 #include "mqtt/connect_options.h"
 
 namespace AstarteDeviceSdk {
 
-auto read_credential_from_file(const std::filesystem::path& file_path)
-    -> std::optional<std::string> {
+auto read_from_file(const std::filesystem::path& file_path) -> std::optional<std::string> {
   if (!std::filesystem::exists(file_path)) {
     spdlog::debug("file {} does not exists", file_path.string());
     return std::nullopt;
@@ -35,14 +36,14 @@ auto read_credential_from_file(const std::filesystem::path& file_path)
   }
 
   // read the entire file content into a string
-  const std::string credential((std::istreambuf_iterator<char>(interface_file)),
-                               std::istreambuf_iterator<char>());
+  std::string data((std::istreambuf_iterator<char>(interface_file)),
+                   std::istreambuf_iterator<char>());
   interface_file.close();
 
-  return credential;
+  return data;
 }
 
-void write_to_file(const std::filesystem::path& file_path, const std::string data) {
+void write_to_file(const std::filesystem::path& file_path, std::string_view data) {
   if (std::filesystem::exists(file_path)) {
     spdlog::debug("file {} already exists", file_path.string());
     return;
@@ -90,7 +91,7 @@ auto MqttConfig::build_mqtt_options() -> mqtt::connect_options {
   auto ssl_opts =
       mqtt::ssl_options_builder()
           .ssl_version(3)  // TLS 1.2
-          // TODO: enable for server authentication
+          // TODO(rgwork): enable for server authentication
           .enable_server_cert_auth(false)
           .verify(false)
           // Astarte MQTT broker requires client authentication (mutual TLS),

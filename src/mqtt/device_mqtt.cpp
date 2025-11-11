@@ -23,7 +23,7 @@
 
 namespace AstarteDeviceSdk {
 
-AstarteDeviceMQTT::AstarteDeviceMQTT(const MqttConfig cfg)
+AstarteDeviceMQTT::AstarteDeviceMQTT(const MqttConfig& cfg)
     : astarte_device_impl_{std::make_shared<AstarteDeviceMQTTImpl>(cfg)} {}
 
 AstarteDeviceMQTT::~AstarteDeviceMQTT() = default;

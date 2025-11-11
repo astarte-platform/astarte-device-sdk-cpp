@@ -4,7 +4,29 @@
 
 #include "astarte_device_sdk/mqtt/connection.hpp"
 
+#include <spdlog/spdlog.h>
+
+#include <chrono>
+#include <format>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <thread>
+#include <utility>
+#include <vector>
+
+#include "astarte_device_sdk/mqtt/config.hpp"
+#include "astarte_device_sdk/mqtt/exceptions.hpp"
+#include "astarte_device_sdk/mqtt/introspection.hpp"
+#include "astarte_device_sdk/mqtt/pairing.hpp"
+#include "astarte_device_sdk/ownership.hpp"
 #include "exponential_backoff.hpp"
+#include "mqtt/async_client.h"
+#include "mqtt/delivery_token.h"
+#include "mqtt/exception.h"
+#include "mqtt/iasync_client.h"
+#include "mqtt/message.h"
+#include "mqtt/token.h"
 
 // All other necessary headers (spdlog, format, pairing.hpp, etc.)
 // are included by "astarte_device_sdk/mqtt/connection.hpp"
@@ -43,9 +65,9 @@ void ConnectionCallback::setup_subscriptions() {
 void ConnectionCallback::send_introspection() {
   // create the stringified representation of the introspection to send to Astarte
   auto introspection_str = std::string();
-  for (auto i : introspection_) {
-    introspection_str +=
-        std::format("{}:{}:{};", i.interface_name, i.version_major, i.version_minor);
+  for (auto interface : introspection_) {
+    introspection_str += std::format("{}:{}:{};", interface.interface_name, interface.version_major,
+                                     interface.version_minor);
   }
   // remove last unnecessary ";"
   introspection_str.pop_back();
@@ -64,7 +86,7 @@ void ConnectionCallback::reconnect() {
 
   while (!client_->is_connected()) {
     try {
-      // TODO: call exponential backoff inside reconnect
+      // TODO(rgwork): call exponential backoff inside reconnect
       client_->connect(options_, nullptr, *this);
     } catch (const mqtt::exception& e) {
       spdlog::error("error while trying to reconnect to Astarte: {}", e.what());
@@ -77,7 +99,7 @@ void ConnectionCallback::reconnect() {
   };
 }
 
-void ConnectionCallback::connected(const std::string& cause) {
+void ConnectionCallback::connected(const std::string& /* cause */) {
   spdlog::info("device connected to Astarte");
 
   spdlog::debug("setting up subscription to Astarte topics...");
@@ -99,13 +121,13 @@ void ConnectionCallback::connection_lost(const std::string& cause) {
 }
 
 void ConnectionCallback::message_arrived(mqtt::const_message_ptr msg) {
-  // TODO: handle message reception
+  // TODO(rgwork): handle message reception
   spdlog::trace("message received at {}: {}", msg->get_topic(), msg->to_string());
 }
 
 void ConnectionCallback::delivery_complete(mqtt::delivery_token_ptr token) {}
 
-void ConnectionCallback::on_failure(const mqtt::token& tok) {
+void ConnectionCallback::on_failure(const mqtt::token& /* tok */) {
   spdlog::error("failed to reconnect, retrying...");
   reconnect();
 }
@@ -114,11 +136,10 @@ void ConnectionCallback::on_success(const mqtt::token& tok) {}
 
 ConnectionCallback::ConnectionCallback(mqtt::iasync_client* client, mqtt::connect_options options,
                                        std::string device_id, std::vector<Interface>& introspection)
-    : client_(client), options_(options), device_id_(device_id), introspection_(introspection) {}
-
-//
-// MqttConnection Implementation
-//
+    : client_(client),
+      options_(std::move(options)),
+      device_id_(std::move(device_id)),
+      introspection_(introspection) {}
 
 MqttConnection::MqttConnection(MqttConfig cfg) : cfg_(std::move(cfg)) {
   auto realm = cfg_.realm();
@@ -162,7 +183,9 @@ void MqttConnection::connect(std::vector<Interface>& introspection) {
 void MqttConnection::disconnect() {
   try {
     auto toks = client_->get_pending_delivery_tokens();
-    if (!toks.empty()) spdlog::error("Error: There are pending delivery tokens!");
+    if (!toks.empty()) {
+      spdlog::error("Error: There are pending delivery tokens!");
+    }
 
     spdlog::debug("disconnecting device from astarte...");
     client_->disconnect()->wait();

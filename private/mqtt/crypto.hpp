@@ -63,7 +63,7 @@ class PsaKey {
    * @brief Get the PEM representation of the underlying key ID
    * @return The  PEM representation of the underlying key ID. returns an empty string if the key is PSA_KEY_ID_NULL.
    */
-  auto to_pem() const -> const std::string;
+  auto to_pem() const -> std::string;
   /**
    * @brief Creates a new ECDSA (secp256r1) private key.
    * @throws CryptoException on failure.

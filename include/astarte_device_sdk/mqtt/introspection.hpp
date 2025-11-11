@@ -22,7 +22,7 @@ namespace AstarteDeviceSdk {
 /**
  * @brief alias for nlohmann json
  */
-using json = nlohmann::json;
+using json = nlohmann::json;  // NOLINT(misc-include-cleaner)
 
 /**
  * @brief Extract an optional value from a JSON object.
@@ -253,14 +253,14 @@ auto mappings_from_interface(json& interface) -> std::vector<Mapping>;
 /**
  * @brief Converts and validates an interface version number.
  *
- * Checks if the version is non-negative and fits within a u_int32_t.
+ * Checks if the version is non-negative and fits within a uint32_t.
  *
  * @param maj_min A string literal ("major" or "minor") used for error messages.
  * @param version The version number as int64_t (from JSON parsing).
- * @return The version number as u_int32_t.
+ * @return The version number as uint32_t.
  * @throws InvalidVersionException if the version is negative or too large.
  */
-auto convert_version(std::string_view maj_min, int64_t version) -> u_int32_t;
+auto convert_version(std::string_view maj_min, int64_t version) -> uint32_t;
 
 /**
  * @brief Represents a parsed Astarte interface.
@@ -281,11 +281,11 @@ class Interface {
   /**
    * @brief The Major version qualifier for this interface.
    */
-  u_int32_t version_major;
+  uint32_t version_major;
   /**
    * @brief The Minor version qualifier for this interface.
    */
-  u_int32_t version_minor;
+  uint32_t version_minor;
   /**
    * @brief Identify the type of this Interface. It could be Datastream or Property.
    */

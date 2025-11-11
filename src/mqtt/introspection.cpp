@@ -4,6 +4,18 @@
 
 #include "astarte_device_sdk/mqtt/introspection.hpp"
 
+#include <cstdint>
+#include <format>
+#include <limits>
+#include <optional>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "astarte_device_sdk/exceptions.hpp"
+#include "astarte_device_sdk/ownership.hpp"
+#include "astarte_device_sdk/type.hpp"
+
 // Note: Other headers like <format>, <stdexcept>, etc., are included
 // via "astarte_device_sdk/mqtt/introspection.hpp"
 
@@ -12,21 +24,23 @@ namespace AstarteDeviceSdk {
 auto interface_type_from_str(std::string typ) -> InterfaceType {
   if (typ == "datastream") {
     return InterfaceType::kDatastream;
-  } else if (typ == "properties") {
-    return InterfaceType::kProperty;
-  } else {
-    throw InvalidInterfaceTypeException(std::format("interface type not valid: {}", typ));
   }
+  if (typ == "properties") {
+    return InterfaceType::kProperty;
+  }
+
+  throw InvalidInterfaceTypeException(std::format("interface type not valid: {}", typ));
 }
 
 auto aggregation_from_str(std::string aggr) -> Aggregation {
   if (aggr == "individual") {
     return Aggregation::kIndividual;
-  } else if (aggr == "object") {
-    return Aggregation::kObject;
-  } else {
-    throw InvalidAggregationException(std::format("Aggregation not valid: {}", aggr));
   }
+  if (aggr == "object") {
+    return Aggregation::kObject;
+  }
+
+  throw InvalidAggregationException(std::format("Aggregation not valid: {}", aggr));
 }
 
 auto mappings_from_interface(json& interface) -> std::vector<Mapping> {
@@ -48,35 +62,33 @@ auto mappings_from_interface(json& interface) -> std::vector<Mapping> {
     auto description = optional_value_from_json_interface<std::string>(mapping, "description");
     auto doc = optional_value_from_json_interface<std::string>(mapping, "doc");
 
-    auto m = Mapping{endpoint,
-                     mapping_type,
-                     explicit_timestamp,
-                     reliability,
-                     retention,
-                     expiry,
-                     database_retention_policy,
-                     database_retention_ttl,
-                     allow_unset,
-                     description,
-                     doc};
-
-    mappings.push_back(m);
+    mappings.emplace_back(Mapping{.endpoint = endpoint,
+                                  .mapping_type = mapping_type,
+                                  .explicit_timestamp = explicit_timestamp,
+                                  .reliability = reliability,
+                                  .retention = retention,
+                                  .expiry = expiry,
+                                  .database_retention_policy = database_retention_policy,
+                                  .database_retention_ttl = database_retention_ttl,
+                                  .allow_unset = allow_unset,
+                                  .description = description,
+                                  .doc = doc});
   }
 
   return mappings;
 }
 
-auto convert_version(std::string_view maj_min, int64_t version) -> u_int32_t {
+auto convert_version(std::string_view maj_min, int64_t version) -> uint32_t {
   if (std::cmp_less(version, 0)) {
     throw InvalidVersionException(
         std::format("received negative {} version value: {}", maj_min, version));
   }
 
-  if (std::cmp_greater(version, std::numeric_limits<u_int32_t>::max())) {
+  if (std::cmp_greater(version, std::numeric_limits<uint32_t>::max())) {
     throw InvalidVersionException(std::format("{} version value too large: {}", maj_min, version));
   }
 
-  return static_cast<u_int32_t>(version);
+  return static_cast<uint32_t>(version);
 }
 
 auto Interface::try_from_json(json interface) -> Interface {
@@ -95,8 +107,15 @@ auto Interface::try_from_json(json interface) -> Interface {
 
   auto mappings = mappings_from_interface(interface);
 
-  return Interface{interface_name, version_major, version_minor, interface_type, ownership,
-                   aggregation,    description,   doc,           mappings};
+  return Interface{.interface_name = interface_name,
+                   .version_major = version_major,
+                   .version_minor = version_minor,
+                   .interface_type = interface_type,
+                   .ownership = ownership,
+                   .aggregation = aggregation,
+                   .description = description,
+                   .doc = doc,
+                   .mappings = mappings};
 }
 
 }  // namespace AstarteDeviceSdk

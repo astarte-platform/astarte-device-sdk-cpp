@@ -10,8 +10,6 @@ transport=grpc
 system_transport=false
 jobs=$(nproc --all)
 project_root=$(pwd) # Assuming this script is always run from the root of this project
-sample_src_dir="samples/grpc/native"
-build_dir="${sample_src_dir}/build"
 venv_dir=".venv"
 clang_tidy_package_name="clang-tidy"
 clang_tidy_package_version="19.1.0"
@@ -89,11 +87,11 @@ if ! pip install --upgrade pip; then
     error_exit "Failed to upgrade pip."
 fi
 
-# TODO: in CI these imports are redundant (look static.yaml)
-# Install python dependencies
-if ! pip install jinja2 jsonschema; then
-    error_exit "Failed to install pip dependencies."
-fi
+# # TODO: in CI these imports are redundant (look static.yaml)
+# # Install python dependencies
+# if ! pip install jinja2 jsonschema; then
+#     error_exit "Failed to install pip dependencies."
+# fi
 
 # Install or verify clang-tidy version
 echo "Checking/installing $clang_tidy_package_name version $clang_tidy_package_version..."
@@ -108,6 +106,13 @@ else
 fi
 
 # --- Build Logic ---
+
+if [[ "$transport" == "grpc" ]]; then
+    sample_src_dir="samples/grpc/native"
+else
+	sample_src_dir="samples/mqtt/native"
+fi
+build_dir="${sample_src_dir}/build"
 
 # Clean build if --fresh is set
 if [ "$fresh_mode" = true ]; then
@@ -131,7 +136,6 @@ cmake_options_array+=("-DASTARTE_PUBLIC_SPDLOG_DEP=ON")
 cmake_options_array+=("-DSAMPLE_USE_SYSTEM_ASTARTE_LIB=OFF")
 cmake_options_array+=("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON")
 cmake_options_array+=("-DCMAKE_POSITION_INDEPENDENT_CODE=ON")
-cmake_options_array+=("-DPython3_EXECUTABLE=$venv_dir/bin/python3")
 
 if [[ "$transport" == "grpc" ]]; then
     cmake_options_array+=("-DASTARTE_TRANSPORT_GRPC=ON")

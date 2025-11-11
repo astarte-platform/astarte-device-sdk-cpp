@@ -44,7 +44,7 @@
 #include "astarte_device_sdk/object.hpp"
 #include "astarte_device_sdk/ownership.hpp"
 #include "astarte_device_sdk/property.hpp"
-#include "astarte_device_sdk/formatter.hpp"
+#include "astarte_device_sdk/formatter.hpp" // NOLINT(misc-include-cleaner)
 #include "astarte_device_sdk/stored_property.hpp"
 #include "exponential_backoff.hpp"
 #include "grpc/grpc_converter.hpp"

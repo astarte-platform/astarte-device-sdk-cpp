@@ -4,34 +4,47 @@
 
 #include "astarte_device_sdk/mqtt/pairing.hpp"
 
-#include <cpr/cpr.h>
 #include <spdlog/spdlog.h>
 
 #include <chrono>
+#include <cstdint>
 #include <format>
 #include <nlohmann/json.hpp>
 #include <string>
 #include <string_view>
+#include <tuple>
+#include <utility>
 
-#include "ada.h"
+#include "ada/implementation.h"
+#include "astarte_device_sdk/mqtt/exceptions.hpp"
+#include "cpr/api.h"
+#include "cpr/cprtypes.h"
+#include "cpr/response.h"
+#include "cpr/status_codes.h"
 #include "mqtt/crypto.hpp"
 
-using json = nlohmann::json;
+using json = nlohmann::json;  // NOLINT(misc-include-cleaner)
 
 namespace AstarteDeviceSdk {
 
+namespace {
 // check if the response code of an HTTP is successfull (i.e., 2XX) or not
-auto is_successful(long status_code) -> bool { return (status_code / 100) == 2; }
+auto is_successful(int64_t status_code) -> bool {
+  return (status_code >= cpr::status::SUCCESS_CODE_OFFSET) &&
+         (status_code < cpr::status::REDIRECT_CODE_OFFSET);
+}
+}  // namespace
 
 auto PairingApi::register_device(std::string_view pairing_token,
                                  std::chrono::milliseconds timeout_ms) const -> std::string {
   auto request_url = pairing_url;
-  std::string pathname = std::format("{}/v1/{}/agent/devices", request_url.get_pathname(), realm);
+  const std::string pathname =
+      std::format("{}/v1/{}/agent/devices", request_url.get_pathname(), realm);
   request_url.set_pathname(pathname);
   spdlog::debug("request url: {}", request_url.get_href());
 
-  cpr::Header header{{"Content-Type", "application/json"},
-                     {"Authorization", std::format("Bearer {}", pairing_token)}};
+  const cpr::Header header{{"Content-Type", "application/json"},
+                           {"Authorization", std::format("Bearer {}", pairing_token)}};
 
   json body;
   body["data"] = {{"hw_id", device_id}};
@@ -77,12 +90,12 @@ auto PairingApi::create_pairing_url(std::string_view astarte_base_url) -> ada::u
 auto PairingApi::get_broker_url(std::string_view credential_secret, int timeout_ms) const
     -> std::string {
   auto request_url = pairing_url;
-  std::string pathname =
+  const std::string pathname =
       std::format("{}/v1/{}/devices/{}", request_url.get_pathname(), realm, device_id);
   request_url.set_pathname(pathname);
   spdlog::debug("request url: {}", request_url.get_href());
 
-  cpr::Header auth{{"Authorization", std::format("Bearer {}", credential_secret)}};
+  const cpr::Header auth{{"Authorization", std::format("Bearer {}", credential_secret)}};
 
   cpr::Response res = cpr::Get(cpr::Url{request_url.get_href()}, auth, cpr::Timeout{timeout_ms});
 
@@ -109,13 +122,14 @@ auto PairingApi::get_broker_url(std::string_view credential_secret, int timeout_
 auto PairingApi::get_device_key_and_cert(std::string_view credential_secret, int timeout_ms) const
     -> std::tuple<std::string, std::string> {
   auto request_url = pairing_url;
-  std::string pathname = std::format("{}/v1/{}/devices/{}/protocols/astarte_mqtt_v1/credentials",
-                                     request_url.get_pathname(), realm, device_id);
+  const std::string pathname =
+      std::format("{}/v1/{}/devices/{}/protocols/astarte_mqtt_v1/credentials",
+                  request_url.get_pathname(), realm, device_id);
   request_url.set_pathname(pathname);
   spdlog::debug("request url: {}", request_url.get_href());
 
-  cpr::Header header{{"Content-Type", "application/json"},
-                     {"Authorization", std::format("Bearer {}", credential_secret)}};
+  const cpr::Header header{{"Content-Type", "application/json"},
+                           {"Authorization", std::format("Bearer {}", credential_secret)}};
 
   auto priv_key = PsaKey();
   priv_key.generate();
@@ -142,7 +156,7 @@ auto PairingApi::get_device_key_and_cert(std::string_view credential_secret, int
 
   try {
     json response_json = json::parse(res.text);
-    // TODO: check if the certificate is valid, otherwise generate a new one
+    // TODO(rgwork): check if the certificate is valid, otherwise generate a new one
     return {device_priv_key, response_json.at("data").at("client_crt")};
   } catch (const json::exception& e) {
     throw JsonAccessErrorException(
@@ -153,14 +167,14 @@ auto PairingApi::get_device_key_and_cert(std::string_view credential_secret, int
 auto PairingApi::device_cert_valid(std::string_view certificate, std::string_view credential_secret,
                                    int timeout_ms) const -> bool {
   auto request_url = pairing_url;
-  std::string pathname =
+  const std::string pathname =
       std::format("{}/v1/{}/devices/{}/protocols/astarte_mqtt_v1/credentials/verify",
                   request_url.get_pathname(), realm, device_id);
   request_url.set_pathname(pathname);
   spdlog::debug("request url: {}", request_url.get_href());
 
-  cpr::Header header{{"Content-Type", "application/json"},
-                     {"Authorization", std::format("Bearer {}", credential_secret)}};
+  const cpr::Header header{{"Content-Type", "application/json"},
+                           {"Authorization", std::format("Bearer {}", credential_secret)}};
 
   json body;
   body["data"] = {{"client_crt", certificate}};
