@@ -12,10 +12,11 @@
 #include <spdlog/spdlog.h>
 
 #include <array>
+#include <cstdint>
 #include <cstring>
-#include <exception>
 #include <format>
 #include <string>
+#include <utility>
 #include <vector>
 #if MBEDTLS_VERSION_MAJOR < 0x04
 #include <mbedtls/ctr_drbg.h>
@@ -180,7 +181,7 @@ PsaKey::~PsaKey() {
   if (key_id_ != PSA_KEY_ID_NULL) {
     auto res = mbedtls_ret_to_astarte_errors(psa_destroy_key(key_id_), "psa_destroy_key");
     if (!res) {
-      spdlog::error(
+      spdlog::critical(
           "PsaKey destructor failed to destroy the key. Key ID {} may be leaked. Error: {}",
           key_id_, res.error());
     }

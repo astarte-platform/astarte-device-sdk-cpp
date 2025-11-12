@@ -73,6 +73,7 @@ class PsaKey {
    @brief Constructs an empty PsaKey, holding no key.
    */
   PsaKey();
+
   /**
    * @brief The managed PSA key identifier.
    */
