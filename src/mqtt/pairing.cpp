@@ -219,7 +219,7 @@ auto PairingApi::register_device(std::string_view pairing_token,
 
   if (!is_successful(res.status_code)) {
     return astarte_tl::unexpected(AstarteMqttError(
-        AstartePairingApiError("Failed to register device.",
+        AstarteDeviceRegistrationError("Failed to register device.",
                                AstarteHttpError(astarte_fmt::format("Sttatus code: {}, Reason: {}",
                                                                     res.status_code, res.text)))));
   }

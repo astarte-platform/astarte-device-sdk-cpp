@@ -81,6 +81,7 @@ auto MqttConfig::build_mqtt_options() -> astarte_tl::expected<mqtt::connect_opti
 
   conn_opts.keep_alive_interval(std::chrono::seconds(keepalive_))
       .connect_timeout(std::chrono::seconds(conn_timeout_))
+      .automatic_reconnect()
       .clean_session();
 
   auto ssl_opts =

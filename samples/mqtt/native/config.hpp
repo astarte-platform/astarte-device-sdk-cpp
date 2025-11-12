@@ -18,19 +18,19 @@ class Features {
  public:
   // check whether the registration feature is enabled
   bool registration_enabled() {
-    return (active_features & features::REGISTRATION) == features::REGISTRATION ? true : false;
+    return (active_features & features::REGISTRATION) == features::REGISTRATION;
   }
 
   void set_registration_feature() { active_features |= features::REGISTRATION; }
 
   // check whether the connection feature is enabled
   bool connection_enabled() {
-    return (active_features & features::CONNECTION) == features::CONNECTION ? true : false;
+    return (active_features & features::CONNECTION) == features::CONNECTION;
   }
 
   void set_connection_feature() { active_features |= features::CONNECTION; }
 
-  int active_features;
+  uint32_t active_features = 0;
 
  private:
   // use this enum as bitmask to obtain the active features.
