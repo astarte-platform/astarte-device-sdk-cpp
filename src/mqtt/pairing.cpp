@@ -77,8 +77,7 @@ auto PairingApi::register_device(std::string_view pairing_token,
 auto PairingApi::create_pairing_url(std::string_view astarte_base_url) -> ada::url_aggregator {
   auto parsed_url = ada::parse(astarte_base_url);
   if (!parsed_url) {
-    throw InvalidUrlException(
-        std::format("Failed to register device. Provided invalid base URL: {}", astarte_base_url));
+    throw InvalidUrlException(std::format("Failed to parse URL: {}", astarte_base_url));
   }
 
   auto pairing_url = parsed_url.value();

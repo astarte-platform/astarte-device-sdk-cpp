@@ -69,7 +69,7 @@ auto PsaKey::to_pem() const -> std::string {
   mbedtls_check(mbedtls_pk_write_key_pem(&key.ctx(), buf.data(), buf.size()),
                 "mbedtls_pk_write_key_pem");
 
-  return {buf.begin(), buf.end()};
+  return std::string(reinterpret_cast<const char*>(buf.data()));  // {buf.begin(), buf.size()};
 }
 
 void PsaKey::generate() {
@@ -153,7 +153,7 @@ auto Crypto::create_csr(const PsaKey& priv_key) -> std::string {
   auto key = MbedPk(priv_key);
   auto csr = MbedX509WriteCsr();
   auto buf = csr.generate(key);
-  return {buf.begin(), buf.end()};
+  return std::string(reinterpret_cast<const char*>(buf.data()));  // {buf.begin(), buf.size()};
 }
 
 }  // namespace AstarteDeviceSdk

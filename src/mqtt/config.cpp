@@ -44,11 +44,6 @@ auto read_from_file(const std::filesystem::path& file_path) -> std::optional<std
 }
 
 void write_to_file(const std::filesystem::path& file_path, std::string_view data) {
-  if (std::filesystem::exists(file_path)) {
-    spdlog::debug("file {} already exists", file_path.string());
-    return;
-  }
-
   // open an output file stream (ofstream) using the path object
   // the file is automatically closed when 'output_file' goes out of scope
   std::ofstream output_file(file_path);
@@ -86,6 +81,7 @@ auto MqttConfig::build_mqtt_options() -> mqtt::connect_options {
 
   conn_opts.keep_alive_interval(std::chrono::seconds(keepalive_))
       .connect_timeout(std::chrono::seconds(conn_timeout_))
+      .automatic_reconnect()
       .clean_session();
 
   auto ssl_opts =
