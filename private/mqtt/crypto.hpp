@@ -53,7 +53,7 @@ class PsaKey {
    * @return A reference to this object.
    * @throws CryptoException if destroying the *current* key fails.
    */
-  auto operator=(PsaKey&& other) -> PsaKey&;
+  auto operator=(PsaKey&& other) noexcept -> PsaKey&;
   /**
    * @brief Get a reference to the underlying key ID
    * @return The managed mbedtls_svc_key_id_t. Returns PSA_KEY_ID_NULL if this object is empty.
@@ -71,6 +71,11 @@ class PsaKey {
   void generate();
 
  private:
+  /**
+   * @brief Destroys the key, but does not throw on failure.
+   */
+  void destroy_key_nothrow() noexcept;
+
   /**
    * @brief The managed PSA key identifier.
    */

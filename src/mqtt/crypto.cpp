@@ -7,10 +7,11 @@
 #include <spdlog/spdlog.h>
 
 #include <array>
+#include <cstdint>
 #include <cstring>
-#include <exception>
 #include <format>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "astarte_device_sdk/mqtt/exceptions.hpp"
@@ -46,33 +47,15 @@ void mbedtls_check(int ret, const std::string& function_name) {
 }  // namespace
 
 PsaKey::PsaKey() : key_id_(PSA_KEY_ID_NULL) { mbedtls_check(psa_crypto_init(), "psa_crypto_init"); }
-PsaKey::~PsaKey() {
-  if (key_id_ != PSA_KEY_ID_NULL) {
-    try {
-      // Attempt to destroy the key
-      mbedtls_check(psa_destroy_key(key_id_), "psa_destroy_key");
-    } catch (const std::exception& e) {
-      spdlog::error("Exception in PsaKey destructor. Key ID {} may be leaked. Error: {}", key_id_,
-                    e.what());
-    } catch (...) {
-      spdlog::critical("Unknown exception in PsaKey destructor. Key ID {} may be leaked", key_id_);
-    }
-  }
-}
+PsaKey::~PsaKey() { destroy_key_nothrow(); }
 
 PsaKey::PsaKey(PsaKey&& other) noexcept : key_id_(other.key_id_) {
   other.key_id_ = PSA_KEY_ID_NULL;
 }
 
-auto PsaKey::operator=(PsaKey&& other) -> PsaKey& {
+auto PsaKey::operator=(PsaKey&& other) noexcept -> PsaKey& {
   if (this != &other) {
-    // destroy the key
-    if (key_id_ != PSA_KEY_ID_NULL) {
-      mbedtls_check(psa_destroy_key(key_id_), "psa_destroy_key");
-    }
-    // if the destroy succeeded, we move the key from the other object
-    key_id_ = other.key_id_;
-    other.key_id_ = PSA_KEY_ID_NULL;
+    std::swap(key_id_, other.key_id_);
   }
   return *this;
 }
@@ -98,6 +81,20 @@ void PsaKey::generate() {
   psa_set_key_bits(&attributes, PSA_KEY_BITS);
 
   mbedtls_check(psa_generate_key(&attributes, &key_id_), "psa_generate_key");
+}
+
+void PsaKey::destroy_key_nothrow() noexcept {
+  if (key_id_ != PSA_KEY_ID_NULL) {
+    const int32_t ret = psa_destroy_key(key_id_);
+
+    if (ret != 0) {
+      auto error_buf = std::array<char, ERROR_BUF_LEN>();
+      mbedtls_strerror(ret, error_buf.data(), error_buf.size());
+      spdlog::critical("PsaKey failed to destroy key {}: {}", key_id_, error_buf.data());
+    }
+
+    key_id_ = PSA_KEY_ID_NULL;
+  }
 }
 
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
