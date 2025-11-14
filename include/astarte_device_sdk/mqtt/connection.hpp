@@ -8,7 +8,10 @@
 #include <spdlog/spdlog.h>
 
 #include <format>
+#include <memory>
+#include <string>
 #include <string_view>
+#include <vector>
 
 #include "astarte_device_sdk/mqtt/config.hpp"
 #include "astarte_device_sdk/mqtt/errors.hpp"
@@ -20,36 +23,109 @@
 #include "mqtt/iasync_client.h"
 
 namespace AstarteDeviceSdk {
+
+// Forward declaration to allow usage in the ActionListener
+class ConnectionCallback;
+
 /**
- * @brief Implement MQTT callbacks for handling connection events.
+ * @brief Implements the MQTT `iaction_listener` to handle the result of the initial connection
+ * attempt.
+ *
+ * This class acts as a trigger. When the asynchronous connect operation succeeds,
+ * it delegates the actual session setup (subscriptions, introspection) to the `ConnectionCallback`.
  */
-class ConnectionCallback : public virtual mqtt::callback, public virtual mqtt::iaction_listener {
+class ConnectionActionListener : public virtual mqtt::iaction_listener {
+  /// @brief Reference to the main callback handler that contains the setup logic.
+  ConnectionCallback& callback_handler_;
+
   /**
-   * @brief Subscribe the client to all required Astarte topics.
+   * @brief Called when the connection attempt fails.
+   * @param tok The token associated with the failed action.
+   */
+  void on_failure(const mqtt::token& tok) override;
+
+  /**
+   * @brief Called when the connection attempt succeeds.
    *
-   * This includes the control topic and all topics for server-owned
-   * interfaces defined in the device's introspection.
+   * Checks if a session is present. If not, it triggers the setup routine
+   * in the `ConnectionCallback`.
+   *
+   * @param tok The token associated with the successful action.
+   */
+  void on_success(const mqtt::token& tok) override;
+
+ public:
+  /**
+   * @brief Construct a new Connection Action Listener.
+   *
+   * @param callback_handler Reference to the initialized ConnectionCallback object.
+   */
+  explicit ConnectionActionListener(ConnectionCallback& callback_handler);
+};
+
+/**
+ * @brief Implements `mqtt::callback` to handle connection life-cycle events and session setup.
+ *
+ * This class owns the device state (ID, introspection) and is responsible for
+ * subscribing to topics and publishing introspection when a session is established.
+ */
+class ConnectionCallback : public virtual mqtt::callback {
+ public:
+  /**
+   * @brief Construct a new Connection Callback object.
+   *
+   * @param client Pointer to the MQTT asynchronous client.
+   * @param device_id The Astarte Device ID.
+   * @param introspection A reference to the vector of device interfaces.
+   */
+  ConnectionCallback(mqtt::iasync_client* client, std::string device_id,
+                     std::vector<Interface>& introspection);
+
+  /**
+   * @brief Performs the Astarte session setup.
+   *
+   * This includes subscribing to control/data topics and sending the introspection
+   * and emptyCache messages.
+   *
+   * @param session_present Indicates if the broker resumed a previous session.
+   * If true, subscriptions might be skipped depending on logic.
+   */
+  void perform_session_setup(bool session_present);
+
+ private:
+  /**
+   * @brief Subscribes the client to all required Astarte topics.
+   *
+   * Includes the control topic and all topics for server-owned interfaces.
    */
   void setup_subscriptions();
 
   /**
-   * @brief Publishe the device's introspection to Astarte.
+   * @brief Publishes the device's introspection to Astarte.
    */
   void send_introspection();
 
   /**
-   * @brief Send an "emptyCache" message to Astarte.
+   * @brief Sends an "emptyCache" message to Astarte.
    */
   void send_emptycache();
 
-  // (Re)connection success
+  /**
+   * @brief Called by the client when the connection is established (e.g., after auto-reconnect).
+   * @param cause The cause of the connection (e.g., "automatic reconnect").
+   */
   void connected(const std::string& cause) override;
 
-  // Callback for when the connection is lost.
-  // This will initiate the attempt to manually reconnect.
+  /**
+   * @brief Called when the connection is lost.
+   * @param cause The reason for the disconnection.
+   */
   void connection_lost(const std::string& cause) override;
 
-  // Callback for when a message arrives.
+  /**
+   * @brief Called when a message arrives from the broker.
+   * @param msg The received message.
+   */
   void message_arrived(mqtt::const_message_ptr msg) override;
 
   /**
@@ -58,33 +134,8 @@ class ConnectionCallback : public virtual mqtt::callback, public virtual mqtt::i
    */
   void delivery_complete(mqtt::delivery_token_ptr token) override;
 
-  // Re-connection failure
-  void on_failure(const mqtt::token& tok) override;
-
-  // (Re)connection success
-  void on_success(const mqtt::token& tok) override;
-
- private:
-  /// @brief Flag used to prevent a double execution of on_success method once the device is
-  /// connected
-  bool initial_setup_done_{false};
-
- public:
-  /**
-   * @brief Construct a new Connection Callback object.
-   *
-   * @param client Pointer to the MQTT asynchronous client.
-   * @param options The MQTT Paho connection options.
-   * @param device_id The Astarte Device ID.
-   * @param introspection A reference to the vector of device interfaces.
-   */
-  ConnectionCallback(mqtt::iasync_client* client, mqtt::connect_options options,
-                     std::string device_id, std::vector<Interface>& introspection);
-
   /// @brief Pointer to the MQTT client, used for operations like subscribe.
   mqtt::iasync_client* client_;
-  /// @brief MQTT connection options, used for reconnection.
-  mqtt::connect_options options_;
   /// @brief The Astarte Device ID.
   std::string device_id_;
   /// @brief Reference to the device's introspection (list of interfaces).
@@ -92,7 +143,7 @@ class ConnectionCallback : public virtual mqtt::callback, public virtual mqtt::i
 };
 
 /**
- * @brief Manage the MQTT connection to an Astarte instance.
+ * @brief Manages the MQTT connection to an Astarte instance.
  */
 class MqttConnection {
  public:
@@ -108,9 +159,8 @@ class MqttConnection {
   /**
    * @brief Construct a new Mqtt Connection object.
    *
-   * Initialize the connection parameters by performing pairing with the Astarte
-   * instance specified in the configuration. It retrieves the broker URL and
-   * sets up the MQTT client options.
+   * Initializes connection parameters, performs pairing if necessary,
+   * and configures the MQTT client.
    *
    * @param cfg The MQTT configuration object containing connection details.
    * @return The MQTT connection object, an error otherwise.
@@ -118,7 +168,7 @@ class MqttConnection {
   static auto create(MqttConfig cfg) -> astarte_tl::expected<MqttConnection, AstarteError>;
 
   /**
-   * @brief Connect the client to the Astarte MQTT broker.
+   * @brief Connects the client to the Astarte MQTT broker.
    * @param introspection A vector of interfaces defining the device.
    * @return an error if the connection operation fails.
    */
