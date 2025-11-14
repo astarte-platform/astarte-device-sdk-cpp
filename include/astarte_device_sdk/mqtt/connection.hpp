@@ -20,12 +20,6 @@
 #include "mqtt/iasync_client.h"
 
 namespace AstarteDeviceSdk {
-
-/**
- * @brief The MQTT topic for Astarte control consumer properties.
- */
-constexpr std::string_view MQTT_CONTROL_CONSUMER_PROP_TOPIC = "/control/consumer/properties";
-
 /**
  * @brief Implement MQTT callbacks for handling connection events.
  */
@@ -48,12 +42,6 @@ class ConnectionCallback : public virtual mqtt::callback, public virtual mqtt::i
    */
   void send_emptycache();
 
-  /**
-   * @brief Attempt to reconnect to the MQTT broker.
-   * @throws MqttConnectionException if the reconnection attempt fails.
-   */
-  void reconnect();
-
   // (Re)connection success
   void connected(const std::string& cause) override;
 
@@ -74,6 +62,11 @@ class ConnectionCallback : public virtual mqtt::callback, public virtual mqtt::i
 
   // (Re)connection success
   void on_success(const mqtt::token& tok) override;
+
+ private:
+  /// @brief Flag used to prevent a double execution of on_success method once the device is
+  /// connected
+  bool initial_setup_done_{false};
 
  public:
   /**

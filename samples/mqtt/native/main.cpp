@@ -88,7 +88,7 @@ int main() {
 
       device.connect();
 
-      sleep(1);  // FIXME: this sleep make disconnect the client
+      sleep(10);
 
       device.disconnect();
     }

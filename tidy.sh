@@ -87,11 +87,11 @@ if ! pip install --upgrade pip; then
     error_exit "Failed to upgrade pip."
 fi
 
-# # TODO: in CI these imports are redundant (look static.yaml)
-# # Install python dependencies
-# if ! pip install jinja2 jsonschema; then
-#     error_exit "Failed to install pip dependencies."
-# fi
+# TODO(rgwork): in CI these imports are redundant (look static.yaml)
+# Install python dependencies
+if ! pip install jinja2 jsonschema; then
+    error_exit "Failed to install pip dependencies."
+fi
 
 # Install or verify clang-tidy version
 echo "Checking/installing $clang_tidy_package_name version $clang_tidy_package_version..."
