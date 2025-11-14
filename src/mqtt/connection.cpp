@@ -75,8 +75,8 @@ void ConnectionCallback::setup_subscriptions() {
   auto topics = mqtt::string_collection();
   auto qoss = mqtt::iasync_client::qos_collection();
 
-  spdlog::debug("subscribing to topic {}", MQTT_CONTROL_CONSUMER_PROP_TOPIC);
-  topics.push_back(std::string(MQTT_CONTROL_CONSUMER_PROP_TOPIC));
+  spdlog::debug("subscribing to topic /control/consumer/properties");
+  topics.push_back(std::format("testrg/{}/control/consumer/properties", device_id_));
   qoss.push_back(2);
 
   for (auto interface : introspection_) {
@@ -85,14 +85,13 @@ void ConnectionCallback::setup_subscriptions() {
       continue;
     }
 
-    auto topic = std::format("/{}/{}/#", device_id_, interface.interface_name);
+    auto topic = std::format("testrg/{}/{}/#", device_id_, interface.interface_name);
     spdlog::debug("subscribing to topic {}", topic);
     topics.push_back(std::move(topic));
     qoss.push_back(2);
   }
 
   client_->subscribe(std::make_shared<mqtt::string_collection>(topics), qoss);
-  spdlog::info("subscribed to Astarte topics");
 }
 
 void ConnectionCallback::send_introspection() {
@@ -110,24 +109,25 @@ void ConnectionCallback::send_introspection() {
 }
 
 void ConnectionCallback::send_emptycache() {
-  auto emptycache_topic = std::format("/{}/emptyCache", device_id_);
+  auto emptycache_topic = std::format("testrg/{}/control/emptyCache", device_id_);
   client_->publish(emptycache_topic, "1", 2, false);
 }
 
-void ConnectionCallback::connected(const std::string& /* cause */) {
+void ConnectionCallback::connected(const std::string& cause) {
   spdlog::info("device connected to Astarte");
 
-  spdlog::debug("setting up subscription to Astarte topics...");
-  setup_subscriptions();
-  spdlog::info("subscription to Astarte topics completed");
+  if (cause.find("automatic reconnect") != std::string::npos) {
+    spdlog::info("callback cause: {}", cause);
 
-  spdlog::debug("sending introspection to Astarte...");
-  send_introspection();
-  spdlog::info("introspection sent to Astarte");
+    setup_subscriptions();
+    spdlog::info("subscription to Astarte topics completed");
 
-  spdlog::debug("sending emptycache to Astarte...");
-  send_emptycache();
-  spdlog::debug("emptycache sent to Astarte");
+    send_introspection();
+    spdlog::info("introspection sent to Astarte");
+
+    send_emptycache();
+    spdlog::debug("emptycache sent to Astarte");
+  }
 }
 
 void ConnectionCallback::connection_lost(const std::string& cause) {
@@ -136,16 +136,41 @@ void ConnectionCallback::connection_lost(const std::string& cause) {
 
 void ConnectionCallback::message_arrived(mqtt::const_message_ptr msg) {
   // TODO(rgwork): handle message reception
-  spdlog::trace("message received at {}: {}", msg->get_topic(), msg->to_string());
+  spdlog::debug("message received at {}: {}", msg->get_topic(), msg->get_payload_str());
 }
 
-void ConnectionCallback::delivery_complete(mqtt::delivery_token_ptr token) {}
+void ConnectionCallback::delivery_complete(mqtt::delivery_token_ptr /* token */) {}
 
 void ConnectionCallback::on_failure(const mqtt::token& /* tok */) {
   spdlog::error("failed to reconnect, retrying...");
 }
 
-void ConnectionCallback::on_success(const mqtt::token& tok) {}
+void ConnectionCallback::on_success(const mqtt::token& tok) {
+  if (tok.get_type() == mqtt::token::Type::CONNECT) {
+    if (initial_setup_done_) {
+      spdlog::debug("on_success invoked twice, skipping...");
+      return;
+    }
+    // if never invoked, set the flag to true to avoid invoking twice on_success
+    initial_setup_done_ = true;
+
+    auto res = tok.get_connect_response();
+    if (res.is_session_present()) {
+      spdlog::info("session resumed");
+    } else {
+      spdlog::info("starting a new session...");
+
+      setup_subscriptions();
+      spdlog::info("subscription to Astarte topics completed");
+
+      send_introspection();
+      spdlog::info("introspection sent to Astarte");
+
+      send_emptycache();
+      spdlog::debug("emptycache sent to Astarte");
+    }
+  }
+}
 
 ConnectionCallback::ConnectionCallback(mqtt::iasync_client* client, mqtt::connect_options options,
                                        std::string device_id, std::vector<Interface>& introspection)
@@ -210,7 +235,7 @@ auto MqttConnection::connect(std::vector<Interface>& introspection)
     client_->set_callback(*cb_);
 
     spdlog::debug("connecting device to the Astarte MQTT broker...");
-    client_->connect(options_)->wait();
+    client_->connect(options_, nullptr, *cb_)->wait();
   } catch (const mqtt::exception& e) {
     spdlog::error("error while trying to connect to Astarte: {}", e.what());
     return astarte_tl::unexpected(AstarteMqttConnectionError(
@@ -225,7 +250,7 @@ auto MqttConnection::disconnect() -> astarte_tl::expected<void, AstarteError> {
   try {
     auto toks = client_->get_pending_delivery_tokens();
     if (!toks.empty()) {
-      spdlog::error("Error: There are pending delivery tokens!");
+      spdlog::error("there are pending delivery tokens!");
     }
 
     spdlog::debug("disconnecting device from astarte...");
