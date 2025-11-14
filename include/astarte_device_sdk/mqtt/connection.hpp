@@ -23,7 +23,57 @@ namespace AstarteDeviceSdk {
 /**
  * @brief Implement MQTT callbacks for handling connection events.
  */
-class ConnectionCallback : public virtual mqtt::callback, public virtual mqtt::iaction_listener {
+class ConnectionActionListener : public virtual mqtt::iaction_listener {
+  /**
+   * @brief Subscribe the client to all required Astarte topics.
+   *
+   * This includes the control topic and all topics for server-owned
+   * interfaces defined in the device's introspection.
+   */
+  void setup_subscriptions();
+
+  /**
+   * @brief Publishe the device's introspection to Astarte.
+   */
+  void send_introspection();
+
+  /**
+   * @brief Send an "emptyCache" message to Astarte.
+   */
+  void send_emptycache();
+
+  // Re-connection failure
+  void on_failure(const mqtt::token& tok) override;
+
+  // (Re)connection success
+  void on_success(const mqtt::token& tok) override;
+
+ public:
+  /**
+   * @brief Construct a new Connection ActionListener object.
+   *
+   * @param client Pointer to the MQTT asynchronous client.
+   * @param options The MQTT Paho connection options.
+   * @param device_id The Astarte Device ID.
+   * @param introspection A reference to the vector of device interfaces.
+   */
+  ConnectionActionListener(mqtt::iasync_client* client, mqtt::connect_options options,
+                           std::string device_id, std::vector<Interface>& introspection);
+
+  /// @brief Pointer to the MQTT client, used for operations like subscribe.
+  mqtt::iasync_client* client_;
+  /// @brief MQTT connection options, used for reconnection.
+  mqtt::connect_options options_;
+  /// @brief The Astarte Device ID.
+  std::string device_id_;
+  /// @brief Reference to the device's introspection (list of interfaces).
+  std::vector<Interface>& introspection_;
+};
+
+/**
+ * @brief Implement MQTT callbacks for handling connection events.
+ */
+class ConnectionCallback : public virtual mqtt::callback {
   /**
    * @brief Subscribe the client to all required Astarte topics.
    *
@@ -56,17 +106,6 @@ class ConnectionCallback : public virtual mqtt::callback, public virtual mqtt::i
    * @param token The delivery token associated with the message.
    */
   void delivery_complete(mqtt::delivery_token_ptr token) override;
-
-  // Re-connection failure
-  void on_failure(const mqtt::token& tok) override;
-
-  // (Re)connection success
-  void on_success(const mqtt::token& tok) override;
-
- private:
-  /// @brief Flag used to prevent a double execution of on_success method once the device is
-  /// connected
-  bool initial_setup_done_{false};
 
  public:
   /**
