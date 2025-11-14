@@ -218,10 +218,10 @@ auto PairingApi::register_device(std::string_view pairing_token,
   }
 
   if (!is_successful(res.status_code)) {
-    return astarte_tl::unexpected(AstarteMqttError(
-        AstarteDeviceRegistrationError("Failed to register device.",
-                               AstarteHttpError(astarte_fmt::format("Sttatus code: {}, Reason: {}",
-                                                                    res.status_code, res.text)))));
+    return astarte_tl::unexpected(AstarteMqttError(AstarteDeviceRegistrationError(
+        "Failed to register device.",
+        AstarteHttpError(
+            astarte_fmt::format("Sttatus code: {}, Reason: {}", res.status_code, res.text)))));
   }
 
   return parse_json<std::string>(res.text, "/data/credentials_secret");
