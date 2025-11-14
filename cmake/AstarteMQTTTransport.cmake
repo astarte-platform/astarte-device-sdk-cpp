@@ -32,12 +32,12 @@ function(astarte_sdk_configure_mqtt_dependencies)
             GIT_REPOSITORY https://github.com/eclipse/paho.mqtt.cpp.git
             GIT_TAG v1.5.3
         )
-
         # Set build options
         set(PAHO_BUILD_EXAMPLES OFF CACHE BOOL "")
         set(PAHO_BUILD_TESTS OFF CACHE BOOL "")
         set(PAHO_WITH_MQTT_C ON CACHE BOOL "")
-
+        set(PAHO_BUILD_SHARED ON CACHE BOOL "")
+        set(PAHO_WITH_SSL ON CACHE BOOL "")
         FetchContent_MakeAvailable(paho-mqtt-cpp)
 
         # Library to handle HTTP requests
@@ -91,6 +91,8 @@ function(
         "include/astarte_device_sdk/mqtt/pairing.hpp"
         "include/astarte_device_sdk/mqtt/exceptions.hpp"
         "include/astarte_device_sdk/mqtt/config.hpp"
+        "include/astarte_device_sdk/mqtt/connection.hpp"
+        "include/astarte_device_sdk/mqtt/formatter.hpp"
     )
     list(
         APPEND
@@ -100,6 +102,8 @@ function(
         "src/mqtt/pairing.cpp"
         "src/mqtt/config.cpp"
         "src/mqtt/crypto.cpp"
+        "src/mqtt/connection.cpp"
+        "src/mqtt/introspection.cpp"
     )
     list(
         APPEND

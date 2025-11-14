@@ -10,7 +10,9 @@
  * @brief Types definitions for communication with Astarte.
  */
 
+#include <astarte_device_sdk/exceptions.hpp>
 #include <cstdint>
+#include <string>
 
 namespace AstarteDeviceSdk {
 
@@ -45,6 +47,50 @@ enum AstarteType : int8_t {
   /** @brief String array Astarte type. */
   kStringArray
 };
+
+/**
+ * @brief Convert a string to an AstarteType enum.
+ *
+ * @param typ The string representation of the astarte type.
+ * @return The corresponding AstarteType enum value.
+ * @throws InvalidAstarteTypeException if the string is not a valid Astarte type.
+ */
+// TODO: use static or move function definition to .cpp file
+inline auto astarte_type_from_str(std::string typ) -> AstarteType {
+  if (typ == "binaryblob") {
+    return AstarteType::kBinaryBlob;
+  } else if (typ == "boolean") {
+    return AstarteType::kBoolean;
+  } else if (typ == "datetime") {
+    return AstarteType::kDatetime;
+  } else if (typ == "double") {
+    return AstarteType::kDouble;
+  } else if (typ == "integer") {
+    return AstarteType::kInteger;
+  } else if (typ == "longinteger") {
+    return AstarteType::kLongInteger;
+  } else if (typ == "string") {
+    return AstarteType::kString;
+  } else if (typ == "binaryblobarray") {
+    return AstarteType::kBinaryBlobArray;
+  } else if (typ == "booleanarray") {
+    return AstarteType::kBooleanArray;
+  } else if (typ == "datetimearray") {
+    return AstarteType::kDatetimeArray;
+  } else if (typ == "doublearray") {
+    return AstarteType::kDoubleArray;
+  } else if (typ == "integerarray") {
+    return AstarteType::kIntegerArray;
+  } else if (typ == "longintegerarray") {
+    return AstarteType::kLongIntegerArray;
+  } else if (typ == "stringarray") {
+    return AstarteType::kStringArray;
+  } else {
+    throw InvalidAstarteTypeException(std::format("interface ownershipe not valid: {}", typ));
+  }
+
+  // InvalidMappingTypeException
+}
 
 }  // namespace AstarteDeviceSdk
 

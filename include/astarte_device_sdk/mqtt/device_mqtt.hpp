@@ -40,7 +40,7 @@ class AstarteDeviceMQTT : public AstarteDevice {
    * @brief Construct an AstarteDeviceMQTTImpl instance.
    * @param cfg set of MQTT configuration options used to connect a device to Astarte.
    */
-  AstarteDeviceMQTT(const MqttConfig cfg);
+  AstarteDeviceMQTT(const MqttConfig& cfg);
   /** @brief Destructor for the Astarte device class. */
   ~AstarteDeviceMQTT() override;
   /** @brief Copy constructor for the Astarte device class. */

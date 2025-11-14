@@ -53,13 +53,17 @@ class PsaKey {
    * @return A reference to this object.
    * @throws CryptoException if destroying the *current* key fails.
    */
-  auto operator=(PsaKey&& other) -> PsaKey&;
+  auto operator=(PsaKey&& other) noexcept -> PsaKey&;
   /**
    * @brief Get a reference to the underlying key ID
    * @return The managed mbedtls_svc_key_id_t. Returns PSA_KEY_ID_NULL if this object is empty.
    */
   auto get() const -> const mbedtls_svc_key_id_t&;
-
+  /**
+   * @brief Get the PEM representation of the underlying key ID
+   * @return The  PEM representation of the underlying key ID. returns an empty string if the key is PSA_KEY_ID_NULL.
+   */
+  auto to_pem() const -> std::string;
   /**
    * @brief Creates a new ECDSA (secp256r1) private key.
    * @throws CryptoException on failure.
@@ -67,6 +71,11 @@ class PsaKey {
   void generate();
 
  private:
+  /**
+   * @brief Destroys the key, but does not throw on failure.
+   */
+  void destroy_key_nothrow() noexcept;
+
   /**
    * @brief The managed PSA key identifier.
    */

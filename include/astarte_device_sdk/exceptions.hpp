@@ -92,6 +92,82 @@ class AstarteOperationRefusedException : public AstarteException {
   explicit AstarteOperationRefusedException(std::string_view err_message);
 };
 
+/************************************************
+ *       Interface validation exceptions       *
+ ***********************************************/
+
+/**
+ * @brief Base exception for errors related to the interface validation operations.
+ */
+class InterfaceValidationException : public AstarteException {
+ public:
+  /**
+   * @brief Constructs the InterfaceValidationException object.
+   * @param err_message A descriptive error message.
+   */
+  explicit InterfaceValidationException(const std::string& err_message);
+};
+
+/**
+ * @brief Either the minor or the major version is incorrect.
+ */
+class InvalidVersionException : public InterfaceValidationException {
+ public:
+  /**
+   * @brief Constructs the InvalidVersionException object.
+   * @param err_message A descriptive error message.
+   */
+  explicit InvalidVersionException(const std::string& err_message);
+};
+
+/**
+ * @brief The provided interface type is incorrect.
+ */
+class InvalidInterfaceTypeException : public InterfaceValidationException {
+ public:
+  /**
+   * @brief Constructs the InvalidInterfaceTypeException object.
+   * @param err_message A descriptive error message.
+   */
+  explicit InvalidInterfaceTypeException(const std::string& err_message);
+};
+
+/**
+ * @brief The provided interface ownership is incorrect.
+ */
+class InvalidInterfaceOwnershipeException : public InterfaceValidationException {
+ public:
+  /**
+   * @brief Constructs the InvalidInterfaceOwnershipeException object.
+   * @param err_message A descriptive error message.
+   */
+  explicit InvalidInterfaceOwnershipeException(const std::string& err_message);
+};
+
+/**
+ * @brief The provided interface aggregation is incorrect.
+ */
+class InvalidAggregationException : public InterfaceValidationException {
+ public:
+  /**
+   * @brief Constructs the InvalidAggregationException object.
+   * @param err_message A descriptive error message.
+   */
+  explicit InvalidAggregationException(const std::string& err_message);
+};
+
+/**
+ * @brief The provided Astarte type is incorrect.
+ */
+class InvalidAstarteTypeException : public InterfaceValidationException {
+ public:
+  /**
+   * @brief Constructs the InvalidAstarteTypeException object.
+   * @param err_message A descriptive error message.
+   */
+  explicit InvalidAstarteTypeException(const std::string& err_message);
+};
+
 }  // namespace AstarteDeviceSdk
 
 #endif  // ASTARTE_DEVICE_SDK_EXCEPTIONS_H

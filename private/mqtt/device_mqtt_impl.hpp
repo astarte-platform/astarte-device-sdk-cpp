@@ -21,7 +21,8 @@
 #include "astarte_device_sdk/ownership.hpp"
 #include "astarte_device_sdk/property.hpp"
 #include "astarte_device_sdk/mqtt/device_mqtt.hpp"
-
+#include "astarte_device_sdk/mqtt/connection.hpp"
+#include "astarte_device_sdk/mqtt/introspection.hpp"
 
 namespace AstarteDeviceSdk {
 
@@ -31,7 +32,7 @@ struct AstarteDeviceMQTT::AstarteDeviceMQTTImpl {
    * @brief Construct an AstarteDeviceMQTTImpl instance.
    * @param cfg set of MQTT configuration options used to connect a device to Astarte.
    */
-  AstarteDeviceMQTTImpl(const MqttConfig cfg);
+  AstarteDeviceMQTTImpl(const MqttConfig& cfg);
   /** @brief Destructor for the Astarte device class. */
   ~AstarteDeviceMQTTImpl();
   /** @brief Copy constructor for the Astarte device class. */
@@ -51,9 +52,9 @@ struct AstarteDeviceMQTT::AstarteDeviceMQTTImpl {
   void add_interface_from_file(const std::filesystem::path& json_file);
   /**
    * @brief Parse an interface definition from a JSON string and adds it to the device.
-   * @param json The interface to add.
+   * @param interface_str The interface to add.
    */
-  void add_interface_from_str(std::string_view json);
+  void add_interface_from_str(std::string_view interface_str);
   /**
    * @brief Remove an installed interface.
    * @param interface_name The interface name.
@@ -142,7 +143,11 @@ struct AstarteDeviceMQTT::AstarteDeviceMQTTImpl {
 
  private:
   MqttConfig cfg_;
+  // TODO: probably we will have to move the connection handling to a separate thread (see device_grpc_impl.hpp)
+  MqttConnection connection_;
+  // TODO: the following paramenters can be gathered into SharedState struct
   std::atomic_bool connected_{false};
+  std::vector<Interface> introspection_;
 };
 
 }  // namespace AstarteDeviceSdk

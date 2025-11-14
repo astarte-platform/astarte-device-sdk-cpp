@@ -32,6 +32,10 @@ class MqttException : public AstarteException {
       : AstarteDeviceSdk::AstarteException("MqttException(" + std::move(message) + ")") {}
 };
 
+/************************************************
+ *             Pairing API exceptions          *
+ ***********************************************/
+
 /**
  * @brief Base exception for errors related to the Astarte API client.
  * @details This class serves as a parent for more specific API-level exceptions.
@@ -102,6 +106,43 @@ class RetrieveBrokerUrlException : public PairingApiException {
       : PairingApiException("RetrieveBrokerUrlException(" + err_message + ")") {}
 };
 
+/** @brief Exception thrown when failing to read the device credential secret from file. */
+class ReadCredentialException : public PairingApiException {
+ public:
+  /**
+   * @brief Constructs the ReadCredentialException object.
+   * @param err_message A descriptive error message.
+   */
+  explicit ReadCredentialException(const std::string& err_message)
+      : PairingApiException("ReadCredentialException(" + err_message + ")") {}
+};
+
+/** @brief Exception thrown when failing to write the device credential secret to file. */
+class WriteCredentialException : public PairingApiException {
+ public:
+  /**
+   * @brief Constructs the WriteCredentialException object.
+   * @param err_message A descriptive error message.
+   */
+  explicit WriteCredentialException(const std::string& err_message)
+      : PairingApiException("WriteCredentialException(" + err_message + ")") {}
+};
+
+/** @brief Exception thrown when the configuration to connect the devite to Astarte is invalid. */
+class PairingConfigException : public PairingApiException {
+ public:
+  /**
+   * @brief Constructs the PairingConfigException object.
+   * @param err_message A descriptive error message.
+   */
+  explicit PairingConfigException(const std::string& err_message)
+      : PairingApiException("PairingConfigException(" + err_message + ")") {}
+};
+
+/************************************************
+ *               Crypto exceptions             *
+ ***********************************************/
+
 /**
  * @brief Base exception for errors related to the cryptographic operations.
  */
@@ -113,6 +154,23 @@ class CryptoException : public MqttException {
    */
   explicit CryptoException(const std::string& err_message)
       : MqttException("CryptoException(" + err_message + ")") {}
+};
+
+/************************************************
+ *             Connection exceptions           *
+ ***********************************************/
+
+/**
+ * @brief Base exception for errors related to the connection operations.
+ */
+class MqttConnectionException : public MqttException {
+ public:
+  /**
+   * @brief Constructs the MqttConnectionException object.
+   * @param err_message A descriptive error message.
+   */
+  explicit MqttConnectionException(const std::string& err_message)
+      : MqttException("MqttConnectionException(" + err_message + ")") {}
 };
 
 }  // namespace AstarteDeviceSdk
