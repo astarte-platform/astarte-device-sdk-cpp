@@ -86,9 +86,8 @@ auto MqttConfig::build_mqtt_options() -> astarte_tl::expected<mqtt::connect_opti
 
   auto ssl_opts =
       mqtt::ssl_options_builder()
-          .ssl_version(3)  // TLS 1.2
-          // TODO(rgwork): enable for server authentication
-          .enable_server_cert_auth(false)
+          .ssl_version(3)
+          .enable_server_cert_auth(true)
           .verify(false)
           // Astarte MQTT broker requires client authentication (mutual TLS),
           .key_store(std::format("{}/{}", store_dir_, CLIENT_CERTIFICATE_FILE))
