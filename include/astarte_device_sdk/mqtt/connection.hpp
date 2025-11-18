@@ -92,6 +92,17 @@ class ConnectionCallback : public virtual mqtt::callback {
    */
   void perform_session_setup(bool session_present);
 
+  /**
+   * @brief Construct a new Connection Callback object.
+   *
+   * @param client Pointer to the MQTT asynchronous client.
+   * @param realm The Astarte realm name.
+   * @param device_id The Astarte Device ID.
+   * @param introspection A reference to the vector of device interfaces.
+   */
+  ConnectionCallback(mqtt::iasync_client* client, std::string realm, std::string device_id,
+                     std::vector<Interface>& introspection);
+
  private:
   /**
    * @brief Subscribes the client to all required Astarte topics.
@@ -136,6 +147,8 @@ class ConnectionCallback : public virtual mqtt::callback {
 
   /// @brief Pointer to the MQTT client, used for operations like subscribe.
   mqtt::iasync_client* client_;
+  /// @brief The Astarte Realm name.
+  std::string realm_;
   /// @brief The Astarte Device ID.
   std::string device_id_;
   /// @brief Reference to the device's introspection (list of interfaces).
