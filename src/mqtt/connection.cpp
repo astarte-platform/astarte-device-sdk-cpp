@@ -99,9 +99,12 @@ void ConnectionActionListener::on_success(const mqtt::token& tok) {
 // ConnectionCallback Implementation
 // ============================================================================
 
-ConnectionCallback::ConnectionCallback(mqtt::iasync_client* client, std::string device_id,
-                                       std::vector<Interface>& introspection)
-    : client_(client), device_id_(std::move(device_id)), introspection_(introspection) {}
+ConnectionCallback::ConnectionCallback(mqtt::iasync_client* client, std::string realm,
+                                       std::string device_id, std::vector<Interface>& introspection)
+    : client_(client),
+      realm_(realm),
+      device_id_(std::move(device_id)),
+      introspection_(introspection) {}
 
 void ConnectionCallback::perform_session_setup(bool session_present) {
   if (!session_present) {
@@ -124,8 +127,7 @@ void ConnectionCallback::setup_subscriptions() {
   auto qoss = mqtt::iasync_client::qos_collection();
 
   spdlog::debug("Subscribing to topic /control/consumer/properties");
-  // TODO: 'testrg' is hardcoded, move it to configuration
-  topics.push_back(std::format("testrg/{}/control/consumer/properties", device_id_));
+  topics.push_back(std::format("{}/{}/control/consumer/properties", realm_, device_id_));
   qoss.push_back(2);
 
   for (const auto& interface : introspection_) {
@@ -134,7 +136,7 @@ void ConnectionCallback::setup_subscriptions() {
       continue;
     }
 
-    auto topic = std::format("testrg/{}/{}/#", device_id_, interface.interface_name);
+    auto topic = std::format("{}/{}/{}/#", realm_, device_id_, interface.interface_name);
     spdlog::debug("Subscribing to topic {}", topic);
     topics.push_back(std::move(topic));
     qoss.push_back(2);
@@ -157,12 +159,12 @@ void ConnectionCallback::send_introspection() {
     introspection_str.pop_back();
   }
 
-  auto base_topic = std::format("testrg/{}", device_id_);
+  auto base_topic = std::format("{}/{}", realm_, device_id_);
   client_->publish(base_topic, introspection_str, 2, false);
 }
 
 void ConnectionCallback::send_emptycache() {
-  auto emptycache_topic = std::format("testrg/{}/control/emptyCache", device_id_);
+  auto emptycache_topic = std::format("{}/{}/control/emptyCache", realm_, device_id_);
   client_->publish(emptycache_topic, "1", 2, false);
 }
 
@@ -243,8 +245,8 @@ auto MqttConnection::connect(std::vector<Interface>& introspection)
   try {
     spdlog::debug("Setting up connection callback...");
 
-    cb_ = std::make_unique<ConnectionCallback>(client_.get(), std::string(cfg_.device_id()),
-                                               introspection);
+    cb_ = std::make_unique<ConnectionCallback>(client_.get(), std::string(cfg_.realm()),
+                                               std::string(cfg_.device_id()), introspection);
     client_->set_callback(*cb_);
 
     auto listener = ConnectionActionListener(*cb_);
