@@ -93,10 +93,9 @@ class TestOrchestrator {
       std::shared_ptr<AstarteDeviceMqtt> device_mqtt =
           std::make_shared<AstarteDeviceMqtt>(config_mqtt.cfg);
 
-      // TODO: decomment once the add_interface functionality has been implemented
-      //   for (const std::filesystem::path& interface_path : config_mqtt.interfaces) {
-      // device_mqtt->add_interface_from_file(interface_path);
-      // }
+      for (const std::filesystem::path& interface_path : config_mqtt.interfaces) {
+        device_mqtt->add_interface_from_file(interface_path);
+      }
 
       test_case.attach_device(device_mqtt);
 #endif
