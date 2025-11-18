@@ -97,6 +97,7 @@ int main() {
 
     orchestrator.with_transport_config(transport_config);
 
+    orchestrator.add_test_case(testcases::device_status());
     // TODO: add test cases to execute here
 
     // Execute all test cases
