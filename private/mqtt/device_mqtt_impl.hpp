@@ -9,6 +9,7 @@
 #include <chrono>
 #include <filesystem>
 #include <list>
+#include <map>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -166,7 +167,7 @@ struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
   MqttConnection connection_;
   // TODO: the following paramenters can be gathered into SharedState struct
   std::atomic_bool connected_{false};
-  std::vector<Interface> introspection_;
+  Introspection introspection_;
 };
 
 }  // namespace AstarteDeviceSdk

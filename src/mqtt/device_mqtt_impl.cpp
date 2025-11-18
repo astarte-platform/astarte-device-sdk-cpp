@@ -24,7 +24,6 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
-#include <utility>
 
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/mqtt/config.hpp"
@@ -105,8 +104,7 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::add_interface_from_str(
     return astarte_tl::unexpected(interface.error());
   }
 
-  introspection_.emplace_back(std::move(interface.value()));
-  return {};
+  return introspection_.checked_insert(std::move(interface.value()));
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
