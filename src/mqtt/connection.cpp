@@ -6,12 +6,10 @@
 
 #include <spdlog/spdlog.h>
 
-#include <chrono>
 #include <format>
 #include <memory>
 #include <string>
 #include <string_view>
-#include <thread>
 #include <utility>
 #include <vector>
 
@@ -82,7 +80,7 @@ void ConnectionActionListener::on_success(const mqtt::token& tok) {
   // We only care about the CONNECT action here
   if (tok.get_type() == mqtt::token::Type::CONNECT) {
     auto res = tok.get_connect_response();
-    bool session_present = res.is_session_present();
+    const bool session_present = res.is_session_present();
 
     if (session_present) {
       spdlog::info("Session resumed from broker.");
@@ -100,9 +98,9 @@ void ConnectionActionListener::on_success(const mqtt::token& tok) {
 // ============================================================================
 
 ConnectionCallback::ConnectionCallback(mqtt::iasync_client* client, std::string realm,
-                                       std::string device_id, std::vector<Interface>& introspection)
+                                       std::string device_id, Introspection& introspection)
     : client_(client),
-      realm_(realm),
+      realm_(std::move(realm)),
       device_id_(std::move(device_id)),
       introspection_(introspection) {}
 
@@ -130,7 +128,7 @@ void ConnectionCallback::setup_subscriptions() {
   topics.push_back(std::format("{}/{}/control/consumer/properties", realm_, device_id_));
   qoss.push_back(2);
 
-  for (const auto& interface : introspection_) {
+  for (const auto& interface : introspection_.values()) {
     // consider only server-owned properties
     if (interface.ownership == AstarteOwnership::kDevice) {
       continue;
@@ -150,7 +148,7 @@ void ConnectionCallback::setup_subscriptions() {
 void ConnectionCallback::send_introspection() {
   // Create the stringified representation of the introspection to send to Astarte
   auto introspection_str = std::string();
-  for (const auto& interface : introspection_) {
+  for (const auto& interface : introspection_.values()) {
     introspection_str += std::format("{}:{}:{};", interface.interface_name, interface.version_major,
                                      interface.version_minor);
   }
@@ -240,7 +238,7 @@ MqttConnection::MqttConnection(MqttConfig cfg, mqtt::connect_options options,
                                std::unique_ptr<mqtt::async_client> client)
     : cfg_(std::move(cfg)), options_(std::move(options)), client_(std::move(client)) {}
 
-auto MqttConnection::connect(std::vector<Interface>& introspection)
+auto MqttConnection::connect(Introspection& introspection)
     -> astarte_tl::expected<void, AstarteError> {
   try {
     spdlog::debug("Setting up connection callback...");

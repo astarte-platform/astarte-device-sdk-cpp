@@ -11,8 +11,10 @@
 #include <astarte_device_sdk/ownership.hpp>
 #include <astarte_device_sdk/type.hpp>
 #include <format>
+#include <map>
 #include <nlohmann/json.hpp>
 #include <optional>
+#include <ranges>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -318,6 +320,43 @@ class Interface {
    * parametrization). Every mapping acquires type, quality and aggregation of the interface.
    */
   std::vector<Mapping> mappings;
+};
+
+/**
+ * @brief Represents a collection of Astarte interface.
+ *
+ * The introspection represents the set of device supported interfaces.
+ * See the Astarte documentation for more details.
+ * https://docs.astarte-platform.org/astarte/latest/080-mqtt-v1-protocol.html#introspection
+ */
+class Introspection {
+ public:
+  /**
+   * @brief Construct an empty Introspection.
+   */
+  Introspection() = default;
+
+  /**
+   * @brief Try to insert and Interface into the Introspection.
+   *
+   * @param interface The interface to add.
+   * @return an error if the operation fails
+   */
+  // TODO: change return value into std::except<void, AstarteError> if the operation failed.
+  auto checked_insert(Interface interface) -> astarte_tl::expected<void, AstarteError>;
+
+  /**
+   * @brief Return a view over the introspection values.
+   *
+   * @return a view over the introspection interfaces.
+   */
+  auto values() const { return std::views::values(interfaces_); }
+
+ private:
+  /**
+   * @brief A map containing the interfaces in the Device Introspection synced with Astarte.
+   */
+  std::map<std::string, Interface> interfaces_;
 };
 
 }  // namespace AstarteDeviceSdk

@@ -12,6 +12,7 @@
 #include <optional>
 #include <list>
 #include <atomic>
+#include <map>
 
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/msg.hpp"
@@ -167,7 +168,7 @@ struct AstarteDeviceMQTT::AstarteDeviceMQTTImpl {
   MqttConnection connection_;
   // TODO: the following paramenters can be gathered into SharedState struct
   std::atomic_bool connected_{false};
-  std::vector<Interface> introspection_;
+  Introspection introspection_;
 };
 
 }  // namespace AstarteDeviceSdk

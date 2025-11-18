@@ -8,6 +8,7 @@
 #include <spdlog/spdlog.h>
 
 #include <format>
+#include <map>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -98,10 +99,10 @@ class ConnectionCallback : public virtual mqtt::callback {
    * @param client Pointer to the MQTT asynchronous client.
    * @param realm The Astarte realm name.
    * @param device_id The Astarte Device ID.
-   * @param introspection A reference to the vector of device interfaces.
+   * @param introspection A reference to the collection of device interfaces.
    */
   ConnectionCallback(mqtt::iasync_client* client, std::string realm, std::string device_id,
-                     std::vector<Interface>& introspection);
+                     Introspection& introspection);
 
  private:
   /**
@@ -151,8 +152,8 @@ class ConnectionCallback : public virtual mqtt::callback {
   std::string realm_;
   /// @brief The Astarte Device ID.
   std::string device_id_;
-  /// @brief Reference to the device's introspection (list of interfaces).
-  std::vector<Interface>& introspection_;
+  /// @brief Reference to the device's introspection.
+  Introspection& introspection_;
 };
 
 /**
@@ -182,10 +183,10 @@ class MqttConnection {
 
   /**
    * @brief Connects the client to the Astarte MQTT broker.
-   * @param introspection A vector of interfaces defining the device.
+   * @param introspection A collection of interfaces defining the device.
    * @return an error if the connection operation fails.
    */
-  auto connect(std::vector<Interface>& introspection) -> astarte_tl::expected<void, AstarteError>;
+  auto connect(Introspection& introspection) -> astarte_tl::expected<void, AstarteError>;
 
   /**
    * @brief Disconnect the client from the Astarte MQTT broker.
