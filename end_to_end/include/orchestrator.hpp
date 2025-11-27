@@ -90,11 +90,20 @@ class TestOrchestrator {
 #else
       auto config_mqtt = std::get<struct MqttTestConfig>(transport_config_.value());
 
+      auto res = AstarteDeviceMqtt::create(config_mqtt.cfg);
+      if (!res) {
+        spdlog::error("Couldn't create an Astarte MQTT device.");
+        throw EndToEndAstarteDeviceException(astarte_fmt::format("{}", res.error()));
+      }
       std::shared_ptr<AstarteDeviceMqtt> device_mqtt =
-          std::make_shared<AstarteDeviceMqtt>(config_mqtt.cfg);
+          std::make_shared<AstarteDeviceMqtt>(*std::move(res));
 
       for (const std::filesystem::path& interface_path : config_mqtt.interfaces) {
-        device_mqtt->add_interface_from_file(interface_path);
+        auto res = device_mqtt->add_interface_from_file(interface_path);
+        if (!res) {
+          spdlog::error("Couldn't add interface.");
+          throw EndToEndAstarteDeviceException(astarte_fmt::format("{}", res.error()));
+        }
       }
 
       test_case.attach_device(device_mqtt);
