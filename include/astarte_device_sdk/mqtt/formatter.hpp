@@ -353,22 +353,22 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Interface> {
     auto out = ctx.out();
 
     astarte_fmt::format_to(out, "Interface {{\n");
-    astarte_fmt::format_to(out, "  interface name: {}\n", interface.interface_name);
-    astarte_fmt::format_to(out, "  major version: {}\n", interface.version_major);
-    astarte_fmt::format_to(out, "  minor version: {}\n", interface.version_minor);
-    astarte_fmt::format_to(out, "  interface type: {}\n", interface.interface_type);
-    astarte_fmt::format_to(out, "  ownership: {}\n", interface.ownership);
-    if (interface.aggregation) {
-      astarte_fmt::format_to(out, "  aggregation: {}\n", interface.aggregation.value());
+    astarte_fmt::format_to(out, "  interface name: {}\n", interface.interface_name());
+    astarte_fmt::format_to(out, "  major version: {}\n", interface.version_major());
+    astarte_fmt::format_to(out, "  minor version: {}\n", interface.version_minor());
+    astarte_fmt::format_to(out, "  interface type: {}\n", interface.interface_type());
+    astarte_fmt::format_to(out, "  ownership: {}\n", interface.ownership());
+    if (interface.aggregation()) {
+      astarte_fmt::format_to(out, "  aggregation: {}\n", interface.aggregation().value());
     }
-    if (interface.description) {
-      astarte_fmt::format_to(out, "  description: {}\n", interface.description.value());
+    if (interface.description()) {
+      astarte_fmt::format_to(out, "  description: {}\n", interface.description().value());
     }
-    if (interface.doc) {
-      astarte_fmt::format_to(out, "  doc: {}\n", interface.doc.value());
+    if (interface.doc()) {
+      astarte_fmt::format_to(out, "  doc: {}\n", interface.doc().value());
     }
     astarte_fmt::format_to(out, "  mappings: ");
-    utils::format_vector(out, interface.mappings);
+    utils::format_vector(out, interface.mappings());
     astarte_fmt::format_to(out, "\n");
 
     astarte_fmt::format_to(out, "}}\n");

@@ -12,7 +12,6 @@
 #include <fstream>
 #include <ios>
 #include <iterator>
-#include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -63,7 +62,7 @@ auto MqttConfig::read_secret_or_register() -> astarte_tl::expected<std::string, 
   }
 
   return AstarteDeviceSdk::PairingApi::create(realm_, device_id_, pairing_url_)
-      .and_then([this](auto api) { return api.register_device(credential_.value()); })
+      .and_then([this](auto const& api) { return api.register_device(credential_.value()); })
       .transform([this](std::string credential_secret) {
         credential_ = Credential::secret(credential_secret);
         return credential_secret;
@@ -90,8 +89,8 @@ auto MqttConfig::build_mqtt_options() -> astarte_tl::expected<mqtt::connect_opti
           .enable_server_cert_auth(true)
           .verify(false)
           // Astarte MQTT broker requires client authentication (mutual TLS),
-          .key_store(std::format("{}/{}", store_dir_, CLIENT_CERTIFICATE_FILE))
-          .private_key(std::format("{}/{}", store_dir_, PRIVATE_KEY_FILE))
+          .key_store(astarte_fmt::format("{}/{}", store_dir_, CLIENT_CERTIFICATE_FILE))
+          .private_key(astarte_fmt::format("{}/{}", store_dir_, PRIVATE_KEY_FILE))
           .error_handler([](const std::string& msg) { spdlog::error("TLS error: {}", msg); })
           .finalize();
 

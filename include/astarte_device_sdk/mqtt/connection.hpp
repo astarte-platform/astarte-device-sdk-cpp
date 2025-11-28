@@ -167,7 +167,10 @@ class MqttConnection {
   MqttConnection& operator=(const MqttConnection&) = delete;
   /** @brief Move constructor for the MqttConnection class. */
   MqttConnection(MqttConnection&&) = default;
-  /** @brief Move assignment operator for the MqttConnection class. */
+  /**
+   * @brief Move assignment operator for the MqttConnection class.
+   * @return a reference to the moved object.
+   */
   MqttConnection& operator=(MqttConnection&&) = default;
 
   /**
@@ -179,7 +182,7 @@ class MqttConnection {
    * @param cfg The MQTT configuration object containing connection details.
    * @return The MQTT connection object, an error otherwise.
    */
-  static auto create(MqttConfig cfg) -> astarte_tl::expected<MqttConnection, AstarteError>;
+  static auto create(MqttConfig& cfg) -> astarte_tl::expected<MqttConnection, AstarteError>;
 
   /**
    * @brief Connects the client to the Astarte MQTT broker.

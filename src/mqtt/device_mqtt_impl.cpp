@@ -13,17 +13,18 @@
 #include <spdlog/spdlog.h>
 
 #include <chrono>
-#include <exception>
 #include <filesystem>
 #include <fstream>
 #include <ios>
 #include <iterator>
 #include <list>
+#include <memory>
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <utility>
 
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/mqtt/config.hpp"
@@ -41,7 +42,7 @@ namespace AstarteDeviceSdk {
 
 using json = nlohmann::json;  // NOLINT(misc-include-cleaner)
 
-auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::create(const MqttConfig& cfg)
+auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::create(MqttConfig& cfg)
     -> astarte_tl::expected<std::shared_ptr<AstarteDeviceMQTTImpl>, AstarteError> {
   auto conn = MqttConnection::create(cfg);
   if (!conn) {

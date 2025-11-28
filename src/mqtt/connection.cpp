@@ -49,8 +49,8 @@ auto setup_crypto_files(PairingApi& api, const std::string_view secret,
   auto [client_priv_key, client_cert] = key_cert_res.value();
 
   const std::vector<std::pair<std::string, std::string>> files = {
-      {std::format("{}/{}", store_dir, CLIENT_CERTIFICATE_FILE), client_cert},
-      {std::format("{}/{}", store_dir, PRIVATE_KEY_FILE), client_priv_key}};
+      {astarte_fmt::format("{}/{}", store_dir, CLIENT_CERTIFICATE_FILE), client_cert},
+      {astarte_fmt::format("{}/{}", store_dir, PRIVATE_KEY_FILE), client_priv_key}};
 
   for (const auto& [path, content] : files) {
     auto write_res = write_to_file(path, content);
@@ -125,16 +125,16 @@ void ConnectionCallback::setup_subscriptions() {
   auto qoss = mqtt::iasync_client::qos_collection();
 
   spdlog::debug("Subscribing to topic /control/consumer/properties");
-  topics.push_back(std::format("{}/{}/control/consumer/properties", realm_, device_id_));
+  topics.push_back(astarte_fmt::format("{}/{}/control/consumer/properties", realm_, device_id_));
   qoss.push_back(2);
 
   for (const auto& interface : introspection_.values()) {
     // consider only server-owned properties
-    if (interface.ownership == AstarteOwnership::kDevice) {
+    if (interface.ownership() == AstarteOwnership::kDevice) {
       continue;
     }
 
-    auto topic = std::format("{}/{}/{}/#", realm_, device_id_, interface.interface_name);
+    auto topic = astarte_fmt::format("{}/{}/{}/#", realm_, device_id_, interface.interface_name());
     spdlog::debug("Subscribing to topic {}", topic);
     topics.push_back(std::move(topic));
     qoss.push_back(2);
@@ -149,20 +149,20 @@ void ConnectionCallback::send_introspection() {
   // Create the stringified representation of the introspection to send to Astarte
   auto introspection_str = std::string();
   for (const auto& interface : introspection_.values()) {
-    introspection_str += std::format("{}:{}:{};", interface.interface_name, interface.version_major,
-                                     interface.version_minor);
+    introspection_str += astarte_fmt::format("{}:{}:{};", interface.interface_name(),
+                                             interface.version_major(), interface.version_minor());
   }
   // Remove last unnecessary ";"
   if (!introspection_str.empty()) {
     introspection_str.pop_back();
   }
 
-  auto base_topic = std::format("{}/{}", realm_, device_id_);
+  auto base_topic = astarte_fmt::format("{}/{}", realm_, device_id_);
   client_->publish(base_topic, introspection_str, 2, false);
 }
 
 void ConnectionCallback::send_emptycache() {
-  auto emptycache_topic = std::format("{}/{}/control/emptyCache", realm_, device_id_);
+  auto emptycache_topic = astarte_fmt::format("{}/{}/control/emptyCache", realm_, device_id_);
   client_->publish(emptycache_topic, "1", 2, false);
 }
 
@@ -191,7 +191,7 @@ void ConnectionCallback::delivery_complete(mqtt::delivery_token_ptr /* token */)
   spdlog::debug("Delivery completed.");
 }
 
-auto MqttConnection::create(MqttConfig cfg) -> astarte_tl::expected<MqttConnection, AstarteError> {
+auto MqttConnection::create(MqttConfig& cfg) -> astarte_tl::expected<MqttConnection, AstarteError> {
   auto realm = cfg.realm();
   auto device_id = cfg.device_id();
   auto pairing_url = cfg.pairing_url();
@@ -228,7 +228,7 @@ auto MqttConnection::create(MqttConfig cfg) -> astarte_tl::expected<MqttConnecti
     return astarte_tl::unexpected(options.error());
   }
 
-  auto client_id = std::format("{}/{}", realm, device_id);
+  auto client_id = astarte_fmt::format("{}/{}", realm, device_id);
   auto client = std::make_unique<mqtt::async_client>(broker_url.value(), client_id);
 
   return MqttConnection(std::move(cfg), std::move(options.value()), std::move(client));
