@@ -3,24 +3,35 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // macro to mark unimplemented code. Throws an exception with file/line info.
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define TODO(msg)                                                                \
   throw std::logic_error("TODO: " + std::string(msg) + " at " + __FILE__ + ":" + \
                          std::to_string(__LINE__));
 
 #include "mqtt/device_mqtt_impl.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <chrono>
 #include <filesystem>
+#include <fstream>
+#include <ios>
+#include <iterator>
 #include <list>
+#include <memory>
+#include <nlohmann/json.hpp>
 #include <optional>
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <utility>
 
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/mqtt/config.hpp"
+#include "astarte_device_sdk/mqtt/connection.hpp"
 #include "astarte_device_sdk/mqtt/device_mqtt.hpp"
-#include "astarte_device_sdk/mqtt/pairing.hpp"
+#include "astarte_device_sdk/mqtt/errors.hpp"
+#include "astarte_device_sdk/mqtt/introspection.hpp"
 #include "astarte_device_sdk/msg.hpp"
 #include "astarte_device_sdk/object.hpp"
 #include "astarte_device_sdk/ownership.hpp"
@@ -29,76 +40,148 @@
 
 namespace AstarteDeviceSdk {
 
-AstarteDeviceMQTT::AstarteDeviceMQTTImpl::AstarteDeviceMQTTImpl(const MqttConfig cfg)
-    : cfg_(std::move(cfg)) {}
+using json = nlohmann::json;  // NOLINT(misc-include-cleaner)
+
+auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::create(MqttConfig& cfg)
+    -> astarte_tl::expected<std::shared_ptr<AstarteDeviceMQTTImpl>, AstarteError> {
+  auto conn = MqttConnection::create(cfg);
+  if (!conn) {
+    spdlog::error("failed to create a MQTT connection. Error: {}", conn.error());
+    return astarte_tl::unexpected(conn.error());
+  }
+
+  std::shared_ptr<AstarteDeviceMQTTImpl> impl(
+      new AstarteDeviceMQTTImpl(cfg, std::move(conn.value())));
+
+  return impl;
+}
+
+AstarteDeviceMQTT::AstarteDeviceMQTTImpl::AstarteDeviceMQTTImpl(MqttConfig cfg,
+                                                                MqttConnection connection)
+    : cfg_(std::move(cfg)), connection_(std::move(connection)) {}
 
 AstarteDeviceMQTT::AstarteDeviceMQTTImpl::~AstarteDeviceMQTTImpl() = default;
 
 auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::add_interface_from_file(
     const std::filesystem::path& json_file) -> astarte_tl::expected<void, AstarteError> {
-  TODO("not yet implemented");
+  spdlog::debug("Adding interface from file: {}", json_file.string());
+
+  std::ifstream interface_file(json_file, std::ios::in);
+  if (!interface_file.is_open()) {
+    spdlog::error("Could not open the interface file: {}", json_file.string());
+    return astarte_tl::unexpected(AstarteFileOpenError(json_file.string()));
+  }
+
+  // Read the entire JSON file content into a string
+  const std::string interface_str((std::istreambuf_iterator<char>(interface_file)),
+                                  std::istreambuf_iterator<char>());
+
+  // Close the file
+  interface_file.close();
+
+  // Add the interface from the fetched string
+  return add_interface_from_str(interface_str);
 }
-auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::add_interface_from_str(std::string_view json)
-    -> astarte_tl::expected<void, AstarteError> {
-  TODO("not yet implemented");
+
+auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::add_interface_from_str(
+    std::string_view interface_str) -> astarte_tl::expected<void, AstarteError> {
+  spdlog::debug("Adding interface from string");
+
+  if (is_connected()) {
+    // TODO(rgwork): If the device is connected, communicate the new introspection to Astarte
+  }
+
+  json interface_json;
+  try {
+    interface_json = json::parse(interface_str);
+  } catch (json::parse_error& e) {
+    spdlog::error("failed to parse JSON Astarte interface: {}", e.what());
+    return astarte_tl::unexpected(AstarteJsonParsingError(
+        astarte_fmt::format("failed to parse interface from json: {}", e.what())));
+  }
+
+  auto interface = Interface::try_from_json(interface_json);
+  if (!interface) {
+    return astarte_tl::unexpected(interface.error());
+  }
+
+  return introspection_.checked_insert(std::move(interface.value()));
 }
-auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::remove_interface(const std::string& interface_name)
-    -> astarte_tl::expected<void, AstarteError> {
+
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::remove_interface(
+    const std::string& /* interface_name */) -> astarte_tl::expected<void, AstarteError> {
   TODO("not yet implemented");
 }
 
 auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::connect()
     -> astarte_tl::expected<void, AstarteError> {
-  TODO("not yet implemented");
+  return connection_.connect(introspection_).map([this]() { connected_.store(true); });
 }
 
 [[nodiscard]] auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::is_connected() const -> bool {
-  TODO("not yet implemented");
+  return connected_.load();
 }
 
 auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::disconnect()
     -> astarte_tl::expected<void, AstarteError> {
-  TODO("not yet implemented");
+  if (!is_connected()) {
+    spdlog::debug("device already disconnected");
+    return {};
+  }
+
+  return connection_.disconnect().map([this]() { connected_.store(false); });
 }
 
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::send_individual(
-    std::string_view interface_name, std::string_view path, const AstarteData& data,
-    const std::chrono::system_clock::time_point* timestamp)
+    std::string_view /* interface_name */, std::string_view /* path */,
+    const AstarteData& /* data */, const std::chrono::system_clock::time_point* /* timestamp */)
     -> astarte_tl::expected<void, AstarteError> {
   TODO("not yet implemented");
 }
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::send_object(
-    std::string_view interface_name, std::string_view path, const AstarteDatastreamObject& object,
-    const std::chrono::system_clock::time_point* timestamp)
+    std::string_view /* interface_name */, std::string_view /* path */,
+    const AstarteDatastreamObject& /* object */,
+    const std::chrono::system_clock::time_point* /* timestamp */)
     -> astarte_tl::expected<void, AstarteError> {
   TODO("not yet implemented");
 }
-auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::set_property(std::string_view interface_name,
-                                                            std::string_view path,
-                                                            const AstarteData& data)
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::set_property(std::string_view /* interface_name */,
+                                                            std::string_view /* path */,
+                                                            const AstarteData& /* data */)
     -> astarte_tl::expected<void, AstarteError> {
   TODO("not yet implemented");
 }
-auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::unset_property(std::string_view interface_name,
-                                                              std::string_view path)
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::unset_property(std::string_view /* interface_name */,
+                                                              std::string_view /* path */)
     -> astarte_tl::expected<void, AstarteError> {
   TODO("not yet implemented");
 }
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::poll_incoming(
-    const std::chrono::milliseconds& timeout) -> std::optional<AstarteMessage> {
-  TODO("not yet implemented");
+    const std::chrono::milliseconds& /* timeout */) -> std::optional<AstarteMessage> {
+  // TODO(rgwork): change which correct implementation. the actual one is used only to make e2e
+  // tests work.
+  return std::nullopt;
 }
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::get_all_properties(
-    const std::optional<AstarteOwnership>& ownership)
+    const std::optional<AstarteOwnership>& /* ownership */)
     -> astarte_tl::expected<std::list<AstarteStoredProperty>, AstarteError> {
   TODO("not yet implemented");
 }
-auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::get_properties(std::string_view interface_name)
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::get_properties(std::string_view /* interface_name */)
     -> astarte_tl::expected<std::list<AstarteStoredProperty>, AstarteError> {
   TODO("not yet implemented");
 }
-auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::get_property(std::string_view interface_name,
-                                                            std::string_view path)
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::get_property(std::string_view /* interface_name */,
+                                                            std::string_view /* path */)
     -> astarte_tl::expected<AstartePropertyIndividual, AstarteError> {
   TODO("not yet implemented");
 }

@@ -5,6 +5,8 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include "astarte_device_sdk/formatter.hpp"
+
 #if !defined(ASTARTE_TRANSPORT_GRPC)
 #include "mqtt/crypto.hpp"
 
