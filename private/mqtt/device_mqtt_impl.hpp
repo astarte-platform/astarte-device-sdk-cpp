@@ -35,7 +35,7 @@ struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
    * @param cfg set of MQTT configuration options used to connect a device to Astarte.
    * @return a shared pointer to the AstarteDeviceMqttImpl object, an error otherwise.
    */
-  static auto create(const MqttConfig& cfg)
+  static auto create(MqttConfig& cfg)
       -> astarte_tl::expected<std::shared_ptr<AstarteDeviceMqttImpl>, AstarteError>;
 
   /** @brief Destructor for the Astarte device class. */

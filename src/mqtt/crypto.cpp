@@ -7,8 +7,6 @@
 
 #include "mqtt/crypto.hpp"
 
-#include <mbedtls/build_info.h>
-#include <psa/crypto.h>
 #include <spdlog/spdlog.h>
 
 #include <array>

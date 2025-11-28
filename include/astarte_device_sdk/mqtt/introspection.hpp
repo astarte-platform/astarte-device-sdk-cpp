@@ -250,7 +250,7 @@ struct Mapping {
  * @param interface The JSON object representing an Astarte interface.
  * @return A vector of Mapping objects parsed from the interface, an error otherwise.
  */
-auto mappings_from_interface(json& interface)
+auto mappings_from_interface(const json& interface)
     -> astarte_tl::expected<std::vector<Mapping>, AstarteError>;
 
 /**
@@ -258,12 +258,12 @@ auto mappings_from_interface(json& interface)
  *
  * Checks if the version is non-negative and fits within a uint32_t.
  *
- * @param maj_min A string literal ("major" or "minor") used for error messages.
+ * @param version_type A string literal ("major" or "minor") used for error messages.
  * @param version The version number as int64_t (from JSON parsing).
  * @return The version number as uint32_t, an error if the version is negative or too large.
  */
 
-auto convert_version(std::string_view maj_min, int64_t version)
+auto convert_version(std::string_view version_type, int64_t version)
     -> astarte_tl::expected<uint32_t, AstarteError>;
 
 /**
@@ -276,50 +276,92 @@ class Interface {
    * @param interface json representation of the Astarte interface.
    * @return An Interface object containg all the parsed Astarte interface information.
    */
-  static auto try_from_json(json interface) -> astarte_tl::expected<Interface, AstarteError>;
+  static auto try_from_json(const json& interface) -> astarte_tl::expected<Interface, AstarteError>;
 
   /**
-   * @brief The name of the interface.
-   */
-  std::string interface_name;
-  /**
-   * @brief The Major version qualifier for this interface.
-   */
-  uint32_t version_major;
-  /**
-   * @brief The Minor version qualifier for this interface.
-   */
-  uint32_t version_minor;
-  /**
-   * @brief Identify the type of this Interface. It could be Datastream or Property.
-   */
-  InterfaceType interface_type;
-  /**
-   * @brief Identify the quality of the interface.
-   */
-  AstarteOwnership ownership;
-  /**
-   * @brief Identify the aggregation of the mappings of the interface. It could be Individual or
-   * Object.
-   */
-  std::optional<Aggregation> aggregation;
-  /**
-   * @brief An optional description of the interface.
-   */
-  std::optional<std::string> description;
-  /**
-   * @brief A string containing documentation that will be injected in the generated client code.
-   */
-  std::optional<std::string> doc;
-  /**
-   * @brief Define the endpoint of the interface.
+   * @brief Move constructor.
    *
-   * They are defined as relative URLs (e.g. /my/path) and can be parametrized (e.g.:
-   * /%{myparam}/path). A valid interface must have no mappings clash, which means that every
-   * mapping must resolve to a unique path or collection of paths (including
-   * parametrization). Every mapping acquires type, quality and aggregation of the interface.
+   * @param other The Interface object to move from.
    */
-  std::vector<Mapping> mappings;
+  Interface(Interface&& other) noexcept = default;
+
+  /**
+   * @brief Move assignment operator.
+   *
+   * @param other The Interface object to move from.
+   * @return A reference to this Interface object.
+   */
+  Interface& operator=(Interface&& other) noexcept = default;
+
+  /**
+   * @return The name of the interface.
+   */
+  [[nodiscard]] const std::string& interface_name() const { return interface_name_; }
+
+  /**
+   * @return The Major version qualifier.
+   */
+  [[nodiscard]] uint32_t version_major() const { return version_major_; }
+
+  /**
+   * @return The Minor version qualifier.
+   */
+  [[nodiscard]] uint32_t version_minor() const { return version_minor_; }
+
+  /**
+   * @return The type of this Interface (Datastream or Property).
+   */
+  [[nodiscard]] InterfaceType interface_type() const { return interface_type_; }
+
+  /**
+   * @return The quality of the interface.
+   */
+  [[nodiscard]] AstarteOwnership ownership() const { return ownership_; }
+
+  /**
+   * @return The aggregation of the mappings (Individual or Object), if present.
+   */
+  [[nodiscard]] const std::optional<Aggregation>& aggregation() const { return aggregation_; }
+
+  /**
+   * @return The optional description.
+   */
+  [[nodiscard]] const std::optional<std::string>& description() const { return description_; }
+
+  /**
+   * @return The documentation string.
+   */
+  [[nodiscard]] const std::optional<std::string>& doc() const { return doc_; }
+
+  /**
+   * @return The vector of mappings defined for this interface.
+   */
+  [[nodiscard]] const std::vector<Mapping>& mappings() const { return mappings_; }
+
+ private:
+  Interface(std::string interface_name, uint32_t version_major, uint32_t version_minor,
+            InterfaceType interface_type, AstarteOwnership ownership,
+            std::optional<Aggregation> aggregation, std::optional<std::string> description,
+            std::optional<std::string> doc, std::vector<Mapping> mappings)
+      : interface_name_(std::move(interface_name)),
+        version_major_(version_major),
+        version_minor_(version_minor),
+        interface_type_(interface_type),
+        ownership_(ownership),
+        aggregation_(std::move(aggregation)),
+        description_(std::move(description)),
+        doc_(std::move(doc)),
+        mappings_(std::move(mappings)) {}
+
+  std::string interface_name_;
+  uint32_t version_major_;
+  uint32_t version_minor_;
+  InterfaceType interface_type_;
+  AstarteOwnership ownership_;
+  std::optional<Aggregation> aggregation_;
+  std::optional<std::string> description_;
+  std::optional<std::string> doc_;
+  std::vector<Mapping> mappings_;
 };
 
 /**

@@ -34,7 +34,7 @@ auto interface_type_from_str(std::string typ) -> astarte_tl::expected<InterfaceT
   }
 
   return astarte_tl::unexpected(
-      AstarteInvalidInterfaceTypeError(std::format("interface type not valid: {}", typ)));
+      AstarteInvalidInterfaceTypeError(astarte_fmt::format("interface type not valid: {}", typ)));
 }
 
 inline auto aggregation_from_str(std::string aggr)
@@ -47,10 +47,10 @@ inline auto aggregation_from_str(std::string aggr)
   }
 
   return astarte_tl::unexpected(
-      AstarteInvalidAggregationError(std::format("Aggregation not valid: {}", aggr)));
+      AstarteInvalidAggregationError(astarte_fmt::format("Aggregation not valid: {}", aggr)));
 }
 
-auto mappings_from_interface(json& interface)
+auto mappings_from_interface(const json& interface)
     -> astarte_tl::expected<std::vector<Mapping>, AstarteError> {
   std::vector<Mapping> mappings;
 
@@ -93,19 +93,21 @@ auto convert_version(std::string_view version_type, int64_t version)
     -> astarte_tl::expected<uint32_t, AstarteError> {
   if (std::cmp_less(version, 0)) {
     return astarte_tl::unexpected(AstarteInvalidVersionError(
-        std::format("received negative {} version value: {}", version_type, version)));
+        astarte_fmt::format("received negative {} version value: {}", version_type, version)));
   }
 
   if (std::cmp_greater(version, std::numeric_limits<uint32_t>::max())) {
     return astarte_tl::unexpected(AstarteInvalidVersionError(
-        std::format("{} version value too large: {}", version_type, version)));
+        astarte_fmt::format("{} version value too large: {}", version_type, version)));
   }
 
   return static_cast<uint32_t>(version);
 }
 
-auto Interface::try_from_json(json interface) -> astarte_tl::expected<Interface, AstarteError> {
-  auto interface_name = interface.at("interface_name");
+// NOLINTNEXTLINE(readability-function-size)
+auto Interface::try_from_json(const json& interface)
+    -> astarte_tl::expected<Interface, AstarteError> {
+  const auto& interface_name = interface.at("interface_name");
   auto version_major = convert_version("major", interface.at("version_major"));
   if (!version_major) {
     return astarte_tl::unexpected(version_major.error());
@@ -140,63 +142,55 @@ auto Interface::try_from_json(json interface) -> astarte_tl::expected<Interface,
     return astarte_tl::unexpected(mappings.error());
   }
 
-  return Interface{.interface_name = interface_name,
-                   .version_major = version_major.value(),
-                   .version_minor = version_minor.value(),
-                   .interface_type = interface_type.value(),
-
-                   .ownership = ownership.value(),
-                   .aggregation = aggregation,
-                   .description = description,
-                   .doc = doc,
-                   .mappings = mappings.value()};
+  return Interface(interface_name, version_major.value(), version_minor.value(),
+                   interface_type.value(), ownership.value(), aggregation, description, doc,
+                   mappings.value());
 }
 
 auto Introspection::checked_insert(Interface interface)
     -> astarte_tl::expected<void, AstarteError> {
-  if (!interfaces_.contains(interface.interface_name)) {
-    spdlog::debug("Adding new interface {}", interface.interface_name);
-    interfaces_[interface.interface_name] = interface;
+  if (!interfaces_.contains(interface.interface_name())) {
+    spdlog::debug("Adding new interface {}", interface.interface_name());
+    interfaces_.insert_or_assign(interface.interface_name(), std::move(interface));
     return {};
   }
 
   // if the interface is already present in the introspection, do some checks before updating it
-  auto stored = interfaces_[interface.interface_name];
-  if (stored.ownership != interface.ownership) {
+  const auto& stored = interfaces_.at(interface.interface_name());
+  if (stored.ownership() != interface.ownership()) {
     spdlog::error("the new interface has a different ownership");
     return astarte_tl::unexpected(AstarteInvalidInterfaceOwnershipeError(
         astarte_fmt::format("the new interface has a different ownership. Expected {}, got {}",
-                            stored.ownership, interface.ownership)));
+                            stored.ownership(), interface.ownership())));
   }
 
-  if (stored.interface_type != interface.interface_type) {
+  if (stored.interface_type() != interface.interface_type()) {
     spdlog::error("the new interface has a different type");
     return astarte_tl::unexpected(AstarteInvalidAstarteTypeError(
         astarte_fmt::format("the new interface has a different type. Expected {}, got {}",
-                            stored.interface_type, interface.interface_type)));
+                            stored.interface_type(), interface.interface_type())));
   }
 
-  if (interface.version_major < stored.version_major) {
+  if (interface.version_major() < stored.version_major()) {
     spdlog::error("the new interface must have a major version greater or equal than {}",
-                  stored.version_major);
+                  stored.version_major());
     return astarte_tl::unexpected(AstarteInvalidVersionError(
         astarte_fmt::format("the new major version is lower than the actual one. Expected value "
                             "greater than {}, got {}",
-                            stored.version_major, interface.version_major)));
+                            stored.version_major(), interface.version_major())));
   }
 
-  if ((interface.version_major == stored.version_major) &&
-      (interface.version_minor < stored.version_minor)) {
+  if ((interface.version_major() == stored.version_major()) &&
+      (interface.version_minor() < stored.version_minor())) {
     spdlog::error("the new interface must have a minor version greater or equal than {}",
-                  stored.version_minor);
+                  stored.version_minor());
     return astarte_tl::unexpected(AstarteInvalidVersionError(astarte_fmt::format(
         "the new minor version is lower than the actual one Expected value greater than {}, got {}",
-        stored.version_minor, interface.version_minor)));
+        stored.version_minor(), interface.version_minor())));
   }
 
   spdlog::debug("overwriting the old interface with the new one");
-  interfaces_[interface.interface_name] = std::move(interface);
-
+  interfaces_.insert_or_assign(interface.interface_name(), std::move(interface));
   return {};
 }
 

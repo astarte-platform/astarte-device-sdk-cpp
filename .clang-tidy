@@ -61,6 +61,7 @@ CheckOptions:
   - { key: readability-identifier-length.IgnoredParameterNames, value: "" }
   - { key: readability-identifier-length.MinimumLoopCounterNameLength, value: 3 }
   - { key: readability-identifier-length.IgnoredLoopCounterNames, value: "^[ijk_]$" }
+  - { key: misc-include-cleaner.MissingIncludes, value: false }
 
 #   - { key: readability-identifier-naming.ConstantCase, value: lower_case }
 #   - { key: readability-identifier-naming.ConstantParameterCase, value: lower_case }

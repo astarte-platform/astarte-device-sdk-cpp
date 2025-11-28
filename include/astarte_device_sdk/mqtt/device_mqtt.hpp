@@ -50,9 +50,16 @@ class AstarteDeviceMqtt : public AstarteDevice {
   AstarteDeviceMqtt(AstarteDeviceMqtt& other) = delete;
   /** @brief Copy assignment operator for the Astarte device class. */
   auto operator=(AstarteDeviceMqtt& other) -> AstarteDeviceMqtt& = delete;
-  /** @brief Move constructor for the Astarte device class. */
+  /**
+   * @brief Move constructor for the Astarte device class.
+   * @param other object to move.
+   */
   AstarteDeviceMqtt(AstarteDeviceMqtt&& other) = default;
-  /** @brief Move assignment operator for the Astarte device class. */
+  /**
+   * @brief Move assignment operator for the Astarte device class.
+   * @param other object to move.
+   * @return reference to the moved object.
+   */
   auto operator=(AstarteDeviceMqtt&& other) -> AstarteDeviceMqtt& = default;
 
   /**

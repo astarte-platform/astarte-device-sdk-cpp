@@ -6,6 +6,7 @@
 #include <toml++/toml.hpp>
 
 #include "astarte_device_sdk/data.hpp"
+#include "astarte_device_sdk/formatter.hpp"
 #include "astarte_device_sdk/msg.hpp"
 #include "constants/astarte_interfaces.hpp"
 #include "orchestrator.hpp"

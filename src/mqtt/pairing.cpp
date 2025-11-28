@@ -255,6 +255,7 @@ auto PairingApi::get_broker_url(std::string_view credential_secret, int timeout_
   return parse_json<std::string>(res.text, "/data/protocols/astarte_mqtt_v1/broker_url");
 }
 
+// NOLINTNEXTLINE(readability-function-size)
 auto PairingApi::get_device_key_and_cert(std::string_view credential_secret, int timeout_ms) const
     -> astarte_tl::expected<std::tuple<std::string, std::string>, AstarteError> {
   auto request_url = pairing_url_;
@@ -312,7 +313,7 @@ auto PairingApi::get_device_key_and_cert(std::string_view credential_secret, int
         return AstarteMqttError(
             AstartePairingApiError("Failed to retrieve Astarte device certificate.", err));
       })
-      .transform([&](auto cert) { return std::make_tuple(device_priv_key.value(), cert); });
+      .transform([&](const auto& cert) { return std::make_tuple(device_priv_key.value(), cert); });
 }
 
 auto PairingApi::device_cert_valid(std::string_view certificate, std::string_view credential_secret,

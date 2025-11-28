@@ -13,7 +13,7 @@
 // We accept this circular inclusion as it's required for this file to be included without the
 // generic errors header file (and vice-versa).
 // NOLINTNEXTLINE(misc-header-include-cycle)
-#include "astarte_device_sdk/errors.hpp"
+#include "astarte_device_sdk/errors.hpp"  // IWYU pragma: export
 
 namespace AstarteDeviceSdk {
 
