@@ -41,6 +41,7 @@ class ConnectionCallback : public virtual mqtt::callback {
    * @param realm The Astarte realm name.
    * @param device_id The Astarte Device ID.
    * @param introspection A reference to the collection of device interfaces.
+   * @param connected A flag stating if the client is correctly connected to Astarte.
    */
   ConnectionCallback(mqtt::iasync_client* client, std::string realm, std::string device_id,
                      Introspection& introspection, std::shared_ptr<std::atomic<bool>> connected);
@@ -117,12 +118,15 @@ class MqttConnection {
  public:
   /** @brief Copy constructor for the MqttConnection class. */
   MqttConnection(const MqttConnection&) = delete;
+  /** @brief Move constructor for the MqttConnection class. */
   MqttConnection(MqttConnection&&) = default;
   /** @brief Copy assignment operator for the MqttConnection class. */
   MqttConnection& operator=(const MqttConnection&) = delete;
+  /**
+   * @brief Move assignment operator for the MqttConnection class.
+   * @return A reference to this MqttConnection object.
+   */
   MqttConnection& operator=(MqttConnection&&) = default;
-  /** @brief Move constructor for the MqttConnection class. */
-  /** @brief Move assignment operator for the MqttConnection class. */
 
   /**
    * @brief Construct a new Mqtt Connection object.
@@ -133,7 +137,7 @@ class MqttConnection {
    * @param cfg The MQTT configuration object containing connection details.
    * @return The MQTT connection object, an error otherwise.
    */
-  static auto create(MqttConfig cfg) -> astarte_tl::expected<MqttConnection, AstarteError>;
+  static auto create(MqttConfig& cfg) -> astarte_tl::expected<MqttConnection, AstarteError>;
 
   /**
    * @brief Connects the client to the Astarte MQTT broker.

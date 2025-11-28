@@ -10,22 +10,9 @@
 #include <map>
 #include <type_traits>
 
-#include "astarte_device_sdk/formatter.hpp"
+#include "astarte_device_sdk/formatter.hpp"  // IWYU pragma: export
 #include "astarte_device_sdk/mqtt/introspection.hpp"
 #include "astarte_device_sdk/ownership.hpp"
-
-#if ((defined(_MSVC_LANG) && _MSVC_LANG >= 202002L) ||    \
-     (!defined(_MSVC_LANG) && __cplusplus >= 202002L)) && \
-    (__has_include(<format>))
-#include <format>
-namespace astarte_fmt = ::std;
-#else                        // (__cplusplus >= 202002L) && (__has_include(<format>))
-#include <spdlog/fmt/fmt.h>  // NOLINT: avoid clang-tidy warning regarding fmt library not used directly
-
-#include <iomanip>
-#include <sstream>
-namespace astarte_fmt = ::fmt;
-#endif  // (__cplusplus >= 202002L) && (__has_include(<format>))
 
 /// @cond Doxygen should skip checking astarte_fmt::formatter due to internal inconsistency
 /// parsing
@@ -353,22 +340,22 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Interface> {
     auto out = ctx.out();
 
     astarte_fmt::format_to(out, "Interface {{\n");
-    astarte_fmt::format_to(out, "  interface name: {}\n", interface.interface_name);
-    astarte_fmt::format_to(out, "  major version: {}\n", interface.version_major);
-    astarte_fmt::format_to(out, "  minor version: {}\n", interface.version_minor);
-    astarte_fmt::format_to(out, "  interface type: {}\n", interface.interface_type);
-    astarte_fmt::format_to(out, "  ownership: {}\n", interface.ownership);
-    if (interface.aggregation) {
-      astarte_fmt::format_to(out, "  aggregation: {}\n", interface.aggregation.value());
+    astarte_fmt::format_to(out, "  interface name: {}\n", interface.interface_name());
+    astarte_fmt::format_to(out, "  major version: {}\n", interface.version_major());
+    astarte_fmt::format_to(out, "  minor version: {}\n", interface.version_minor());
+    astarte_fmt::format_to(out, "  interface type: {}\n", interface.interface_type());
+    astarte_fmt::format_to(out, "  ownership: {}\n", interface.ownership());
+    if (interface.aggregation()) {
+      astarte_fmt::format_to(out, "  aggregation: {}\n", interface.aggregation().value());
     }
-    if (interface.description) {
-      astarte_fmt::format_to(out, "  description: {}\n", interface.description.value());
+    if (interface.description()) {
+      astarte_fmt::format_to(out, "  description: {}\n", interface.description().value());
     }
-    if (interface.doc) {
-      astarte_fmt::format_to(out, "  doc: {}\n", interface.doc.value());
+    if (interface.doc()) {
+      astarte_fmt::format_to(out, "  doc: {}\n", interface.doc().value());
     }
     astarte_fmt::format_to(out, "  mappings: ");
-    utils::format_vector(out, interface.mappings);
+    utils::format_vector(out, interface.mappings());
     astarte_fmt::format_to(out, "\n");
 
     astarte_fmt::format_to(out, "}}\n");

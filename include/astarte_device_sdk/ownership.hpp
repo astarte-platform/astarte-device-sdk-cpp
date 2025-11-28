@@ -40,8 +40,8 @@ inline auto ownership_from_str(std::string ownership)
   } else if (ownership == "server") {
     return AstarteOwnership::kServer;
   } else {
-    return astarte_tl::unexpected(AstarteInvalidInterfaceOwnershipeError(
-        std::format("interface ownershipe not valid: {}", ownership)));
+    return astarte_tl::unexpected(
+        AstarteInvalidInterfaceOwnershipeError("interface ownershipe not valid: " + ownership));
   }
 }
 

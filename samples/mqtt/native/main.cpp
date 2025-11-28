@@ -75,19 +75,19 @@ int main() {
     const auto mqtt_cfg = [&] {
       if (in_db) {
         return AstarteDeviceSdk::MqttConfig::with_credential_secret(
-            cfg.realm, cfg.device_id, *cred_opt, std::format("{}/pairing", cfg.astarte_base_url),
-            cfg.store_dir);
+            cfg.realm, cfg.device_id, *cred_opt,
+            astarte_fmt::format("{}/pairing", cfg.astarte_base_url), cfg.store_dir);
       } else if (cfg.credential_secret) {
         // first, store the cred secret in the db for future usage
         store_cred_secret(db, cfg.device_id, cfg.credential_secret.value());
 
         return AstarteDeviceSdk::MqttConfig::with_credential_secret(
             cfg.realm, cfg.device_id, cfg.credential_secret.value(),
-            std::format("{}/pairing", cfg.astarte_base_url), cfg.store_dir);
+            astarte_fmt::format("{}/pairing", cfg.astarte_base_url), cfg.store_dir);
       } else {
         return AstarteDeviceSdk::MqttConfig::with_pairing_token(
             cfg.realm, cfg.device_id, cfg.pairing_token.value(),
-            std::format("{}/pairing", cfg.astarte_base_url), cfg.store_dir);
+            astarte_fmt::format("{}/pairing", cfg.astarte_base_url), cfg.store_dir);
       }
     }();
 

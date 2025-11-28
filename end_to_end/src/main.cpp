@@ -6,6 +6,7 @@
 #include <toml++/toml.hpp>
 
 #include "astarte_device_sdk/data.hpp"
+#include "astarte_device_sdk/formatter.hpp"
 #include "astarte_device_sdk/msg.hpp"
 #include "constants/astarte_interfaces.hpp"
 #include "orchestrator.hpp"
@@ -85,7 +86,7 @@ int main() {
     TransportConfigVariant transport_config =
         MqttTestConfig{.cfg = MqttConfig::with_credential_secret(
                            realm, device_id, credential_secret_opt.value(),
-                           std::format("{}/pairing", astarte_base_url), store_dir),
+                           astarte_fmt::format("{}/pairing", astarte_base_url), store_dir),
                        .interfaces = {
                            astarte_interfaces::DeviceDatastream::FILE,
                            astarte_interfaces::ServerDatastream::FILE,
