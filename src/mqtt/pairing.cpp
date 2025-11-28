@@ -11,6 +11,7 @@
 #include <cpr/cpr.h>
 #include <spdlog/spdlog.h>
 
+#include <boost/uuid/uuid.hpp>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>

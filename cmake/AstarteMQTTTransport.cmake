@@ -23,6 +23,7 @@ function(astarte_sdk_configure_mqtt_dependencies)
         find_package(nlohmann_json REQUIRED)
         find_package(MbedTLS REQUIRED)
         find_package(stduuid REQUIRED)
+        find_package(Boost REQUIRED)
 
         if(NOT TARGET ada::ada)
             find_package(ada REQUIRED)
@@ -80,6 +81,16 @@ function(astarte_sdk_configure_mqtt_dependencies)
         # FetchContent creates the target stduuid, instead conan creates target 'stduuid::stduuid', so
         # we create a namespaced alias for the native target to avoid naming mismatch when linking the liibrary below.
         add_library(stduuid::stduuid ALIAS stduuid)
+
+        set(BOOST_ENABLE_CMAKE ON)
+        set(BOOST_INCLUDE_LIBRARIES uuid headers)
+        set(BUILD_TESTING OFF)
+        FetchContent_Declare(
+            Boost
+            URL https://archives.boost.io/release/1.87.0/source/boost_1_87_0.tar.gz
+            DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+        )
+        FetchContent_MakeAvailable(Boost)
     endif()
 endfunction()
 
@@ -138,6 +149,10 @@ function(astarte_sdk_add_mqtt_transport)
         PRIVATE cpr::cpr
         PRIVATE nlohmann_json::nlohmann_json
         PRIVATE stduuid::stduuid
+        # PRIVATE boost_uuid
+        PRIVATE
+            boost_headers # makes FetchContent happy, but doesn't find <boost/uuid/uuid.hpp> in code
+        # PRIVATE Boost::headers # makes conan work
         PUBLIC MbedTLS::mbedtls
         PUBLIC MbedTLS::mbedx509
         PUBLIC ada::ada
