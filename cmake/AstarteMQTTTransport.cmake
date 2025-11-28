@@ -22,7 +22,7 @@ function(astarte_sdk_configure_mqtt_dependencies)
         find_package(cpr REQUIRED)
         find_package(nlohmann_json REQUIRED)
         find_package(MbedTLS REQUIRED)
-        find_package(stduuid REQUIRED)
+        find_package(Boost REQUIRED)
 
         if(NOT TARGET ada::ada)
             find_package(ada REQUIRED)
@@ -72,14 +72,13 @@ function(astarte_sdk_configure_mqtt_dependencies)
         set(CONFIG_MBEDTLS_PSA_CRYPTO_C ON CACHE BOOL "Enable PSA in Mbed TLS")
         FetchContent_MakeAvailable(MbedTLS)
 
-        # Library to manage UUIDs.
-        set(UUID_GIT_REPOSITORY https://github.com/mariusbancila/stduuid.git)
-        set(UUID_GIT_TAG v1.2.3)
-        FetchContent_Declare(stduuid GIT_REPOSITORY ${UUID_GIT_REPOSITORY} GIT_TAG ${UUID_GIT_TAG})
-        FetchContent_MakeAvailable(stduuid)
-        # FetchContent creates the target stduuid, instead conan creates target 'stduuid::stduuid', so
-        # we create a namespaced alias for the native target to avoid naming mismatch when linking the liibrary below.
-        add_library(stduuid::stduuid ALIAS stduuid)
+        set(BOOST_INCLUDE_LIBRARIES uuid headers)
+        set(BOOST_ENABLE_CMAKE ON)
+        set(BUILD_TESTING OFF)
+        set(BOOST_GIT_REPOSITORY https://github.com/boostorg/boost.git)
+        set(BOOST_GIT_TAG boost-1.89.0)
+        FetchContent_Declare(Boost GIT_REPOSITORY ${BOOST_GIT_REPOSITORY} GIT_TAG ${BOOST_GIT_TAG})
+        FetchContent_MakeAvailable(Boost)
     endif()
 endfunction()
 
@@ -128,8 +127,10 @@ function(astarte_sdk_add_mqtt_transport)
     # Link with MQTT
     if(ASTARTE_USE_SYSTEM_MQTT)
         target_link_libraries(astarte_device_sdk PRIVATE PahoMqttCpp::paho-mqttpp3-static)
+        target_link_libraries(astarte_device_sdk PRIVATE Boost::headers)
     else()
         target_link_libraries(astarte_device_sdk PRIVATE PahoMqttCpp::paho-mqttpp3)
+        target_link_libraries(astarte_device_sdk PRIVATE Boost::uuid PRIVATE Boost::headers)
     endif()
 
     # Link with cpr HTTP library
@@ -137,7 +138,6 @@ function(astarte_sdk_add_mqtt_transport)
         astarte_device_sdk
         PRIVATE cpr::cpr
         PRIVATE nlohmann_json::nlohmann_json
-        PRIVATE stduuid::stduuid
         PUBLIC MbedTLS::mbedtls
         PUBLIC MbedTLS::mbedx509
         PUBLIC ada::ada
