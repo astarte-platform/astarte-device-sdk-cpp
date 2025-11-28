@@ -11,6 +11,9 @@
 #include <cpr/cpr.h>
 #include <spdlog/spdlog.h>
 
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -24,7 +27,6 @@
 #include "astarte_device_sdk/formatter.hpp"
 #include "astarte_device_sdk/mqtt/errors.hpp"
 #include "mqtt/crypto.hpp"
-#include "uuid.h"
 
 using json = nlohmann::json;
 
@@ -32,10 +34,10 @@ namespace AstarteDeviceSdk {
 
 /**
  * @brief Format a vector of bytes into a Base64 URL safe string literal.
- * @param data The vector of bytes to format.
+ * @param data The span of bytes to format.
  * @return Base64 URL safe encoded string
  */
-auto format_base64_url_safe(const std::vector<uint8_t>& data) -> std::string {
+auto format_base64_url_safe(std::span<const uint8_t> data) -> std::string {
   static constexpr std::string_view base64_chars =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
       "abcdefghijklmnopqrstuvwxyz"
@@ -74,11 +76,8 @@ auto format_base64_url_safe(const std::vector<uint8_t>& data) -> std::string {
   return out;
 }
 
-auto bytes_to_uuid_str(const std::span<std::byte const, 16> bytes) -> std::string {
-  std::vector<uint8_t> bytes_v(reinterpret_cast<const uint8_t*>(bytes.data()),
-                               reinterpret_cast<const uint8_t*>(bytes.data()) + bytes.size());
-
-  return format_base64_url_safe(bytes_v);
+auto uuid_to_str(const boost::uuids::uuid& u) -> std::string {
+  return format_base64_url_safe(std::span<const uint8_t>(u.begin(), u.size()));
 }
 
 namespace {
@@ -315,36 +314,31 @@ auto PairingApi::device_cert_valid(std::string_view certificate, std::string_vie
 }
 
 auto create_random_device_id() -> std::string {
-  // create a seed for the uuid generator
-  std::random_device rd;
-  auto seed_data = std::array<int, std::mt19937::state_size>{};
-  std::generate(std::begin(seed_data), std::end(seed_data), std::ref(rd));
-  std::seed_seq seq(std::begin(seed_data), std::end(seed_data));
-  std::mt19937 engine(seq);
-
-  // pass the engine to the UUID generator's constructor
-  uuids::uuid_random_generator gen(engine);
-
-  // generate a v4 UUID
-  uuids::uuid const uuid = gen();
-  return bytes_to_uuid_str(uuid.as_bytes());
+  // boost random_generator generates a V4 UUID and handles seeding internally
+  boost::uuids::random_generator gen;
+  // boost::uuids::uuid uuid = gen();
+  return uuid_to_str(gen());
 }
 
 auto create_deterministic_device_id(std::string_view namespc, std::string_view unique_data)
     -> astarte_tl::expected<std::string, AstarteError> {
-  // generate a v5 (name-based, SHA-1) UUID starting from the string namespace UUID representation
-  auto ns = uuids::uuid::from_string(namespc);
+  boost::uuids::uuid ns_uuid;
 
-  if (!ns.has_value()) {
+  try {
+    // parse the namespace UUID string
+    boost::uuids::string_generator string_gen;
+    ns_uuid = string_gen(namespc.begin(), namespc.end());
+  } catch (const std::exception&) {
     return astarte_tl::unexpected(AstarteUuidError(
-        astarte_fmt::format("Couldn't parse namespace to UUID, invalid value: {}", namespc)));
+        astarte_fmt::format("couldn't parse namespace to UUID, invalid value: {}", namespc)));
   }
 
-  // Create a name generator seeded with the namespace
-  uuids::uuid_name_generator v5_generator(ns.value());
-  uuids::uuid const uuid = v5_generator(unique_data);
+  // create a V5 name generator seeded with the namespace
+  boost::uuids::name_generator_sha1 v5_generator(ns_uuid);
+  // generate the UUID based on the unique_data
+  boost::uuids::uuid uuid = v5_generator(unique_data.data(), unique_data.size());
 
-  return bytes_to_uuid_str(uuid.as_bytes());
+  return uuid_to_str(uuid);
 }
 
 }  // namespace AstarteDeviceSdk
