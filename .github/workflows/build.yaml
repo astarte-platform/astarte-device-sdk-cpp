@@ -14,10 +14,10 @@ env:
   GRPC_VERSION: "1.69.0"
 
 jobs:
-  build-simple-sample-conan:
+  build-simple-sample-conan-linux:
     runs-on: ubuntu-latest
     concurrency:
-      group: build-simple-sample-conan-${{ github.ref }}
+      group: build-simple-sample-conan-linux-${{ github.ref }}
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@v6
@@ -28,6 +28,21 @@ jobs:
           use_venv: true
       - name: Build sample with conan
         run: ./build_sample.sh simple --fresh --deps-mgmt conan --ext-tools
+  build-simple-sample-conan-windows:
+    runs-on: windows-latest
+    concurrency:
+      group: build-simple-sample-conan-windows-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install Conan
+        uses: conan-io/setup-conan@v1
+        with:
+          cache_packages: true
+          use_venv: true
+      - name: Build sample with conan
+        shell: pwsh
+        run: .\build_sample.ps1 simple -fresh -deps-mgmt conan -ext-tools
   build-simple-sample-fetch:
     runs-on: ubuntu-latest
     concurrency:
