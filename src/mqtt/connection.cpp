@@ -6,6 +6,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include <atomic>
 #include <format>
 #include <memory>
 #include <string>
@@ -41,6 +42,8 @@ namespace {
 auto setup_crypto_files(PairingApi& api, const std::string_view secret,
                         const std::string_view store_dir)
     -> astarte_tl::expected<void, AstarteError> {
+  // TODO(rgallor): instead of always generating new certificates, allow credential storage and
+  // retrieval.
   auto key_cert_res = api.get_device_key_and_cert(secret);
   if (!key_cert_res) {
     return astarte_tl::unexpected(key_cert_res.error());
@@ -52,14 +55,6 @@ auto setup_crypto_files(PairingApi& api, const std::string_view secret,
       {std::format("{}/{}", store_dir, CLIENT_CERTIFICATE_FILE), client_cert},
       {std::format("{}/{}", store_dir, PRIVATE_KEY_FILE), client_priv_key}};
 
-  for (const auto& [path, content] : files) {
-    auto write_res = write_to_file(path, content);
-    if (!write_res) {
-      spdlog::error("Failed to write to {}. Error: {}", path, write_res.error());
-      return astarte_tl::unexpected(write_res.error());
-    }
-  }
-
   return {};
 }
 
@@ -69,11 +64,13 @@ auto setup_crypto_files(PairingApi& api, const std::string_view secret,
 // ConnectionActionListener Implementation
 // ============================================================================
 
-ConnectionActionListener::ConnectionActionListener(ConnectionCallback& callback_handler)
-    : callback_handler_(callback_handler) {}
+ConnectionActionListener::ConnectionActionListener(ConnectionCallback& callback_handler,
+                                                   std::shared_ptr<std::atomic<bool>> connected)
+    : callback_handler_(callback_handler), connected_(std::move(connected)) {}
 
 void ConnectionActionListener::on_failure(const mqtt::token& tok) {
   spdlog::error("Connection failed (ID: {}), retrying...", tok.get_message_id());
+  connected_->store(false);
 }
 
 void ConnectionActionListener::on_success(const mqtt::token& tok) {
@@ -90,6 +87,9 @@ void ConnectionActionListener::on_success(const mqtt::token& tok) {
 
     // Delegate the setup logic (subscriptions, introspection) to the callback object
     callback_handler_.perform_session_setup(session_present);
+
+    // now we can state that the client is properly connected to Astarte
+    connected_->store(true);
   }
 }
 
@@ -98,19 +98,21 @@ void ConnectionActionListener::on_success(const mqtt::token& tok) {
 // ============================================================================
 
 ConnectionCallback::ConnectionCallback(mqtt::iasync_client* client, std::string realm,
-                                       std::string device_id, Introspection& introspection)
+                                       std::string device_id, Introspection& introspection,
+                                       std::shared_ptr<std::atomic<bool>> connected)
     : client_(client),
       realm_(std::move(realm)),
       device_id_(std::move(device_id)),
-      introspection_(introspection) {}
+      introspection_(introspection),
+      connected_(std::move(connected)) {}
 
 void ConnectionCallback::perform_session_setup(bool session_present) {
   if (!session_present) {
     setup_subscriptions();
-    spdlog::info("Subscription to Astarte topics completed.");
+    spdlog::debug("Subscription to Astarte topics completed.");
 
     send_introspection();
-    spdlog::info("Introspection sent to Astarte.");
+    spdlog::debug("Introspection sent to Astarte.");
 
     send_emptycache();
     spdlog::debug("EmptyCache sent to Astarte.");
@@ -141,7 +143,12 @@ void ConnectionCallback::setup_subscriptions() {
   }
 
   if (!topics.empty()) {
-    client_->subscribe(std::make_shared<mqtt::string_collection>(topics), qoss);
+    try {
+      client_->subscribe(std::make_shared<mqtt::string_collection>(topics), qoss);
+    } catch (...) {  // if something goes wrong, set the device to disconnected.
+      spdlog::error("failed to subscribe to topic");
+      connected_->store(false);
+    }
   }
 }
 
@@ -158,12 +165,22 @@ void ConnectionCallback::send_introspection() {
   }
 
   auto base_topic = std::format("{}/{}", realm_, device_id_);
-  client_->publish(base_topic, introspection_str, 2, false);
+  try {
+    client_->publish(base_topic, introspection_str, 2, false);
+  } catch (...) {  // if something goes wrong, set the device to disconnected.
+    spdlog::error("failed to publish introspection");
+    connected_->store(false);
+  }
 }
 
 void ConnectionCallback::send_emptycache() {
   auto emptycache_topic = std::format("{}/{}/control/emptyCache", realm_, device_id_);
-  client_->publish(emptycache_topic, "1", 2, false);
+  try {
+    client_->publish(emptycache_topic, "1", 2, false);
+  } catch (...) {  // if something goes wrong, set the device to disconnected.
+    spdlog::error("failed to perform empty cache");
+    connected_->store(false);
+  }
 }
 
 void ConnectionCallback::connected(const std::string& cause) {
@@ -180,10 +197,11 @@ void ConnectionCallback::connected(const std::string& cause) {
 
 void ConnectionCallback::connection_lost(const std::string& cause) {
   spdlog::warn("Connection lost: {}, waiting for auto-reconnect...", cause);
+  connected_->store(false);
 }
 
 void ConnectionCallback::message_arrived(mqtt::const_message_ptr msg) {
-  // TODO(rgwork): handle message reception
+  // TODO(rgallor): handle message reception
   spdlog::debug("Message received at {}: {}", msg->get_topic(), msg->get_payload_str());
 }
 
@@ -196,13 +214,6 @@ auto MqttConnection::create(MqttConfig cfg) -> astarte_tl::expected<MqttConnecti
   auto device_id = cfg.device_id();
   auto pairing_url = cfg.pairing_url();
 
-  auto credential_secret = cfg.read_secret_or_register();
-  if (!credential_secret) {
-    spdlog::error("failed to read credential secret or register the device. Error: {}",
-                  credential_secret.error());
-    return astarte_tl::unexpected(credential_secret.error());
-  }
-
   auto res = PairingApi::create(realm, device_id, pairing_url);
   if (!res) {
     spdlog::error("failed to create PairingApi instance. Error: {}", res.error());
@@ -210,13 +221,23 @@ auto MqttConnection::create(MqttConfig cfg) -> astarte_tl::expected<MqttConnecti
   }
   auto api = res.value();
 
-  auto broker_url = api.get_broker_url(credential_secret.value());
+  auto credential_secret = cfg.cred_value();
+  if (cfg.cred_is_pairing_token()) {
+    auto res = api.register_device(cfg.cred_value());
+    if (!res) {
+      spdlog::error("failed to register the device. Error {}", res.error());
+      return astarte_tl::unexpected(res.error());
+    }
+    credential_secret = res.value();
+  }
+
+  auto broker_url = api.get_broker_url(credential_secret);
   if (!broker_url) {
     spdlog::error("failed to retrieve Astarte MQTT broker URL. Error: {}", broker_url.error());
     return astarte_tl::unexpected(broker_url.error());
   }
 
-  auto crypto_setup = setup_crypto_files(api, credential_secret.value(), cfg.store_dir());
+  auto crypto_setup = setup_crypto_files(api, credential_secret, cfg.store_dir());
   if (!crypto_setup) {
     spdlog::error("failed to setup crypto info. Error: {}", crypto_setup.error());
     return astarte_tl::unexpected(crypto_setup.error());
@@ -236,7 +257,10 @@ auto MqttConnection::create(MqttConfig cfg) -> astarte_tl::expected<MqttConnecti
 
 MqttConnection::MqttConnection(MqttConfig cfg, mqtt::connect_options options,
                                std::unique_ptr<mqtt::async_client> client)
-    : cfg_(std::move(cfg)), options_(std::move(options)), client_(std::move(client)) {}
+    : cfg_(std::move(cfg)),
+      options_(std::move(options)),
+      client_(std::move(client)),
+      connected_(std::make_shared<std::atomic<bool>>(false)) {}
 
 auto MqttConnection::connect(Introspection& introspection)
     -> astarte_tl::expected<void, AstarteError> {
@@ -244,10 +268,11 @@ auto MqttConnection::connect(Introspection& introspection)
     spdlog::debug("Setting up connection callback...");
 
     cb_ = std::make_unique<ConnectionCallback>(client_.get(), std::string(cfg_.realm()),
-                                               std::string(cfg_.device_id()), introspection);
+                                               std::string(cfg_.device_id()), introspection,
+                                               connected_);
     client_->set_callback(*cb_);
 
-    auto listener = ConnectionActionListener(*cb_);
+    auto listener = ConnectionActionListener(*cb_, connected_);
 
     spdlog::debug("Connecting device to the Astarte MQTT broker...");
     client_->connect(options_, nullptr, listener)->wait();
@@ -257,9 +282,10 @@ auto MqttConnection::connect(Introspection& introspection)
         astarte_fmt::format("Mqtt connection error (ID {}): {}", e.get_reason_code(), e.what())));
   }
 
-  spdlog::info("device connected to Astarte");
   return {};
 }
+
+auto MqttConnection::is_connected() const -> bool { return connected_->load(); }
 
 auto MqttConnection::disconnect() -> astarte_tl::expected<void, AstarteError> {
   try {
@@ -276,7 +302,6 @@ auto MqttConnection::disconnect() -> astarte_tl::expected<void, AstarteError> {
         "Mqtt disconnection error (ID {}): {}", e.get_reason_code(), e.what())));
   }
 
-  spdlog::info("device disconnected from Astarte");
   return {};
 }
 

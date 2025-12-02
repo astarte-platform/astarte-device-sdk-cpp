@@ -24,6 +24,8 @@
 
 namespace AstarteDeviceSdk {
 
+namespace config {
+
 auto read_from_file(const std::filesystem::path& file_path)
     -> astarte_tl::expected<std::string, AstarteError> {
   std::ifstream interface_file(file_path, std::ios::in);
@@ -57,18 +59,7 @@ auto write_to_file(const std::filesystem::path& file_path, std::string_view data
   return {};
 }
 
-auto MqttConfig::read_secret_or_register() -> astarte_tl::expected<std::string, AstarteError> {
-  if (credential_.is_credential_secret()) {
-    return credential_.value();
-  }
-
-  return AstarteDeviceSdk::PairingApi::create(realm_, device_id_, pairing_url_)
-      .and_then([this](auto api) { return api.register_device(credential_.value()); })
-      .transform([this](std::string credential_secret) {
-        credential_ = Credential::secret(credential_secret);
-        return credential_secret;
-      });
-}
+}  // namespace config
 
 auto MqttConfig::build_mqtt_options() -> astarte_tl::expected<mqtt::connect_options, AstarteError> {
   auto conn_opts = mqtt::connect_options_builder::v3();

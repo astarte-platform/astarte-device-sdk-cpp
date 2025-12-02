@@ -7,6 +7,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include <atomic>
 #include <format>
 #include <map>
 #include <memory>
@@ -36,9 +37,6 @@ class ConnectionCallback;
  * it delegates the actual session setup (subscriptions, introspection) to the `ConnectionCallback`.
  */
 class ConnectionActionListener : public virtual mqtt::iaction_listener {
-  /// @brief Reference to the main callback handler that contains the setup logic.
-  ConnectionCallback& callback_handler_;
-
   /**
    * @brief Called when the connection attempt fails.
    * @param tok The token associated with the failed action.
@@ -61,7 +59,14 @@ class ConnectionActionListener : public virtual mqtt::iaction_listener {
    *
    * @param callback_handler Reference to the initialized ConnectionCallback object.
    */
-  explicit ConnectionActionListener(ConnectionCallback& callback_handler);
+  explicit ConnectionActionListener(ConnectionCallback& callback_handler,
+                                    std::shared_ptr<std::atomic<bool>> connected);
+
+ private:
+  /// @brief Reference to the main callback handler that contains the setup logic.
+  ConnectionCallback& callback_handler_;
+  /// @brief The flag stating if the device is successfully connected to Astarte.
+  std::shared_ptr<std::atomic<bool>> connected_;
 };
 
 /**
@@ -76,11 +81,12 @@ class ConnectionCallback : public virtual mqtt::callback {
    * @brief Construct a new Connection Callback object.
    *
    * @param client Pointer to the MQTT asynchronous client.
+   * @param realm The Astarte realm name.
    * @param device_id The Astarte Device ID.
-   * @param introspection A reference to the vector of device interfaces.
+   * @param introspection A reference to the collection of device interfaces.
    */
-  ConnectionCallback(mqtt::iasync_client* client, std::string device_id,
-                     std::vector<Interface>& introspection);
+  ConnectionCallback(mqtt::iasync_client* client, std::string realm, std::string device_id,
+                     Introspection& introspection, std::shared_ptr<std::atomic<bool>> connected);
 
   /**
    * @brief Performs the Astarte session setup.
@@ -92,17 +98,6 @@ class ConnectionCallback : public virtual mqtt::callback {
    * If true, subscriptions might be skipped depending on logic.
    */
   void perform_session_setup(bool session_present);
-
-  /**
-   * @brief Construct a new Connection Callback object.
-   *
-   * @param client Pointer to the MQTT asynchronous client.
-   * @param realm The Astarte realm name.
-   * @param device_id The Astarte Device ID.
-   * @param introspection A reference to the collection of device interfaces.
-   */
-  ConnectionCallback(mqtt::iasync_client* client, std::string realm, std::string device_id,
-                     Introspection& introspection);
 
  private:
   /**
@@ -154,6 +149,8 @@ class ConnectionCallback : public virtual mqtt::callback {
   std::string device_id_;
   /// @brief Reference to the device's introspection.
   Introspection& introspection_;
+  /// @brief The flag stating if the device is successfully connected to Astarte.
+  std::shared_ptr<std::atomic<bool>> connected_;
 };
 
 /**
@@ -163,12 +160,12 @@ class MqttConnection {
  public:
   /** @brief Copy constructor for the MqttConnection class. */
   MqttConnection(const MqttConnection&) = delete;
+  MqttConnection(MqttConnection&&) = default;
   /** @brief Copy assignment operator for the MqttConnection class. */
   MqttConnection& operator=(const MqttConnection&) = delete;
-  /** @brief Move constructor for the MqttConnection class. */
-  MqttConnection(MqttConnection&&) = default;
-  /** @brief Move assignment operator for the MqttConnection class. */
   MqttConnection& operator=(MqttConnection&&) = default;
+  /** @brief Move constructor for the MqttConnection class. */
+  /** @brief Move assignment operator for the MqttConnection class. */
 
   /**
    * @brief Construct a new Mqtt Connection object.
@@ -189,6 +186,12 @@ class MqttConnection {
   auto connect(Introspection& introspection) -> astarte_tl::expected<void, AstarteError>;
 
   /**
+   * @brief Check if the device is connected.
+   * @return True if the device is connected to Astarte, false otherwise.
+   */
+  [[nodiscard]] auto is_connected() const -> bool;
+
+  /**
    * @brief Disconnect the client from the Astarte MQTT broker.
    * @return an error if the disconnection operation fails.
    */
@@ -206,6 +209,12 @@ class MqttConnection {
   std::unique_ptr<mqtt::async_client> client_;
   /// @brief The callback handler for MQTT events.
   std::unique_ptr<ConnectionCallback> cb_;
+  /**
+   * @brief The flag stating if the device is successfully connected to Astarte.
+   *
+   * The connection is correctly established to astarte after.
+   */
+  std::shared_ptr<std::atomic<bool>> connected_;
 };
 
 }  // namespace AstarteDeviceSdk

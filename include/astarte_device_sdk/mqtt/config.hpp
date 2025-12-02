@@ -20,25 +20,7 @@
 
 namespace AstarteDeviceSdk {
 
-/** @brief Default keep alive interval in seconds for the MQTT connection. */
-constexpr uint32_t DEFAULT_KEEP_ALIVE = 30;
-
-/** @brief Default connection timeout in seconds for the MQTT connection. */
-constexpr uint32_t DEFAULT_CONNECTION_TIMEOUT = 5;
-
-/** @brief Default file name inside the store directory where the certificate is stored in PEM
- * format. */
-constexpr std::string_view CLIENT_CERTIFICATE_FILE = "client-certificate.pem";
-
-/** @brief Default file name inside the store directory where the private key is stored in PEM
- * format. */
-constexpr std::string_view PRIVATE_KEY_FILE = "client-priv-key.pem";
-
-#include <filesystem>
-#include <optional>
-#include <string>
-#include <string_view>
-
+namespace config {
 /**
  * @brief Reads the entire content of a file into a string.
  * @param file_path The path to the file to be read.
@@ -55,6 +37,22 @@ auto read_from_file(const std::filesystem::path& file_path)
  */
 auto write_to_file(const std::filesystem::path& file_path, std::string_view data)
     -> astarte_tl::expected<void, AstarteError>;
+
+}  // namespace config
+
+/** @brief Default keep alive interval in seconds for the MQTT connection. */
+constexpr uint32_t DEFAULT_KEEP_ALIVE = 30;
+
+/** @brief Default connection timeout in seconds for the MQTT connection. */
+constexpr uint32_t DEFAULT_CONNECTION_TIMEOUT = 5;
+
+/** @brief Default file name inside the store directory where the certificate is stored in PEM
+ * format. */
+constexpr std::string_view CLIENT_CERTIFICATE_FILE = "client-certificate.pem";
+
+/** @brief Default file name inside the store directory where the private key is stored in PEM
+ * format. */
+constexpr std::string_view PRIVATE_KEY_FILE = "client-priv-key.pem";
 
 /**
  * @brief A type-safe wrapper for Astarte credentials, distinguishing between a credential secret
@@ -169,6 +167,24 @@ class MqttConfig {
   auto pairing_url() -> std::string_view { return pairing_url_; }
 
   /**
+   * @brief Check if the credential is of type pairing token.
+   * @return a boolean stating if the stored credential is a pairing token or not.
+   */
+  auto cred_is_pairing_token() -> bool { return credential_.is_pairing_token(); }
+
+  /**
+   * @brief Check if the credential is of type credential secret.
+   * @return a boolean stating if the stored credential is a credential secret or not.
+   */
+  auto cred_is_credential_secret() -> bool { return credential_.is_credential_secret(); }
+
+  /**
+   * @brief Retrieve the credential value
+   * @return a string representing the credential value.
+   */
+  auto cred_value() -> std::string { return credential_.value(); }
+
+  /**
    * @brief Get the configured store directory.
    * @return a string containing the store directory.
    */
@@ -202,12 +218,6 @@ class MqttConfig {
     this->conn_timeout_ = duration;
     return *this;
   }
-
-  /**
-   * @brief Retrieve the credential secret for the connection, eventually registering the device.
-   * @return A string containing the credentials secret, an error otherwise.
-   */
-  auto read_secret_or_register() -> astarte_tl::expected<std::string, AstarteError>;
 
   /**
    * @brief Build method to retrieve the Paho MQTT connection options.
