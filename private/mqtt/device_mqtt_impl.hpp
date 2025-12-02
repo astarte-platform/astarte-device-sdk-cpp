@@ -166,7 +166,6 @@ struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
   // device_grpc_impl.hpp)
   MqttConnection connection_;
   // TODO: the following paramenters can be gathered into SharedState struct
-  std::atomic_bool connected_{false};
   Introspection introspection_;
 };
 

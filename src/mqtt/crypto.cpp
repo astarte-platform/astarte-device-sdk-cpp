@@ -181,7 +181,7 @@ PsaKey::~PsaKey() {
   if (key_id_ != PSA_KEY_ID_NULL) {
     auto res = mbedtls_ret_to_astarte_errors(psa_destroy_key(key_id_), "psa_destroy_key");
     if (!res) {
-      spdlog::critical(
+      spdlog::error(
           "PsaKey destructor failed to destroy the key. Key ID {} may be leaked. Error: {}",
           key_id_, res.error());
     }

@@ -49,10 +49,8 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::create(const MqttConfig& cfg)
     return astarte_tl::unexpected(conn.error());
   }
 
-  std::shared_ptr<AstarteDeviceMqttImpl> impl(
+  return std::shared_ptr<AstarteDeviceMqttImpl>(
       new AstarteDeviceMqttImpl(cfg, std::move(conn.value())));
-
-  return impl;
 }
 
 AstarteDeviceMqtt::AstarteDeviceMqttImpl::AstarteDeviceMqttImpl(MqttConfig cfg,
@@ -87,7 +85,7 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::add_interface_from_str(
   spdlog::debug("Adding interface from string");
 
   if (is_connected()) {
-    // TODO(rgwork): If the device is connected, communicate the new introspection to Astarte
+    // TODO(rgallor): If the device is connected, communicate the new introspection to Astarte
   }
 
   json interface_json;
@@ -115,11 +113,11 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::remove_interface(
 
 auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::connect()
     -> astarte_tl::expected<void, AstarteError> {
-  return connection_.connect(introspection_).map([this]() { connected_.store(true); });
+  return connection_.connect(introspection_);
 }
 
 [[nodiscard]] auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::is_connected() const -> bool {
-  return connected_.load();
+  return connection_.is_connected();
 }
 
 auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::disconnect()
@@ -129,7 +127,7 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::disconnect()
     return {};
   }
 
-  return connection_.disconnect().map([this]() { connected_.store(false); });
+  return connection_.disconnect();
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
@@ -163,7 +161,7 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::unset_property(std::string_view /
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::poll_incoming(
     const std::chrono::milliseconds& /* timeout */) -> std::optional<AstarteMessage> {
-  // TODO(rgwork): change which correct implementation. the actual one is used only to make e2e
+  // TODO(rgallor): change which correct implementation. the actual one is used only to make e2e
   // tests work.
   return std::nullopt;
 }
