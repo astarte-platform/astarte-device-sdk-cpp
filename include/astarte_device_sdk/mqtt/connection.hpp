@@ -26,49 +26,6 @@
 
 namespace AstarteDeviceSdk {
 
-// Forward declaration to allow usage in the ActionListener
-class ConnectionCallback;
-
-/**
- * @brief Implements the MQTT `iaction_listener` to handle the result of the initial connection
- * attempt.
- *
- * This class acts as a trigger. When the asynchronous connect operation succeeds,
- * it delegates the actual session setup (subscriptions, introspection) to the `ConnectionCallback`.
- */
-class ConnectionActionListener : public virtual mqtt::iaction_listener {
-  /**
-   * @brief Called when the connection attempt fails.
-   * @param tok The token associated with the failed action.
-   */
-  void on_failure(const mqtt::token& tok) override;
-
-  /**
-   * @brief Called when the connection attempt succeeds.
-   *
-   * Checks if a session is present. If not, it triggers the setup routine
-   * in the `ConnectionCallback`.
-   *
-   * @param tok The token associated with the successful action.
-   */
-  void on_success(const mqtt::token& tok) override;
-
- public:
-  /**
-   * @brief Construct a new Connection Action Listener.
-   *
-   * @param callback_handler Reference to the initialized ConnectionCallback object.
-   */
-  explicit ConnectionActionListener(ConnectionCallback& callback_handler,
-                                    std::shared_ptr<std::atomic<bool>> connected);
-
- private:
-  /// @brief Reference to the main callback handler that contains the setup logic.
-  ConnectionCallback& callback_handler_;
-  /// @brief The flag stating if the device is successfully connected to Astarte.
-  std::shared_ptr<std::atomic<bool>> connected_;
-};
-
 /**
  * @brief Implements `mqtt::callback` to handle connection life-cycle events and session setup.
  *

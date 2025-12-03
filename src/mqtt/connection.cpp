@@ -61,39 +61,6 @@ auto setup_crypto_files(PairingApi& api, const std::string_view secret,
 }  // namespace
 
 // ============================================================================
-// ConnectionActionListener Implementation
-// ============================================================================
-
-ConnectionActionListener::ConnectionActionListener(ConnectionCallback& callback_handler,
-                                                   std::shared_ptr<std::atomic<bool>> connected)
-    : callback_handler_(callback_handler), connected_(std::move(connected)) {}
-
-void ConnectionActionListener::on_failure(const mqtt::token& tok) {
-  spdlog::error("Connection failed (ID: {}), retrying...", tok.get_message_id());
-  connected_->store(false);
-}
-
-void ConnectionActionListener::on_success(const mqtt::token& tok) {
-  // We only care about the CONNECT action here
-  if (tok.get_type() == mqtt::token::Type::CONNECT) {
-    auto res = tok.get_connect_response();
-    const bool session_present = res.is_session_present();
-
-    if (session_present) {
-      spdlog::info("Session resumed from broker.");
-    } else {
-      spdlog::info("Starting a new session...");
-    }
-
-    // Delegate the setup logic (subscriptions, introspection) to the callback object
-    callback_handler_.perform_session_setup(session_present);
-
-    // now we can state that the client is properly connected to Astarte
-    connected_->store(true);
-  }
-}
-
-// ============================================================================
 // ConnectionCallback Implementation
 // ============================================================================
 
@@ -272,10 +239,22 @@ auto MqttConnection::connect(Introspection& introspection)
                                                connected_);
     client_->set_callback(*cb_);
 
-    auto listener = ConnectionActionListener(*cb_, connected_);
-
     spdlog::debug("Connecting device to the Astarte MQTT broker...");
-    client_->connect(options_, nullptr, listener)->wait();
+    auto tok = client_->connect(options_);
+    tok->wait();
+
+    // MQTT connection is now established. Check Session Present.
+    auto res = tok->get_connect_response();
+    bool session_present = res.is_session_present();
+
+    if (session_present) {
+      spdlog::info("Session resumed from broker.");
+    } else {
+      spdlog::info("Starting a new session...");
+    }
+
+    cb_->perform_session_setup(session_present);
+    connected_->store(true);
   } catch (const mqtt::exception& e) {
     spdlog::error("Error while trying to connect to Astarte: {}", e.what());
     return astarte_tl::unexpected(AstarteMqttConnectionError(
