@@ -20,26 +20,6 @@
 
 namespace AstarteDeviceSdk {
 
-namespace config {
-/**
- * @brief Reads the entire content of a file into a string.
- * @param file_path The path to the file to be read.
- * @return the file content as a string, or an error if the file cannot be opened.
- */
-auto read_from_file(const std::filesystem::path& file_path)
-    -> astarte_tl::expected<std::string, AstarteError>;
-
-/**
- * @brief Writes a string to a file, overwriting any existing content.
- * @param file_path The path to the file to be written.
- * @param data The string content to write to the file.
- * @return an error in case the write operation failed, nothing otherwise.
- */
-auto write_to_file(const std::filesystem::path& file_path, std::string_view data)
-    -> astarte_tl::expected<void, AstarteError>;
-
-}  // namespace config
-
 /** @brief Default keep alive interval in seconds for the MQTT connection. */
 constexpr uint32_t DEFAULT_KEEP_ALIVE = 30;
 
