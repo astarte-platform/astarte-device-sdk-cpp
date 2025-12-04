@@ -43,7 +43,7 @@ class Pkg(ConanFile):
         # TODO: de-activate use of stdfmt when the compiler is not compatible
 
     def package_info(self):
-        self.cpp_info.libs = ["astarte_device_sdk", "astarte_msghub_proto"]
+        self.cpp_info.libs = ["astarte_device_sdk"]
         if not valid_min_cppstd(self, "23"):
             self.cpp_info.defines.append("ASTARTE_USE_TL_EXPECTED")
         self.cpp_info.set_property("cmake_file_name", "astarte_device_sdk")
