@@ -252,9 +252,22 @@ auto MqttConnection::connect(Introspection& introspection)
     auto tok = client_->connect(options_);
     tok->wait();
 
+    // we remove the client certificate and private key from filesystem
+    auto res = config::secure_shred_file(
+                   astarte_fmt::format("{}/{}", cfg_.store_dir(), CLIENT_CERTIFICATE_FILE))
+                   .and_then([&]() {
+                     return config::secure_shred_file(
+                         astarte_fmt::format("{}/{}", cfg_.store_dir(), PRIVATE_KEY_FILE));
+                   });
+    if (!res) {
+      spdlog::error("failed to delete client cert or private key from filesystem. Error: {}",
+                    res.error());
+      return astarte_tl::unexpected(res.error());
+    }
+
     // MQTT connection is now established. Check Session Present.
-    auto res = tok->get_connect_response();
-    const bool session_present = res.is_session_present();
+    auto conn_res = tok->get_connect_response();
+    const bool session_present = conn_res.is_session_present();
 
     if (session_present) {
       spdlog::info("Session resumed from broker.");
