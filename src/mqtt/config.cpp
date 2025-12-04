@@ -19,6 +19,12 @@ namespace AstarteDeviceSdk {
 
 namespace config {
 
+#include <unistd.h>
+
+#include <cstdio>
+#include <system_error>
+#include <vector>
+
 auto read_from_file(const std::filesystem::path& file_path)
     -> astarte_tl::expected<std::string, AstarteError> {
   std::ifstream interface_file(file_path, std::ios::in);
@@ -48,6 +54,60 @@ auto write_to_file(const std::filesystem::path& file_path, std::string_view data
   }
 
   output_file << data;
+
+  return {};
+}
+
+auto secure_shred_file(const std::string& path) -> astarte_tl::expected<void, AstarteError> {
+  FILE* f = std::fopen(path.c_str(), "rb+");
+  if (!f) {
+    // capture the global 'errno', wrap it in an error_code, and return as unexpected
+    return astarte_tl::unexpected(AstarteWriteCredentialError(astarte_fmt::format(
+        "failed to open the file, {}", std::error_code(errno, std::generic_category()).message())));
+  }
+
+  // get size
+  std::fseek(f, 0, SEEK_END);
+  long size = std::ftell(f);
+  std::rewind(f);
+
+  // write zeros
+  const size_t buf_size = 4096;
+  std::vector<unsigned char> buf(buf_size, 0);
+  long written = 0;
+
+  while (written < size) {
+    long to_write = (size - written > buf_size) ? buf_size : (size - written);
+    size_t write_count = std::fwrite(buf.data(), 1, to_write, f);
+
+    // check if write failed
+    if (write_count != to_write) {
+      std::fclose(f);
+      return astarte_tl::unexpected(AstarteWriteCredentialError(
+          astarte_fmt::format("failed to write zeros to file, {}",
+                              std::error_code(errno, std::generic_category()).message())));
+    }
+    written += to_write;
+  }
+
+  // flush and sync
+  std::fflush(f);
+  if (fsync(fileno(f)) != 0) {
+    std::fclose(f);
+    return astarte_tl::unexpected(AstarteWriteCredentialError(
+        astarte_fmt::format("failed to flush and sync modifications, {}",
+                            std::error_code(errno, std::generic_category()).message())));
+  }
+
+  std::fclose(f);
+
+  // delete the file
+  std::error_code ec;
+  std::filesystem::remove(path, ec);
+  if (ec) {
+    return astarte_tl::unexpected(AstarteWriteCredentialError(
+        astarte_fmt::format("failed to delete the file, {}", ec.message())));
+  }
 
   return {};
 }

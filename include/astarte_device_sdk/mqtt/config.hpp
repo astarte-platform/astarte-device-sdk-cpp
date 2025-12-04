@@ -24,6 +24,19 @@ namespace AstarteDeviceSdk {
  * @brief File read and write utilities
  */
 namespace config {
+
+#include <unistd.h>
+
+#include <cstdio>
+#include <system_error>
+#include <vector>
+
+#ifdef _WIN32
+#include <io.h>
+#define fsync _commit
+#define fileno _fileno
+#endif
+
 /**
  * @brief Reads the entire content of a file into a string.
  * @param file_path The path to the file to be read.
@@ -40,6 +53,8 @@ auto read_from_file(const std::filesystem::path& file_path)
  */
 auto write_to_file(const std::filesystem::path& file_path, std::string_view data)
     -> astarte_tl::expected<void, AstarteError>;
+
+auto secure_shred_file(const std::string& path) -> astarte_tl::expected<void, AstarteError>;
 
 }  // namespace config
 
