@@ -17,6 +17,43 @@
 
 namespace AstarteDeviceSdk {
 
+namespace config {
+
+auto read_from_file(const std::filesystem::path& file_path)
+    -> astarte_tl::expected<std::string, AstarteError> {
+  std::ifstream interface_file(file_path, std::ios::in);
+  if (!interface_file.is_open()) {
+    return astarte_tl::unexpected(AstarteReadCredentialError(
+        astarte_fmt::format("Could not open the credential file: {}", file_path.string())));
+  }
+
+  // read the entire file content into a string
+  std::string data((std::istreambuf_iterator<char>(interface_file)),
+                   std::istreambuf_iterator<char>());
+  interface_file.close();
+
+  return data;
+}
+
+auto write_to_file(const std::filesystem::path& file_path, std::string_view data)
+    -> astarte_tl::expected<void, AstarteError> {
+  // open an output file stream (ofstream) using the path object
+  // the file is automatically closed when 'output_file' goes out of scope
+  std::ofstream output_file(file_path);
+
+  // error if the file was not opened successfully
+  if (!output_file.is_open()) {
+    return astarte_tl::unexpected(AstarteWriteCredentialError(
+        astarte_fmt::format("couldn't open file {}", file_path.string())));
+  }
+
+  output_file << data;
+
+  return {};
+}
+
+}  // namespace config
+
 auto MqttConfig::build_mqtt_options() -> astarte_tl::expected<mqtt::connect_options, AstarteError> {
   auto conn_opts = mqtt::connect_options_builder::v3();
 

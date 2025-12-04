@@ -55,6 +55,14 @@ auto setup_crypto_files(PairingApi& api, const std::string_view secret,
       {astarte_fmt::format("{}/{}", store_dir, CLIENT_CERTIFICATE_FILE), client_cert},
       {astarte_fmt::format("{}/{}", store_dir, PRIVATE_KEY_FILE), client_priv_key}};
 
+  for (const auto& [path, content] : files) {
+    auto write_res = config::write_to_file(path, content);
+    if (!write_res) {
+      spdlog::error("Failed to write to {}. Error: {}", path, write_res.error());
+      return astarte_tl::unexpected(write_res.error());
+    }
+  }
+
   return {};
 }
 
