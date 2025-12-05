@@ -91,7 +91,6 @@ function(
         "include/astarte_device_sdk/mqtt/device_mqtt.hpp"
         "include/astarte_device_sdk/mqtt/errors.hpp"
         "include/astarte_device_sdk/mqtt/pairing.hpp"
-        "include/astarte_device_sdk/mqtt/connection.hpp"
         "include/astarte_device_sdk/mqtt/formatter.hpp"
     )
     list(
@@ -109,6 +108,7 @@ function(
     list(
         APPEND
         ${ASTARTE_MQTT_PRIVATE_HEADERS}
+        "private/mqtt/connection.hpp"
         "private/mqtt/crypto.hpp"
         "private/mqtt/device_mqtt_impl.hpp"
     )
