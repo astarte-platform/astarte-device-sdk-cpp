@@ -35,8 +35,8 @@ class TestOrchestrator {
   explicit TestOrchestrator(const struct CURLConfig& config_curl) : curl_config_(config_curl) {}
 
   // set a specific transport for the orchestrator
-  auto with_transport_config(const TransportConfigVariant transport_config) -> TestOrchestrator& {
-    transport_config_ = std::optional(transport_config);
+  auto with_transport_config(TransportConfigVariant transport_config) -> TestOrchestrator& {
+    transport_config_ = std::optional(std::move(transport_config));
     return *this;
   }
 
@@ -88,9 +88,9 @@ class TestOrchestrator {
       }
       test_case.attach_device(device_grpc);
 #else
-      auto config_mqtt = std::get<struct MqttTestConfig>(transport_config_.value());
+      auto config_mqtt = std::get<MqttTestConfig>(*std::move(transport_config_));
 
-      auto res = AstarteDeviceMqtt::create(config_mqtt.cfg);
+      auto res = AstarteDeviceMqtt::create(std::move(config_mqtt.cfg));
       if (!res) {
         spdlog::error("Couldn't create an Astarte MQTT device.");
         throw EndToEndAstarteDeviceException(astarte_fmt::format("{}", res.error()));

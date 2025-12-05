@@ -99,6 +99,7 @@ function(
         "include/astarte_device_sdk/mqtt/config.hpp"
         "include/astarte_device_sdk/mqtt/device_mqtt.hpp"
         "include/astarte_device_sdk/mqtt/errors.hpp"
+        "include/astarte_device_sdk/mqtt/introspection.hpp"
         "include/astarte_device_sdk/mqtt/pairing.hpp"
         "include/astarte_device_sdk/mqtt/formatter.hpp"
     )
@@ -106,6 +107,7 @@ function(
         APPEND
         ${ASTARTE_MQTT_SOURCES}
         "src/mqtt/config.cpp"
+        "src/mqtt/credentials.cpp"
         "src/mqtt/crypto.cpp"
         "src/mqtt/device_mqtt_impl.cpp"
         "src/mqtt/device_mqtt.cpp"
@@ -118,6 +120,7 @@ function(
         APPEND
         ${ASTARTE_MQTT_PRIVATE_HEADERS}
         "private/mqtt/connection.hpp"
+        "private/mqtt/credentials.hpp"
         "private/mqtt/crypto.hpp"
         "private/mqtt/device_mqtt_impl.hpp"
     )

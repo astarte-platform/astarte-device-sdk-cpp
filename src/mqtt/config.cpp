@@ -8,111 +8,53 @@
 
 #include <chrono>
 #include <format>
+#include <memory>
 #include <string>
+#include <string_view>
 #include <utility>
 
 #include "astarte_device_sdk/mqtt/errors.hpp"
 #include "astarte_device_sdk/mqtt/formatter.hpp"
 #include "mqtt/connect_options.h"
+#include "mqtt/credentials.hpp"
 
 namespace AstarteDeviceSdk {
 
-namespace config {
+MqttConfig::~MqttConfig() = default;
+MqttConfig::MqttConfig(MqttConfig&&) noexcept = default;
+auto MqttConfig::operator=(MqttConfig&&) noexcept -> MqttConfig& = default;
 
-#include <unistd.h>
+MqttConfig::MqttConfig(std::string_view realm, std::string_view device_id,
+                       std::unique_ptr<Credential> credential, std::string_view pairing_url,
+                       std::string_view store_dir)
+    : realm_(realm),
+      device_id_(device_id),
+      credential_(std::move(credential)),
+      pairing_url_(pairing_url),
+      store_dir_(store_dir),
+      ignore_ssl_(false),
+      keepalive_(DEFAULT_KEEP_ALIVE),
+      conn_timeout_(DEFAULT_CONNECTION_TIMEOUT) {}
 
-#include <cstdio>
-#include <system_error>
-#include <vector>
-
-auto read_from_file(const std::filesystem::path& file_path)
-    -> astarte_tl::expected<std::string, AstarteError> {
-  std::ifstream interface_file(file_path, std::ios::in);
-  if (!interface_file.is_open()) {
-    return astarte_tl::unexpected(AstarteReadCredentialError(
-        astarte_fmt::format("Could not open the credential file: {}", file_path.string())));
-  }
-
-  // read the entire file content into a string
-  std::string data((std::istreambuf_iterator<char>(interface_file)),
-                   std::istreambuf_iterator<char>());
-  interface_file.close();
-
-  return data;
+auto MqttConfig::with_credential_secret(std::string_view realm, std::string_view device_id,
+                                        std::string_view credential, std::string_view pairing_url,
+                                        std::string_view store_dir) -> MqttConfig {
+  auto cred_ptr = std::make_unique<Credential>(Credential::secret(credential));
+  return {realm, device_id, std::move(cred_ptr), pairing_url, store_dir};
 }
 
-auto write_to_file(const std::filesystem::path& file_path, std::string_view data)
-    -> astarte_tl::expected<void, AstarteError> {
-  // open an output file stream (ofstream) using the path object
-  // the file is automatically closed when 'output_file' goes out of scope
-  std::ofstream output_file(file_path);
-
-  // error if the file was not opened successfully
-  if (!output_file.is_open()) {
-    return astarte_tl::unexpected(AstarteWriteCredentialError(
-        astarte_fmt::format("couldn't open file {}", file_path.string())));
-  }
-
-  output_file << data;
-
-  return {};
+auto MqttConfig::with_pairing_token(std::string_view realm, std::string_view device_id,
+                                    std::string_view credential, std::string_view pairing_url,
+                                    std::string_view store_dir) -> MqttConfig {
+  auto cred_ptr = std::make_unique<Credential>(Credential::pairing_token(credential));
+  return {realm, device_id, std::move(cred_ptr), pairing_url, store_dir};
 }
 
-auto secure_shred_file(const std::string& path) -> astarte_tl::expected<void, AstarteError> {
-  FILE* f = std::fopen(path.c_str(), "rb+");
-  if (!f) {
-    // capture the global 'errno', wrap it in an error_code, and return as unexpected
-    return astarte_tl::unexpected(AstarteWriteCredentialError(astarte_fmt::format(
-        "failed to open the file, {}", std::error_code(errno, std::generic_category()).message())));
-  }
+auto MqttConfig::cred_is_pairing_token() -> bool { return credential_->is_pairing_token(); }
 
-  // get size
-  std::fseek(f, 0, SEEK_END);
-  long size = std::ftell(f);
-  std::rewind(f);
+auto MqttConfig::cred_is_credential_secret() -> bool { return credential_->is_credential_secret(); }
 
-  // write zeros
-  const size_t buf_size = 4096;
-  std::vector<unsigned char> buf(buf_size, 0);
-  long written = 0;
-
-  while (written < size) {
-    long to_write = (size - written > buf_size) ? buf_size : (size - written);
-    size_t write_count = std::fwrite(buf.data(), 1, to_write, f);
-
-    // check if write failed
-    if (write_count != to_write) {
-      std::fclose(f);
-      return astarte_tl::unexpected(AstarteWriteCredentialError(
-          astarte_fmt::format("failed to write zeros to file, {}",
-                              std::error_code(errno, std::generic_category()).message())));
-    }
-    written += to_write;
-  }
-
-  // flush and sync
-  std::fflush(f);
-  if (fsync(fileno(f)) != 0) {
-    std::fclose(f);
-    return astarte_tl::unexpected(AstarteWriteCredentialError(
-        astarte_fmt::format("failed to flush and sync modifications, {}",
-                            std::error_code(errno, std::generic_category()).message())));
-  }
-
-  std::fclose(f);
-
-  // delete the file
-  std::error_code ec;
-  std::filesystem::remove(path, ec);
-  if (ec) {
-    return astarte_tl::unexpected(AstarteWriteCredentialError(
-        astarte_fmt::format("failed to delete the file, {}", ec.message())));
-  }
-
-  return {};
-}
-
-}  // namespace config
+auto MqttConfig::cred_value() -> std::string { return credential_->value(); }
 
 auto MqttConfig::build_mqtt_options() -> astarte_tl::expected<mqtt::connect_options, AstarteError> {
   auto conn_opts = mqtt::connect_options_builder::v3();

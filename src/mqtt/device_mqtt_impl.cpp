@@ -52,7 +52,7 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::create(MqttConfig& cfg)
   }
 
   return std::shared_ptr<AstarteDeviceMqttImpl>(
-      new AstarteDeviceMqttImpl(cfg, std::move(conn.value())));
+      new AstarteDeviceMqttImpl(std::move(cfg), std::move(conn.value())));
 }
 
 AstarteDeviceMqtt::AstarteDeviceMqttImpl::AstarteDeviceMqttImpl(MqttConfig cfg,

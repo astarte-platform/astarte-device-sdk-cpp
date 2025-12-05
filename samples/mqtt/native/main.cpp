@@ -72,7 +72,7 @@ int main() {
       return 1;
     }
 
-    const auto mqtt_cfg = [&] {
+    auto mqtt_cfg = [&] {
       if (in_db) {
         return AstarteDeviceSdk::MqttConfig::with_credential_secret(
             cfg.realm, cfg.device_id, *cred_opt,
@@ -94,7 +94,7 @@ int main() {
     // here you can modify the mqtt_cfg options, such as the keepalive interval, the connection
     // timeout period, etc.
 
-    auto device_res = AstarteDeviceSdk::AstarteDeviceMqtt::create(mqtt_cfg);
+    auto device_res = AstarteDeviceSdk::AstarteDeviceMqtt::create(std::move(mqtt_cfg));
     if (!device_res) {
       spdlog::error("device creation error: {}", device_res.error());
       return 1;
