@@ -21,6 +21,7 @@
 #include "astarte_device_sdk/mqtt/pairing.hpp"
 #include "astarte_device_sdk/ownership.hpp"
 #include "mqtt/async_client.h"
+#include "mqtt/credentials.hpp"
 #include "mqtt/delivery_token.h"
 #include "mqtt/exception.h"
 #include "mqtt/iasync_client.h"

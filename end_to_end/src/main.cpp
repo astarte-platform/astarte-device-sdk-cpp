@@ -96,7 +96,7 @@ int main() {
                            astarte_interfaces::ServerProperty::FILE,
                        }};
 
-    orchestrator.with_transport_config(transport_config);
+    orchestrator.with_transport_config(std::move(transport_config));
 
     orchestrator.add_test_case(testcases::device_status());
     // TODO: add test cases to execute here

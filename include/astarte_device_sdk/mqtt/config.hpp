@@ -9,6 +9,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -19,114 +20,8 @@
 #include "mqtt/connect_options.h"
 
 namespace AstarteDeviceSdk {
-
-/**
- * @brief File read and write utilities
- */
-namespace config {
-
-#include <unistd.h>
-
-#include <cstdio>
-#include <system_error>
-#include <vector>
-
-#ifdef _WIN32
-#include <io.h>
-#define fsync _commit
-#define fileno _fileno
-#endif
-
-/**
- * @brief Reads the entire content of a file into a string.
- * @param file_path The path to the file to be read.
- * @return the file content as a string, or an error if the file cannot be opened.
- */
-auto read_from_file(const std::filesystem::path& file_path)
-    -> astarte_tl::expected<std::string, AstarteError>;
-
-/**
- * @brief Writes a string to a file, overwriting any existing content.
- * @param file_path The path to the file to be written.
- * @param data The string content to write to the file.
- * @return an error in case the write operation failed, nothing otherwise.
- */
-auto write_to_file(const std::filesystem::path& file_path, std::string_view data)
-    -> astarte_tl::expected<void, AstarteError>;
-
-auto secure_shred_file(const std::string& path) -> astarte_tl::expected<void, AstarteError>;
-
-}  // namespace config
-
-/** @brief Default keep alive interval in seconds for the MQTT connection. */
-constexpr uint32_t DEFAULT_KEEP_ALIVE = 30;
-
-/** @brief Default connection timeout in seconds for the MQTT connection. */
-constexpr uint32_t DEFAULT_CONNECTION_TIMEOUT = 5;
-
-/** @brief Default file name inside the store directory where the certificate is stored in PEM
- * format. */
-constexpr std::string_view CLIENT_CERTIFICATE_FILE = "client-certificate.pem";
-
-/** @brief Default file name inside the store directory where the private key is stored in PEM
- * format. */
-constexpr std::string_view PRIVATE_KEY_FILE = "client-priv-key.pem";
-
-/**
- * @brief A type-safe wrapper for Astarte credentials, distinguishing between a credential secret
- * and a pairing token.
- */
-class Credential {
- public:
-  /**
-   * @brief Creates a Credential instance from a pairing token.
-   * @param credential The pairing token string.
-   * @return A new Credential instance of type PAIRING_TOKEN.
-   */
-  static auto pairing_token(std::string_view credential) -> Credential {
-    return Credential{CredentialType::PAIRING_TOKEN, std::string(credential)};
-  }
-
-  /**
-   * @brief Creates a Credential instance from a credential secret.
-   * @param credential The credential secret string.
-   * @return A new Credential instance of type CREDENTIAL_SECRET.
-   */
-  static auto secret(std::string_view credential) -> Credential {
-    return Credential{CredentialType::CREDENTIAL_SECRET, std::string(credential)};
-  }
-
-  /**
-   * @brief Check if this credential is a pairing token.
-   * @return true if the credential is a PAIRING_TOKEN, false otherwise.
-   */
-  auto is_pairing_token() const -> bool { return typ_ == CredentialType::PAIRING_TOKEN; }
-
-  /**
-   * @brief Check if this credential is a credential secret.
-   * @return true if the credential is a CREDENTIAL_SECRET, false otherwise.
-   */
-  auto is_credential_secret() const -> bool { return typ_ == CredentialType::CREDENTIAL_SECRET; }
-
-  /**
-   * @brief Get the string value of the credential.
-   * @return The stored credential (token or secret) as a string.
-   */
-  auto value() const -> std::string { return credential_; }
-
- private:
-  /// @brief Enum to differentiate credential types.
-  enum CredentialType {
-    CREDENTIAL_SECRET,
-    PAIRING_TOKEN,
-  };
-
-  CredentialType typ_;
-  std::string credential_;
-
-  /// @brief Private constructor to enforce creation through static factory methods.
-  Credential(CredentialType t, std::string cred) : typ_(t), credential_(std::move(cred)) {}
-};
+// Forward declaration, needed to make Credential private.
+class Credential;
 
 /**
  * @brief Configuration for the Astarte MQTT connection.
@@ -135,6 +30,15 @@ class Credential {
  */
 class MqttConfig {
  public:
+  /** @brief Move constructor for the MqttConfig class. */
+  MqttConfig(MqttConfig&&) noexcept;
+  /**
+   * @brief Move assignment operator for the MqttConfig class.
+   * @return A reference to this MqttConfig object.
+   */
+  MqttConfig& operator=(MqttConfig&&) noexcept;
+  ~MqttConfig();
+
   /**
    * @brief Create a new MqttConfig instance using a credential secret.
    * @param realm The Astarte realm.
@@ -146,9 +50,7 @@ class MqttConfig {
    */
   static auto with_credential_secret(std::string_view realm, std::string_view device_id,
                                      std::string_view credential, std::string_view pairing_url,
-                                     std::string_view store_dir) -> MqttConfig {
-    return MqttConfig{realm, device_id, Credential::secret(credential), pairing_url, store_dir};
-  };
+                                     std::string_view store_dir) -> MqttConfig;
 
   /**
    * @brief Create a new MqttConfig instance using a pairing token.
@@ -161,10 +63,7 @@ class MqttConfig {
    */
   static auto with_pairing_token(std::string_view realm, std::string_view device_id,
                                  std::string_view credential, std::string_view pairing_url,
-                                 std::string_view store_dir) -> MqttConfig {
-    return MqttConfig{realm, device_id, Credential::pairing_token(credential), pairing_url,
-                      store_dir};
-  };
+                                 std::string_view store_dir) -> MqttConfig;
 
   /**
    * @brief Get the configured realm.
@@ -188,19 +87,19 @@ class MqttConfig {
    * @brief Check if the credential is of type pairing token.
    * @return a boolean stating if the stored credential is a pairing token or not.
    */
-  auto cred_is_pairing_token() -> bool { return credential_.is_pairing_token(); }
+  auto cred_is_pairing_token() -> bool;
 
   /**
    * @brief Check if the credential is of type credential secret.
    * @return a boolean stating if the stored credential is a credential secret or not.
    */
-  auto cred_is_credential_secret() -> bool { return credential_.is_credential_secret(); }
+  auto cred_is_credential_secret() -> bool;
 
   /**
    * @brief Retrieve the credential value
    * @return a string representing the credential value.
    */
-  auto cred_value() -> std::string { return credential_.value(); }
+  auto cred_value() -> std::string;
 
   /**
    * @brief Get the configured store directory.
@@ -250,24 +149,14 @@ class MqttConfig {
    * This constructor is private to enforce instance creation through the provided static factory
    * methods, ensuring that a valid credential type is always supplied.
    */
-  MqttConfig(std::string_view realm, std::string_view device_id, Credential credential,
-             std::string_view pairing_url, std::string_view store_dir)
-      : realm_(realm),
-        device_id_(device_id),
-        credential_(credential),
-        pairing_url_(pairing_url),
-        store_dir_(store_dir),
-        // default does not ignore SSL errors
-        ignore_ssl_(false),
-        // default has a keepalive of 30 seconds
-        keepalive_(DEFAULT_KEEP_ALIVE),
-        // default has a connection timeout of 5 seconds
-        conn_timeout_(DEFAULT_CONNECTION_TIMEOUT) {}
+  MqttConfig(std::string_view realm, std::string_view device_id,
+             std::unique_ptr<Credential> credential, std::string_view pairing_url,
+             std::string_view store_dir);
 
   std::string realm_;
   std::string device_id_;
   std::string pairing_url_;
-  Credential credential_;
+  std::unique_ptr<Credential> credential_;
   std::string store_dir_;
   bool ignore_ssl_;
   uint32_t keepalive_;
