@@ -16,7 +16,6 @@
 
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/mqtt/config.hpp"
-#include "astarte_device_sdk/mqtt/connection.hpp"
 #include "astarte_device_sdk/mqtt/device_mqtt.hpp"
 #include "astarte_device_sdk/mqtt/errors.hpp"
 #include "astarte_device_sdk/mqtt/introspection.hpp"
@@ -25,6 +24,7 @@
 #include "astarte_device_sdk/ownership.hpp"
 #include "astarte_device_sdk/property.hpp"
 #include "astarte_device_sdk/stored_property.hpp"
+#include "mqtt/connection.hpp"
 
 namespace AstarteDeviceSdk {
 
