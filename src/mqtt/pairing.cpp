@@ -316,7 +316,6 @@ auto PairingApi::device_cert_valid(std::string_view certificate, std::string_vie
 auto create_random_device_id() -> std::string {
   // boost random_generator generates a V4 UUID and handles seeding internally
   boost::uuids::random_generator gen;
-  // boost::uuids::uuid uuid = gen();
   return uuid_to_str(gen());
 }
 

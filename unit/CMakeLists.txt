@@ -22,7 +22,7 @@ add_executable(unit_test data_test.cpp msg_test.cpp errors_test.cpp exponential_
 if(ASTARTE_TRANSPORT_GRPC)
     target_sources(unit_test PRIVATE conversion_test.cpp)
 else()
-    target_sources(unit_test PRIVATE crypto_test.cpp)
+    target_sources(unit_test PRIVATE crypto_test.cpp device_id_test.cpp)
 endif()
 
 # Add the Astarte sdk root directory
