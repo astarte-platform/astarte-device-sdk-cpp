@@ -11,9 +11,11 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/mqtt/config.hpp"
+#include "astarte_device_sdk/mqtt/errors.hpp"
 #include "astarte_device_sdk/msg.hpp"
 #include "astarte_device_sdk/object.hpp"
 #include "astarte_device_sdk/ownership.hpp"
@@ -23,8 +25,20 @@
 
 namespace AstarteDeviceSdk {
 
-AstarteDeviceMQTT::AstarteDeviceMQTT(const MqttConfig cfg)
-    : astarte_device_impl_{std::make_shared<AstarteDeviceMQTTImpl>(cfg)} {}
+auto AstarteDeviceMQTT::create(MqttConfig cfg)
+    -> astarte_tl::expected<AstarteDeviceMQTT, AstarteError> {
+  auto impl_result = AstarteDeviceMQTTImpl::create(cfg);
+  if (!impl_result) {
+    return astarte_tl::unexpected(impl_result.error());
+  }
+
+  std::shared_ptr<AstarteDeviceMQTTImpl> impl_ptr = std::move(impl_result.value());
+
+  return AstarteDeviceMQTT(std::move(impl_ptr));
+}
+
+AstarteDeviceMQTT::AstarteDeviceMQTT(std::shared_ptr<AstarteDeviceMQTTImpl> impl)
+    : astarte_device_impl_{std::move(impl)} {}
 
 AstarteDeviceMQTT::~AstarteDeviceMQTT() = default;
 
