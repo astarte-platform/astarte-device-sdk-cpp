@@ -22,9 +22,9 @@
 #include "astarte_device_sdk/property.hpp"
 #include "astarte_device_sdk/mqtt/device_mqtt.hpp"
 #include "astarte_device_sdk/mqtt/errors.hpp"
-#include "astarte_device_sdk/mqtt/introspection.hpp"
 
 #include "mqtt/connection.hpp"
+#include "mqtt/introspection.hpp"
 
 namespace AstarteDeviceSdk {
 
