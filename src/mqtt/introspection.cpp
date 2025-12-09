@@ -6,6 +6,10 @@
 
 #include <spdlog/spdlog.h>
 
+#include <astarte_device_sdk/errors.hpp>
+#include <astarte_device_sdk/mqtt/formatter.hpp>
+#include <astarte_device_sdk/ownership.hpp>
+#include <astarte_device_sdk/type.hpp>
 #include <cstdint>
 #include <format>
 #include <limits>
@@ -14,11 +18,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-
-#include "astarte_device_sdk/errors.hpp"
-#include "astarte_device_sdk/mqtt/formatter.hpp"
-#include "astarte_device_sdk/ownership.hpp"
-#include "astarte_device_sdk/type.hpp"
 
 namespace AstarteDeviceSdk {
 
@@ -60,7 +59,9 @@ auto mappings_from_interface(const json& interface)
     auto type = type_res.value();
     auto explicit_timestamp =
         optional_value_from_json_interface<bool>(mapping, "explicit_timestamp");
-    auto reliability = optional_value_from_json_interface<Reliability>(mapping, "reliability");
+    auto reliability =
+        std::optional(optional_value_from_json_interface<Reliability>(mapping, "reliability")
+                          .value_or(Reliability::kUnreliable));
     auto retention = optional_value_from_json_interface<Retention>(mapping, "retention");
     auto expiry = optional_value_from_json_interface<int64_t>(mapping, "expiry");
     auto database_retention_policy = optional_value_from_json_interface<DatabaseRetentionPolicy>(
@@ -145,6 +146,82 @@ auto Interface::try_from_json(const json& interface)
                    mappings.value());
 }
 
+auto Interface::get_mapping(std::string_view path) const
+    -> astarte_tl::expected<const Mapping*, AstarteError> {
+  for (const auto& mapping : mappings_) {
+    if (mapping.check_path(path)) {
+      return &mapping;
+    }
+  }
+
+  return astarte_tl::unexpected(AstarteInterfaceValidationError(
+      astarte_fmt::format("couldn't find mapping with path {}", path)));
+}
+
+auto Interface::validate_individual(std::string_view path, const AstarteData& data,
+                                    const std::chrono::system_clock::time_point* timestamp) const
+    -> astarte_tl::expected<void, AstarteError> {
+  auto mapping_res = get_mapping(path);
+  if (!mapping_res) {
+    return astarte_tl::unexpected(mapping_res.error());
+  }
+
+  const Mapping* mapping = mapping_res.value();
+
+  // Note: check_data must be const in Mapping class as discussed before
+  auto res = mapping->check_data(data);
+  if (!res) {
+    return astarte_tl::unexpected(res.error());
+  }
+
+  if (mapping->explicit_timestamp_ && timestamp == nullptr) {
+    spdlog::error("Explicit timestamp required for interface {}, path {}", interface_name_, path);
+    return astarte_tl::unexpected(AstarteInterfaceValidationError(astarte_fmt::format(
+        "Explicit timestamp required for interface {}, path {}", interface_name_, path)));
+  }
+
+  if (!mapping->explicit_timestamp_ && timestamp != nullptr) {
+    spdlog::error("Explicit timestamp not supported for interface {}, path {}", interface_name_,
+                  path);
+    return astarte_tl::unexpected(AstarteInterfaceValidationError(astarte_fmt::format(
+        "Explicit timestamp not supported for interface {}, path {}", interface_name_, path)));
+  }
+
+  return {};
+}
+
+auto Interface::get_qos(std::string_view path) const
+    -> astarte_tl::expected<uint8_t, AstarteError> {
+  auto mapping_exp = [&]() -> astarte_tl::expected<const Mapping*, AstarteError> {
+    if (aggregation_.has_value() && (aggregation_.value() == Aggregation::kIndividual)) {
+      auto mapping_res = get_mapping(path);
+      if (!mapping_res) {
+        return astarte_tl::unexpected(mapping_res.error());
+      }
+      return mapping_res.value();
+    }
+
+    // object Aggregation (return the first mapping)
+    if (mappings_.empty()) {
+      return astarte_tl::unexpected(AstarteMqttError("Interface has no mappings"));
+    }
+    return &mappings_.at(0);
+  }();
+
+  if (!mapping_exp) {
+    return astarte_tl::unexpected(mapping_exp.error());
+  }
+
+  const Mapping* map_ptr = mapping_exp.value();
+
+  if (!map_ptr->reliability_) {
+    return astarte_tl::unexpected(
+        AstarteMqttError("the interface mapping doesn't contain the qos value"));
+  }
+
+  return static_cast<int8_t>(map_ptr->reliability_.value());
+}
+
 auto Introspection::checked_insert(Interface interface)
     -> astarte_tl::expected<void, AstarteError> {
   if (!interfaces_.contains(interface.interface_name())) {
@@ -190,6 +267,16 @@ auto Introspection::checked_insert(Interface interface)
   spdlog::debug("overwriting the old interface with the new one");
   interfaces_.insert_or_assign(interface.interface_name(), std::move(interface));
   return {};
+}
+
+auto Introspection::get(const std::string& interface_name)
+    -> astarte_tl::expected<Interface*, AstarteError> {
+  if (!interfaces_.contains(interface_name)) {
+    return astarte_tl::unexpected(AstarteMqttError(
+        astarte_fmt::format("couldn't find interface {} in the introspection", interface_name)));
+  }
+
+  return &interfaces_.at(interface_name);
 }
 
 }  // namespace AstarteDeviceSdk

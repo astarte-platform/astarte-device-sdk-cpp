@@ -163,6 +163,17 @@ class MqttConnection {
   [[nodiscard]] auto is_connected() const -> bool;
 
   /**
+   * @brief Send an individual data to Astarte.
+   * @param interface_name A collection of interfaces defining the device.
+   * @param path A collection of interfaces defining the device.
+   * @param qos The quality of service value. It could be only 0, 1 or 2.
+   * @param data A collection of interfaces defining the device.
+   * @return True if the device is connected to Astarte, false otherwise.
+   */
+  auto send_individual(std::string_view interface_name, std::string_view path, uint8_t qos,
+                       const std::span<uint8_t> data) -> astarte_tl::expected<void, AstarteError>;
+
+  /**
    * @brief Disconnect the client from the Astarte MQTT broker.
    * @return an error if the disconnection operation fails.
    */

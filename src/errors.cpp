@@ -24,6 +24,14 @@ auto AstarteErrorBase::nested_error() const -> const std::shared_ptr<AstarteErro
   return other_;
 }
 
+AstarteDataSerializationError::AstarteDataSerializationError(std::string_view message)
+    : AstarteErrorBase(k_type_, message) {}
+AstarteDataSerializationError::AstarteDataSerializationError(std::string_view message,
+                                                             const AstarteError& other)
+    : AstarteErrorBase(
+          k_type_, message,
+          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+
 AstarteInternalError::AstarteInternalError(std::string_view message)
     : AstarteErrorBase(k_type_, message) {}
 AstarteInternalError::AstarteInternalError(std::string_view message, const AstarteError& other)
@@ -80,6 +88,14 @@ AstarteInvalidInterfaceTypeError::AstarteInvalidInterfaceTypeError(std::string_v
     : AstarteErrorBase(k_type_, message) {}
 AstarteInvalidInterfaceTypeError::AstarteInvalidInterfaceTypeError(std::string_view message,
                                                                    const AstarteError& other)
+    : AstarteErrorBase(
+          k_type_, message,
+          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+
+AstarteInterfaceValidationError::AstarteInterfaceValidationError(std::string_view message)
+    : AstarteErrorBase(k_type_, message) {}
+AstarteInterfaceValidationError::AstarteInterfaceValidationError(std::string_view message,
+                                                                 const AstarteError& other)
     : AstarteErrorBase(
           k_type_, message,
           std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}

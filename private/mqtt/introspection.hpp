@@ -7,9 +7,11 @@
 
 #include <spdlog/spdlog.h>
 
-#include <astarte_device_sdk/errors.hpp>
+#include <algorithm>
+#include <astarte_device_sdk/data.hpp>
 #include <astarte_device_sdk/ownership.hpp>
 #include <astarte_device_sdk/type.hpp>
+#include <cmath>
 #include <format>
 #include <map>
 #include <nlohmann/json.hpp>
@@ -170,8 +172,108 @@ NLOHMANN_JSON_SERIALIZE_ENUM(DatabaseRetentionPolicy, {
                                                           {kUseTtl, "use_ttl"},
                                                       })
 
+namespace {
+
+// helper function to pop the next segment off the front of the view and advances the view.
+// Equivalent to finding the next '/' and moving the pointer past it.
+auto pop_next_segment(std::string_view& str) -> std::string_view {
+  auto pos = str.find('/');
+  auto segment = str.substr(0, pos);
+
+  if (pos == std::string_view::npos) {
+    // no slash found: this is the last segment. Consume the whole string.
+    str = {};
+  } else {
+    // slash found: Move view past the slash.
+    str.remove_prefix(pos + 1);
+  }
+  return segment;
+}
+
+// helper function to check if the specific segment matches (handles logic for %{params})
+bool is_segment_match(std::string_view pattern, std::string_view path_seg) {
+  // check for parameter format to start with "%{" and end with "}"
+  if (pattern.size() >= 3 && pattern.starts_with("%{") && pattern.ends_with("}")) {
+    // path segment cannot be empty
+    if (path_seg.empty()) {
+      return false;
+    }
+    // path segment cannot contain forbidden chars
+    if (path_seg.find_first_of("#+") != std::string_view::npos) {
+      return false;
+    }
+    return true;
+  }
+
+  return pattern == path_seg;
+}
+
+}  // namespace
+
 struct Mapping {
  public:
+  // verify that the mapping endpoint correspont to a given path
+  auto check_path(std::string_view path) const -> bool {
+    // copy the endpoint
+    std::string_view endpoint = endpoint_;
+
+    // check lengths and trailing slash
+    if (path.length() < 2 || path.back() == '/') {
+      return false;
+    }
+    // check leading slash consistency
+    if (endpoint.empty() || path.front() != endpoint.front()) {
+      return false;
+    }
+
+    // remove the leading slash to prepare for segment iteration
+    // (we know both start with same char, usually '/')
+    endpoint.remove_prefix(1);
+    path.remove_prefix(1);
+
+    while (!endpoint.empty() && !path.empty()) {
+      std::string_view endpoint_seg = pop_next_segment(endpoint);
+      std::string_view path_seg = pop_next_segment(path);
+
+      if (!is_segment_match(endpoint_seg, path_seg)) {
+        return false;
+      }
+    }
+
+    // both strings must be fully consumed. If one has leftovers there is a length mismatch.
+    if (!endpoint.empty() || !path.empty()) {
+      return false;
+    }
+
+    return true;
+  }
+
+  auto check_data(const AstarteData& data) const -> astarte_tl::expected<void, AstarteError> {
+    if (type_ != data.get_type()) {
+      spdlog::error("Astarte data type and mapping type do not match");
+      return astarte_tl::unexpected(
+          AstarteInterfaceValidationError("Astarte data type and mapping type do not match"));
+    }
+
+    if ((type_ == AstarteType::kDouble) && (!std::isfinite(data.into<double>()))) {
+      spdlog::error("Astarte data double is not a number");
+      return astarte_tl::unexpected(
+          AstarteInterfaceValidationError("Astarte data double is not a number"));
+    }
+
+    if (type_ == AstarteType::kDoubleArray) {
+      for (double value : data.into<std::vector<double>>()) {
+        if (!std::isfinite(value)) {
+          spdlog::error("Astarte data double is not a number");
+          return astarte_tl::unexpected(
+              AstarteInterfaceValidationError("Astarte data double is not a number"));
+        }
+      }
+    }
+
+    return {};
+  }
+
   /**
    * @brief Path of the mapping.
    *
@@ -338,6 +440,15 @@ class Interface {
    */
   [[nodiscard]] const std::vector<Mapping>& mappings() const { return mappings_; }
 
+  [[nodiscard]] auto get_mapping(std::string_view path) const
+      -> astarte_tl::expected<const Mapping*, AstarteError>;
+
+  auto validate_individual(std::string_view path, const AstarteData& data,
+                           const std::chrono::system_clock::time_point* timestamp) const
+      -> astarte_tl::expected<void, AstarteError>;
+
+  auto get_qos(std::string_view path) const -> astarte_tl::expected<uint8_t, AstarteError>;
+
  private:
   Interface(std::string interface_name, uint32_t version_major, uint32_t version_minor,
             InterfaceType interface_type, AstarteOwnership ownership,
@@ -384,7 +495,6 @@ class Introspection {
    * @param interface The interface to add.
    * @return an error if the operation fails
    */
-  // TODO: change return value into std::except<void, AstarteError> if the operation failed.
   auto checked_insert(Interface interface) -> astarte_tl::expected<void, AstarteError>;
 
   /**
@@ -393,6 +503,15 @@ class Introspection {
    * @return a view over the introspection interfaces.
    */
   auto values() const { return std::views::values(interfaces_); }
+
+  /**
+   * @brief get an interface reference if the interface is contained in the device introspection.
+   *
+   * @param interface_name the interface name.
+   * @return the interface reference if found inside the introspection, an error otherwise.
+   */
+  [[nodiscard]] auto get(const std::string& interface_name)
+      -> astarte_tl::expected<Interface*, AstarteError>;
 
  private:
   /**
