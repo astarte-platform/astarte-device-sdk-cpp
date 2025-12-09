@@ -31,6 +31,7 @@ class AstarteInternalError;
 class AstarteOperationRefusedError;
 class AstarteGrpcLibError;
 class AstarteMsgHubError;
+class AstarteInterfaceValidationError;
 class AstarteInvalidVersionError;
 class AstarteInvalidInterfaceTypeError;
 class AstarteInvalidInterfaceOwnershipeError;
@@ -59,9 +60,9 @@ class AstarteMqttConnectionError;
  */
 using AstarteError =
     std::variant<AstarteInternalError, AstarteFileOpenError, AstarteInvalidInputError,
-                 AstarteInvalidVersionError, AstarteInvalidInterfaceTypeError,
-                 AstarteInvalidInterfaceOwnershipeError, AstarteInvalidAggregationError,
-                 AstarteInvalidAstarteTypeError,
+                 AstarteInterfaceValidationError, AstarteInvalidVersionError,
+                 AstarteInvalidInterfaceTypeError, AstarteInvalidInterfaceOwnershipeError,
+                 AstarteInvalidAggregationError, AstarteInvalidAstarteTypeError,
 #if !defined(ASTARTE_TRANSPORT_GRPC)
                  AstarteOperationRefusedError, AstarteGrpcLibError, AstarteMsgHubError,
                  AstarteJsonParsingError, AstarteDeviceRegistrationError, AstartePairingApiError,
@@ -263,6 +264,27 @@ class AstarteMsgHubError : public AstarteErrorBase {
 /************************************************
  *       Interface validation errors       *
  ***********************************************/
+
+/**
+ * @brief Error during the Interface validation.
+ */
+class AstarteInterfaceValidationError : public AstarteErrorBase {
+ public:
+  /**
+   * @brief Standard error constructor.
+   * @param message The error message.
+   */
+  explicit AstarteInterfaceValidationError(std::string_view message);
+  /**
+   * @brief Nested error constructor.
+   * @param message The error message.
+   * @param other The error to nest.
+   */
+  explicit AstarteInterfaceValidationError(std::string_view message, const AstarteError& other);
+
+ private:
+  static constexpr std::string_view k_type_ = "AstarteInterfaceValidationError";
+};
 
 /**
  * @brief Either the minor or the major version is incorrect.

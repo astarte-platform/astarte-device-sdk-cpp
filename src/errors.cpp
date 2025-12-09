@@ -84,6 +84,14 @@ AstarteInvalidInterfaceTypeError::AstarteInvalidInterfaceTypeError(std::string_v
           k_type_, message,
           std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
 
+AstarteInterfaceValidationError::AstarteInterfaceValidationError(std::string_view message)
+    : AstarteErrorBase(k_type_, message) {}
+AstarteInterfaceValidationError::AstarteInterfaceValidationError(std::string_view message,
+                                                                 const AstarteError& other)
+    : AstarteErrorBase(
+          k_type_, message,
+          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+
 AstarteInvalidVersionError::AstarteInvalidVersionError(std::string_view message)
     : AstarteErrorBase(k_type_, message) {}
 AstarteInvalidVersionError::AstarteInvalidVersionError(std::string_view message,

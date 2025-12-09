@@ -329,6 +329,32 @@ auto MqttConnection::connect(Introspection& introspection)
 
 auto MqttConnection::is_connected() const -> bool { return connected_->load(); }
 
+auto MqttConnection::send_individual(std::string_view interface_name, std::string_view path,
+                                     uint8_t qos, const std::vector<uint8_t> data)
+    -> astarte_tl::expected<void, AstarteError> {
+  if (!path.starts_with('/')) {
+    return astarte_tl::unexpected(AstarteMqttError(
+        astarte_fmt::format("couldn't publish since path doesn't starts with /: {}", path)));
+  }
+
+  if (qos > 2) {
+    return astarte_tl::unexpected(
+        AstarteMqttError(astarte_fmt::format("couldn't publish since QoS is {}", qos)));
+  }
+
+  auto topic = astarte_fmt::format("{}/{}/{}", cfg_.realm(), cfg_.device_id(), interface_name);
+
+  try {
+    client_->publish(topic, data.data(), data.size(), qos, false)->wait();
+  } catch (...) {  // TODO: catch the correct paho error and report it inside the log.
+    spdlog::error("failed to publish astarte individual");
+    // connected_->store(false);
+    return astarte_tl::unexpected(AstarteMqttError("failed to publish astarte individual"));
+  }
+
+  return {};
+}
+
 auto MqttConnection::disconnect() -> astarte_tl::expected<void, AstarteError> {
   try {
     auto toks = client_->get_pending_delivery_tokens();
