@@ -11,8 +11,8 @@
 #include <type_traits>
 
 #include "astarte_device_sdk/formatter.hpp"  // IWYU pragma: export
-#include "astarte_device_sdk/mqtt/introspection.hpp"
 #include "astarte_device_sdk/ownership.hpp"
+#include "mqtt/introspection.hpp"
 
 /// @cond Doxygen should skip checking astarte_fmt::formatter due to internal inconsistency
 /// parsing

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "astarte_device_sdk/mqtt/introspection.hpp"
+#include "mqtt/introspection.hpp"
 
 #include <spdlog/spdlog.h>
 
@@ -19,9 +19,6 @@
 #include "astarte_device_sdk/mqtt/formatter.hpp"
 #include "astarte_device_sdk/ownership.hpp"
 #include "astarte_device_sdk/type.hpp"
-
-// Note: Other headers like <format>, <stdexcept>, etc., are included
-// via "astarte_device_sdk/mqtt/introspection.hpp"
 
 namespace AstarteDeviceSdk {
 

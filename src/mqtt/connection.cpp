@@ -17,7 +17,6 @@
 // ... other includes kept as in your original file ...
 #include "astarte_device_sdk/mqtt/config.hpp"
 #include "astarte_device_sdk/mqtt/errors.hpp"
-#include "astarte_device_sdk/mqtt/introspection.hpp"
 #include "astarte_device_sdk/mqtt/pairing.hpp"
 #include "astarte_device_sdk/ownership.hpp"
 #include "mqtt/async_client.h"
@@ -25,6 +24,7 @@
 #include "mqtt/delivery_token.h"
 #include "mqtt/exception.h"
 #include "mqtt/iasync_client.h"
+#include "mqtt/introspection.hpp"
 #include "mqtt/message.h"
 #include "mqtt/token.h"
 
