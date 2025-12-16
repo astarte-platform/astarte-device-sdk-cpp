@@ -11,21 +11,74 @@
 #include <cpr/cpr.h>
 #include <spdlog/spdlog.h>
 
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <format>
 #include <nlohmann/json.hpp>
+#include <random>
 #include <string>
 #include <string_view>
 #include <utility>
 
-#include "astarte_device_sdk/errors.hpp"
+#include "astarte_device_sdk/formatter.hpp"
+#include "astarte_device_sdk/mqtt/errors.hpp"
 #include "mqtt/crypto.hpp"
 
 using json = nlohmann::json;
 
 namespace AstarteDeviceSdk {
+
+/**
+ * @brief Format a vector of bytes into a Base64 URL safe string literal.
+ * @param data The span of bytes to format.
+ * @return Base64 URL safe encoded string
+ */
+auto format_base64_url_safe(std::span<const uint8_t> data) -> std::string {
+  static constexpr std::string_view base64_chars =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      "abcdefghijklmnopqrstuvwxyz"
+      "0123456789-_";
+
+  std::string out;
+  out.reserve(((data.size() + 2) / 3) * 4);  // pre-allocate memory for efficiency
+
+  size_t idx = 0;
+  const size_t len = data.size();
+
+  // process full 3-byte chunks
+  while (idx + 2 < len) {
+    const uint32_t chunk = (static_cast<uint32_t>(data[idx]) << 16) |
+                           (static_cast<uint32_t>(data[idx + 1]) << 8) | data[idx + 2];
+    out += base64_chars[(chunk >> 18) & 0x3F];
+    out += base64_chars[(chunk >> 12) & 0x3F];
+    out += base64_chars[(chunk >> 6) & 0x3F];
+    out += base64_chars[chunk & 0x3F];
+    idx += 3;
+  }
+
+  // handle remaining bytes
+  if (idx < len) {
+    uint32_t chunk = static_cast<uint32_t>(data[idx]) << 16;
+
+    out += base64_chars[(chunk >> 18) & 0x3F];
+    out += base64_chars[(chunk >> 12) & 0x3F];
+
+    if (idx + 1 < len) {  // two bytes left
+      chunk |= static_cast<uint32_t>(data[idx + 1]) << 8;
+      out += base64_chars[(chunk >> 6) & 0x3F];
+    }
+  }
+
+  return out;
+}
+
+auto uuid_to_str(const boost::uuids::uuid& u) -> std::string {
+  return format_base64_url_safe(std::span<const uint8_t>(u.begin(), u.size()));
+}
 
 namespace {
 
@@ -258,6 +311,33 @@ auto PairingApi::device_cert_valid(std::string_view certificate, std::string_vie
         return AstarteMqttError(
             AstartePairingApiError("Failed to check Astarte device certificate validity.", err));
       });
+}
+
+auto create_random_device_id() -> std::string {
+  // boost random_generator generates a V4 UUID and handles seeding internally
+  boost::uuids::random_generator gen;
+  return uuid_to_str(gen());
+}
+
+auto create_deterministic_device_id(std::string_view namespc, std::string_view unique_data)
+    -> astarte_tl::expected<std::string, AstarteError> {
+  boost::uuids::uuid ns_uuid;
+
+  try {
+    // parse the namespace UUID string
+    boost::uuids::string_generator string_gen;
+    ns_uuid = string_gen(namespc.begin(), namespc.end());
+  } catch (const std::exception&) {
+    return astarte_tl::unexpected(AstarteUuidError(
+        astarte_fmt::format("couldn't parse namespace to UUID, invalid value: {}", namespc)));
+  }
+
+  // create a V5 name generator seeded with the namespace
+  boost::uuids::name_generator_sha1 v5_generator(ns_uuid);
+  // generate the UUID based on the unique_data
+  boost::uuids::uuid uuid = v5_generator(unique_data.data(), unique_data.size());
+
+  return uuid_to_str(uuid);
 }
 
 }  // namespace AstarteDeviceSdk
