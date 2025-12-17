@@ -23,8 +23,8 @@
 #include <vector>
 
 #include "astarte_device_sdk/data.hpp"
-#include "astarte_device_sdk/grpc/device_grpc.hpp"
 #include "astarte_device_sdk/errors.hpp"
+#include "astarte_device_sdk/grpc/device_grpc.hpp"
 #include "astarte_device_sdk/msg.hpp"
 #include "astarte_device_sdk/object.hpp"
 #include "astarte_device_sdk/ownership.hpp"

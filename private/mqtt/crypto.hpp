@@ -15,11 +15,10 @@
 #if MBEDTLS_VERSION_MAJOR < 0x04
 #include "mbedtls/ctr_drbg.h"
 #endif
+#include "astarte_device_sdk/mqtt/errors.hpp"
 #include "mbedtls/x509_crt.h"
 #include "mbedtls/x509_csr.h"
 #include "psa/crypto.h"
-
-#include "astarte_device_sdk/mqtt/errors.hpp"
 
 namespace AstarteDeviceSdk {
 
@@ -87,7 +86,7 @@ class Crypto {
    * @param priv_key A reference to the PsaKey holding the private key.
    * @return A string containing the CSR in PEM format on success, an error otherwise.
    */
-  static auto create_csr(const PsaKey& priv_key) ->  astarte_tl::expected<std::string, AstarteError>;
+  static auto create_csr(const PsaKey& priv_key) -> astarte_tl::expected<std::string, AstarteError>;
 };
 
 }  // namespace AstarteDeviceSdk
