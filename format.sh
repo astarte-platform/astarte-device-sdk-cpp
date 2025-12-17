@@ -104,6 +104,7 @@ file_patterns=(
     "include/astarte_device_sdk/"*.hpp
     "include/astarte_device_sdk/mqtt/"*.hpp
     "private/"*.hpp
+	"private/mqtt/"*.hpp
     "samples/"*/*/*.cpp
     "samples/"*/*/*.hpp
     "unit/"*.cpp
