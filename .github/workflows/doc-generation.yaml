@@ -40,7 +40,7 @@ jobs:
       working-directory: astarte-device-sdk-cpp
       run: ./docs.sh --fresh
     - name: Upload HTML documentation
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: docs_html
         path: astarte-device-sdk-cpp/doc/_build/html
