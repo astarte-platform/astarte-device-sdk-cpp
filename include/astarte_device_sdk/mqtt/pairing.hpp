@@ -90,7 +90,7 @@ class PairingApi {
 /**
  * @brief Create a random Astarte device id starting from a UUIDv4.
  *
- * Generate a random Asatrte device id follow Astarte specifications as described here
+ * Generate a random Astarte device id follow Astarte specifications as described here
  * https://docs.astarte-platform.org/astarte/latest/010-design_principles.html#device-id
  *
  * @return A string containing the device id.
@@ -100,7 +100,7 @@ auto create_random_device_id() -> std::string;
 /**
  * @brief Create a deterministic Astarte device id using a UUIDv5.
  *
- * Generate a random Asatrte device id follow Astarte specifications as described here
+ * Generate a random Astarte device id follow Astarte specifications as described here
  * https://docs.astarte-platform.org/astarte/latest/010-design_principles.html#device-id
  *
  * @param namespc namespace necessary to generate a UUIDv5.
