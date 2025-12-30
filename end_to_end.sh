@@ -72,7 +72,7 @@ if [ "$fresh_mode" = true ]; then
     rm -f "$cmake_user_presets"
     conan remove astarte-device-sdk -c
     echo "Cleaning Conan build and source cache to free space..."
-    conan cache clean "*" --build --source --download
+    conan cache clean "*" --source --download
 fi
 
 # Detect the default conan profile
@@ -93,7 +93,7 @@ if ! conan create . "${conan_options_array[@]}"; then
 fi
 
 echo "Cleaning intermediate build artifacts..."
-if ! conan cache clean "*" --build --source --download; then
+if ! conan cache clean "*" --source --download; then
     error_exit "Conan cache cleaning failed for the end to end tests."
 fi
 
@@ -109,7 +109,7 @@ if ! conan build . --output-folder=build "${conan_options_array[@]}"; then
 fi
 
 # Clean the Conan cache
-if ! conan cache clean "*" --build --source; then
+if ! conan cache clean "*" --source --download; then
     error_exit "Conan cache cleaning failed for the end to end tests."
 fi
 
