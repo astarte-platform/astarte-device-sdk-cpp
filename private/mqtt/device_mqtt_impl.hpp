@@ -5,23 +5,22 @@
 #ifndef DEVICE_MQTT_IMPL_H
 #define DEVICE_MQTT_IMPL_H
 
+#include <atomic>
 #include <chrono>
 #include <filesystem>
+#include <list>
+#include <optional>
 #include <string>
 #include <string_view>
-#include <optional>
-#include <list>
-#include <atomic>
 
 #include "astarte_device_sdk/data.hpp"
-#include "astarte_device_sdk/msg.hpp"
-#include "astarte_device_sdk/stored_property.hpp"
-#include "astarte_device_sdk/object.hpp"
 #include "astarte_device_sdk/mqtt/config.hpp"
+#include "astarte_device_sdk/mqtt/device_mqtt.hpp"
+#include "astarte_device_sdk/msg.hpp"
+#include "astarte_device_sdk/object.hpp"
 #include "astarte_device_sdk/ownership.hpp"
 #include "astarte_device_sdk/property.hpp"
-#include "astarte_device_sdk/mqtt/device_mqtt.hpp"
-
+#include "astarte_device_sdk/stored_property.hpp"
 
 namespace AstarteDeviceSdk {
 
@@ -54,8 +53,7 @@ struct AstarteDeviceMQTT::AstarteDeviceMQTTImpl {
    * @brief Parse an interface definition from a JSON string and adds it to the device.
    * @param json The interface to add.
    */
-  auto add_interface_from_str(std::string_view json)
-      -> astarte_tl::expected<void, AstarteError>;
+  auto add_interface_from_str(std::string_view json) -> astarte_tl::expected<void, AstarteError>;
   /**
    * @brief Remove an installed interface.
    * @param interface_name The interface name.
@@ -67,8 +65,7 @@ struct AstarteDeviceMQTT::AstarteDeviceMQTTImpl {
    * @details This is an asynchronous funciton. It will start a management thread that will
    * manage the device connectivity.
    */
-  auto connect()
-      -> astarte_tl::expected<void, AstarteError>;
+  auto connect() -> astarte_tl::expected<void, AstarteError>;
   /**
    * @brief Check if the device is connected.
    * @return True if the device is connected to Astarte, false otherwise.
@@ -78,8 +75,7 @@ struct AstarteDeviceMQTT::AstarteDeviceMQTTImpl {
    * @brief Disconnect from Astarte.
    * @details Gracefully terminates the connection by sending a Detach message.
    */
-  auto disconnect()
-      -> astarte_tl::expected<void, AstarteError>;
+  auto disconnect() -> astarte_tl::expected<void, AstarteError>;
   /**
    * @brief Send an individual datastream value to an interface.
    * @param interface_name The name of the interface to send data to.
@@ -108,8 +104,7 @@ struct AstarteDeviceMQTT::AstarteDeviceMQTTImpl {
    * @param path The path of the property to set.
    * @param data The value to set for the property.
    */
-  auto set_property(std::string_view interface_name, std::string_view path,
-                    const AstarteData& data)
+  auto set_property(std::string_view interface_name, std::string_view path, const AstarteData& data)
       -> astarte_tl::expected<void, AstarteError>;
   /**
    * @brief Unset a device property on an interface.
@@ -139,7 +134,8 @@ struct AstarteDeviceMQTT::AstarteDeviceMQTTImpl {
    * @param interface_name The name of the interface for the property.
    * @return A list of stored properties, as returned by Astarte.
    */
-  auto get_properties(std::string_view interface_name) -> astarte_tl::expected<std::list<AstarteStoredProperty>, AstarteError>;
+  auto get_properties(std::string_view interface_name)
+      -> astarte_tl::expected<std::list<AstarteStoredProperty>, AstarteError>;
   /**
    * @brief Get a single stored property matching the interface name and path.
    * @param interface_name The name of the interface for the property.
