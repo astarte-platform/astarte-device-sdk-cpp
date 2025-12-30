@@ -22,6 +22,7 @@ function(astarte_sdk_configure_mqtt_dependencies)
         find_package(cpr REQUIRED)
         find_package(nlohmann_json REQUIRED)
         find_package(MbedTLS REQUIRED)
+        find_package(Boost REQUIRED)
 
         if(NOT TARGET ada::ada)
             find_package(ada REQUIRED)
@@ -70,6 +71,14 @@ function(astarte_sdk_configure_mqtt_dependencies)
         set(ENABLE_PROGRAMS OFF CACHE BOOL "Disable Mbed TLS example programs")
         set(CONFIG_MBEDTLS_PSA_CRYPTO_C ON CACHE BOOL "Enable PSA in Mbed TLS")
         FetchContent_MakeAvailable(MbedTLS)
+
+        set(BOOST_INCLUDE_LIBRARIES uuid headers)
+        set(BOOST_ENABLE_CMAKE ON)
+        set(BUILD_TESTING OFF)
+        set(BOOST_GIT_REPOSITORY https://github.com/boostorg/boost.git)
+        set(BOOST_GIT_TAG boost-1.89.0)
+        FetchContent_Declare(Boost GIT_REPOSITORY ${BOOST_GIT_REPOSITORY} GIT_TAG ${BOOST_GIT_TAG})
+        FetchContent_MakeAvailable(Boost)
     endif()
 endfunction()
 
@@ -118,8 +127,10 @@ function(astarte_sdk_add_mqtt_transport)
     # Link with MQTT
     if(ASTARTE_USE_SYSTEM_MQTT)
         target_link_libraries(astarte_device_sdk PRIVATE PahoMqttCpp::paho-mqttpp3-static)
+        target_link_libraries(astarte_device_sdk PRIVATE Boost::headers)
     else()
         target_link_libraries(astarte_device_sdk PRIVATE PahoMqttCpp::paho-mqttpp3)
+        target_link_libraries(astarte_device_sdk PRIVATE Boost::uuid PRIVATE Boost::headers)
     endif()
 
     # Link with cpr HTTP library

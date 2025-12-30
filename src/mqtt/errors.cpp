@@ -67,6 +67,12 @@ AstarteCryptoError::AstarteCryptoError(std::string_view message, const AstarteEr
           k_type_, message,
           std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
 
+AstarteUuidError::AstarteUuidError(std::string_view message) : AstarteErrorBase(k_type_, message) {}
+AstarteUuidError::AstarteUuidError(std::string_view message, const AstarteError& other)
+    : AstarteErrorBase(
+          k_type_, message,
+          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+
 AstarteHttpError::AstarteHttpError(std::string_view message) : AstarteErrorBase(k_type_, message) {}
 AstarteHttpError::AstarteHttpError(std::string_view message, const AstarteError& other)
     : AstarteErrorBase(

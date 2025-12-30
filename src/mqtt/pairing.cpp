@@ -11,23 +11,108 @@
 #include <cpr/cpr.h>
 #include <spdlog/spdlog.h>
 
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <format>
 #include <nlohmann/json.hpp>
+#include <random>
 #include <string>
 #include <string_view>
 #include <utility>
 
-#include "astarte_device_sdk/errors.hpp"
+#include "astarte_device_sdk/formatter.hpp"
+#include "astarte_device_sdk/mqtt/errors.hpp"
 #include "mqtt/crypto.hpp"
 
 using json = nlohmann::json;
 
 namespace AstarteDeviceSdk {
 
+#include <span>
+#include <vector>
+
 namespace {
+
+// conversion charset
+constexpr std::string_view kBase64Chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz"
+    "0123456789-_";
+
+constexpr uint32_t kSixBitMask = 0x3F;
+constexpr size_t kBytesPerChunk = 3;
+constexpr size_t kCharsPerBlock = 4;
+
+// bitwise offsets for positioning input bytes into a 24-bit integer
+constexpr int kOffsetByte0 = 16;
+constexpr int kOffsetByte1 = 8;
+constexpr int kOffsetByte2 = 0;
+
+// bitwise shifts to extract the 6-bit indices for the output string
+constexpr int kShiftChar0 = 18;
+constexpr int kShiftChar1 = 12;
+constexpr int kShiftChar2 = 6;
+constexpr int kShiftChar3 = 0;
+
+/**
+ * @brief Format a vector of bytes into a Base64 URL safe string literal.
+ * @param data The span of bytes to format.
+ * @return Base64 URL safe encoded string
+ */
+auto format_base64_url_safe(std::span<const uint8_t> data) -> std::string {
+  std::string out;
+  // pre-allocate memory: (size + 2) / 3 calculates the number of 3-byte chunks (ceiling)
+  // multiplied by 4 because every 3 bytes produce 4 characters.
+  out.reserve(((data.size() + 2) / kBytesPerChunk) * kCharsPerBlock);
+
+  size_t idx = 0;
+  const size_t len = data.size();
+
+  // process full 3-byte chunks
+  while (idx + 2 < len) {
+    // combine 3 bytes into a single 24-bit integer
+    const uint32_t chunk = (static_cast<uint32_t>(data[idx]) << kOffsetByte0) |
+                           (static_cast<uint32_t>(data[idx + 1]) << kOffsetByte1) |
+                           (static_cast<uint32_t>(data[idx + 2]) << kOffsetByte2);
+
+    out += kBase64Chars[(chunk >> kShiftChar0) & kSixBitMask];
+    out += kBase64Chars[(chunk >> kShiftChar1) & kSixBitMask];
+    out += kBase64Chars[(chunk >> kShiftChar2) & kSixBitMask];
+    out += kBase64Chars[(chunk >> kShiftChar3) & kSixBitMask];
+
+    idx += kBytesPerChunk;
+  }
+
+  // handle remaining bytes (1 or 2 bytes left)
+  if (idx < len) {
+    // load the first remaining byte
+    uint32_t chunk = static_cast<uint32_t>(data[idx]) << kOffsetByte0;
+
+    // if there is a second remaining byte, add it to the chunk
+    if (idx + 1 < len) {
+      chunk |= static_cast<uint32_t>(data[idx + 1]) << kOffsetByte1;
+    }
+
+    // extract the first and second character
+    out += kBase64Chars[(chunk >> kShiftChar0) & kSixBitMask];
+    out += kBase64Chars[(chunk >> kShiftChar1) & kSixBitMask];
+
+    // if we had 2 bytes, we need the third character
+    if (idx + 1 < len) {
+      out += kBase64Chars[(chunk >> kShiftChar2) & kSixBitMask];
+    }
+  }
+
+  return out;
+}
+
+auto uuid_to_str(const boost::uuids::uuid& uuid) -> std::string {
+  return format_base64_url_safe(std::span<const uint8_t>(uuid.begin(), uuid.size()));
+}
 
 constexpr std::size_t htpp_category_divisor = 100;
 enum class HttpStatusCategory : std::uint8_t {
@@ -258,6 +343,33 @@ auto PairingApi::device_cert_valid(std::string_view certificate, std::string_vie
         return AstarteMqttError(
             AstartePairingApiError("Failed to check Astarte device certificate validity.", err));
       });
+}
+
+auto create_random_device_id() -> std::string {
+  // boost random_generator generates a V4 UUID and handles seeding internally
+  boost::uuids::random_generator gen;
+  return uuid_to_str(gen());
+}
+
+auto create_deterministic_device_id(std::string_view namespc, std::string_view unique_data)
+    -> astarte_tl::expected<std::string, AstarteError> {
+  boost::uuids::uuid ns_uuid;
+
+  try {
+    // parse the namespace UUID string
+    const boost::uuids::string_generator string_gen;
+    ns_uuid = string_gen(namespc.begin(), namespc.end());
+  } catch (const std::exception&) {
+    return astarte_tl::unexpected(AstarteUuidError(
+        astarte_fmt::format("couldn't parse namespace to UUID, invalid value: {}", namespc)));
+  }
+
+  // create a V5 name generator seeded with the namespace
+  const boost::uuids::name_generator_sha1 v5_generator(ns_uuid);
+  // generate the UUID based on the unique_data
+  const boost::uuids::uuid uuid = v5_generator(unique_data.data(), unique_data.size());
+
+  return uuid_to_str(uuid);
 }
 
 }  // namespace AstarteDeviceSdk

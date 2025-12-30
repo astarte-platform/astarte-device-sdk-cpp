@@ -82,17 +82,17 @@ int main() {
   } else if (credential_secret_opt) {
     auto store_dir = config["mqtt"]["store_dir"].value<std::string>().value();
 
-    TransportConfigVariant transport_config =
-        MqttTestConfig{.cfg = MqttConfig(realm, device_id, credential_secret_opt.value(),
-                                         std::format("{}/pairing", astarte_base_url), store_dir),
-                       .interfaces = {
-                           astarte_interfaces::DeviceDatastream::FILE,
-                           astarte_interfaces::ServerDatastream::FILE,
-                           astarte_interfaces::DeviceAggregate::FILE,
-                           astarte_interfaces::ServerAggregate::FILE,
-                           astarte_interfaces::DeviceProperty::FILE,
-                           astarte_interfaces::ServerProperty::FILE,
-                       }};
+    TransportConfigVariant transport_config = MqttTestConfig{
+        .cfg = MqttConfig(realm, device_id, credential_secret_opt.value(),
+                          astarte_fmt::format("{}/pairing", astarte_base_url), store_dir),
+        .interfaces = {
+            astarte_interfaces::DeviceDatastream::FILE,
+            astarte_interfaces::ServerDatastream::FILE,
+            astarte_interfaces::DeviceAggregate::FILE,
+            astarte_interfaces::ServerAggregate::FILE,
+            astarte_interfaces::DeviceProperty::FILE,
+            astarte_interfaces::ServerProperty::FILE,
+        }};
 
     orchestrator.with_transport_config(transport_config);
 
