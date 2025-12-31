@@ -71,48 +71,48 @@ TestCase server_datastream() {
               AstarteDatastreamIndividual(AstarteData(
                   std::vector<std::vector<uint8_t>>{{0x23, 0x43, 0xF5}, {0x43, 0xF3, 0x00}})))),
           TestActionSleep::Create(std::chrono::seconds(1)),
-          TestActionReadReceivedMQTTData::Create(
+          TestActionReadReceivedMqttData::Create(
               AstarteMessage(astarte_interfaces::ServerDatastream::INTERFACE, "/integer_endpoint",
                              AstarteDatastreamIndividual(AstarteData((int32_t)43)))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerDatastream::INTERFACE, "/longinteger_endpoint",
               AstarteDatastreamIndividual(AstarteData((int64_t)17179869184)))),
-          TestActionReadReceivedMQTTData::Create(
+          TestActionReadReceivedMqttData::Create(
               AstarteMessage(astarte_interfaces::ServerDatastream::INTERFACE, "/double_endpoint",
                              AstarteDatastreamIndividual(AstarteData(4245.23)))),
-          TestActionReadReceivedMQTTData::Create(
+          TestActionReadReceivedMqttData::Create(
               AstarteMessage(astarte_interfaces::ServerDatastream::INTERFACE, "/boolean_endpoint",
                              AstarteDatastreamIndividual(AstarteData(false)))),
-          TestActionReadReceivedMQTTData::Create(
+          TestActionReadReceivedMqttData::Create(
               AstarteMessage(astarte_interfaces::ServerDatastream::INTERFACE, "/string_endpoint",
                              AstarteDatastreamIndividual(AstarteData(std::string("Hello world"))))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerDatastream::INTERFACE, "/datetime_endpoint",
               AstarteDatastreamIndividual(AstarteData(std::chrono::system_clock::time_point(
                   std::chrono::sys_days(std::chrono::year_month_day(
                       std::chrono::year(1994), std::chrono::month(4), std::chrono::day(12))) +
                   std::chrono::hours(10) + std::chrono::minutes(15) + std::chrono::seconds(0)))))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerDatastream::INTERFACE, "/binaryblob_endpoint",
               AstarteDatastreamIndividual(AstarteData(std::vector<uint8_t>{0x23, 0x43, 0xF5})))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerDatastream::INTERFACE, "/integerarray_endpoint",
               AstarteDatastreamIndividual(AstarteData(std::vector<int32_t>{32, 43, 0, 3332})))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerDatastream::INTERFACE, "/longintegerarray_endpoint",
               AstarteDatastreamIndividual(
                   AstarteData(std::vector<int64_t>{17179869184, 0, 6486})))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerDatastream::INTERFACE, "/doublearray_endpoint",
               AstarteDatastreamIndividual(AstarteData(std::vector<double>{0.0, 23.2})))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerDatastream::INTERFACE, "/booleanarray_endpoint",
               AstarteDatastreamIndividual(AstarteData(std::vector<bool>{false, true, true})))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerDatastream::INTERFACE, "/stringarray_endpoint",
               AstarteDatastreamIndividual(
                   AstarteData(std::vector<std::string>{"Hello ", "world ", "from ", "C++"})))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerDatastream::INTERFACE, "/datetimearray_endpoint",
               AstarteDatastreamIndividual(AstarteData(std::vector<
                                                       std::chrono::system_clock::time_point>{

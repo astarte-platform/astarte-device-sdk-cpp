@@ -23,7 +23,7 @@ class Pkg(ConanFile):
 
     # Build configuration
     build_policy = "missing"
-    exports_sources = "CMakeLists.txt", "cmake/AstarteMQTTTransport.cmake", "cmake/AstarteGRPCTransport.cmake", "cmake/Config.cmake.in", "cmake/pkg-config-template.pc.in", "src/*", "include/*", "private/*"
+    exports_sources = "CMakeLists.txt", "cmake/AstarteMqttTransport.cmake", "cmake/AstarteGrpcTransport.cmake", "cmake/Config.cmake.in", "cmake/pkg-config-template.pc.in", "src/*", "include/*", "private/*"
 
     def config_options(self):
         if self.settings.os == "Windows":

@@ -25,7 +25,7 @@ jobs:
       cancel-in-progress: true
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         path: astarte-device-sdk-cpp
     - name: Install doxygen
@@ -38,7 +38,7 @@ jobs:
       working-directory: astarte-device-sdk-cpp
       run: ./docs.sh --fresh
     - name: Upload API HTML documentation for C++ 20
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: docs_html_cpp_20
         path: astarte-device-sdk-cpp/doc/_build/html

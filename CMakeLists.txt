@@ -7,8 +7,8 @@ cmake_minimum_required(VERSION 3.23)
 project(AstarteDeviceSdk VERSION 0.8.1 LANGUAGES CXX)
 
 include(FetchContent)
-include(cmake/AstarteGRPCTransport.cmake)
-include(cmake/AstarteMQTTTransport.cmake)
+include(cmake/AstarteGrpcTransport.cmake)
+include(cmake/AstarteMqttTransport.cmake)
 
 # Setup library options
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)

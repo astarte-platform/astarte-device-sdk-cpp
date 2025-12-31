@@ -43,7 +43,7 @@ TestCase server_aggregate() {
 
           TestActionSleep::Create(std::chrono::seconds(1)),
 
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerAggregate::INTERFACE, "/sensor1", astarte_obj)),
 
           TestActionSleep::Create(std::chrono::seconds(1)), TestActionDisconnect::Create(),

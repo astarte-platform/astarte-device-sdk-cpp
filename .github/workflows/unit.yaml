@@ -20,12 +20,12 @@ jobs:
       group: unit-tests-grpc-${{ github.ref }}
       cancel-in-progress: true
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           path: astarte-device-sdk-cpp
       - name: Setup gRPC build cache
         id: cache-grpc-cpp
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ./grpc

@@ -40,7 +40,7 @@ TestCase device_aggregate() {
       std::vector<std::shared_ptr<TestAction>>{
           TestActionConnect::Create(), TestActionSleep::Create(std::chrono::seconds(1)),
 
-          TestActionTransmitMQTTData::Create(AstarteMessage(
+          TestActionTransmitMqttData::Create(AstarteMessage(
               astarte_interfaces::DeviceAggregate::INTERFACE, "/sensor1", astarte_obj)),
 
           TestActionSleep::Create(std::chrono::seconds(1)),

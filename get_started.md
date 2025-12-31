@@ -201,13 +201,13 @@ A couple of assumptions have been made:
 using AstarteDeviceSdk::AstarteData;
 using AstarteDeviceSdk::AstarteDatastreamIndividual;
 using AstarteDeviceSdk::AstarteDatastreamObject;
-using AstarteDeviceSdk::AstarteDeviceGRPC;
+using AstarteDeviceSdk::AstarteDeviceGrpc;
 using AstarteDeviceSdk::AstarteMessage;
 using AstarteDeviceSdk::AstartePropertyIndividual;
 
 using namespace std::chrono_literals;
 
-void reception_handler(std::stop_token token, std::shared_ptr<AstarteDeviceGRPC> device) {
+void reception_handler(std::stop_token token, std::shared_ptr<AstarteDeviceGrpc> device) {
   while (!token.stop_requested()) {
     auto incoming = device->poll_incoming(std::chrono::milliseconds(100));
     if (incoming.has_value()) {
@@ -235,7 +235,7 @@ void reception_handler(std::stop_token token, std::shared_ptr<AstarteDeviceGRPC>
 int main(int argc, char **argv) {
   std::string server_addr = "localhost:50051";
   std::string node_id("aa04dade-9401-4c37-8c6a-d8da15b083ae");
-  std::shared_ptr<AstarteDeviceGRPC> device = std::make_shared<AstarteDeviceGRPC>(server_addr, node_id);
+  std::shared_ptr<AstarteDeviceGrpc> device = std::make_shared<AstarteDeviceGrpc>(server_addr, node_id);
 
   // Se these paths based on your project structure.
   std::filesystem::path device_individual_interface_file_path =

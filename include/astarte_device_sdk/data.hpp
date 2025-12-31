@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <variant>
 #include <vector>
 
@@ -26,7 +27,7 @@ template <typename T>
 concept AstarteDataAllowedType = requires {
   requires std::is_same_v<T, int32_t> || std::is_same_v<T, int64_t> || std::is_same_v<T, double> ||
                std::is_same_v<T, bool> || std::is_same_v<T, std::string> ||
-               std::is_same_v<T, std::vector<uint8_t>> ||
+               std::is_same_v<T, std::string_view> || std::is_same_v<T, std::vector<uint8_t>> ||
                std::is_same_v<T, std::chrono::system_clock::time_point> ||
                std::is_same_v<T, std::vector<int32_t>> || std::is_same_v<T, std::vector<int64_t>> ||
                std::is_same_v<T, std::vector<double>> || std::is_same_v<T, std::vector<bool>> ||
@@ -40,27 +41,48 @@ class AstarteData {
  public:
   /**
    * @brief Constructor for the AstarteData class.
+   * @note About string views. By design an AstarteData object is intended to encapsulate
+   * data without relying on the lifetime of its inputs. As such passing a string_view to the
+   * constructor will result in the creation of a new internal std::string object that will contain
+   * a copy of the input string.
    * @param value The content of the Astarte data instance.
    */
   template <AstarteDataAllowedType T>
-  explicit AstarteData(T value) : data_(value) {}
+  explicit AstarteData(T value) {
+    if constexpr (std::is_same_v<T, std::string_view>) {
+      data_ = std::string(value);
+    } else {
+      data_ = value;
+    }
+  }
 
   /**
    * @brief Convert the Astarte data class to the appropriate data type.
    * @return The value contained in the class instance.
    */
   template <AstarteDataAllowedType T>
-  auto into() const -> const T& {
-    return std::get<T>(data_);
+  [[nodiscard]] auto into() const
+      -> std::conditional_t<std::is_same_v<T, std::string_view>, std::string_view, const T&> {
+    if constexpr (std::is_same_v<T, std::string_view>) {
+      return std::string_view(std::get<std::string>(data_));
+    } else {
+      return std::get<T>(data_);
+    }
   }
   /**
    * @brief Convert the Astarte data class to the given type if it's the correct variant.
    * @return The value contained in the class instance or nullopt.
    */
   template <AstarteDataAllowedType T>
-  auto try_into() const -> std::optional<T> {
-    if (std::holds_alternative<T>(data_)) {
-      return std::get<T>(data_);
+  [[nodiscard]] auto try_into() const -> std::optional<T> {
+    if constexpr (std::is_same_v<T, std::string_view>) {
+      if (std::holds_alternative<std::string>(data_)) {
+        return std::string_view(std::get<std::string>(data_));
+      }
+    } else {
+      if (std::holds_alternative<T>(data_)) {
+        return std::get<T>(data_);
+      }
     }
 
     return std::nullopt;

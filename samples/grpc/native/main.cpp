@@ -18,7 +18,7 @@ using AstarteDeviceSdk::AstarteData;
 using AstarteDeviceSdk::AstarteDatastreamIndividual;
 using AstarteDeviceSdk::AstarteDatastreamObject;
 using AstarteDeviceSdk::AstarteDevice;
-using AstarteDeviceSdk::AstarteDeviceGRPC;
+using AstarteDeviceSdk::AstarteDeviceGrpc;
 using AstarteDeviceSdk::AstarteFileOpenError;
 using AstarteDeviceSdk::AstarteInvalidInputError;
 using AstarteDeviceSdk::AstarteMessage;
@@ -57,8 +57,8 @@ int main(int argc, char** argv) {
   spdlog::set_level(spdlog::level::debug);
   std::string server_addr = "localhost:50051";
   std::string node_id("aa04dade-9401-4c37-8c6a-d8da15b083ae");
-  std::shared_ptr<AstarteDeviceGRPC> device =
-      std::make_shared<AstarteDeviceGRPC>(server_addr, node_id);
+  std::shared_ptr<AstarteDeviceGrpc> device =
+      std::make_shared<AstarteDeviceGrpc>(server_addr, node_id);
 
   // Those paths assume the user is calling the Astarte executable from the root of this project.
   const std::filesystem::path base_path = "samples/grpc/native/interfaces";

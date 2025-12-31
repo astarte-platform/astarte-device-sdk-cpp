@@ -29,75 +29,75 @@
 
 namespace AstarteDeviceSdk {
 
-AstarteDeviceMQTT::AstarteDeviceMQTTImpl::AstarteDeviceMQTTImpl(const MqttConfig cfg)
+AstarteDeviceMqtt::AstarteDeviceMqttImpl::AstarteDeviceMqttImpl(const MqttConfig cfg)
     : cfg_(std::move(cfg)) {}
 
-AstarteDeviceMQTT::AstarteDeviceMQTTImpl::~AstarteDeviceMQTTImpl() = default;
+AstarteDeviceMqtt::AstarteDeviceMqttImpl::~AstarteDeviceMqttImpl() = default;
 
-auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::add_interface_from_file(
+auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::add_interface_from_file(
     const std::filesystem::path& json_file) -> astarte_tl::expected<void, AstarteError> {
   TODO("not yet implemented");
 }
-auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::add_interface_from_str(std::string_view json)
+auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::add_interface_from_str(std::string_view json)
     -> astarte_tl::expected<void, AstarteError> {
   TODO("not yet implemented");
 }
-auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::remove_interface(const std::string& interface_name)
-    -> astarte_tl::expected<void, AstarteError> {
-  TODO("not yet implemented");
-}
-
-auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::connect()
+auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::remove_interface(const std::string& interface_name)
     -> astarte_tl::expected<void, AstarteError> {
   TODO("not yet implemented");
 }
 
-[[nodiscard]] auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::is_connected() const -> bool {
-  TODO("not yet implemented");
-}
-
-auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::disconnect()
+auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::connect()
     -> astarte_tl::expected<void, AstarteError> {
   TODO("not yet implemented");
 }
 
-auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::send_individual(
+[[nodiscard]] auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::is_connected() const -> bool {
+  TODO("not yet implemented");
+}
+
+auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::disconnect()
+    -> astarte_tl::expected<void, AstarteError> {
+  TODO("not yet implemented");
+}
+
+auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::send_individual(
     std::string_view interface_name, std::string_view path, const AstarteData& data,
     const std::chrono::system_clock::time_point* timestamp)
     -> astarte_tl::expected<void, AstarteError> {
   TODO("not yet implemented");
 }
-auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::send_object(
+auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::send_object(
     std::string_view interface_name, std::string_view path, const AstarteDatastreamObject& object,
     const std::chrono::system_clock::time_point* timestamp)
     -> astarte_tl::expected<void, AstarteError> {
   TODO("not yet implemented");
 }
-auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::set_property(std::string_view interface_name,
+auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::set_property(std::string_view interface_name,
                                                             std::string_view path,
                                                             const AstarteData& data)
     -> astarte_tl::expected<void, AstarteError> {
   TODO("not yet implemented");
 }
-auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::unset_property(std::string_view interface_name,
+auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::unset_property(std::string_view interface_name,
                                                               std::string_view path)
     -> astarte_tl::expected<void, AstarteError> {
   TODO("not yet implemented");
 }
-auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::poll_incoming(
+auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::poll_incoming(
     const std::chrono::milliseconds& timeout) -> std::optional<AstarteMessage> {
   TODO("not yet implemented");
 }
-auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::get_all_properties(
+auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::get_all_properties(
     const std::optional<AstarteOwnership>& ownership)
     -> astarte_tl::expected<std::list<AstarteStoredProperty>, AstarteError> {
   TODO("not yet implemented");
 }
-auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::get_properties(std::string_view interface_name)
+auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::get_properties(std::string_view interface_name)
     -> astarte_tl::expected<std::list<AstarteStoredProperty>, AstarteError> {
   TODO("not yet implemented");
 }
-auto AstarteDeviceMQTT::AstarteDeviceMQTTImpl::get_property(std::string_view interface_name,
+auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::get_property(std::string_view interface_name,
                                                             std::string_view path)
     -> astarte_tl::expected<AstartePropertyIndividual, AstarteError> {
   TODO("not yet implemented");

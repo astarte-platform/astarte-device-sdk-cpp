@@ -113,33 +113,27 @@ cmake_user_presets="${sample_src_dir}/CMakeUserPresets.json"
 
 if [[ "$deps_management" = "conan" && "$external_tools" = false ]]; then
     # shellcheck source=/dev/null
-    source ./scripts/setup_conan_env.sh
-    setup_python_conan_env $venv_dir $conan_package_name $conan_package_version
+    source ./scripts/setup_python.sh
+    setup_python_venv $venv_dir
+    install_conan $conan_package_name $conan_package_version
 fi
 
 # --- Clean previous builds ---
 if [ "$fresh_mode" = true ]; then
-    echo "Fresh build requested. Removing old build files..."
-    rm -rf "$build_dir"
-    if [[ "$deps_management" = "conan" ]]; then
-        rm -f "$cmake_user_presets"
-        conan remove astarte-device-sdk -c
-    fi
+    chmod +x ./scripts/clean_sample.py
+    ./scripts/clean_sample.py "--build_dir=$build_dir" "--deps_mgmt=$deps_management" "--presets_file=$cmake_user_presets"
 fi
 
 # --- Perform a build with the desired dependency manager ---
 if [[ "$deps_management" == "conan" ]]; then
-    # shellcheck source=/dev/null
-    source ./scripts/build_sample_conan.sh
-    build_sample_with_conan "$(pwd)" "$sample_to_build" "$transport" "$qt_version"
+    chmod +x ./scripts/build_sample_conan.py
+    ./scripts/build_sample_conan.py "$(pwd)" "$sample_to_build" "$transport" "$qt_version" || error_exit "Conan build failed"
 elif [[ "$deps_management" == "fetch" ]]; then
-    # shellcheck source=/dev/null
-    source ./scripts/build_sample_cmake.sh
-    build_sample_with_cmake "$(pwd)" "$sample_to_build" "$transport" "false" "$(nproc --all)" "$qt_path" "$qt_version"
+    chmod +x ./scripts/build_sample_cmake.py
+    ./scripts/build_sample_cmake.py "$(pwd)" "$sample_to_build" "$transport" "$(nproc --all)" "$qt_path" "$qt_version" || error_exit "CMake fetch build failed"
 else # "system"
-    # shellcheck source=/dev/null
-    source ./scripts/build_sample_cmake.sh
-    build_sample_with_cmake "$(pwd)" "$sample_to_build" "$transport" "true" "$(nproc --all)" "$qt_path" "$qt_version"
+    chmod +x ./scripts/build_sample_cmake.py
+    ./scripts/build_sample_cmake.py "$(pwd)" "$sample_to_build" "$transport" "$(nproc --all)" "$qt_path" "$qt_version" --system_transport || error_exit "CMake system build failed"
 fi
 
 echo "Build complete for $sample_to_build sample. Executable should be in: $build_dir/"

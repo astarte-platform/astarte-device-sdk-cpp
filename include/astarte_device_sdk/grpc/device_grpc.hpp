@@ -32,24 +32,24 @@ namespace AstarteDeviceSdk {
  * @brief Class for the Astarte devices.
  * @details This class should be instantiated once and then used to communicate with Astarte.
  */
-class AstarteDeviceGRPC : public AstarteDevice {
+class AstarteDeviceGrpc : public AstarteDevice {
  public:
   /**
    * @brief Constructor for the Astarte device class.
    * @param server_addr The gRPC server address of the Astarte message hub.
    * @param node_uuid The UUID identifier for this device with the Astarte message hub.
    */
-  AstarteDeviceGRPC(const std::string& server_addr, const std::string& node_uuid);
+  AstarteDeviceGrpc(const std::string& server_addr, const std::string& node_uuid);
   /** @brief Destructor for the Astarte device class. */
-  ~AstarteDeviceGRPC() override;
+  ~AstarteDeviceGrpc() override;
   /** @brief Copy constructor for the Astarte device class. */
-  AstarteDeviceGRPC(AstarteDeviceGRPC& other) = delete;
+  AstarteDeviceGrpc(AstarteDeviceGrpc& other) = delete;
   /** @brief Move constructor for the Astarte device class. */
-  AstarteDeviceGRPC(AstarteDeviceGRPC&& other) = delete;
+  AstarteDeviceGrpc(AstarteDeviceGrpc&& other) = delete;
   /** @brief Copy assignment operator for the Astarte device class. */
-  auto operator=(AstarteDeviceGRPC& other) -> AstarteDeviceGRPC& = delete;
+  auto operator=(AstarteDeviceGrpc& other) -> AstarteDeviceGrpc& = delete;
   /** @brief Move assignment operator for the Astarte device class. */
-  auto operator=(AstarteDeviceGRPC&& other) -> AstarteDeviceGRPC& = delete;
+  auto operator=(AstarteDeviceGrpc&& other) -> AstarteDeviceGrpc& = delete;
 
   /**
    * @brief Add an interface for the device from a JSON file.
@@ -162,8 +162,8 @@ class AstarteDeviceGRPC : public AstarteDevice {
       -> astarte_tl::expected<AstartePropertyIndividual, AstarteError> override;
 
  private:
-  struct AstarteDeviceGRPCImpl;
-  std::shared_ptr<AstarteDeviceGRPCImpl> astarte_device_impl_;
+  struct AstarteDeviceGrpcImpl;
+  std::shared_ptr<AstarteDeviceGrpcImpl> astarte_device_impl_;
 };
 
 }  // namespace AstarteDeviceSdk

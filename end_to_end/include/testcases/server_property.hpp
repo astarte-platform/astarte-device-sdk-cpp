@@ -73,52 +73,52 @@ TestCase server_property() {
           TestActionSleep::Create(std::chrono::seconds(1)),
 
           // check if server property have been set
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/integer_endpoint",
               AstartePropertyIndividual(AstarteData(43)))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/longinteger_endpoint",
               AstartePropertyIndividual(AstarteData(17179869184)))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/double_endpoint",
               AstartePropertyIndividual(AstarteData(54.4)))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/boolean_endpoint",
               AstartePropertyIndividual(AstarteData(true)))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/string_endpoint",
               AstartePropertyIndividual(AstarteData(std::string("Hello C++!"))))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/datetime_endpoint",
               AstartePropertyIndividual(AstarteData(std::chrono::system_clock::time_point(
                   std::chrono::sys_days{1994y / 4 / 12} + 10h + 15min))))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/binaryblob_endpoint",
               AstartePropertyIndividual(AstarteData(std::vector<uint8_t>{0x23, 0x43, 0xF5})))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/integerarray_endpoint",
               AstartePropertyIndividual(AstarteData(std::vector<int32_t>{13, 2})))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/longintegerarray_endpoint",
               AstartePropertyIndividual(AstarteData(std::vector<int64_t>{17179869184, 5})))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/doublearray_endpoint",
               AstartePropertyIndividual(AstarteData(std::vector<double>{0.5})))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/booleanarray_endpoint",
               AstartePropertyIndividual(AstarteData(std::vector<bool>{false, true})))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/stringarray_endpoint",
               AstartePropertyIndividual(
                   AstarteData(std::vector<std::string>{"Hello ", "world ", "from ", "C++"})))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/datetimearray_endpoint",
               AstartePropertyIndividual(
                   AstarteData(std::vector<std::chrono::system_clock::time_point>{
                       std::chrono::sys_days{1994y / 4 / 12} + 10h + 15min,
                       std::chrono::sys_days{1985y / 5 / 22} + 12s,
                   })))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/binaryblobarray_endpoint",
               AstartePropertyIndividual(AstarteData(
                   std::vector<std::vector<uint8_t>>{{0x23, 0x43, 0xF5}, {0x43, 0xF3, 0x00}})))),
@@ -172,46 +172,46 @@ TestCase server_property() {
           TestActionSleep::Create(std::chrono::seconds(1)),
 
           // check unset server property
-          TestActionReadReceivedMQTTData::Create(
+          TestActionReadReceivedMqttData::Create(
               AstarteMessage(astarte_interfaces::ServerProperty::INTERFACE,
                              "/sensor1/integer_endpoint", AstartePropertyIndividual(std::nullopt))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/longinteger_endpoint",
               AstartePropertyIndividual(std::nullopt))),
-          TestActionReadReceivedMQTTData::Create(
+          TestActionReadReceivedMqttData::Create(
               AstarteMessage(astarte_interfaces::ServerProperty::INTERFACE,
                              "/sensor1/double_endpoint", AstartePropertyIndividual(std::nullopt))),
-          TestActionReadReceivedMQTTData::Create(
+          TestActionReadReceivedMqttData::Create(
               AstarteMessage(astarte_interfaces::ServerProperty::INTERFACE,
                              "/sensor1/boolean_endpoint", AstartePropertyIndividual(std::nullopt))),
-          TestActionReadReceivedMQTTData::Create(
+          TestActionReadReceivedMqttData::Create(
               AstarteMessage(astarte_interfaces::ServerProperty::INTERFACE,
                              "/sensor1/string_endpoint", AstartePropertyIndividual(std::nullopt))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/datetime_endpoint",
               AstartePropertyIndividual(std::nullopt))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/binaryblob_endpoint",
               AstartePropertyIndividual(std::nullopt))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/integerarray_endpoint",
               AstartePropertyIndividual(std::nullopt))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/longintegerarray_endpoint",
               AstartePropertyIndividual(std::nullopt))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/doublearray_endpoint",
               AstartePropertyIndividual(std::nullopt))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/booleanarray_endpoint",
               AstartePropertyIndividual(std::nullopt))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/stringarray_endpoint",
               AstartePropertyIndividual(std::nullopt))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/datetimearray_endpoint",
               AstartePropertyIndividual(std::nullopt))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/binaryblobarray_endpoint",
               AstartePropertyIndividual(std::nullopt))),
 
@@ -245,10 +245,10 @@ TestCase server_property_on_new_device() {
           TestActionSleep::Create(std::chrono::seconds(1)),
 
           // check if server property have been received
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/integer_endpoint",
               AstartePropertyIndividual(AstarteData(43)))),
-          TestActionReadReceivedMQTTData::Create(AstarteMessage(
+          TestActionReadReceivedMqttData::Create(AstarteMessage(
               astarte_interfaces::ServerProperty::INTERFACE, "/sensor1/longinteger_endpoint",
               AstartePropertyIndividual(AstarteData(17179869184)))),
 

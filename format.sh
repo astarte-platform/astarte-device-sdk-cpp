@@ -146,8 +146,8 @@ fi
 # Define cmake files to format/check
 cmake_files=(
     "CMakeLists.txt"
-    "cmake/AstarteGRPCTransport.cmake"
-    "cmake/AstarteMQTTTransport.cmake"
+    "cmake/AstarteGrpcTransport.cmake"
+    "cmake/AstarteMqttTransport.cmake"
     "unit/CMakeLists.txt"
     "end_to_end/CMakeLists.txt"
     "samples/grpc/qt/CMakeLists.txt"

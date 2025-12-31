@@ -16,31 +16,31 @@ TestCase device_add_remove_interface() {
       "Add/remove interfaces",
       std::vector<std::shared_ptr<TestAction>>{
           TestActionConnect::Create(), TestActionSleep::Create(std::chrono::seconds(1)),
-          TestActionTransmitMQTTData::Create(
+          TestActionTransmitMqttData::Create(
               AstarteMessage(astarte_interfaces::DeviceDatastream::INTERFACE, "/integer_endpoint",
                              AstarteDatastreamIndividual(AstarteData(12))),
               astarte_time::TIMESTAMP),
-          TestActionTransmitMQTTData::Create(
+          TestActionTransmitMqttData::Create(
               AstarteMessage(astarte_interfaces::DeviceProperty::INTERFACE, "/integer_endpoint",
                              AstartePropertyIndividual(AstarteData(12)))),
           TestActionSleep::Create(std::chrono::seconds(1)),
           TestActionRemoveInterface::Create(astarte_interfaces::DeviceDatastream::INTERFACE),
           TestActionSleep::Create(std::chrono::seconds(1)),
-          TestActionTransmitMQTTData::Create(
+          TestActionTransmitMqttData::Create(
               AstarteMessage(astarte_interfaces::DeviceDatastream::INTERFACE, "/integer_endpoint",
                              AstarteDatastreamIndividual(AstarteData(12))),
               astarte_time::TIMESTAMP, true),
-          TestActionTransmitMQTTData::Create(
+          TestActionTransmitMqttData::Create(
               AstarteMessage(astarte_interfaces::DeviceProperty::INTERFACE, "/integer_endpoint",
                              AstartePropertyIndividual(AstarteData(12)))),
           TestActionSleep::Create(std::chrono::seconds(1)),
           TestActionAddInterfaceFile::Create(astarte_interfaces::DeviceDatastream::FILE),
           TestActionSleep::Create(std::chrono::seconds(1)),
-          TestActionTransmitMQTTData::Create(
+          TestActionTransmitMqttData::Create(
               AstarteMessage(astarte_interfaces::DeviceDatastream::INTERFACE, "/integer_endpoint",
                              AstarteDatastreamIndividual(AstarteData(12))),
               astarte_time::TIMESTAMP),
-          TestActionTransmitMQTTData::Create(
+          TestActionTransmitMqttData::Create(
               AstarteMessage(astarte_interfaces::DeviceProperty::INTERFACE, "/integer_endpoint",
                              AstartePropertyIndividual(AstarteData(12)))),
           TestActionSleep::Create(std::chrono::seconds(1)), TestActionDisconnect::Create(),

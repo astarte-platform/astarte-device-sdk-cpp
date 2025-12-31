@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-name: Check build for the library
+name: Check build for the library with gRPC
 
 on:
   pull_request:
@@ -14,64 +14,56 @@ env:
   GRPC_VERSION: "1.69.0"
 
 jobs:
-  build-grpc-native-sample-conan:
+  build-grpc-native-sample-conan-linux:
     runs-on: ubuntu-latest
     concurrency:
-      group: build-grpc-native-sample-conan-${{ github.ref }}
+      group: build-grpc-native-sample-conan-linux-${{ github.ref }}
       cancel-in-progress: true
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Install Conan
         uses: conan-io/setup-conan@v1
         with:
           cache_packages: true
           use_venv: true
       - name: Build sample and library
-        run: ./build_sample.sh grpc/native --fresh --deps-mgmt conan --ext-tools
-  build-mqtt-native-sample-conan:
-    runs-on: ubuntu-latest
+        run: ./build_sample.sh grpc/native --fresh --deps-mgmt conan --transport grpc --ext-tools
+  build-grpc-native-sample-conan-windows:
+    runs-on: windows-latest
     concurrency:
-      group: build-mqtt-native-sample-conan-${{ github.ref }}
+      group: build-grpc-native-sample-conan-windows-${{ github.ref }}
       cancel-in-progress: true
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Install Conan
         uses: conan-io/setup-conan@v1
         with:
           cache_packages: true
           use_venv: true
-      - name: Build sample and library
-        run: ./build_sample.sh mqtt/native --fresh --transport mqtt --deps-mgmt conan --ext-tools
-  build-grpc-native-sample-fetch:
+      - name: Build sample with conan
+        shell: pwsh
+        run: .\build_sample.ps1 grpc/native -fresh -deps-mgmt conan -transport grpc -ext-tools
+  build-grpc-native-sample-fetch-linux:
     runs-on: ubuntu-latest
     concurrency:
-      group: build-grpc-native-sample-fetch-${{ github.ref }}
+      group: build-grpc-native-sample-fetch-linux-${{ github.ref }}
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@v5
       - name: Build sample and library
-        run: ./build_sample.sh grpc/native --fresh --deps-mgmt fetch
-  build-mqtt-native-sample-fetch:
+        run: ./build_sample.sh grpc/native --fresh --transport grpc --deps-mgmt fetch
+  build-grpc-native-sample-system-linux:
     runs-on: ubuntu-latest
     concurrency:
-      group: build-mqtt-native-sample-fetch-${{ github.ref }}
+      group: build-grpc-native-sample-system-linux-${{ github.ref }}
       cancel-in-progress: true
     steps:
-      - uses: actions/checkout@v5
-      - name: Build sample and library
-        run: ./build_sample.sh mqtt/native --fresh --transport mqtt --deps-mgmt fetch --ext-tools
-  build-grpc-native-sample-install:
-    runs-on: ubuntu-latest
-    concurrency:
-      group: build-grpc-native-sample-install-${{ github.ref }}
-      cancel-in-progress: true
-    steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           path: astarte-device-sdk-cpp
       - name: Setup gRPC build cache
         id: cache-grpc-cpp
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ./grpc
@@ -86,21 +78,21 @@ jobs:
           ./astarte-device-sdk-cpp/.github/scripts/build-grpc.sh
       - name: Build sample and library
         working-directory: ./astarte-device-sdk-cpp
-        run: ./build_sample.sh grpc/native --fresh --deps-mgmt system
-  build-grpc-qt-sample-install:
+        run: ./build_sample.sh grpc/native --fresh --transport grpc --deps-mgmt system
+  build-grpc-qt-sample-system-linux:
     runs-on: ubuntu-latest
-    needs: build-grpc-native-sample-install
+    needs: build-grpc-native-sample-system-linux
     concurrency:
-      group: build-grpc-qt-sample-install-${{ matrix.qt_version }}-${{ github.ref }}
+      group: build-grpc-qt-sample-system-linux-${{ matrix.qt_version }}-${{ github.ref }}
       cancel-in-progress: true
     strategy:
       matrix:
         qt_version: [5.15.2, 6.5.3]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Setup gRPC build cache
         id: cache-grpc-cpp
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ./grpc
@@ -130,4 +122,4 @@ jobs:
           fi
       - name: Build sample and library
         run: |
-          ./build_sample.sh grpc/qt --fresh --deps-mgmt system --qt_version "$QT_MAJOR_VERSION" --qt_path "$QT_PATH"
+          ./build_sample.sh grpc/qt --fresh --transport grpc --deps-mgmt system --qt_version "$QT_MAJOR_VERSION" --qt_path "$QT_PATH"

@@ -25,7 +25,7 @@ jobs:
         msghub-version: ["v0.8.0"]
     steps:
       - name: Checkout C++ client
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: astarte-device-sdk-cpp
       - name: Free disk space
@@ -67,7 +67,7 @@ jobs:
           echo "E2E_DEVICE_ID=$DEVICE_ID" >> $GITHUB_ENV
           echo "E2E_CREDENTIALS_SECRET=$CREDENTIALS_SECRET" >> $GITHUB_ENV
       - name: Checkout message hub
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: astarte-platform/astarte-message-hub
           path: astarte-message-hub
@@ -88,7 +88,7 @@ jobs:
           mkdir ./astarte-message-hub/target/release
       - name: Restore cached astarte-message-hub binary
         id: cache-astarte-message-hub-restore
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: ./astarte-message-hub/target/release/astarte-message-hub
           key: astarte-message-hub-${{ matrix.msghub-version }}
@@ -99,7 +99,7 @@ jobs:
       - name: Save message hub binary
         if: steps.cache-astarte-message-hub-restore.outputs.cache-hit != 'true'
         id: cache-astarte-message-hub-save
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: ./astarte-message-hub/target/release/astarte-message-hub
           key: ${{ steps.cache-astarte-message-hub-restore.outputs.cache-primary-key }}
