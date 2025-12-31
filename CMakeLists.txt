@@ -114,9 +114,6 @@ endif()
 
 # Setups grpc
 astarte_setup_grpc(
-    VAR_PROTOBUF_LIB          # Output: The protobuf library target
-    VAR_REFLECTION_LIB        # Output: The reflection library target
-    VAR_GRPC_LIB              # Output: The gRPC C++ library target
     VAR_PROTOC_PATH           # Output: Path to the protoc executable
     VAR_GRPC_PLUGIN_PATH      # Output: Path to the grpc_cpp_plugin executable
     VAR_PROTO_STD_INC         # Output: Path to standard include directory
@@ -179,9 +176,6 @@ endif()
 # Generate the proto files and attach them to the target
 astarte_proto_attach_to_target(astarte_device_sdk
     ${_ASTARTE_PROTO_VISIBILITY_FLAG}
-    PROTOBUF_LIBPROTOBUF           "${VAR_PROTOBUF_LIB}"
-    REFLECTION                     "${VAR_REFLECTION_LIB}"
-    GRPC_CPP                       "${VAR_GRPC_LIB}"
     PROTOBUF_PROTOC                "${VAR_PROTOC_PATH}"
     GRPC_CPP_PLUGIN_EXECUTABLE     "${VAR_GRPC_PLUGIN_PATH}"
     PROTOBUF_STANDARD_INCLUDE_DIR  "${VAR_PROTO_STD_INC}"
