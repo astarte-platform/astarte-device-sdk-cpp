@@ -42,7 +42,7 @@ class AstarteDeviceMQTT : public AstarteDevice {
    * @param cfg set of MQTT configuration options used to connect a device to Astarte.
    * @return An AstarteDeviceMQTT object, an error otherwise.
    */
-  [[nodiscard]] static auto create(MqttConfig cfg)
+  [[nodiscard]] static auto create(config::MqttConfig cfg)
       -> astarte_tl::expected<AstarteDeviceMQTT, AstarteError>;
   /** @brief Destructor for the Astarte device class. */
   ~AstarteDeviceMQTT() override;

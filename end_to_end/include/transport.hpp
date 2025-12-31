@@ -20,7 +20,7 @@ using AstarteDeviceSdk::AstarteDeviceGRPC;
 #include "astarte_device_sdk/mqtt/device_mqtt.hpp"
 
 using AstarteDeviceSdk::AstarteDeviceMQTT;
-using AstarteDeviceSdk::MqttConfig;
+using config::MqttConfig;
 #endif  // ASTARTE_TRANSPORT_GRPC
 
 // config structures
