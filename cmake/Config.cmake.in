@@ -9,9 +9,5 @@ if(@ASTARTE_PUBLIC_SPDLOG_DEP@)
     endif()
 endif()
 
-if(@ASTARTE_PUBLIC_PROTO_DEP@)
-    find_dependency(astarte_msghub_proto REQUIRED)
-endif()
-
 include("${CMAKE_CURRENT_LIST_DIR}/astarte_device_sdk-target.cmake")
 check_required_components(astarte_device_sdk)
