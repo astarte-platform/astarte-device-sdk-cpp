@@ -81,6 +81,21 @@ TEST(AstarteTestData, FormatString) {
   EXPECT_PRED2(CompareAstarteData, data, "\"Test string\"");
 }
 
+TEST(AstarteTestData, InstantiationStringView) {
+  std::string_view value = "Test string";
+  auto data = AstarteData(value);
+  auto original_string = data.into<std::string>();
+  auto original_string_view = data.into<std::string_view>();
+  EXPECT_STREQ(value.data(), original_string.c_str());
+  ASSERT_NE(value.data(), original_string_view.data());     // Memory locations differ
+  EXPECT_STREQ(value.data(), original_string_view.data());  // Content is the same
+}
+TEST(AstarteTestData, FormatStringView) {
+  std::string_view value = "Test string";
+  auto data = AstarteData(value);
+  EXPECT_PRED2(CompareAstarteData, data, "\"Test string\"");
+}
+
 TEST(AstarteTestData, InstantiationBinaryBlob) {
   std::vector<uint8_t> value = {0x12U, 0x22U, 0x42};
   auto data = AstarteData(value);
@@ -245,6 +260,14 @@ TEST(AstarteTestData, TryIntoString) {
   auto data = AstarteData(value);
   std::optional<std::string> original = data.try_into<std::string>();
   EXPECT_STREQ(value.c_str(), original->c_str());
+}
+TEST(AstarteTestData, TryIntoStringView) {
+  std::string_view value = "Test string";
+  auto data = AstarteData(value);
+  std::optional<std::string> original_string = data.try_into<std::string>();
+  EXPECT_STREQ(value.data(), original_string->c_str());
+  std::optional<std::string_view> original_string_view = data.try_into<std::string_view>();
+  EXPECT_STREQ(value.data(), original_string_view->data());
 }
 TEST(AstarteTestData, TryIntoBinaryBlob) {
   std::vector<uint8_t> value = {0x12U, 0x22U, 0x42};

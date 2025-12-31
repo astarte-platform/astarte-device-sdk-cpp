@@ -35,23 +35,23 @@ namespace AstarteDeviceSdk {
  * @brief Class for the Astarte devices.
  * @details This class should be instantiated once and then used to communicate with Astarte.
  */
-class AstarteDeviceMQTT : public AstarteDevice {
+class AstarteDeviceMqtt : public AstarteDevice {
  public:
   /**
-   * @brief Construct an AstarteDeviceMQTTImpl instance.
+   * @brief Construct an AstarteDeviceMqttImpl instance.
    * @param cfg set of MQTT configuration options used to connect a device to Astarte.
    */
-  AstarteDeviceMQTT(const MqttConfig cfg);
+  AstarteDeviceMqtt(const MqttConfig cfg);
   /** @brief Destructor for the Astarte device class. */
-  ~AstarteDeviceMQTT() override;
+  ~AstarteDeviceMqtt() override;
   /** @brief Copy constructor for the Astarte device class. */
-  AstarteDeviceMQTT(AstarteDeviceMQTT& other) = delete;
+  AstarteDeviceMqtt(AstarteDeviceMqtt& other) = delete;
   /** @brief Copy assignment operator for the Astarte device class. */
-  auto operator=(AstarteDeviceMQTT& other) -> AstarteDeviceMQTT& = delete;
+  auto operator=(AstarteDeviceMqtt& other) -> AstarteDeviceMqtt& = delete;
   /** @brief Move constructor for the Astarte device class. */
-  AstarteDeviceMQTT(AstarteDeviceMQTT&& other) = delete;
+  AstarteDeviceMqtt(AstarteDeviceMqtt&& other) = delete;
   /** @brief Move assignment operator for the Astarte device class. */
-  auto operator=(AstarteDeviceMQTT&& other) -> AstarteDeviceMQTT& = delete;
+  auto operator=(AstarteDeviceMqtt&& other) -> AstarteDeviceMqtt& = delete;
 
   /**
    * @brief Add an interface for the device from a json file.
@@ -164,8 +164,8 @@ class AstarteDeviceMQTT : public AstarteDevice {
       -> astarte_tl::expected<AstartePropertyIndividual, AstarteError> override;
 
  private:
-  struct AstarteDeviceMQTTImpl;
-  std::shared_ptr<AstarteDeviceMQTTImpl> astarte_device_impl_;
+  struct AstarteDeviceMqttImpl;
+  std::shared_ptr<AstarteDeviceMqttImpl> astarte_device_impl_;
 };
 
 }  // namespace AstarteDeviceSdk

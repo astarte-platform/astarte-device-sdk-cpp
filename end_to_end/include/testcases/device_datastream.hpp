@@ -19,28 +19,28 @@ TestCase device_datastream() {
       std::vector<std::shared_ptr<TestAction>>{
           TestActionConnect::Create(),
           TestActionSleep::Create(std::chrono::seconds(1)),
-          TestActionTransmitMQTTData::Create(
+          TestActionTransmitMqttData::Create(
               AstarteMessage(astarte_interfaces::DeviceDatastream::INTERFACE, "/integer_endpoint",
                              AstarteDatastreamIndividual(AstarteData(12))),
               astarte_time::TIMESTAMP),
-          TestActionTransmitMQTTData::Create(
+          TestActionTransmitMqttData::Create(
               AstarteMessage(astarte_interfaces::DeviceDatastream::INTERFACE,
                              "/longinteger_endpoint",
                              AstarteDatastreamIndividual(AstarteData(17179869184))),
               astarte_time::TIMESTAMP),
-          TestActionTransmitMQTTData::Create(
+          TestActionTransmitMqttData::Create(
               AstarteMessage(astarte_interfaces::DeviceDatastream::INTERFACE, "/double_endpoint",
                              AstarteDatastreamIndividual(AstarteData(54.4))),
               astarte_time::TIMESTAMP),
-          TestActionTransmitMQTTData::Create(
+          TestActionTransmitMqttData::Create(
               AstarteMessage(astarte_interfaces::DeviceDatastream::INTERFACE, "/boolean_endpoint",
                              AstarteDatastreamIndividual(AstarteData(true))),
               astarte_time::TIMESTAMP),
-          TestActionTransmitMQTTData::Create(
+          TestActionTransmitMqttData::Create(
               AstarteMessage(astarte_interfaces::DeviceDatastream::INTERFACE, "/string_endpoint",
                              AstarteDatastreamIndividual(AstarteData(std::string("Hello C++!")))),
               astarte_time::TIMESTAMP),
-          TestActionTransmitMQTTData::Create(
+          TestActionTransmitMqttData::Create(
               AstarteMessage(
                   astarte_interfaces::DeviceDatastream::INTERFACE, "/datetime_endpoint",
                   AstarteDatastreamIndividual(AstarteData(std::chrono::system_clock::time_point(
@@ -49,42 +49,42 @@ TestCase device_datastream() {
                       std::chrono::hours(10) + std::chrono::minutes(15) +
                       std::chrono::seconds(0))))),
               astarte_time::TIMESTAMP),
-          TestActionTransmitMQTTData::Create(
+          TestActionTransmitMqttData::Create(
               AstarteMessage(
                   astarte_interfaces::DeviceDatastream::INTERFACE, "/binaryblob_endpoint",
 
                   AstarteDatastreamIndividual(AstarteData(std::vector<uint8_t>{0x23, 0x43, 0xF5}))),
               astarte_time::TIMESTAMP),
-          TestActionTransmitMQTTData::Create(
+          TestActionTransmitMqttData::Create(
               AstarteMessage(astarte_interfaces::DeviceDatastream::INTERFACE,
                              "/integerarray_endpoint",
                              AstarteDatastreamIndividual(AstarteData(std::vector<int32_t>{13, 2}))),
               astarte_time::TIMESTAMP),
-          TestActionTransmitMQTTData::Create(
+          TestActionTransmitMqttData::Create(
               AstarteMessage(
                   astarte_interfaces::DeviceDatastream::INTERFACE, "/longintegerarray_endpoint",
 
                   AstarteDatastreamIndividual(AstarteData(std::vector<int64_t>{17179869184, 5}))),
               astarte_time::TIMESTAMP),
-          TestActionTransmitMQTTData::Create(
+          TestActionTransmitMqttData::Create(
               AstarteMessage(astarte_interfaces::DeviceDatastream::INTERFACE,
                              "/doublearray_endpoint",
                              AstarteDatastreamIndividual(AstarteData(std::vector<double>{0.5}))),
               astarte_time::TIMESTAMP),
-          TestActionTransmitMQTTData::Create(
+          TestActionTransmitMqttData::Create(
               AstarteMessage(
                   astarte_interfaces::DeviceDatastream::INTERFACE, "/booleanarray_endpoint",
 
                   AstarteDatastreamIndividual(AstarteData(std::vector<bool>{false, true}))),
               astarte_time::TIMESTAMP),
-          TestActionTransmitMQTTData::Create(
+          TestActionTransmitMqttData::Create(
               AstarteMessage(
                   astarte_interfaces::DeviceDatastream::INTERFACE, "/stringarray_endpoint",
 
                   AstarteDatastreamIndividual(
                       AstarteData(std::vector<std::string>{"Hello ", "world ", "from ", "C++"}))),
               astarte_time::TIMESTAMP),
-          TestActionTransmitMQTTData::Create(
+          TestActionTransmitMqttData::Create(
               AstarteMessage(
                   astarte_interfaces::DeviceDatastream::INTERFACE, "/datetimearray_endpoint",
                   AstarteDatastreamIndividual(AstarteData(std::vector<
@@ -99,7 +99,7 @@ TestCase device_datastream() {
                           std::chrono::seconds(12),
                   }))),
               astarte_time::TIMESTAMP),
-          TestActionTransmitMQTTData::Create(
+          TestActionTransmitMqttData::Create(
               AstarteMessage(
                   astarte_interfaces::DeviceDatastream::INTERFACE, "/binaryblobarray_endpoint",
 

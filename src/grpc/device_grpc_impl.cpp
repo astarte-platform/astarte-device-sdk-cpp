@@ -82,16 +82,16 @@ using gRPCPropertyIdentifier = astarteplatform::msghub::PropertyIdentifier;
 using gRPCInterfacesJson = astarteplatform::msghub::InterfacesJson;
 using gRPCInterfacesName = astarteplatform::msghub::InterfacesName;
 
-AstarteDeviceGRPC::AstarteDeviceGRPCImpl::AstarteDeviceGRPCImpl(std::string server_addr,
+AstarteDeviceGrpc::AstarteDeviceGrpcImpl::AstarteDeviceGrpcImpl(std::string server_addr,
                                                                 std::string node_uuid)
     : server_addr_(std::move(server_addr)),
       node_uuid_(std::move(node_uuid)),
       connected_(std::atomic_bool(false)),
       grpc_stream_error_(std::atomic_bool(false)) {}
 
-AstarteDeviceGRPC::AstarteDeviceGRPCImpl::~AstarteDeviceGRPCImpl() { ssource_.request_stop(); }
+AstarteDeviceGrpc::AstarteDeviceGrpcImpl::~AstarteDeviceGrpcImpl() { ssource_.request_stop(); }
 
-auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::add_interface_from_file(
+auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::add_interface_from_file(
     const std::filesystem::path& json_file) -> astarte_tl::expected<void, AstarteError> {
   spdlog::debug("Adding interface from file: {}", json_file.string());
 
@@ -113,7 +113,7 @@ auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::add_interface_from_file(
   return add_interface_from_str(interface_json);
 }
 
-auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::add_interface_from_str(std::string_view json)
+auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::add_interface_from_str(std::string_view json)
     -> astarte_tl::expected<void, AstarteError> {
   spdlog::debug("Adding interface from string");
 
@@ -136,7 +136,7 @@ auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::add_interface_from_str(std::strin
   return {};
 }
 
-auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::remove_interface(const std::string& interface_name)
+auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::remove_interface(const std::string& interface_name)
     -> astarte_tl::expected<void, AstarteError> {
   spdlog::debug("Removing interface: {}", interface_name);
   const std::string escaped_interface_name =
@@ -168,7 +168,7 @@ auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::remove_interface(const std::strin
   return {};
 }
 
-auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::connect()
+auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::connect()
     -> astarte_tl::expected<void, AstarteError> {
   spdlog::info("Connection requested.");
   if (connection_thread_) {
@@ -194,11 +194,11 @@ auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::connect()
   return {};
 }
 
-auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::is_connected() const -> bool {
+auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::is_connected() const -> bool {
   return connected_.load();
 }
 
-auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::disconnect()
+auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::disconnect()
     -> astarte_tl::expected<void, AstarteError> {
   spdlog::info("Disconnection requested.");
   astarte_tl::expected<void, AstarteError> res = {};
@@ -224,7 +224,7 @@ auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::disconnect()
   return res;
 }
 
-auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::send_individual(
+auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::send_individual(
     std::string_view interface_name, std::string_view path, const AstarteData& data,
     const std::chrono::system_clock::time_point* timestamp)
     -> astarte_tl::expected<void, AstarteError> {
@@ -255,7 +255,7 @@ auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::send_individual(
   return {};
 }
 
-auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::send_object(
+auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::send_object(
     std::string_view interface_name, std::string_view path, const AstarteDatastreamObject& object,
     const std::chrono::system_clock::time_point* timestamp)
     -> astarte_tl::expected<void, AstarteError> {
@@ -286,7 +286,7 @@ auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::send_object(
   return {};
 }
 
-auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::set_property(std::string_view interface_name,
+auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::set_property(std::string_view interface_name,
                                                             std::string_view path,
                                                             const AstarteData& data)
     -> astarte_tl::expected<void, AstarteError> {
@@ -317,7 +317,7 @@ auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::set_property(std::string_view int
   return {};
 }
 
-auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::unset_property(std::string_view interface_name,
+auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::unset_property(std::string_view interface_name,
                                                               std::string_view path)
     -> astarte_tl::expected<void, AstarteError> {
   spdlog::debug("Unsetting property: {} {}", interface_name, path);
@@ -346,12 +346,12 @@ auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::unset_property(std::string_view i
   return {};
 }
 
-auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::poll_incoming(
+auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::poll_incoming(
     const std::chrono::milliseconds& timeout) -> std::optional<AstarteMessage> {
   return rcv_queue_.pop(timeout);
 }
 
-auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::get_all_properties(
+auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::get_all_properties(
     const std::optional<AstarteOwnership>& ownership)
     -> astarte_tl::expected<std::list<AstarteStoredProperty>, AstarteError> {
   if (ownership.has_value()) {
@@ -384,7 +384,7 @@ auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::get_all_properties(
   return GrpcConverterFrom{}(response);
 }
 
-auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::get_properties(std::string_view interface_name)
+auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::get_properties(std::string_view interface_name)
     -> astarte_tl::expected<std::list<AstarteStoredProperty>, AstarteError> {
   spdlog::debug("Getting stored properties for interface: {}", interface_name);
   if (!connected_.load()) {
@@ -408,7 +408,7 @@ auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::get_properties(std::string_view i
   return GrpcConverterFrom{}(response);
 }
 
-auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::get_property(std::string_view interface_name,
+auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::get_property(std::string_view interface_name,
                                                             std::string_view path)
     -> astarte_tl::expected<AstartePropertyIndividual, AstarteError> {
   spdlog::debug("Getting stored property for interface '{}' and path '{}'", interface_name, path);
@@ -435,7 +435,7 @@ auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::get_property(std::string_view int
 }
 
 // Private helper to set up the gRPC channel and stub
-void AstarteDeviceGRPC::AstarteDeviceGRPCImpl::setup_grpc_channel() {
+void AstarteDeviceGrpc::AstarteDeviceGrpcImpl::setup_grpc_channel() {
   const grpc::ChannelArguments args;
   std::vector<std::unique_ptr<ClientInterceptorFactoryInterface>> interceptor_creators;
   interceptor_creators.push_back(std::make_unique<NodeIdInterceptorFactory>(node_uuid_));
@@ -446,7 +446,7 @@ void AstarteDeviceGRPC::AstarteDeviceGRPCImpl::setup_grpc_channel() {
   stub_ = gRPCMessageHub::NewStub(channel);
 }
 
-auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::perform_attach()
+auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::perform_attach()
     -> astarte_tl::expected<AttachResult, AstarteError> {
   // Create the node message for the attach RPC.
   gRPCNode node;
@@ -476,7 +476,7 @@ auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::perform_attach()
   return AttachResult{.context = std::move(context), .reader = std::move(reader)};
 }
 
-auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::connection_attempt(const std::stop_token& token)
+auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::connection_attempt(const std::stop_token& token)
     -> astarte_tl::expected<void, AstarteError> {
   if (connected_.load()) {
     spdlog::warn("Device is already connected.");
@@ -487,30 +487,23 @@ auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::connection_attempt(const std::sto
   // Create a new channel and initialize the gRPC stub
   setup_grpc_channel();
 
-  // perform the attach
-  auto attach_res = perform_attach();
-  if (!attach_res) {
-    spdlog::error("Failed to attach to the message hub");
-    return astarte_tl::unexpected(attach_res.error());
-  }
-
-  // the device is connected
-  connected_.store(true);
-  spdlog::info("Node connected");
-
-  auto handle_events_res =
-      handle_events(token, std::move(attach_res->context), std::move(attach_res->reader));
-  if (!handle_events_res) {
-    return astarte_tl::unexpected(handle_events_res.error());
-  }
-
-  // the device finished its execution and is disconnected
-  connected_.store(false);
-  spdlog::info("Node disconnected");
-  return {};
+  return perform_attach()
+      .transform_error([](AstarteError error) {
+        spdlog::error("Failed to attach to the message hub");
+        return error;
+      })
+      .and_then([&](auto&& attach_res) {
+        connected_.store(true);
+        spdlog::info("Node connected");
+        return handle_events(token, std::move(attach_res.context), std::move(attach_res.reader));
+      })
+      .transform([&]() {
+        connected_.store(false);
+        spdlog::info("Node disconnected");
+      });
 }
 
-auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::handle_events(
+auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::handle_events(
     const std::stop_token& token, std::unique_ptr<grpc::ClientContext> context,
     std::unique_ptr<ClientReader<gRPCMessageHubEvent>> reader)
     -> astarte_tl::expected<void, AstarteError> {
@@ -520,7 +513,7 @@ auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::handle_events(
   gRPCMessageHubEvent msghub_event;
   while (!token.stop_requested() && reader->Read(&msghub_event)) {
     spdlog::debug("Event from the message hub received.");
-    auto parsed_message = AstarteDeviceGRPCImpl::parse_message_hub_event(msghub_event);
+    auto parsed_message = AstarteDeviceGrpcImpl::parse_message_hub_event(msghub_event);
     if (!parsed_message) {
       return astarte_tl::unexpected(parsed_message.error());
     }
@@ -544,7 +537,7 @@ auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::handle_events(
   return {};
 }
 
-auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::parse_message_hub_event(
+auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::parse_message_hub_event(
     const gRPCMessageHubEvent& event) -> astarte_tl::expected<AstarteMessage, AstarteError> {
   spdlog::trace("Parsing message hub event.");
   if (event.has_message()) {
@@ -565,35 +558,33 @@ auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::parse_message_hub_event(
   return astarte_tl::unexpected(AstarteInternalError{"Message hub event is of unknown type"});
 }
 
-auto AstarteDeviceGRPC::AstarteDeviceGRPCImpl::connection_loop(const std::stop_token& token)
+auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::connection_loop(const std::stop_token& token)
     -> astarte_tl::expected<void, AstarteError> {
   spdlog::trace("Connection loop started.");
-  auto exp_backoff = ExponentialBackoff::create(std::chrono::seconds(2), std::chrono::minutes(1));
-  if (!exp_backoff) {
-    return astarte_tl::unexpected(exp_backoff.error());
-  }
+  return ExponentialBackoff::create(std::chrono::seconds(2), std::chrono::minutes(1))
+      .and_then([&](auto exp_backoff) -> astarte_tl::expected<void, AstarteError> {
+        while (!token.stop_requested()) {
+          (void)connection_attempt(token).or_else([&](const AstarteError& err) {
+            // TODO(sorru94): Check the error type and conclude the loop if required.
+            spdlog::error("Connection attempt failed with the following error.");
+            spdlog::error(err);
+            return astarte_tl::expected<void, AstarteError>{};
+          });
 
-  while (!token.stop_requested()) {
-    auto connection_attempt_res = connection_attempt(token);
-    if (!connection_attempt_res) {
-      // TODO(sorru94): Check the error type and conclude the loop if required.
-      spdlog::error("Connection attempt failed with the following error.");
-      spdlog::error(connection_attempt_res.error());
-    }
+          if (token.stop_requested()) {
+            spdlog::info("Stop requested, will not attempt to reconnect.");
+            break;
+          }
 
-    if (token.stop_requested()) {
-      spdlog::info("Stop requested, will not attempt to reconnect.");
-      break;
-    }
+          auto delay = exp_backoff.getNextDelay();
+          spdlog::info("Will attempt to reconnect in {} seconds.",
+                       std::chrono::duration_cast<std::chrono::seconds>(delay).count());
+          std::this_thread::sleep_for(delay);
+        }
 
-    auto delay = exp_backoff.value().getNextDelay();
-    spdlog::info("Will attempt to reconnect in {} seconds.",
-                 std::chrono::duration_cast<std::chrono::seconds>(delay).count());
-    std::this_thread::sleep_for(delay);
-  }
-
-  spdlog::info("Connection loop has been terminated.");
-  return {};
+        spdlog::info("Connection loop has been terminated.");
+        return {};
+      });
 }
 
 }  // namespace AstarteDeviceSdk

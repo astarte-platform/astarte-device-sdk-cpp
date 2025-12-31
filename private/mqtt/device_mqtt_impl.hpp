@@ -24,23 +24,23 @@
 
 namespace AstarteDeviceSdk {
 
-struct AstarteDeviceMQTT::AstarteDeviceMQTTImpl {
+struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
  public:
   /**
-   * @brief Construct an AstarteDeviceMQTTImpl instance.
+   * @brief Construct an AstarteDeviceMqttImpl instance.
    * @param cfg set of MQTT configuration options used to connect a device to Astarte.
    */
-  AstarteDeviceMQTTImpl(const MqttConfig cfg);
+  AstarteDeviceMqttImpl(const MqttConfig cfg);
   /** @brief Destructor for the Astarte device class. */
-  ~AstarteDeviceMQTTImpl();
+  ~AstarteDeviceMqttImpl();
   /** @brief Copy constructor for the Astarte device class. */
-  AstarteDeviceMQTTImpl(AstarteDeviceMQTTImpl& other) = delete;
+  AstarteDeviceMqttImpl(AstarteDeviceMqttImpl& other) = delete;
   /** @brief Move constructor for the Astarte device class. */
-  AstarteDeviceMQTTImpl(AstarteDeviceMQTTImpl&& other) = delete;
+  AstarteDeviceMqttImpl(AstarteDeviceMqttImpl&& other) = delete;
   /** @brief Copy assignment operator for the Astarte device class. */
-  auto operator=(AstarteDeviceMQTTImpl& other) -> AstarteDeviceMQTTImpl& = delete;
+  auto operator=(AstarteDeviceMqttImpl& other) -> AstarteDeviceMqttImpl& = delete;
   /** @brief Move assignment operator for the Astarte device class. */
-  auto operator=(AstarteDeviceMQTTImpl&& other) -> AstarteDeviceMQTTImpl& = delete;
+  auto operator=(AstarteDeviceMqttImpl&& other) -> AstarteDeviceMqttImpl& = delete;
 
   /**
    * @brief Parse an interface definition from a JSON file and adds it to the device.

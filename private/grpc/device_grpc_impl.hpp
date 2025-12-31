@@ -37,24 +37,24 @@ namespace AstarteDeviceSdk {
 using gRPCMessageHub = astarteplatform::msghub::MessageHub;
 using gRPCMessageHubEvent = astarteplatform::msghub::MessageHubEvent;
 
-struct AstarteDeviceGRPC::AstarteDeviceGRPCImpl {
+struct AstarteDeviceGrpc::AstarteDeviceGrpcImpl {
  public:
   /**
-   * @brief Construct an AstarteDeviceGRPCImpl instance.
+   * @brief Construct an AstarteDeviceGrpcImpl instance.
    * @param server_addr The gRPC server address for the Astarte message hub.
    * @param node_uuid The unique identifier for the device connection.
    */
-  AstarteDeviceGRPCImpl(std::string server_addr, std::string node_uuid);
+  AstarteDeviceGrpcImpl(std::string server_addr, std::string node_uuid);
   /** @brief Destructor for the Astarte device class. */
-  ~AstarteDeviceGRPCImpl();
+  ~AstarteDeviceGrpcImpl();
   /** @brief Copy constructor for the Astarte device class. */
-  AstarteDeviceGRPCImpl(AstarteDeviceGRPCImpl& other) = delete;
+  AstarteDeviceGrpcImpl(AstarteDeviceGrpcImpl& other) = delete;
   /** @brief Move constructor for the Astarte device class. */
-  AstarteDeviceGRPCImpl(AstarteDeviceGRPCImpl&& other) = delete;
+  AstarteDeviceGrpcImpl(AstarteDeviceGrpcImpl&& other) = delete;
   /** @brief Copy assignment operator for the Astarte device class. */
-  auto operator=(AstarteDeviceGRPCImpl& other) -> AstarteDeviceGRPCImpl& = delete;
+  auto operator=(AstarteDeviceGrpcImpl& other) -> AstarteDeviceGrpcImpl& = delete;
   /** @brief Move assignment operator for the Astarte device class. */
-  auto operator=(AstarteDeviceGRPCImpl&& other) -> AstarteDeviceGRPCImpl& = delete;
+  auto operator=(AstarteDeviceGrpcImpl&& other) -> AstarteDeviceGrpcImpl& = delete;
 
   /**
    * @brief Parse an interface definition from a JSON file and adds it to the device.
