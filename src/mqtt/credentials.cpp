@@ -2,25 +2,28 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include <unistd.h>
+
+#include <cstdio>
 #include <filesystem>
 #include <fstream>
 #include <ios>
 #include <iterator>
 #include <string>
 #include <string_view>
+#include <system_error>
+#include <vector>
 
 #include "astarte_device_sdk/mqtt/errors.hpp"
 #include "astarte_device_sdk/mqtt/formatter.hpp"
 
-namespace AstarteDeviceSdk {
-
 namespace config {
 
-#include <unistd.h>
+namespace astarte_tl = AstarteDeviceSdk::astarte_tl;
 
-#include <cstdio>
-#include <system_error>
-#include <vector>
+using AstarteDeviceSdk::AstarteError;
+using AstarteDeviceSdk::AstarteReadCredentialError;
+using AstarteDeviceSdk::AstarteWriteCredentialError;
 
 auto read_from_file(const std::filesystem::path& file_path)
     -> astarte_tl::expected<std::string, AstarteError> {
@@ -110,5 +113,3 @@ auto secure_shred_file(const std::string& path) -> astarte_tl::expected<void, As
 }
 
 }  // namespace config
-
-}  // namespace AstarteDeviceSdk

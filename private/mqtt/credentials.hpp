@@ -6,28 +6,14 @@
 #define ASTARTE_MQTT_CREDENTIALS_H
 
 #include <spdlog/spdlog.h>
+#include <unistd.h>
 
+#include <cstdio>
 #include <filesystem>
 #include <fstream>
 #include <optional>
 #include <string>
 #include <string_view>
-
-#include "ada.h"
-#include "astarte_device_sdk/mqtt/errors.hpp"
-#include "astarte_device_sdk/mqtt/pairing.hpp"
-#include "mqtt/connect_options.h"
-
-namespace AstarteDeviceSdk {
-
-/**
- * @brief File read and write utilities
- */
-namespace config {
-
-#include <unistd.h>
-
-#include <cstdio>
 #include <system_error>
 #include <vector>
 
@@ -36,6 +22,30 @@ namespace config {
 #define fsync _commit
 #define fileno _fileno
 #endif
+
+#include "ada.h"
+#include "astarte_device_sdk/mqtt/errors.hpp"
+#include "astarte_device_sdk/mqtt/pairing.hpp"
+#include "mqtt/connect_options.h"
+
+/**
+ * @brief File read and write utilities
+ */
+namespace config {
+
+/** @brief Default keep alive interval in seconds for the MQTT connection. */
+constexpr uint32_t DEFAULT_KEEP_ALIVE = 30;
+
+/** @brief Default connection timeout in seconds for the MQTT connection. */
+constexpr uint32_t DEFAULT_CONNECTION_TIMEOUT = 5;
+
+/** @brief Default file name inside the store directory where the certificate is stored in PEM
+ * format. */
+constexpr std::string_view CLIENT_CERTIFICATE_FILE = "client-certificate.pem";
+
+/** @brief Default file name inside the store directory where the private key is stored in PEM
+ * format. */
+constexpr std::string_view PRIVATE_KEY_FILE = "client-priv-key.pem";
 
 /**
  * @brief Reads the entire content of a file into a string.
@@ -55,22 +65,6 @@ auto write_to_file(const std::filesystem::path& file_path, std::string_view data
     -> astarte_tl::expected<void, AstarteError>;
 
 auto secure_shred_file(const std::string& path) -> astarte_tl::expected<void, AstarteError>;
-
-}  // namespace config
-
-/** @brief Default keep alive interval in seconds for the MQTT connection. */
-constexpr uint32_t DEFAULT_KEEP_ALIVE = 30;
-
-/** @brief Default connection timeout in seconds for the MQTT connection. */
-constexpr uint32_t DEFAULT_CONNECTION_TIMEOUT = 5;
-
-/** @brief Default file name inside the store directory where the certificate is stored in PEM
- * format. */
-constexpr std::string_view CLIENT_CERTIFICATE_FILE = "client-certificate.pem";
-
-/** @brief Default file name inside the store directory where the private key is stored in PEM
- * format. */
-constexpr std::string_view PRIVATE_KEY_FILE = "client-priv-key.pem";
 
 /**
  * @brief A type-safe wrapper for Astarte credentials, distinguishing between a credential secret
@@ -128,6 +122,6 @@ class Credential {
   Credential(CredentialType t, std::string cred) : typ_(t), credential_(std::move(cred)) {}
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace config
 
 #endif  // ASTARTE_MQTT_CREDENTIALS_H

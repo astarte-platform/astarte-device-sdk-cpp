@@ -18,7 +18,7 @@
 #include "mqtt/connect_options.h"
 #include "mqtt/credentials.hpp"
 
-namespace AstarteDeviceSdk {
+namespace config {
 
 MqttConfig::~MqttConfig() = default;
 MqttConfig::MqttConfig(MqttConfig&&) noexcept = default;
@@ -60,7 +60,7 @@ auto MqttConfig::build_mqtt_options() -> astarte_tl::expected<mqtt::connect_opti
   auto conn_opts = mqtt::connect_options_builder::v3();
 
   if (keepalive_ <= conn_timeout_) {
-    return astarte_tl::unexpected(AstartePairingConfigError(
+    return astarte_tl::unexpected(AstarteDeviceSdk::AstartePairingConfigError(
         astarte_fmt::format("Keep alive ({}s) should be greater than the connection timeout ({}s)",
                             keepalive_, conn_timeout_)));
   }
@@ -87,4 +87,4 @@ auto MqttConfig::build_mqtt_options() -> astarte_tl::expected<mqtt::connect_opti
   return conn_opts.finalize();
 }
 
-}  // namespace AstarteDeviceSdk
+}  // namespace config

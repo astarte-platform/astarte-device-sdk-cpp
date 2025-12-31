@@ -26,6 +26,8 @@
 
 namespace AstarteDeviceSdk {
 
+using config::MqttConfig;
+
 /**
  * @brief Implements `mqtt::callback` to handle connection life-cycle events and session setup.
  *

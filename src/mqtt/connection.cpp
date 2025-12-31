@@ -30,6 +30,9 @@
 
 namespace AstarteDeviceSdk {
 
+using config::CLIENT_CERTIFICATE_FILE;
+using config::PRIVATE_KEY_FILE;
+
 namespace {
 
 /**
