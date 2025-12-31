@@ -189,7 +189,8 @@ void ConnectionCallback::delivery_complete(mqtt::delivery_token_ptr /* token */)
 }
 
 // NOLINTNEXTLINE(readability-function-size)
-auto MqttConnection::create(MqttConfig& cfg) -> astarte_tl::expected<MqttConnection, AstarteError> {
+auto MqttConnection::create(config::MqttConfig& cfg)
+    -> astarte_tl::expected<MqttConnection, AstarteError> {
   auto realm = cfg.realm();
   auto device_id = cfg.device_id();
   auto pairing_url = cfg.pairing_url();
@@ -235,7 +236,7 @@ auto MqttConnection::create(MqttConfig& cfg) -> astarte_tl::expected<MqttConnect
   return MqttConnection(std::move(cfg), std::move(options.value()), std::move(client));
 }
 
-MqttConnection::MqttConnection(MqttConfig cfg, mqtt::connect_options options,
+MqttConnection::MqttConnection(config::MqttConfig cfg, mqtt::connect_options options,
                                std::unique_ptr<mqtt::async_client> client)
     : cfg_(std::move(cfg)),
       options_(std::move(options)),

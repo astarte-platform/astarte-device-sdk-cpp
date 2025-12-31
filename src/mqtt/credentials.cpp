@@ -4,6 +4,7 @@
 
 #include <unistd.h>
 
+#include <cerrno>
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
@@ -58,48 +59,80 @@ auto write_to_file(const std::filesystem::path& file_path, std::string_view data
   return {};
 }
 
-auto secure_shred_file(const std::string& path) -> astarte_tl::expected<void, AstarteError> {
-  FILE* file = std::fopen(path.c_str(), "rb+");
-  if (!file) {
-    // capture the global 'errno', wrap it in an error_code, and return as unexpected
+// helper function to reduce complexity of secure_shred_file [readability-function-size]
+auto overwrite_file_zeros(FILE* file, int64_t size) -> astarte_tl::expected<void, AstarteError> {
+  if (std::fseek(file, 0, SEEK_SET) != 0) {
     return astarte_tl::unexpected(AstarteWriteCredentialError(astarte_fmt::format(
-        "failed to open the file, {}", std::error_code(errno, std::generic_category()).message())));
+        "failed to rewind file, {}", std::error_code(errno, std::generic_category()).message())));
   }
 
-  // get size
-  std::fseek(file, 0, SEEK_END);
-  long size = std::ftell(file);
-  std::rewind(file);
-
-  // write zeros
-  const size_t buf_size = 4096;
-  std::vector<unsigned char> buf(buf_size, 0);
-  long written = 0;
+  constexpr size_t kBufSize = 4096;
+  std::vector<unsigned char> buf(kBufSize, 0);
+  int64_t written = 0;
 
   while (written < size) {
-    long to_write = (size - written > buf_size) ? buf_size : (size - written);
-    size_t write_count = std::fwrite(buf.data(), 1, to_write, file);
+    const int64_t remaining = size - written;
+    const size_t to_write =
+        (remaining > static_cast<int64_t>(kBufSize)) ? kBufSize : static_cast<size_t>(remaining);
 
-    // check if write failed
+    const size_t write_count = std::fwrite(buf.data(), 1, to_write, file);
+
     if (write_count != to_write) {
-      std::fclose(file);
       return astarte_tl::unexpected(AstarteWriteCredentialError(
           astarte_fmt::format("failed to write zeros to file, {}",
                               std::error_code(errno, std::generic_category()).message())));
     }
-    written += to_write;
+    written += static_cast<int64_t>(write_count);
+  }
+  return {};
+}
+
+auto secure_shred_file(const std::string& path) -> astarte_tl::expected<void, AstarteError> {
+  FILE* file = std::fopen(path.c_str(), "rb+");
+
+  if (file == nullptr) {
+    return astarte_tl::unexpected(AstarteWriteCredentialError(astarte_fmt::format(
+        "failed to open the file, {}", std::error_code(errno, std::generic_category()).message())));
   }
 
-  // flush and sync
-  std::fflush(file);
+  if (std::fseek(file, 0, SEEK_END) != 0) {
+    (void)std::fclose(file);
+    return astarte_tl::unexpected(AstarteWriteCredentialError(
+        astarte_fmt::format("failed to seek end of file, {}",
+                            std::error_code(errno, std::generic_category()).message())));
+  }
+
+  const int64_t size = std::ftell(file);
+  if (size == -1) {
+    (void)std::fclose(file);
+    return astarte_tl::unexpected(AstarteWriteCredentialError(
+        astarte_fmt::format("failed to tell file size, {}",
+                            std::error_code(errno, std::generic_category()).message())));
+  }
+
+  auto overwrite_result = overwrite_file_zeros(file, size);
+  if (!overwrite_result) {
+    (void)std::fclose(file);
+    return overwrite_result;
+  }
+
+  if (std::fflush(file) != 0) {
+    (void)std::fclose(file);
+    return astarte_tl::unexpected(AstarteWriteCredentialError(astarte_fmt::format(
+        "failed to flush file, {}", std::error_code(errno, std::generic_category()).message())));
+  }
+
   if (fsync(fileno(file)) != 0) {
-    std::fclose(file);
+    (void)std::fclose(file);
     return astarte_tl::unexpected(AstarteWriteCredentialError(
         astarte_fmt::format("failed to flush and sync modifications, {}",
                             std::error_code(errno, std::generic_category()).message())));
   }
 
-  std::fclose(file);
+  if (std::fclose(file) != 0) {
+    return astarte_tl::unexpected(AstarteWriteCredentialError(astarte_fmt::format(
+        "failed to close file, {}", std::error_code(errno, std::generic_category()).message())));
+  }
 
   // delete the file
   std::error_code error_code;
