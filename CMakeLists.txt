@@ -101,7 +101,7 @@ if(ASTARTE_MESSAGE_HUB_PROTO_DIR)
     add_subdirectory(${ASTARTE_MESSAGE_HUB_PROTO_DIR} astarte_msghub_proto)
 else()
     set(MSGHUB_PROTO_GITHUB_URL https://github.com/astarte-platform/astarte-message-hub-proto.git)
-    set(MSGHUB_PROTO_GIT_TAG release-0.9)
+    set(MSGHUB_PROTO_GIT_TAG e26af9f04390ebb7e720eecab32c1b128ec980d9)
     FetchContent_Declare(
         astarte_msghub_proto
         GIT_REPOSITORY ${MSGHUB_PROTO_GITHUB_URL}
@@ -111,6 +111,13 @@ else()
     )
     FetchContent_MakeAvailable(astarte_msghub_proto)
 endif()
+
+# Setups grpc
+astarte_setup_grpc(
+    VAR_PROTOC_PATH           # Output: Path to the protoc executable
+    VAR_GRPC_PLUGIN_PATH      # Output: Path to the grpc_cpp_plugin executable
+    VAR_PROTO_STD_INC         # Output: Path to standard include directory
+)
 
 # Project sources
 set(_ASTARTE_PUBLIC_HEADERS
@@ -160,21 +167,24 @@ target_sources(
         FILE_SET private_headers TYPE HEADERS BASE_DIRS "private" FILES ${_ASTARTE_PRIVATE_HEADERS}
 )
 
-# Link with the msghub grpc
-target_link_libraries(
-    astarte_device_sdk
-    PRIVATE ${_GRPC_CPP} ${_REFLECTION} ${_PROTOBUF_LIBPROTOBUF}
+# Set a temporary variable for the visibility flag
+set(_ASTARTE_PROTO_VISIBILITY_FLAG "")
+if(NOT ASTARTE_PUBLIC_PROTO_DEP)
+    set(_ASTARTE_PROTO_VISIBILITY_FLAG PRIVATE_VISIBILITY)
+endif()
+
+# Generate the proto files and attach them to the target
+astarte_proto_attach_to_target(astarte_device_sdk
+    ${_ASTARTE_PROTO_VISIBILITY_FLAG}
+    PROTOBUF_PROTOC                "${VAR_PROTOC_PATH}"
+    GRPC_CPP_PLUGIN_EXECUTABLE     "${VAR_GRPC_PLUGIN_PATH}"
+    PROTOBUF_STANDARD_INCLUDE_DIR  "${VAR_PROTO_STD_INC}"
 )
 
 if(ASTARTE_PUBLIC_SPDLOG_DEP)
     target_link_libraries(astarte_device_sdk PUBLIC spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 else()
     target_link_libraries(astarte_device_sdk PRIVATE spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
-endif()
-if(ASTARTE_PUBLIC_PROTO_DEP)
-    target_link_libraries(astarte_device_sdk PUBLIC astarte_msghub_proto)
-else()
-    target_link_libraries(astarte_device_sdk PRIVATE astarte_msghub_proto)
 endif()
 if(NOT HAS_STD_EXPECTED)
     target_link_libraries(astarte_device_sdk PUBLIC tl::expected)
@@ -208,7 +218,7 @@ write_basic_package_version_file(
 )
 
 install(
-    TARGETS astarte_device_sdk astarte_msghub_proto
+    TARGETS astarte_device_sdk
     EXPORT astarte_device_sdk-target
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -235,8 +245,16 @@ install(
 set(PC_NAME "astarte_device_sdk")
 set(PC_DESCRIPTION "Astarte Device SDK Cpp")
 set(PC_VERSION ${PROJECT_VERSION})
-set(PC_REQUIRES "spdlog astarte_msghub_proto grpc++ protobuf")
-set(PC_REQUIRES_PRIVATE "")
+
+# Configure PkgConfig dependencies based on visibility
+if(ASTARTE_PUBLIC_PROTO_DEP)
+    set(PC_REQUIRES "spdlog grpc++ protobuf")
+    set(PC_REQUIRES_PRIVATE "")
+else()
+    set(PC_REQUIRES "spdlog")
+    set(PC_REQUIRES_PRIVATE "grpc++ protobuf")
+endif()
+
 set(PC_LIB "-lastarte_device_sdk -lgrpc++_reflection -laddress_sorting -lre2 -lupb --as-needed")
 set(PC_LIBS_PRIVATE "")
 configure_file(cmake/pkg-config-template.pc.in astarte_device_sdk.pc @ONLY)
