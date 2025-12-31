@@ -14,7 +14,6 @@
 #include <utility>
 
 #include "astarte_device_sdk/data.hpp"
-#include "astarte_device_sdk/mqtt/config.hpp"
 #include "astarte_device_sdk/mqtt/errors.hpp"
 #include "astarte_device_sdk/msg.hpp"
 #include "astarte_device_sdk/object.hpp"
@@ -25,7 +24,7 @@
 
 namespace AstarteDeviceSdk {
 
-auto AstarteDeviceMQTT::create(MqttConfig cfg)
+auto AstarteDeviceMQTT::create(config::MqttConfig cfg)
     -> astarte_tl::expected<AstarteDeviceMQTT, AstarteError> {
   auto impl_result = AstarteDeviceMQTTImpl::create(cfg);
   if (!impl_result) {

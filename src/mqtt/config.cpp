@@ -20,6 +20,8 @@
 
 namespace config {
 
+namespace astarte_tl = AstarteDeviceSdk::astarte_tl;
+
 MqttConfig::~MqttConfig() = default;
 MqttConfig::MqttConfig(MqttConfig&&) noexcept = default;
 auto MqttConfig::operator=(MqttConfig&&) noexcept -> MqttConfig& = default;
