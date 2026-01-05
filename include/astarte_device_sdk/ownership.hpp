@@ -32,7 +32,6 @@ enum AstarteOwnership : int8_t {
  * @return The corresponding AstarteOwnership enum value, an error if the string is not a valid
  * ownership.
  */
-// TODO: use static or move function definition to .cpp file
 inline auto ownership_from_str(std::string ownership)
     -> astarte_tl::expected<AstarteOwnership, AstarteError> {
   if (ownership == "device") {

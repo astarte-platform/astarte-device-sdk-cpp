@@ -17,7 +17,6 @@
 #include "ada.h"
 #include "astarte_device_sdk/mqtt/errors.hpp"
 #include "astarte_device_sdk/mqtt/pairing.hpp"
-#include "mqtt/connect_options.h"
 
 namespace config {
 
@@ -142,10 +141,16 @@ class MqttConfig {
   }
 
   /**
-   * @brief Build method to retrieve the Paho MQTT connection options.
-   * @return Paho MQTT connection options object, an error otherwise.
+   * @brief Get the MQTT keep-alive interval.
+   * @return The connection keepalive value..
    */
-  auto build_mqtt_options() -> astarte_tl::expected<mqtt::connect_options, AstarteError>;
+  auto keepalive() -> uint32_t { return keepalive_; }
+
+  /**
+   * @brief Get the MQTT connection timeout.
+   * @return The connection timeout value.
+   */
+  auto connection_timeout() -> uint32_t { return conn_timeout_; }
 
  private:
   /**

@@ -55,7 +55,6 @@ enum AstarteType : int8_t {
  * @return The corresponding AstarteType enum value, an error if the string is not a valid Astarte
  * type.
  */
-// TODO: use static or move function definition to .cpp file
 inline auto astarte_type_from_str(std::string typ)
     -> astarte_tl::expected<AstarteType, AstarteError> {
   if (typ == "binaryblob") {

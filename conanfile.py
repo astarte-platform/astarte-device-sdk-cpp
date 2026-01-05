@@ -1,4 +1,4 @@
-    # (C) Copyright 2025, SECO Mind Srl
+# (C) Copyright 2025, SECO Mind Srl
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -34,7 +34,7 @@ class Pkg(ConanFile):
             self.requires("grpc/1.72.0")
             self.requires("protobuf/6.30.1", override = True)
         else:
-            self.requires("paho-mqtt-cpp/1.5.3", transitive_headers=True)
+            self.requires("paho-mqtt-cpp/1.5.3")
             self.requires("cpr/1.11.2")
             self.requires("nlohmann_json/3.12.0")
             self.requires("ada/3.2.4", transitive_headers=True)
