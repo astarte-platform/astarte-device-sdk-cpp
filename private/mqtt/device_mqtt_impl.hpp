@@ -35,7 +35,7 @@ struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
    * @param cfg set of MQTT configuration options used to connect a device to Astarte.
    * @return a shared pointer to the AstarteDeviceMqttImpl object, an error otherwise.
    */
-  static auto create(MqttConfig& cfg)
+  static auto create(config::MqttConfig& cfg)
       -> astarte_tl::expected<std::shared_ptr<AstarteDeviceMqttImpl>, AstarteError>;
 
   /** @brief Destructor for the Astarte device class. */
@@ -159,9 +159,9 @@ struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
    * @param cfg set of MQTT configuration options used to connect a device to Astarte.
    * @param MQTT connection object.
    */
-  AstarteDeviceMqttImpl(MqttConfig cfg, MqttConnection connection);
+  AstarteDeviceMqttImpl(config::MqttConfig cfg, MqttConnection connection);
 
-  MqttConfig cfg_;
+  config::MqttConfig cfg_;
   // TODO: probably we will have to move the connection handling to a separate thread (see
   // device_grpc_impl.hpp)
   MqttConnection connection_;

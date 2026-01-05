@@ -8,30 +8,18 @@
 #include <spdlog/spdlog.h>
 #include <unistd.h>
 
-#include <cstdio>
 #include <filesystem>
 #include <fstream>
 #include <optional>
 #include <string>
 #include <string_view>
-#include <system_error>
-#include <vector>
-
-#ifdef _WIN32
-#include <io.h>
-#define fsync _commit
-#define fileno _fileno
-#endif
 
 #include "ada.h"
 #include "astarte_device_sdk/mqtt/errors.hpp"
 #include "astarte_device_sdk/mqtt/pairing.hpp"
 #include "mqtt/connect_options.h"
 
-/**
- * @brief File read and write utilities
- */
-namespace config {
+namespace AstarteDeviceSdk::config {
 
 /** @brief Default keep alive interval in seconds for the MQTT connection. */
 constexpr uint32_t DEFAULT_KEEP_ALIVE = 30;
@@ -46,25 +34,6 @@ constexpr std::string_view CLIENT_CERTIFICATE_FILE = "client-certificate.pem";
 /** @brief Default file name inside the store directory where the private key is stored in PEM
  * format. */
 constexpr std::string_view PRIVATE_KEY_FILE = "client-priv-key.pem";
-
-/**
- * @brief Reads the entire content of a file into a string.
- * @param file_path The path to the file to be read.
- * @return the file content as a string, or an error if the file cannot be opened.
- */
-auto read_from_file(const std::filesystem::path& file_path)
-    -> astarte_tl::expected<std::string, AstarteError>;
-
-/**
- * @brief Writes a string to a file, overwriting any existing content.
- * @param file_path The path to the file to be written.
- * @param data The string content to write to the file.
- * @return an error in case the write operation failed, nothing otherwise.
- */
-auto write_to_file(const std::filesystem::path& file_path, std::string_view data)
-    -> astarte_tl::expected<void, AstarteError>;
-
-auto secure_shred_file(const std::string& path) -> astarte_tl::expected<void, AstarteError>;
 
 /**
  * @brief A type-safe wrapper for Astarte credentials, distinguishing between a credential secret
@@ -122,6 +91,44 @@ class Credential {
   Credential(CredentialType t, std::string cred) : typ_(t), credential_(std::move(cred)) {}
 };
 
-}  // namespace config
+}  // namespace AstarteDeviceSdk::config
+
+/**
+ * @brief File read and write utilities
+ */
+namespace AstarteDeviceSdk::config {
+
+#include <unistd.h>
+
+#include <cstdio>
+#include <system_error>
+#include <vector>
+
+#ifdef _WIN32
+#include <io.h>
+#define fsync _commit
+#define fileno _fileno
+#endif
+
+/**
+ * @brief Reads the entire content of a file into a string.
+ * @param file_path The path to the file to be read.
+ * @return the file content as a string, or an error if the file cannot be opened.
+ */
+auto read_from_file(const std::filesystem::path& file_path)
+    -> astarte_tl::expected<std::string, AstarteError>;
+
+/**
+ * @brief Writes a string to a file, overwriting any existing content.
+ * @param file_path The path to the file to be written.
+ * @param data The string content to write to the file.
+ * @return an error in case the write operation failed, nothing otherwise.
+ */
+auto write_to_file(const std::filesystem::path& file_path, std::string_view data)
+    -> astarte_tl::expected<void, AstarteError>;
+
+auto secure_shred_file(const std::string& path) -> astarte_tl::expected<void, AstarteError>;
+
+}  // namespace AstarteDeviceSdk::config
 
 #endif  // ASTARTE_MQTT_CREDENTIALS_H

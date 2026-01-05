@@ -28,6 +28,7 @@
 
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/formatter.hpp"
+#include "astarte_device_sdk/mqtt/config.hpp"
 #include "astarte_device_sdk/mqtt/device_mqtt.hpp"
 #include "astarte_device_sdk/mqtt/errors.hpp"
 #include "astarte_device_sdk/msg.hpp"
@@ -42,7 +43,7 @@ namespace AstarteDeviceSdk {
 
 using json = nlohmann::json;  // NOLINT(misc-include-cleaner)
 
-auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::create(MqttConfig& cfg)
+auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::create(config::MqttConfig& cfg)
     -> astarte_tl::expected<std::shared_ptr<AstarteDeviceMqttImpl>, AstarteError> {
   auto conn = MqttConnection::create(cfg);
   if (!conn) {
@@ -54,7 +55,7 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::create(MqttConfig& cfg)
       new AstarteDeviceMqttImpl(std::move(cfg), std::move(conn.value())));
 }
 
-AstarteDeviceMqtt::AstarteDeviceMqttImpl::AstarteDeviceMqttImpl(MqttConfig cfg,
+AstarteDeviceMqtt::AstarteDeviceMqttImpl::AstarteDeviceMqttImpl(config::MqttConfig cfg,
                                                                 MqttConnection connection)
     : cfg_(std::move(cfg)), connection_(std::move(connection)) {}
 

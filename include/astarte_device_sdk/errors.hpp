@@ -12,17 +12,17 @@
 #include <variant>
 
 #if defined(ASTARTE_USE_TL_EXPECTED)
-#include "tl/expected.hpp"  // IWYU pragma: export
+#include "tl/expected.hpp"
 #else
-#include <expected>  // IWYU pragma: export
+#include <expected>
 #endif
 
 namespace AstarteDeviceSdk {
 
 #if defined(ASTARTE_USE_TL_EXPECTED)
-namespace astarte_tl = ::tl;  // IWYU pragma: export
+namespace astarte_tl = ::tl;
 #else
-namespace astarte_tl = ::std;  // IWYU pragma: export
+namespace astarte_tl = ::std;
 #endif
 
 class AstarteFileOpenError;

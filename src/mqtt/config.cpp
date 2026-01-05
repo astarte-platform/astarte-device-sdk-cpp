@@ -4,22 +4,14 @@
 
 #include "astarte_device_sdk/mqtt/config.hpp"
 
-#include <spdlog/spdlog.h>
-
-#include <chrono>
-#include <format>
 #include <memory>
 #include <string>
 #include <string_view>
 #include <utility>
 
-#include "astarte_device_sdk/mqtt/errors.hpp"
-#include "astarte_device_sdk/mqtt/formatter.hpp"
 #include "mqtt/credentials.hpp"
 
-namespace config {
-
-namespace astarte_tl = AstarteDeviceSdk::astarte_tl;
+namespace AstarteDeviceSdk::config {
 
 MqttConfig::~MqttConfig() = default;
 MqttConfig::MqttConfig(MqttConfig&&) noexcept = default;
@@ -57,4 +49,4 @@ auto MqttConfig::cred_is_credential_secret() -> bool { return credential_->is_cr
 
 auto MqttConfig::cred_value() -> std::string { return credential_->value(); }
 
-}  // namespace config
+}  // namespace AstarteDeviceSdk::config

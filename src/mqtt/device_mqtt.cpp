@@ -14,6 +14,7 @@
 #include <utility>
 
 #include "astarte_device_sdk/data.hpp"
+#include "astarte_device_sdk/mqtt/config.hpp"
 #include "astarte_device_sdk/mqtt/errors.hpp"
 #include "astarte_device_sdk/msg.hpp"
 #include "astarte_device_sdk/object.hpp"

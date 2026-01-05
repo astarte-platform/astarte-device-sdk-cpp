@@ -18,12 +18,10 @@
 #include "astarte_device_sdk/mqtt/errors.hpp"
 #include "astarte_device_sdk/mqtt/pairing.hpp"
 
-namespace config {
-
-namespace astarte_tl = AstarteDeviceSdk::astarte_tl;
-
-using AstarteDeviceSdk::AstarteError;
-
+/**
+ * @brief Namespace for configuration classes definition.
+ */
+namespace AstarteDeviceSdk::config {
 // Forward declaration, needed to make Credential private.
 class Credential;
 
@@ -173,6 +171,6 @@ class MqttConfig {
   uint32_t conn_timeout_;
 };
 
-}  // namespace config
+}  // namespace AstarteDeviceSdk::config
 
 #endif  // ASTARTE_MQTT_CONFIG_H

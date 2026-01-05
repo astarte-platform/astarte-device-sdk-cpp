@@ -14,15 +14,15 @@
 #if ((defined(_MSVC_LANG) && _MSVC_LANG >= 202002L) ||    \
      (!defined(_MSVC_LANG) && __cplusplus >= 202002L)) && \
     (__has_include(<format>))
-#include <format>               // IWYU pragma: export
-namespace astarte_fmt = ::std;  // IWYU pragma: export
-#else                           // (__cplusplus >= 202002L) && (__has_include(<format>))
+#include <format>
+namespace astarte_fmt = ::std;
+#else  // (__cplusplus >= 202002L) && (__has_include(<format>))
 // NOLINTNEXTLINE: avoid clang-tidy warning regarding fmt library not used directly
-#include <spdlog/fmt/fmt.h>     // IWYU pragma: export
+#include <spdlog/fmt/fmt.h>
 
 #include <iomanip>
 #include <sstream>
-namespace astarte_fmt = ::fmt;  // IWYU pragma: export
+namespace astarte_fmt = ::fmt;
 #endif  // (__cplusplus >= 202002L) && (__has_include(<format>))
 
 #include "astarte_device_sdk/data.hpp"

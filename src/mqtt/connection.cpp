@@ -7,6 +7,7 @@
 #include <spdlog/spdlog.h>
 
 #include <atomic>
+#include <chrono>
 #include <format>
 #include <memory>
 #include <string>
@@ -20,6 +21,7 @@
 #include "astarte_device_sdk/mqtt/pairing.hpp"
 #include "astarte_device_sdk/ownership.hpp"
 #include "mqtt/async_client.h"
+#include "mqtt/connect_options.h"
 #include "mqtt/credentials.hpp"
 #include "mqtt/delivery_token.h"
 #include "mqtt/exception.h"
@@ -30,10 +32,10 @@
 
 namespace AstarteDeviceSdk {
 
+namespace {
+
 using config::CLIENT_CERTIFICATE_FILE;
 using config::PRIVATE_KEY_FILE;
-
-namespace {
 
 /**
  * @brief Retrieve and persist device crypto credentials.
@@ -70,7 +72,7 @@ auto setup_crypto_files(PairingApi& api, const std::string_view secret,
   return {};
 }
 
-auto build_mqtt_options(MqttConfig& cfg)
+auto build_mqtt_options(config::MqttConfig& cfg)
     -> astarte_tl::expected<mqtt::connect_options, AstarteError> {
   auto conn_opts = mqtt::connect_options_builder::v3();
   auto conn_timeout = cfg.connection_timeout();

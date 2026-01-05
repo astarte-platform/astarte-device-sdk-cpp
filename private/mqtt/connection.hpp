@@ -26,8 +26,6 @@
 
 namespace AstarteDeviceSdk {
 
-using config::MqttConfig;
-
 /**
  * @brief Implements `mqtt::callback` to handle connection life-cycle events and session setup.
  *
@@ -139,7 +137,7 @@ class MqttConnection {
    * @param cfg The MQTT configuration object containing connection details.
    * @return The MQTT connection object, an error otherwise.
    */
-  static auto create(MqttConfig& cfg) -> astarte_tl::expected<MqttConnection, AstarteError>;
+  static auto create(config::MqttConfig& cfg) -> astarte_tl::expected<MqttConnection, AstarteError>;
 
   /**
    * @brief Connects the client to the Astarte MQTT broker.
@@ -161,11 +159,11 @@ class MqttConnection {
   auto disconnect() -> astarte_tl::expected<void, AstarteError>;
 
  private:
-  MqttConnection(MqttConfig cfg, mqtt::connect_options options,
+  MqttConnection(config::MqttConfig cfg, mqtt::connect_options options,
                  std::unique_ptr<mqtt::async_client> client);
 
   /// @brief The MQTT configuration object.
-  MqttConfig cfg_;
+  config::MqttConfig cfg_;
   /// @brief The Paho MQTT connection options.
   mqtt::connect_options options_;
   /// @brief The underlying Paho MQTT async client.
