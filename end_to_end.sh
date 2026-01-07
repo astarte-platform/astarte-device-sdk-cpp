@@ -61,8 +61,9 @@ echo ""
 # --- Environment and dependency setup ---
 if [ "$external_tools" = false ]; then
     # shellcheck source=/dev/null
-    source ./scripts/setup_conan_env.sh
-    setup_python_conan_env $venv_dir $conan_package_name $conan_package_version
+    source ./scripts/setup_python.sh
+    setup_python_venv $venv_dir
+    install_conan $conan_package_name $conan_package_version
 fi
 
 # Clean build directory if --fresh is set
