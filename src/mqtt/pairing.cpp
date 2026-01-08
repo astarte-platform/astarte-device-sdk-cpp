@@ -204,7 +204,7 @@ auto PairingApi::register_device(std::string_view pairing_token,
 
   json body;
   body["data"] = {{"hw_id", device_id_}};
-  spdlog::debug("request body: {}", body.dump());
+  spdlog::trace("request body: {}", body.dump());
 
   cpr::Response res = cpr::Post(cpr::Url{request_url.get_href()}, header, cpr::Body{body.dump()},
                                 cpr::Timeout{timeout_ms});
@@ -290,7 +290,7 @@ auto PairingApi::get_device_key_and_cert(std::string_view credential_secret, int
 
   json body;
   body["data"] = {{"csr", device_csr.value()}};
-  spdlog::debug("request body: {}", body.dump());
+  spdlog::trace("request body: {}", body.dump());
 
   cpr::Response res = cpr::Post(cpr::Url{request_url.get_href()}, header, cpr::Body{body.dump()},
                                 cpr::Timeout{timeout_ms});

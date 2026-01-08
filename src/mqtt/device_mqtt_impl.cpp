@@ -63,7 +63,7 @@ AstarteDeviceMqtt::AstarteDeviceMqttImpl::~AstarteDeviceMqttImpl() = default;
 
 auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::add_interface_from_file(
     const std::filesystem::path& json_file) -> astarte_tl::expected<void, AstarteError> {
-  spdlog::debug("Adding interface from file: {}", json_file.string());
+  spdlog::trace("Adding interface from file: {}", json_file.string());
 
   std::ifstream interface_file(json_file, std::ios::in);
   if (!interface_file.is_open()) {
@@ -84,7 +84,7 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::add_interface_from_file(
 
 auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::add_interface_from_str(
     std::string_view interface_str) -> astarte_tl::expected<void, AstarteError> {
-  spdlog::debug("Adding interface from string");
+  spdlog::trace("Adding interface {} from string", interface_str);
 
   if (is_connected()) {
     // TODO(rgallor): If the device is connected, communicate the new introspection to Astarte

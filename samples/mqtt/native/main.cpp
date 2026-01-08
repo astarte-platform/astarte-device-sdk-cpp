@@ -50,7 +50,7 @@ int main() {
       return 1;
     }
     auto secret = secret_res.value();
-    spdlog::info("credential secret: {}", secret);
+    spdlog::trace("credential secret: {}", secret);
 
     auto key_cert_res = api.get_device_key_and_cert(secret);
     if (!key_cert_res) {
@@ -58,8 +58,8 @@ int main() {
       return 1;
     }
     auto [key, cert] = key_cert_res.value();
-    spdlog::info("key: {}", key);
-    spdlog::info("cert: {}", cert);
+    spdlog::trace("key: {}", key);
+    spdlog::trace("cert: {}", cert);
 
     store_cred_secret(db, cfg.device_id, secret);
     in_db = true;
