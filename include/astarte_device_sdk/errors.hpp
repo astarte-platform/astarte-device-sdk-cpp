@@ -25,6 +25,7 @@ namespace astarte_tl = ::tl;
 namespace astarte_tl = ::std;
 #endif
 
+class AstarteDataSerializationError;
 class AstarteFileOpenError;
 class AstarteInvalidInputError;
 class AstarteInternalError;
@@ -59,7 +60,7 @@ class AstarteMqttConnectionError;
  * This type is intended to be used as the error type 'E' in std::expected<T, E>.
  */
 using AstarteError =
-    std::variant<AstarteInternalError, AstarteFileOpenError, AstarteInvalidInputError,
+    std::variant<AstarteDataSerializationError, AstarteInternalError, AstarteFileOpenError, AstarteInvalidInputError,
                  AstarteInterfaceValidationError, AstarteInvalidVersionError,
                  AstarteInvalidInterfaceTypeError, AstarteInvalidInterfaceOwnershipeError,
                  AstarteInvalidAggregationError, AstarteInvalidAstarteTypeError,
@@ -119,6 +120,27 @@ class AstarteErrorBase {
   std::string type_;
   std::string message_;
   std::shared_ptr<AstarteErrorBase> other_;
+};
+
+/**
+ * @brief Specific error for when a serializaion operation failed.
+ */
+class AstarteDataSerializationError : public AstarteErrorBase {
+ public:
+  /**
+   * @brief Standard error constructor.
+   * @param message The error message.
+   */
+  explicit AstarteDataSerializationError(std::string_view message);
+  /**
+   * @brief Nested error constructor.
+   * @param message The error message.
+   * @param other The error to nest.
+   */
+  explicit AstarteDataSerializationError(std::string_view message, const AstarteError& other);
+
+ private:
+  static constexpr std::string_view k_type_ = "AstarteDataSerializationError";
 };
 
 /**

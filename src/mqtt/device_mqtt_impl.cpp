@@ -298,10 +298,14 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::send_individual(
 
   // serialize data to bson ({"v": <data>})
   // if timestamp is set add it ({"v": <data>, "t": <timestamp>})
+  auto data_bson = serialize_astarte(data, timestamp);
 
   // check that the generated bson is not 0 size
+  if(data_bson.size() == 0){
+    return astarte_tl::unexpected(AstarteDataSerializationError("Failed to serialize data to BSON"));
+  }
 
-  // send data
+  // TODO: send data
 
   return {};
 }
