@@ -31,10 +31,10 @@ class AstarteInternalError;
 class AstarteOperationRefusedError;
 class AstarteGrpcLibError;
 class AstarteMsgHubError;
-class AstarteInvalidVersionError;
+class AstarteInvalidInterfaceVersionError;
 class AstarteInvalidInterfaceTypeError;
 class AstarteInvalidInterfaceOwnershipeError;
-class AstarteInvalidAggregationError;
+class AstarteInvalidInterfaceAggregationError;
 class AstarteInvalidAstarteTypeError;
 #if !defined(ASTARTE_TRANSPORT_GRPC)
 class AstarteJsonParsingError;
@@ -59,8 +59,8 @@ class AstarteMqttConnectionError;
  */
 using AstarteError =
     std::variant<AstarteInternalError, AstarteFileOpenError, AstarteInvalidInputError,
-                 AstarteInvalidVersionError, AstarteInvalidInterfaceTypeError,
-                 AstarteInvalidInterfaceOwnershipeError, AstarteInvalidAggregationError,
+                 AstarteInvalidInterfaceVersionError, AstarteInvalidInterfaceTypeError,
+                 AstarteInvalidInterfaceOwnershipeError, AstarteInvalidInterfaceAggregationError,
                  AstarteInvalidAstarteTypeError,
 #if !defined(ASTARTE_TRANSPORT_GRPC)
                  AstarteOperationRefusedError, AstarteGrpcLibError, AstarteMsgHubError,
@@ -267,22 +267,22 @@ class AstarteMsgHubError : public AstarteErrorBase {
 /**
  * @brief Either the minor or the major version is incorrect.
  */
-class AstarteInvalidVersionError : public AstarteErrorBase {
+class AstarteInvalidInterfaceVersionError : public AstarteErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteInvalidVersionError(std::string_view message);
+  explicit AstarteInvalidInterfaceVersionError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteInvalidVersionError(std::string_view message, const AstarteError& other);
+  explicit AstarteInvalidInterfaceVersionError(std::string_view message, const AstarteError& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteInvalidVersionError";
+  static constexpr std::string_view k_type_ = "AstarteInvalidInterfaceVersionError";
 };
 
 /**
@@ -331,22 +331,23 @@ class AstarteInvalidInterfaceOwnershipeError : public AstarteErrorBase {
 /**
  * @brief The provided interface aggregation is incorrect.
  */
-class AstarteInvalidAggregationError : public AstarteErrorBase {
+class AstarteInvalidInterfaceAggregationError : public AstarteErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteInvalidAggregationError(std::string_view message);
+  explicit AstarteInvalidInterfaceAggregationError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteInvalidAggregationError(std::string_view message, const AstarteError& other);
+  explicit AstarteInvalidInterfaceAggregationError(std::string_view message,
+                                                   const AstarteError& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteInvalidAggregationError";
+  static constexpr std::string_view k_type_ = "AstarteInvalidInterfaceAggregationError";
 };
 
 /**

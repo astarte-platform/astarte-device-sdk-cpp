@@ -24,7 +24,7 @@ namespace AstarteDeviceSdk {
 /**
  * @brief alias for nlohmann json
  */
-using json = nlohmann::json;  // NOLINT(misc-include-cleaner)
+using json = nlohmann::json;
 
 /**
  * @brief Extract an optional value from a JSON object.

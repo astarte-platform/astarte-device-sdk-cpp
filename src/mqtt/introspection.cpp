@@ -43,8 +43,8 @@ inline auto aggregation_from_str(std::string aggr)
     return Aggregation::kObject;
   }
 
-  return astarte_tl::unexpected(
-      AstarteInvalidAggregationError(astarte_fmt::format("Aggregation not valid: {}", aggr)));
+  return astarte_tl::unexpected(AstarteInvalidInterfaceAggregationError(
+      astarte_fmt::format("Aggregation not valid: {}", aggr)));
 }
 
 auto mappings_from_interface(const json& interface)
@@ -89,12 +89,12 @@ auto mappings_from_interface(const json& interface)
 auto convert_version(std::string_view version_type, int64_t version)
     -> astarte_tl::expected<uint32_t, AstarteError> {
   if (std::cmp_less(version, 0)) {
-    return astarte_tl::unexpected(AstarteInvalidVersionError(
+    return astarte_tl::unexpected(AstarteInvalidInterfaceVersionError(
         astarte_fmt::format("received negative {} version value: {}", version_type, version)));
   }
 
   if (std::cmp_greater(version, std::numeric_limits<uint32_t>::max())) {
-    return astarte_tl::unexpected(AstarteInvalidVersionError(
+    return astarte_tl::unexpected(AstarteInvalidInterfaceVersionError(
         astarte_fmt::format("{} version value too large: {}", version_type, version)));
   }
 
@@ -171,7 +171,7 @@ auto Introspection::checked_insert(Interface interface)
   if (interface.version_major() < stored.version_major()) {
     spdlog::error("the new interface must have a major version greater or equal than {}",
                   stored.version_major());
-    return astarte_tl::unexpected(AstarteInvalidVersionError(
+    return astarte_tl::unexpected(AstarteInvalidInterfaceVersionError(
         astarte_fmt::format("the new major version is lower than the actual one. Expected value "
                             "greater than {}, got {}",
                             stored.version_major(), interface.version_major())));
@@ -181,7 +181,7 @@ auto Introspection::checked_insert(Interface interface)
       (interface.version_minor() < stored.version_minor())) {
     spdlog::error("the new interface must have a minor version greater or equal than {}",
                   stored.version_minor());
-    return astarte_tl::unexpected(AstarteInvalidVersionError(astarte_fmt::format(
+    return astarte_tl::unexpected(AstarteInvalidInterfaceVersionError(astarte_fmt::format(
         "the new minor version is lower than the actual one Expected value greater than {}, got {}",
         stored.version_minor(), interface.version_minor())));
   }

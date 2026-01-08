@@ -38,7 +38,7 @@ namespace AstarteDeviceSdk {
 class AstarteDeviceMqtt : public AstarteDevice {
  public:
   /**
-   * @brief static fallable constructor method.
+   * @brief Fallible constructor method.
    * @param cfg set of MQTT configuration options used to connect a device to Astarte.
    * @return An AstarteDeviceMqtt object, an error otherwise.
    */
@@ -94,7 +94,6 @@ class AstarteDeviceMqtt : public AstarteDevice {
    * @brief Check if the device is connected.
    * @return True if the device is connected to the message hub, false otherwise.
    */
-  // NOLINTNEXTLINE(misc-include-cleaner)
   [[nodiscard]] auto is_connected() const -> bool override;
   /**
    * @brief Disconnect from Astarte.

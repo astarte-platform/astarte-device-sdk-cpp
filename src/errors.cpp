@@ -84,10 +84,10 @@ AstarteInvalidInterfaceTypeError::AstarteInvalidInterfaceTypeError(std::string_v
           k_type_, message,
           std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
 
-AstarteInvalidVersionError::AstarteInvalidVersionError(std::string_view message)
+AstarteInvalidInterfaceVersionError::AstarteInvalidInterfaceVersionError(std::string_view message)
     : AstarteErrorBase(k_type_, message) {}
-AstarteInvalidVersionError::AstarteInvalidVersionError(std::string_view message,
-                                                       const AstarteError& other)
+AstarteInvalidInterfaceVersionError::AstarteInvalidInterfaceVersionError(std::string_view message,
+                                                                         const AstarteError& other)
     : AstarteErrorBase(
           k_type_, message,
           std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
@@ -101,10 +101,11 @@ AstarteInvalidInterfaceOwnershipeError::AstarteInvalidInterfaceOwnershipeError(
           k_type_, message,
           std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
 
-AstarteInvalidAggregationError::AstarteInvalidAggregationError(std::string_view message)
+AstarteInvalidInterfaceAggregationError::AstarteInvalidInterfaceAggregationError(
+    std::string_view message)
     : AstarteErrorBase(k_type_, message) {}
-AstarteInvalidAggregationError::AstarteInvalidAggregationError(std::string_view message,
-                                                               const AstarteError& other)
+AstarteInvalidInterfaceAggregationError::AstarteInvalidInterfaceAggregationError(
+    std::string_view message, const AstarteError& other)
     : AstarteErrorBase(
           k_type_, message,
           std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}

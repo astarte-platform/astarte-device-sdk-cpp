@@ -162,11 +162,10 @@ struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
   AstarteDeviceMqttImpl(config::MqttConfig cfg, MqttConnection connection);
 
   config::MqttConfig cfg_;
-  // TODO: probably we will have to move the connection handling to a separate thread (see
-  // device_grpc_impl.hpp)
+  // TODO: make the connection async by moving the connection handling to a separate thread
   MqttConnection connection_;
   // TODO: the following paramenters can be gathered into SharedState struct
-  Introspection introspection_;
+  std::shared_ptr<Introspection> introspection_ = std::make_shared<Introspection>();
 };
 
 }  // namespace AstarteDeviceSdk

@@ -41,7 +41,7 @@
 
 namespace AstarteDeviceSdk {
 
-using json = nlohmann::json;  // NOLINT(misc-include-cleaner)
+using json = nlohmann::json;
 
 auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::create(config::MqttConfig& cfg)
     -> astarte_tl::expected<std::shared_ptr<AstarteDeviceMqttImpl>, AstarteError> {
@@ -104,7 +104,7 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::add_interface_from_str(
     return astarte_tl::unexpected(interface.error());
   }
 
-  return introspection_.checked_insert(std::move(interface.value()));
+  return introspection_->checked_insert(std::move(interface.value()));
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)

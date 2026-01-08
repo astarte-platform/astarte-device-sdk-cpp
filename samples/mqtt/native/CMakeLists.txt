@@ -51,7 +51,6 @@ if(SAMPLE_USE_SYSTEM_ASTARTE_LIB)
         PRIVATE astarte_device_sdk::astarte_device_sdk
         PRIVATE tomlplusplus::tomlplusplus
         PRIVATE SQLiteCpp
-        PRIVATE PahoMqttCpp::paho-mqttpp3-static
     )
 else()
     target_link_libraries(
@@ -59,6 +58,5 @@ else()
         PRIVATE astarte_device_sdk
         PRIVATE tomlplusplus::tomlplusplus
         PRIVATE SQLiteCpp
-        PRIVATE PahoMqttCpp::paho-mqttpp3
     )
 endif()

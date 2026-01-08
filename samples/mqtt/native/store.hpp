@@ -34,7 +34,7 @@ auto credential_secret_from_db(SQLite::Database& db, std::string device_id)
   }
 
   auto cred = query.getColumn(0).getString();
-  spdlog::debug("device {} already registered with credential secret {}", device_id, cred);
+  spdlog::trace("device {} already registered with credential secret {}", device_id, cred);
 
   return std::move(std::optional(cred));
 }

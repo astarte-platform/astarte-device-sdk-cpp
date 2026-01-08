@@ -32,7 +32,7 @@ namespace AstarteDeviceSdk {
  * This class owns the device state (ID, introspection) and is responsible for
  * subscribing to topics and publishing introspection when a session is established.
  */
-class ConnectionCallback : public virtual mqtt::callback {
+class MqttConnectionCallback : public virtual mqtt::callback {
  public:
   /**
    * @brief Construct a new Connection Callback object.
@@ -42,9 +42,12 @@ class ConnectionCallback : public virtual mqtt::callback {
    * @param device_id The Astarte Device ID.
    * @param introspection A reference to the collection of device interfaces.
    * @param connected A flag stating if the client is correctly connected to Astarte.
+   * @param handshake_error A flag stating if an error occurred while attempting to connect to
+   * Astarte.
    */
-  ConnectionCallback(mqtt::iasync_client* client, std::string realm, std::string device_id,
-                     Introspection& introspection, std::shared_ptr<std::atomic<bool>> connected);
+  MqttConnectionCallback(mqtt::iasync_client* client, std::string realm, std::string device_id,
+                         std::shared_ptr<Introspection> introspection,
+                         std::shared_ptr<std::atomic<bool>> connected);
 
   /**
    * @brief Performs the Astarte session setup.
@@ -54,26 +57,30 @@ class ConnectionCallback : public virtual mqtt::callback {
    *
    * @param session_present Indicates if the broker resumed a previous session.
    * If true, subscriptions might be skipped depending on logic.
+   * @return an error if the operation fails
    */
-  void perform_session_setup(bool session_present);
+  auto perform_session_setup(bool session_present) -> astarte_tl::expected<void, AstarteError>;
 
  private:
   /**
    * @brief Subscribes the client to all required Astarte topics.
    *
    * Includes the control topic and all topics for server-owned interfaces.
+   * @return an error if the operation fails
    */
-  void setup_subscriptions();
+  auto setup_subscriptions() -> astarte_tl::expected<void, AstarteError>;
 
   /**
    * @brief Publishes the device's introspection to Astarte.
+   * @return an error if the operation fails
    */
-  void send_introspection();
+  auto send_introspection() -> astarte_tl::expected<void, AstarteError>;
 
   /**
    * @brief Sends an "emptyCache" message to Astarte.
+   * @return an error if the operation fails
    */
-  void send_emptycache();
+  auto send_emptycache() -> astarte_tl::expected<void, AstarteError>;
 
   /**
    * @brief Called by the client when the connection is established (e.g., after auto-reconnect).
@@ -106,9 +113,11 @@ class ConnectionCallback : public virtual mqtt::callback {
   /// @brief The Astarte Device ID.
   std::string device_id_;
   /// @brief Reference to the device's introspection.
-  Introspection& introspection_;
+  std::shared_ptr<Introspection> introspection_;
   /// @brief The flag stating if the device is successfully connected to Astarte.
   std::shared_ptr<std::atomic<bool>> connected_;
+  /// @brief The flag stating if an error occurred while attempting to connect to Astarte.
+  std::shared_ptr<std::atomic<bool>> handshake_error_;
 };
 
 /**
@@ -144,7 +153,8 @@ class MqttConnection {
    * @param introspection A collection of interfaces defining the device.
    * @return an error if the connection operation fails.
    */
-  auto connect(Introspection& introspection) -> astarte_tl::expected<void, AstarteError>;
+  auto connect(std::shared_ptr<Introspection> introspection)
+      -> astarte_tl::expected<void, AstarteError>;
 
   /**
    * @brief Check if the device is connected.
@@ -169,7 +179,7 @@ class MqttConnection {
   /// @brief The underlying Paho MQTT async client.
   std::unique_ptr<mqtt::async_client> client_;
   /// @brief The callback handler for MQTT events.
-  std::unique_ptr<ConnectionCallback> cb_;
+  std::unique_ptr<MqttConnectionCallback> cb_;
   /**
    * @brief The flag stating if the device is successfully connected to Astarte.
    *

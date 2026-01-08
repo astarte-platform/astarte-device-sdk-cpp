@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // TODO(sorru94) Consider disabling this checker fully or disable the MissingInclude setting
-// NOLINTBEGIN(misc-include-cleaner) PSA structures are not intended to be included directly
+// PSA structures are not intended to be included directly
 
 #include "mqtt/crypto.hpp"
 
@@ -232,5 +232,3 @@ auto Crypto::create_csr(const PsaKey& priv_key) -> astarte_tl::expected<std::str
 }
 
 }  // namespace AstarteDeviceSdk
-
-// NOLINTEND(misc-include-cleaner)

@@ -51,43 +51,42 @@ enum AstarteType : int8_t {
 /**
  * @brief Convert a string to an AstarteType enum.
  *
- * @param typ The string representation of the astarte type.
+ * @param type The string representation of the astarte type.
  * @return The corresponding AstarteType enum value, an error if the string is not a valid Astarte
  * type.
  */
-inline auto astarte_type_from_str(std::string typ)
+inline auto astarte_type_from_str(std::string type)
     -> astarte_tl::expected<AstarteType, AstarteError> {
-  if (typ == "binaryblob") {
+  if (type == "binaryblob") {
     return AstarteType::kBinaryBlob;
-  } else if (typ == "boolean") {
+  } else if (type == "boolean") {
     return AstarteType::kBoolean;
-  } else if (typ == "datetime") {
+  } else if (type == "datetime") {
     return AstarteType::kDatetime;
-  } else if (typ == "double") {
+  } else if (type == "double") {
     return AstarteType::kDouble;
-  } else if (typ == "integer") {
+  } else if (type == "integer") {
     return AstarteType::kInteger;
-  } else if (typ == "longinteger") {
+  } else if (type == "longinteger") {
     return AstarteType::kLongInteger;
-  } else if (typ == "string") {
+  } else if (type == "string") {
     return AstarteType::kString;
-  } else if (typ == "binaryblobarray") {
+  } else if (type == "binaryblobarray") {
     return AstarteType::kBinaryBlobArray;
-  } else if (typ == "booleanarray") {
+  } else if (type == "booleanarray") {
     return AstarteType::kBooleanArray;
-  } else if (typ == "datetimearray") {
+  } else if (type == "datetimearray") {
     return AstarteType::kDatetimeArray;
-  } else if (typ == "doublearray") {
+  } else if (type == "doublearray") {
     return AstarteType::kDoubleArray;
-  } else if (typ == "integerarray") {
+  } else if (type == "integerarray") {
     return AstarteType::kIntegerArray;
-  } else if (typ == "longintegerarray") {
+  } else if (type == "longintegerarray") {
     return AstarteType::kLongIntegerArray;
-  } else if (typ == "stringarray") {
+  } else if (type == "stringarray") {
     return AstarteType::kStringArray;
   } else {
-    return astarte_tl::unexpected(
-        AstarteInvalidAstarteTypeError("interface ownershipe not valid: " + typ));
+    return astarte_tl::unexpected(AstarteInvalidAstarteTypeError("data type not valid: " + type));
   }
 }
 
