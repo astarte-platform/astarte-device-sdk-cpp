@@ -37,7 +37,6 @@ function(astarte_sdk_configure_mqtt_dependencies)
         set(PAHO_BUILD_EXAMPLES OFF CACHE BOOL "")
         set(PAHO_BUILD_TESTS OFF CACHE BOOL "")
         set(PAHO_WITH_MQTT_C ON CACHE BOOL "")
-        set(PAHO_BUILD_SHARED ON CACHE BOOL "")
         set(PAHO_WITH_SSL ON CACHE BOOL "")
         FetchContent_MakeAvailable(paho-mqtt-cpp)
 
