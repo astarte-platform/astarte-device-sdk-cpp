@@ -55,19 +55,6 @@ class MqttConfig {
                                      std::string_view store_dir) -> MqttConfig;
 
   /**
-   * @brief Create a new MqttConfig instance using a pairing token.
-   * @param realm The Astarte realm.
-   * @param device_id The device's unique ID.
-   * @param credential The pairing token string.
-   * @param pairing_url The base URL of the Astarte pairing API.
-   * @param store_dir Path to a local directory for persisting state.
-   * @return A new MqttConfig object.
-   */
-  static auto with_pairing_token(std::string_view realm, std::string_view device_id,
-                                 std::string_view credential, std::string_view pairing_url,
-                                 std::string_view store_dir) -> MqttConfig;
-
-  /**
    * @brief Get the configured realm.
    * @return a string containing the realm
    */

@@ -36,13 +36,6 @@ auto MqttConfig::with_credential_secret(std::string_view realm, std::string_view
   return {realm, device_id, std::move(cred_ptr), pairing_url, store_dir};
 }
 
-auto MqttConfig::with_pairing_token(std::string_view realm, std::string_view device_id,
-                                    std::string_view credential, std::string_view pairing_url,
-                                    std::string_view store_dir) -> MqttConfig {
-  auto cred_ptr = std::make_unique<Credential>(Credential::pairing_token(credential));
-  return {realm, device_id, std::move(cred_ptr), pairing_url, store_dir};
-}
-
 auto MqttConfig::cred_is_pairing_token() -> bool { return credential_->is_pairing_token(); }
 
 auto MqttConfig::cred_is_credential_secret() -> bool { return credential_->is_credential_secret(); }
