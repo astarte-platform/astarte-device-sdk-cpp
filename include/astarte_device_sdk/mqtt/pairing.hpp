@@ -9,6 +9,7 @@
 #include <format>
 #include <string>
 #include <string_view>
+#include <tuple>
 
 #include "ada.h"
 #include "astarte_device_sdk/mqtt/errors.hpp"
@@ -42,14 +43,6 @@ class PairingApi {
                        std::chrono::milliseconds timeout_ms = 0ms) const
       -> astarte_tl::expected<std::string, AstarteError>;
 
- private:
-  /**
-   * @brief Constructor for the PairingApi class.
-   * @param realm The Astarte realm name.
-   * @param device_id The Astarte device id.
-   * @param pairing_url string containing the Astarte pairing API URL.
-   */
-  PairingApi(std::string_view realm, std::string_view device_id, ada::url_aggregator pairing_url);
   /**
    * @brief Retrieve the URL of the Astarte MQTT broker.
    * @param credential_secret The Astarte device credential necessary to authenticate to the broker.
@@ -60,13 +53,22 @@ class PairingApi {
       -> astarte_tl::expected<std::string, AstarteError>;
 
   /**
-   * @brief Retrieve the Astarte device certificate.
+   * @brief Retrieve the Astarte device private key and certificate.
    * @param credential_secret The Astarte device credential necessary to authenticate to the broker.
    * @param timeout_ms A timeout value to perform the HTTP request.
-   * @return The device certificate on success, an error otherwise.
+   * @return The device key and certificate on success, an error otherwise.
    */
-  auto get_device_cert(std::string_view credential_secret, int timeout_ms = 0) const
-      -> astarte_tl::expected<std::string, AstarteError>;
+  auto get_device_key_and_cert(std::string_view credential_secret, int timeout_ms = 0) const
+      -> astarte_tl::expected<std::tuple<std::string, std::string>, AstarteError>;
+
+ private:
+  /**
+   * @brief Constructor for the PairingApi class.
+   * @param realm The Astarte realm name.
+   * @param device_id The Astarte device id.
+   * @param pairing_url string containing the Astarte pairing API URL.
+   */
+  PairingApi(std::string_view realm, std::string_view device_id, ada::url_aggregator pairing_url);
 
   /**
    * @brief Check if the Astarte device certificate is valid.

@@ -35,8 +35,8 @@ class TestOrchestrator {
   explicit TestOrchestrator(const struct CURLConfig& config_curl) : curl_config_(config_curl) {}
 
   // set a specific transport for the orchestrator
-  auto with_transport_config(const TransportConfigVariant transport_config) -> TestOrchestrator& {
-    transport_config_ = std::optional(transport_config);
+  auto with_transport_config(TransportConfigVariant transport_config) -> TestOrchestrator& {
+    transport_config_ = std::optional(std::move(transport_config));
     return *this;
   }
 
@@ -88,15 +88,23 @@ class TestOrchestrator {
       }
       test_case.attach_device(device_grpc);
 #else
-      auto config_mqtt = std::get<struct MqttTestConfig>(transport_config_.value());
+      auto config_mqtt = std::get<MqttTestConfig>(*std::move(transport_config_));
 
+      auto res = AstarteDeviceMqtt::create(std::move(config_mqtt.cfg));
+      if (!res) {
+        spdlog::error("Couldn't create an Astarte MQTT device.");
+        throw EndToEndAstarteDeviceException(astarte_fmt::format("{}", res.error()));
+      }
       std::shared_ptr<AstarteDeviceMqtt> device_mqtt =
-          std::make_shared<AstarteDeviceMqtt>(config_mqtt.cfg);
+          std::make_shared<AstarteDeviceMqtt>(*std::move(res));
 
-      // TODO: decomment once the add_interface functionality has been implemented
-      //   for (const std::filesystem::path& interface_path : config_mqtt.interfaces) {
-      // device_mqtt->add_interface_from_file(interface_path);
-      // }
+      for (const std::filesystem::path& interface_path : config_mqtt.interfaces) {
+        auto res = device_mqtt->add_interface_from_file(interface_path);
+        if (!res) {
+          spdlog::error("Couldn't add interface.");
+          throw EndToEndAstarteDeviceException(astarte_fmt::format("{}", res.error()));
+        }
+      }
 
       test_case.attach_device(device_mqtt);
 #endif

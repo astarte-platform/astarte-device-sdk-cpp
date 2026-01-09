@@ -33,12 +33,11 @@ function(astarte_sdk_configure_mqtt_dependencies)
             GIT_REPOSITORY https://github.com/eclipse/paho.mqtt.cpp.git
             GIT_TAG v1.5.3
         )
-
         # Set build options
         set(PAHO_BUILD_EXAMPLES OFF CACHE BOOL "")
         set(PAHO_BUILD_TESTS OFF CACHE BOOL "")
         set(PAHO_WITH_MQTT_C ON CACHE BOOL "")
-
+        set(PAHO_WITH_SSL ON CACHE BOOL "")
         FetchContent_MakeAvailable(paho-mqtt-cpp)
 
         # Library to handle HTTP requests
@@ -100,22 +99,29 @@ function(
         "include/astarte_device_sdk/mqtt/device_mqtt.hpp"
         "include/astarte_device_sdk/mqtt/errors.hpp"
         "include/astarte_device_sdk/mqtt/pairing.hpp"
+        "include/astarte_device_sdk/mqtt/formatter.hpp"
     )
     list(
         APPEND
         ${ASTARTE_MQTT_SOURCES}
         "src/mqtt/config.cpp"
+        "src/mqtt/credentials.cpp"
         "src/mqtt/crypto.cpp"
         "src/mqtt/device_mqtt_impl.cpp"
         "src/mqtt/device_mqtt.cpp"
         "src/mqtt/errors.cpp"
         "src/mqtt/pairing.cpp"
+        "src/mqtt/connection.cpp"
+        "src/mqtt/introspection.cpp"
     )
     list(
         APPEND
         ${ASTARTE_MQTT_PRIVATE_HEADERS}
+        "private/mqtt/connection.hpp"
+        "private/mqtt/credentials.hpp"
         "private/mqtt/crypto.hpp"
         "private/mqtt/device_mqtt_impl.hpp"
+        "private/mqtt/introspection.hpp"
     )
     set(${ASTARTE_MQTT_PUBLIC_HEADERS} ${${ASTARTE_MQTT_PUBLIC_HEADERS}} PARENT_SCOPE)
     set(${ASTARTE_MQTT_SOURCES} ${${ASTARTE_MQTT_SOURCES}} PARENT_SCOPE)

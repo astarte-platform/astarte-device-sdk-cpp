@@ -5,6 +5,7 @@
 #ifndef ASTARTE_DEVICE_SDK_ERRORS_H
 #define ASTARTE_DEVICE_SDK_ERRORS_H
 
+#include <cstdint>
 #include <memory>
 #include <optional>
 #include <string>
@@ -15,8 +16,6 @@
 #else
 #include <expected>
 #endif
-
-#include "astarte_device_sdk/formatter.hpp"
 
 namespace AstarteDeviceSdk {
 
@@ -32,6 +31,11 @@ class AstarteInternalError;
 class AstarteOperationRefusedError;
 class AstarteGrpcLibError;
 class AstarteMsgHubError;
+class AstarteInvalidInterfaceVersionError;
+class AstarteInvalidInterfaceTypeError;
+class AstarteInvalidInterfaceOwnershipeError;
+class AstarteInvalidInterfaceAggregationError;
+class AstarteInvalidAstarteTypeError;
 #if !defined(ASTARTE_TRANSPORT_GRPC)
 class AstarteJsonParsingError;
 class AstarteDeviceRegistrationError;
@@ -39,9 +43,13 @@ class AstartePairingApiError;
 class AstarteMqttError;
 class AstarteInvalidUrlError;
 class AstarteRetrieveBrokerUrlError;
+class AstarteReadCredentialError;
+class AstarteWriteCredentialError;
+class AstartePairingConfigError;
 class AstarteCryptoError;
 class AstarteUuidError;
 class AstarteHttpError;
+class AstarteMqttConnectionError;
 #endif
 
 /**
@@ -51,11 +59,16 @@ class AstarteHttpError;
  */
 using AstarteError =
     std::variant<AstarteInternalError, AstarteFileOpenError, AstarteInvalidInputError,
+                 AstarteInvalidInterfaceVersionError, AstarteInvalidInterfaceTypeError,
+                 AstarteInvalidInterfaceOwnershipeError, AstarteInvalidInterfaceAggregationError,
+                 AstarteInvalidAstarteTypeError,
 #if !defined(ASTARTE_TRANSPORT_GRPC)
                  AstarteOperationRefusedError, AstarteGrpcLibError, AstarteMsgHubError,
                  AstarteJsonParsingError, AstarteDeviceRegistrationError, AstartePairingApiError,
                  AstarteMqttError, AstarteInvalidUrlError, AstarteRetrieveBrokerUrlError,
-                 AstarteCryptoError, AstarteUuidError, AstarteHttpError>;
+                 AstarteReadCredentialError, AstarteWriteCredentialError, AstartePairingConfigError,
+                 AstarteCryptoError, AstarteUuidError, AstarteHttpError,
+                 AstarteMqttConnectionError>;
 #else
                  AstarteOperationRefusedError, AstarteGrpcLibError, AstarteMsgHubError>;
 #endif
@@ -247,6 +260,117 @@ class AstarteMsgHubError : public AstarteErrorBase {
   static constexpr std::string_view k_type_ = "AstarteMsgHubError";
 };
 
+/************************************************
+ *       Interface validation errors       *
+ ***********************************************/
+
+/**
+ * @brief Either the minor or the major version is incorrect.
+ */
+class AstarteInvalidInterfaceVersionError : public AstarteErrorBase {
+ public:
+  /**
+   * @brief Standard error constructor.
+   * @param message The error message.
+   */
+  explicit AstarteInvalidInterfaceVersionError(std::string_view message);
+  /**
+   * @brief Nested error constructor.
+   * @param message The error message.
+   * @param other The error to nest.
+   */
+  explicit AstarteInvalidInterfaceVersionError(std::string_view message, const AstarteError& other);
+
+ private:
+  static constexpr std::string_view k_type_ = "AstarteInvalidInterfaceVersionError";
+};
+
+/**
+ * @brief The provided interface type is incorrect.
+ */
+class AstarteInvalidInterfaceTypeError : public AstarteErrorBase {
+ public:
+  /**
+   * @brief Standard error constructor.
+   * @param message The error message.
+   */
+  explicit AstarteInvalidInterfaceTypeError(std::string_view message);
+  /**
+   * @brief Nested error constructor.
+   * @param message The error message.
+   * @param other The error to nest.
+   */
+  explicit AstarteInvalidInterfaceTypeError(std::string_view message, const AstarteError& other);
+
+ private:
+  static constexpr std::string_view k_type_ = "AstarteInvalidInterfaceTypeError";
+};
+
+/**
+ * @brief The provided interface ownership is incorrect.
+ */
+class AstarteInvalidInterfaceOwnershipeError : public AstarteErrorBase {
+ public:
+  /**
+   * @brief Standard error constructor.
+   * @param message The error message.
+   */
+  explicit AstarteInvalidInterfaceOwnershipeError(std::string_view message);
+  /**
+   * @brief Nested error constructor.
+   * @param message The error message.
+   * @param other The error to nest.
+   */
+  explicit AstarteInvalidInterfaceOwnershipeError(std::string_view message,
+                                                  const AstarteError& other);
+
+ private:
+  static constexpr std::string_view k_type_ = "AstarteInvalidInterfaceOwnershipeError";
+};
+
+/**
+ * @brief The provided interface aggregation is incorrect.
+ */
+class AstarteInvalidInterfaceAggregationError : public AstarteErrorBase {
+ public:
+  /**
+   * @brief Standard error constructor.
+   * @param message The error message.
+   */
+  explicit AstarteInvalidInterfaceAggregationError(std::string_view message);
+  /**
+   * @brief Nested error constructor.
+   * @param message The error message.
+   * @param other The error to nest.
+   */
+  explicit AstarteInvalidInterfaceAggregationError(std::string_view message,
+                                                   const AstarteError& other);
+
+ private:
+  static constexpr std::string_view k_type_ = "AstarteInvalidInterfaceAggregationError";
+};
+
+/**
+ * @brief The provided Astarte type is incorrect.
+ */
+class AstarteInvalidAstarteTypeError : public AstarteErrorBase {
+ public:
+  /**
+   * @brief Standard error constructor.
+   * @param message The error message.
+   */
+  explicit AstarteInvalidAstarteTypeError(std::string_view message);
+  /**
+   * @brief Nested error constructor.
+   * @param message The error message.
+   * @param other The error to nest.
+   */
+  explicit AstarteInvalidAstarteTypeError(std::string_view message, const AstarteError& other);
+
+ private:
+  static constexpr std::string_view k_type_ = "AstarteInvalidAstarteTypeError";
+};
+
 }  // namespace AstarteDeviceSdk
 
 #if !defined(ASTARTE_TRANSPORT_GRPC)
@@ -255,78 +379,5 @@ class AstarteMsgHubError : public AstarteErrorBase {
 // NOLINTNEXTLINE(misc-header-include-cycle)
 #include "astarte_device_sdk/mqtt/errors.hpp"
 #endif
-
-/// @cond Doxygen should skip checking astarte_fmt::formatter.
-
-/**
- * @brief Formatter specialization for AstarteDeviceSdk::AstarteErrorBase.
- */
-template <>
-struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteErrorBase> {
-  /**
-   * @brief Parse the format string. Default implementation.
-   * @param ctx The parse context.
-   * @return An iterator to the end of the parsed range.
-   */
-  template <typename ParseContext>
-  constexpr auto parse(ParseContext& ctx) const {
-    return ctx.begin();
-  }
-
-  /**
-   * @brief Format the AstarteErrorBase object.
-   * @param err The AstarteErrorBase to format.
-   * @param ctx The format context.
-   * @return An iterator to the end of the output.
-   */
-  template <typename FormatContext>
-  auto format(const AstarteDeviceSdk::AstarteErrorBase& err, FormatContext& ctx) const {
-    auto out = astarte_fmt::format_to(ctx.out(), "{}: {}", err.type(), err.message());
-
-    std::string indent = "";
-    const AstarteDeviceSdk::AstarteErrorBase* current = &err;
-    while (const auto& nested = current->nested_error()) {
-      indent += "  ";
-      out = astarte_fmt::format_to(out, "\n{}-> {}: {}", indent, nested->type(), nested->message());
-      current = nested.get();
-    }
-
-    return out;
-  }
-};
-
-/**
- * @brief Formatter specialization for AstarteDeviceSdk::AstarteError.
- */
-template <>
-struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteError> {
-  /**
-   * @brief Parse the format string. Default implementation.
-   * @param ctx The parse context.
-   * @return An iterator to the end of the parsed range.
-   */
-  template <typename ParseContext>
-  constexpr auto parse(ParseContext& ctx) const {
-    return ctx.begin();
-  }
-
-  /**
-   * @brief Format the AstarteError object.
-   * @param err_variant The AstarteError to format.
-   * @param ctx The format context.
-   * @return An iterator to the end of the output.
-   */
-  template <typename FormatContext>
-  auto format(const AstarteDeviceSdk::AstarteError& err_variant, FormatContext& ctx) const {
-    return std::visit(
-        [&ctx](const auto& err) {
-          const auto& base_err = static_cast<const AstarteDeviceSdk::AstarteErrorBase&>(err);
-          return astarte_fmt::format_to(ctx.out(), "{}", base_err);
-        },
-        err_variant);
-  }
-};
-
-/// @endcond
 
 #endif  // ASTARTE_DEVICE_SDK_ERRORS_H

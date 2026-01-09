@@ -3,12 +3,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // TODO(sorru94) Consider disabling this checker fully or disable the MissingInclude setting
-// NOLINTBEGIN(misc-include-cleaner) PSA structures are not intended to be included directly
+// PSA structures are not intended to be included directly
 
 #include "astarte_device_sdk/mqtt/pairing.hpp"
 
 #include <ada.h>
-#include <cpr/cpr.h>
+#include <cpr/api.h>
+#include <cpr/cprtypes.h>
+#include <cpr/response.h>
+#include <cpr/status_codes.h>
 #include <spdlog/spdlog.h>
 
 #include <boost/uuid/uuid.hpp>
@@ -191,6 +194,7 @@ auto PairingApi::register_device(std::string_view pairing_token,
     -> astarte_tl::expected<std::string, AstarteError> {
   auto request_url = pairing_url_;
   const std::string pathname =
+
       astarte_fmt::format("{}/v1/{}/agent/devices", request_url.get_pathname(), realm_);
   request_url.set_pathname(pathname);
   spdlog::debug("request url: {}", request_url.get_href());
@@ -200,7 +204,7 @@ auto PairingApi::register_device(std::string_view pairing_token,
 
   json body;
   body["data"] = {{"hw_id", device_id_}};
-  spdlog::debug("request body: {}", body.dump());
+  spdlog::trace("request body: {}", body.dump());
 
   cpr::Response res = cpr::Post(cpr::Url{request_url.get_href()}, header, cpr::Body{body.dump()},
                                 cpr::Timeout{timeout_ms});
@@ -214,10 +218,10 @@ auto PairingApi::register_device(std::string_view pairing_token,
   }
 
   if (!is_successful(res.status_code)) {
-    return astarte_tl::unexpected(AstarteMqttError(
-        AstartePairingApiError("Failed to register device.",
-                               AstarteHttpError(astarte_fmt::format("Sttatus code: {}, Reason: {}",
-                                                                    res.status_code, res.text)))));
+    return astarte_tl::unexpected(AstarteMqttError(AstarteDeviceRegistrationError(
+        "Failed to register device.",
+        AstarteHttpError(
+            astarte_fmt::format("Sttatus code: {}, Reason: {}", res.status_code, res.text)))));
   }
 
   return parse_json<std::string>(res.text, "/data/credentials_secret");
@@ -251,8 +255,9 @@ auto PairingApi::get_broker_url(std::string_view credential_secret, int timeout_
   return parse_json<std::string>(res.text, "/data/protocols/astarte_mqtt_v1/broker_url");
 }
 
-auto PairingApi::get_device_cert(std::string_view credential_secret, int timeout_ms) const
-    -> astarte_tl::expected<std::string, AstarteError> {
+// NOLINTNEXTLINE(readability-function-size)
+auto PairingApi::get_device_key_and_cert(std::string_view credential_secret, int timeout_ms) const
+    -> astarte_tl::expected<std::tuple<std::string, std::string>, AstarteError> {
   auto request_url = pairing_url_;
   const std::string pathname =
       astarte_fmt::format("{}/v1/{}/devices/{}/protocols/astarte_mqtt_v1/credentials",
@@ -267,11 +272,16 @@ auto PairingApi::get_device_cert(std::string_view credential_secret, int timeout
   if (!priv_key_res) {
     return astarte_tl::unexpected(priv_key_res.error());
   }
-  auto& priv_key = priv_key_res.value();
+  auto priv_key = *std::move(priv_key_res);
   auto priv_key_generate_res = priv_key.generate();
   if (!priv_key_generate_res) {
     return astarte_tl::unexpected(priv_key_generate_res.error());
   }
+  auto device_priv_key = priv_key.to_pem();
+  if (!device_priv_key) {
+    return astarte_tl::unexpected(device_priv_key.error());
+  }
+
   auto device_csr = Crypto::create_csr(priv_key);
   if (!device_csr) {
     return astarte_tl::unexpected(AstarteMqttError(AstartePairingApiError(
@@ -280,7 +290,7 @@ auto PairingApi::get_device_cert(std::string_view credential_secret, int timeout
 
   json body;
   body["data"] = {{"csr", device_csr.value()}};
-  spdlog::debug("request body: {}", body.dump());
+  spdlog::trace("request body: {}", body.dump());
 
   cpr::Response res = cpr::Post(cpr::Url{request_url.get_href()}, header, cpr::Body{body.dump()},
                                 cpr::Timeout{timeout_ms});
@@ -302,7 +312,8 @@ auto PairingApi::get_device_cert(std::string_view credential_secret, int timeout
       .transform_error([](const AstarteError& err) -> AstarteError {
         return AstarteMqttError(
             AstartePairingApiError("Failed to retrieve Astarte device certificate.", err));
-      });
+      })
+      .transform([&](const auto& cert) { return std::make_tuple(device_priv_key.value(), cert); });
 }
 
 auto PairingApi::device_cert_valid(std::string_view certificate, std::string_view credential_secret,
@@ -373,5 +384,3 @@ auto create_deterministic_device_id(std::string_view namespc, std::string_view u
 }
 
 }  // namespace AstarteDeviceSdk
-
-// NOLINTEND(misc-include-cleaner)

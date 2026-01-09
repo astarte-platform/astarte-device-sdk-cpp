@@ -2,65 +2,133 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include <SQLiteCpp/SQLiteCpp.h>
 #include <spdlog/spdlog.h>
 
+#include <format>
+#include <optional>
+#include <string>
 #include <string_view>
 
+#include "astarte_device_sdk/errors.hpp"
+#include "astarte_device_sdk/formatter.hpp"
+#include "astarte_device_sdk/mqtt/config.hpp"
+#include "astarte_device_sdk/mqtt/device_mqtt.hpp"
 #include "astarte_device_sdk/mqtt/pairing.hpp"
 #include "config.hpp"
+#include "store.hpp"
 
-auto init_db(std::string_view db_path) -> SQLite::Database {
-  // Open db or create it
-  SQLite::Database db(db_path, SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE);
-  spdlog::debug("SQLite database file '{}' opened successfully", db.getFilename().c_str());
-
-  // Create a new table with an explicit "id" column aliasing the underlying rowid
-  db.exec(
-      "CREATE TABLE IF NOT EXISTS registered_devices (device_id STRING PRIMARY KEY, "
-      "credential_secret STRING)");
-
-  return std::move(db);
-}
-
-int main(int argc, char** argv) {
+int main() {
   spdlog::set_level(spdlog::level::debug);
 
   auto cfg = Config("samples/mqtt/native/config.toml");
 
-  auto api = AstarteDeviceSdk::PairingApi::create(cfg.realm, cfg.device_id, cfg.astarte_base_url);
-  if (!api) {
-    spdlog::error("Pairing API creation failure. Err: \n{}", api.error());
+  auto api_res =
+      AstarteDeviceSdk::PairingApi::create(cfg.realm, cfg.device_id, cfg.astarte_base_url);
+  if (!api_res) {
+    spdlog::error("Pairing API creation failure. Err: \n{}", api_res.error());
     return 0;
   }
+  auto api = api_res.value();
 
-  if (cfg.features.registration_enabled()) {
-    auto db = init_db("samples/mqtt/native/example.db");
+  auto db = init_db("samples/mqtt/native/example.db");
 
-    // Check if the device is already registered
-    SQLite::Statement query(db,
-                            "SELECT credential_secret FROM registered_devices WHERE device_id=?");
-    query.bind(1, cfg.device_id);
+  // flag used to state if the credential secret has been stored in db
+  bool in_db = false;
+  // check if the device is already registered
+  auto cred_opt = credential_secret_from_db(db, cfg.device_id);
+  if (cred_opt) {
+    spdlog::debug("device credential secret found in db");
+    in_db = true;
+  }
 
-    if (query.executeStep()) {
-      spdlog::debug("device {} already registered with credential secret {}", cfg.device_id,
-                    query.getColumn(0).getString());
-      return 0;
+  if (cfg.features.registration_enabled() && !in_db) {
+    assert(cfg.pairing_token);
+
+    auto secret_res = api.register_device(cfg.pairing_token.value());
+    if (!secret_res) {
+      spdlog::error("failed to register the device: {}", secret_res.error());
+      return 1;
+    }
+    auto secret = secret_res.value();
+    spdlog::trace("credential secret: {}", secret);
+
+    auto key_cert_res = api.get_device_key_and_cert(secret);
+    if (!key_cert_res) {
+      spdlog::error("failed to get the device key or cert: {}", key_cert_res.error());
+      return 1;
+    }
+    auto [key, cert] = key_cert_res.value();
+    spdlog::trace("key: {}", key);
+    spdlog::trace("cert: {}", cert);
+
+    store_cred_secret(db, cfg.device_id, secret);
+    in_db = true;
+    cred_opt = std::optional(secret);
+  }
+
+  if (cfg.features.connection_enabled()) {
+    if (!in_db && !cfg.pairing_token && !cfg.credential_secret) {
+      spdlog::error("neither pairing token nor credential secret has been set");
+      return 1;
     }
 
-    auto secret = api.value().register_device(cfg.pairing_token.value());
-    if (!secret) {
-      spdlog::error("Device registration failure. Err: \n{}", secret.error());
-      return 0;
-    }
-    spdlog::info("credential secret: {}", secret.value());
+    auto mqtt_cfg = [&] {
+      if (in_db) {
+        return AstarteDeviceSdk::config::MqttConfig::with_credential_secret(
+            cfg.realm, cfg.device_id, *cred_opt,
+            astarte_fmt::format("{}/pairing", cfg.astarte_base_url), cfg.store_dir);
+      } else {
+        assert(cfg.credential_secret);
 
-    // Add the registered device id
-    SQLite::Statement query_insert(db, "INSERT INTO registered_devices VALUES (?, ?)");
-    query_insert.bind(1, cfg.device_id);
-    query_insert.bind(2, secret.value());
-    int nb = query_insert.exec();
-    spdlog::debug("{} entry stored in db", nb);
+        // first, store the cred secret in the db for future usage
+        store_cred_secret(db, cfg.device_id, cfg.credential_secret.value());
+
+        return AstarteDeviceSdk::config::MqttConfig::with_credential_secret(
+            cfg.realm, cfg.device_id, cfg.credential_secret.value(),
+            astarte_fmt::format("{}/pairing", cfg.astarte_base_url), cfg.store_dir);
+      }
+    }();
+
+    // here you can modify the mqtt_cfg options, such as the keepalive interval, the connection
+    // timeout period, etc.
+
+    auto device_res = AstarteDeviceSdk::AstarteDeviceMqtt::create(std::move(mqtt_cfg));
+    if (!device_res) {
+      spdlog::error("device creation error: {}", device_res.error());
+      return 1;
+    }
+    auto device = *std::move(device_res);
+
+    const std::vector<std::string_view> interfaces = {
+        "samples/mqtt/native/interfaces/org.astarte-platform.cpp.examples.DeviceAggregate.json",
+        "samples/mqtt/native/interfaces/org.astarte-platform.cpp.examples.DeviceDatastream.json",
+        "samples/mqtt/native/interfaces/org.astarte-platform.cpp.examples.DeviceProperty.json",
+        "samples/mqtt/native/interfaces/org.astarte-platform.cpp.examples.ServerAggregate.json",
+        "samples/mqtt/native/interfaces/org.astarte-platform.cpp.examples.ServerDatastream.json",
+        "samples/mqtt/native/interfaces/org.astarte-platform.cpp.examples.ServerProperty.json"};
+
+    for (const auto interface : interfaces) {
+      auto add_interface_res = device.add_interface_from_file(interface);
+      if (!add_interface_res) {
+        spdlog::error("Failed to add interface {}. Error: {}", interface,
+                      add_interface_res.error());
+        return 1;
+      }
+    }
+
+    auto conn_res = device.connect();
+    if (!conn_res) {
+      spdlog::error("connection error: {}", conn_res.error());
+      return 1;
+    }
+
+    sleep(10);
+
+    auto disconn_res = device.disconnect();
+    if (!disconn_res) {
+      spdlog::error("connection error: {}", disconn_res.error());
+      return 1;
+    }
   }
 
   return 0;

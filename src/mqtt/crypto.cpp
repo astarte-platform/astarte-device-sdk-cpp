@@ -3,31 +3,43 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // TODO(sorru94) Consider disabling this checker fully or disable the MissingInclude setting
-// NOLINTBEGIN(misc-include-cleaner) PSA structures are not intended to be included directly
+// PSA structures are not intended to be included directly
 
 #include "mqtt/crypto.hpp"
 
-#include <mbedtls/build_info.h>
-#include <psa/crypto.h>
 #include <spdlog/spdlog.h>
 
 #include <array>
+#include <cstdint>
 #include <cstring>
 #include <format>
 #include <string>
+#include <utility>
 #include <vector>
 #if MBEDTLS_VERSION_MAJOR < 0x04
 #include <mbedtls/ctr_drbg.h>
 #endif
+#include <mbedtls/build_info.h>
 #include <mbedtls/error.h>
 #include <mbedtls/md.h>
 #include <mbedtls/pk.h>
 #include <mbedtls/x509_csr.h>
 
 #include "astarte_device_sdk/errors.hpp"
+#include "astarte_device_sdk/formatter.hpp"
+#include "psa/crypto.h"
+#include "psa/crypto_struct.h"
+#include "psa/crypto_types.h"
+#include "psa/crypto_values.h"
 
 namespace AstarteDeviceSdk {
 
+constexpr size_t ERROR_BUF_LEN = 100;
+constexpr size_t PSA_KEY_LEN = 1024;
+constexpr size_t PSA_KEY_BITS = 256;
+constexpr size_t PSA_CSR_LEN = 2048;
+
+// Helper to convert Mbed TLS errors into C++ exceptions
 namespace {
 
 auto mbedtls_ret_to_astarte_errors(int ret, const std::string& function_name)
@@ -109,7 +121,7 @@ class MbedX509WriteCsr {
     mbedtls_x509write_csr_set_md_alg(&ctx_, MBEDTLS_MD_SHA256);
 
     // write the CSR to a PEM string
-    constexpr std::size_t csr_buf_size{2048};
+    constexpr std::size_t csr_buf_size{PSA_CSR_LEN};
     std::vector<unsigned char> csr_buf(csr_buf_size, 0);
 
     auto res =
@@ -180,14 +192,32 @@ PsaKey::PsaKey(PsaKey&& other) noexcept : key_id_(other.key_id_) {
 
 auto PsaKey::get() const -> const mbedtls_svc_key_id_t& { return key_id_; }
 
+auto PsaKey::to_pem() const -> astarte_tl::expected<const std::string, AstarteError> {
+  auto key = MbedPk::create(*this);
+  if (!key) {
+    spdlog::error("Failed to create MBedPk key from PsaKey. Error: {}", key.error());
+  }
+
+  std::vector<unsigned char> buf(PSA_KEY_LEN, 0);
+  auto res = mbedtls_ret_to_astarte_errors(
+      mbedtls_pk_write_key_pem(&key.value().ctx(), buf.data(), buf.size()),
+      "mbedtls_pk_write_key_pem");
+  if (!res) {
+    spdlog::error("PsaKey failed to write the key. Key ID {} may be leaked. Error: {}", key_id_,
+                  res.error());
+    return astarte_tl::unexpected(res.error());
+  }
+
+  return std::string(buf.begin(), buf.end());
+}
+
 auto PsaKey::generate() -> astarte_tl::expected<void, AstarteError> {
   // generate the PSA EC key
   psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
   psa_set_key_algorithm(&attributes, PSA_ECC_FAMILY_SECP_R1);
   psa_set_key_usage_flags(&attributes, PSA_KEY_USAGE_SIGN_MESSAGE | PSA_KEY_USAGE_EXPORT);
   psa_set_key_type(&attributes, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1));
-  constexpr std::size_t key_size{256};
-  psa_set_key_bits(&attributes, key_size);
+  psa_set_key_bits(&attributes, PSA_KEY_BITS);
 
   return mbedtls_ret_to_astarte_errors(psa_generate_key(&attributes, &key_id_), "psa_generate_key");
 }
@@ -202,5 +232,3 @@ auto Crypto::create_csr(const PsaKey& priv_key) -> astarte_tl::expected<std::str
 }
 
 }  // namespace AstarteDeviceSdk
-
-// NOLINTEND(misc-include-cleaner)

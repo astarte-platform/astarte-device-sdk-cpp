@@ -9,6 +9,7 @@
 #include <chrono>
 #include <filesystem>
 #include <list>
+#include <map>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -16,11 +17,14 @@
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/mqtt/config.hpp"
 #include "astarte_device_sdk/mqtt/device_mqtt.hpp"
+#include "astarte_device_sdk/mqtt/errors.hpp"
 #include "astarte_device_sdk/msg.hpp"
 #include "astarte_device_sdk/object.hpp"
 #include "astarte_device_sdk/ownership.hpp"
 #include "astarte_device_sdk/property.hpp"
 #include "astarte_device_sdk/stored_property.hpp"
+#include "mqtt/connection.hpp"
+#include "mqtt/introspection.hpp"
 
 namespace AstarteDeviceSdk {
 
@@ -29,8 +33,11 @@ struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
   /**
    * @brief Construct an AstarteDeviceMqttImpl instance.
    * @param cfg set of MQTT configuration options used to connect a device to Astarte.
+   * @return a shared pointer to the AstarteDeviceMqttImpl object, an error otherwise.
    */
-  AstarteDeviceMqttImpl(const MqttConfig cfg);
+  static auto create(config::MqttConfig& cfg)
+      -> astarte_tl::expected<std::shared_ptr<AstarteDeviceMqttImpl>, AstarteError>;
+
   /** @brief Destructor for the Astarte device class. */
   ~AstarteDeviceMqttImpl();
   /** @brief Copy constructor for the Astarte device class. */
@@ -51,9 +58,10 @@ struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
       -> astarte_tl::expected<void, AstarteError>;
   /**
    * @brief Parse an interface definition from a JSON string and adds it to the device.
-   * @param json The interface to add.
+   * @param interface_str The interface to add.
    */
-  auto add_interface_from_str(std::string_view json) -> astarte_tl::expected<void, AstarteError>;
+  auto add_interface_from_str(std::string_view interface_str)
+      -> astarte_tl::expected<void, AstarteError>;
   /**
    * @brief Remove an installed interface.
    * @param interface_name The interface name.
@@ -146,8 +154,18 @@ struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
       -> astarte_tl::expected<AstartePropertyIndividual, AstarteError>;
 
  private:
-  MqttConfig cfg_;
-  std::atomic_bool connected_{false};
+  /**
+   * @brief Private constructor for an AstarteDeviceMqttImpl instance.
+   * @param cfg set of MQTT configuration options used to connect a device to Astarte.
+   * @param MQTT connection object.
+   */
+  AstarteDeviceMqttImpl(config::MqttConfig cfg, MqttConnection connection);
+
+  config::MqttConfig cfg_;
+  // TODO: make the connection async by moving the connection handling to a separate thread
+  MqttConnection connection_;
+  // TODO: the following paramenters can be gathered into SharedState struct
+  std::shared_ptr<Introspection> introspection_ = std::make_shared<Introspection>();
 };
 
 }  // namespace AstarteDeviceSdk

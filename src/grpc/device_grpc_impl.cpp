@@ -46,6 +46,7 @@
 
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/errors.hpp"
+#include "astarte_device_sdk/formatter.hpp"
 #include "astarte_device_sdk/grpc/device_grpc.hpp"
 #include "astarte_device_sdk/msg.hpp"
 #include "astarte_device_sdk/object.hpp"
@@ -355,7 +356,7 @@ auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::get_all_properties(
     const std::optional<AstarteOwnership>& ownership)
     -> astarte_tl::expected<std::list<AstarteStoredProperty>, AstarteError> {
   if (ownership.has_value()) {
-    spdlog::debug("Getting all stored properties {} owned.", ownership_as_str(ownership.value()));
+    spdlog::debug("Getting all stored properties {} owned.", ownership.value());
   } else {
     spdlog::debug("Getting all stored properties for all owners.");
   }
@@ -525,11 +526,9 @@ auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::handle_events(
   const Status status = reader->Finish();
   if (!status.ok() && !token.stop_requested()) {
     grpc_stream_error_.store(true);
-    // NOLINTBEGIN(misc-include-cleaner)
     const std::string msg =
         astarte_fmt::format("gRPC stream closed with error '{}' '{}'",
                             static_cast<int>(status.error_code()), status.error_message());
-    // NOLINTEND(misc-include-cleaner)
     spdlog::error(msg);
     return astarte_tl::unexpected(AstarteGrpcLibError{
         static_cast<std::uint64_t>(status.error_code()), status.error_message()});

@@ -153,6 +153,69 @@ class AstarteRetrieveBrokerUrlError : public AstarteErrorBase {
 };
 
 /**
+ * @brief Specific error for when reading from a file.
+ */
+class AstarteReadCredentialError : public AstarteErrorBase {
+ public:
+  /**
+   * @brief Standard error constructor.
+   * @param message The error message.
+   */
+  explicit AstarteReadCredentialError(std::string_view message);
+  /**
+   * @brief Nested error constructor.
+   * @param message The error message.
+   * @param other The error to nest.
+   */
+  explicit AstarteReadCredentialError(std::string_view message, const AstarteError& other);
+
+ private:
+  static constexpr std::string_view k_type_ = "AstarteReadCredentialError";
+};
+
+/**
+ * @brief Specific error for when writing to a file.
+ */
+class AstarteWriteCredentialError : public AstarteErrorBase {
+ public:
+  /**
+   * @brief Standard error constructor.
+   * @param message The error message.
+   */
+  explicit AstarteWriteCredentialError(std::string_view message);
+  /**
+   * @brief Nested error constructor.
+   * @param message The error message.
+   * @param other The error to nest.
+   */
+  explicit AstarteWriteCredentialError(std::string_view message, const AstarteError& other);
+
+ private:
+  static constexpr std::string_view k_type_ = "AstarteWriteCredentialError";
+};
+
+/**
+ * @brief Specific error for when the configuration to connect the devite to Astarte is invalid.
+ */
+class AstartePairingConfigError : public AstarteErrorBase {
+ public:
+  /**
+   * @brief Standard error constructor.
+   * @param message The error message.
+   */
+  explicit AstartePairingConfigError(std::string_view message);
+  /**
+   * @brief Nested error constructor.
+   * @param message The error message.
+   * @param other The error to nest.
+   */
+  explicit AstartePairingConfigError(std::string_view message, const AstarteError& other);
+
+ private:
+  static constexpr std::string_view k_type_ = "AstartePairingConfigError";
+};
+
+/**
  * @brief Specific error for when an operation failed due to an internal error.
  */
 class AstarteCryptoError : public AstarteErrorBase {
@@ -213,6 +276,27 @@ class AstarteHttpError : public AstarteErrorBase {
 
  private:
   static constexpr std::string_view k_type_ = "AstarteHttpError";
+};
+
+/**
+ * @brief Specific mqtt conncetion error.
+ */
+class AstarteMqttConnectionError : public AstarteErrorBase {
+ public:
+  /**
+   * @brief Standard error constructor.
+   * @param message The error message.
+   */
+  explicit AstarteMqttConnectionError(std::string_view message);
+  /**
+   * @brief Nested error constructor.
+   * @param message The error message.
+   * @param other The error to nest.
+   */
+  explicit AstarteMqttConnectionError(std::string_view message, const AstarteError& other);
+
+ private:
+  static constexpr std::string_view k_type_ = "AstarteMqttConnectionError";
 };
 
 }  // namespace AstarteDeviceSdk
