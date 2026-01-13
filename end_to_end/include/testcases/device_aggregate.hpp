@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "action.hpp"
 #include "case.hpp"
 #include "constants/astarte_interfaces.hpp"
 
@@ -11,10 +12,6 @@ namespace testcases {
 using namespace std::chrono_literals;
 
 TestCase device_aggregate() {
-  // TODO: at the moment, the object we sent doesn't contain neither the longinteger_endpoint nor
-  // the longintegerarray_endpoint due to an error in the Appengine API, depicted in details in
-  // the issue [#1355](https://github.com/astarte-platform/astarte/issues/1355).
-  // Once solved the issue it is possible to introduce the missing endpoints.
   AstarteDatastreamObject astarte_obj = {
       {"integer_endpoint", AstarteData(12)},
       {"double_endpoint", AstarteData(54.4)},
@@ -35,20 +32,17 @@ TestCase device_aggregate() {
                                      std::chrono::sys_days{1985y / 5 / 22} + 12s,
                                  })}};
 
-  return TestCase(
-      "Send Astarte Aggregate",
-      std::vector<std::shared_ptr<TestAction>>{
-          TestActionConnect::Create(), TestActionSleep::Create(std::chrono::seconds(1)),
+  return TestCase("Send Astarte Aggregate",
+                  {Actions::Connect(), Actions::Sleep(1s),
 
-          TestActionTransmitMqttData::Create(AstarteMessage(
-              astarte_interfaces::DeviceAggregate::INTERFACE, "/sensor1", astarte_obj)),
+                   Actions::TransmitDeviceData(AstarteMessage(
+                       astarte_interfaces::DeviceAggregate::INTERFACE, "/sensor1", astarte_obj)),
 
-          TestActionSleep::Create(std::chrono::seconds(1)),
+                   Actions::Sleep(1s),
 
-          TestActionFetchRESTData::Create(AstarteMessage(
-              astarte_interfaces::DeviceAggregate::INTERFACE, "sensor1", astarte_obj)),
+                   Actions::FetchRESTData(AstarteMessage(
+                       astarte_interfaces::DeviceAggregate::INTERFACE, "sensor1", astarte_obj)),
 
-          TestActionSleep::Create(std::chrono::seconds(1)), TestActionDisconnect::Create(),
-          TestActionSleep::Create(std::chrono::seconds(1))});
+                   Actions::Sleep(1s), Actions::Disconnect(), Actions::Sleep(1s)});
 }
 }  // namespace testcases

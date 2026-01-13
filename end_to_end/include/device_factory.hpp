@@ -6,9 +6,14 @@
 
 #include <spdlog/spdlog.h>
 
+#include <filesystem>
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "astarte_device_sdk/device.hpp"
+#include "exceptions.hpp"  // Added include
+
 #ifdef ASTARTE_TRANSPORT_GRPC
 #include "astarte_device_sdk/grpc/device_grpc.hpp"
 #else  // ASTARTE_TRANSPORT_GRPC
@@ -17,6 +22,7 @@
 #endif  // ASTARTE_TRANSPORT_GRPC
 
 using AstarteDeviceSdk::AstarteDevice;
+
 #ifdef ASTARTE_TRANSPORT_GRPC
 using AstarteDeviceSdk::AstarteDeviceGrpc;
 #else   // ASTARTE_TRANSPORT_GRPC
@@ -40,7 +46,7 @@ struct TestGrpcDeviceConfig {
 
 class TestGrpcDeviceFactory : public TestDeviceFactory {
  public:
-  TestGrpcDeviceFactory(TestGrpcDeviceConfig config) : config_(std::move(config)) {}
+  explicit TestGrpcDeviceFactory(TestGrpcDeviceConfig config) : config_(std::move(config)) {}
   std::shared_ptr<AstarteDevice> create_device() const override {
     auto device = std::make_shared<AstarteDeviceGrpc>(config_.server_addr, config_.node_id);
     for (const auto& interface_path : config_.interfaces) {

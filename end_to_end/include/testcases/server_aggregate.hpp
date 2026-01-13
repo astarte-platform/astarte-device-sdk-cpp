@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "action.hpp"
 #include "case.hpp"
 #include "constants/astarte_interfaces.hpp"
 
@@ -33,20 +34,17 @@ TestCase server_aggregate() {
                                      std::chrono::sys_days{1985y / 5 / 22} + 12s,
                                  })}};
 
-  return TestCase(
-      "Send Astarte Aggregate",
-      std::vector<std::shared_ptr<TestAction>>{
-          TestActionConnect::Create(), TestActionSleep::Create(std::chrono::seconds(1)),
+  return TestCase("Send Astarte Aggregate",
+                  {Actions::Connect(), Actions::Sleep(1s),
 
-          TestActionTransmitRESTData::Create(AstarteMessage(
-              astarte_interfaces::ServerAggregate::INTERFACE, "/sensor1", astarte_obj)),
+                   Actions::TransmitRESTData(AstarteMessage(
+                       astarte_interfaces::ServerAggregate::INTERFACE, "/sensor1", astarte_obj)),
 
-          TestActionSleep::Create(std::chrono::seconds(1)),
+                   Actions::Sleep(1s),
 
-          TestActionReadReceivedMqttData::Create(AstarteMessage(
-              astarte_interfaces::ServerAggregate::INTERFACE, "/sensor1", astarte_obj)),
+                   Actions::ReadReceivedDeviceData(AstarteMessage(
+                       astarte_interfaces::ServerAggregate::INTERFACE, "/sensor1", astarte_obj)),
 
-          TestActionSleep::Create(std::chrono::seconds(1)), TestActionDisconnect::Create(),
-          TestActionSleep::Create(std::chrono::seconds(1))});
+                   Actions::Sleep(1s), Actions::Disconnect(), Actions::Sleep(1s)});
 }
 }  // namespace testcases

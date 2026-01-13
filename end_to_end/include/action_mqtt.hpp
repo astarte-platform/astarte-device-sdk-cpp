@@ -7,40 +7,39 @@
 #include "action.hpp"
 #include "astarte_device_sdk/mqtt/pairing.hpp"
 
+namespace Actions {
+
 using AstarteDeviceSdk::AstarteError;
 using AstarteDeviceSdk::PairingApi;
 
 constexpr size_t CREDENTIAL_SECRET_LEN = 44;
 
-class TestActionPairingApiRegistration : public TestAction {
- public:
-  static std::shared_ptr<TestActionPairingApiRegistration> Create(std::string pairing_token) {
-    return std::shared_ptr<TestActionPairingApiRegistration>(
-        new TestActionPairingApiRegistration(pairing_token));
-  }
+inline Action RegisterDevice(std::string pairing_token) {
+  return [token = std::move(pairing_token)](const TestCaseContext& ctx) {
+    spdlog::info("Pairing device via API...");
 
-  auto execute_unchecked(const std::string& case_name) const
-      -> AstarteDeviceSdk::astarte_tl::expected<void, AstarteError> override {
-    spdlog::info("[{}] Pairing device...", case_name);
+    // Pairing requires a clean environment, typically no connected device is needed yet.
+    // We use the HTTP config from the context.
     auto res =
-        PairingApi::create(realm_, device_id_, astarte_base_url_)
+        PairingApi::create(ctx.http.realm, ctx.http.device_id, ctx.http.astarte_base_url)
             .and_then([&](const PairingApi& pairing_api)
                           -> AstarteDeviceSdk::astarte_tl::expected<std::string, AstarteError> {
-              return pairing_api.register_device(pairing_token_);
+              return pairing_api.register_device(token);
             });
+
     if (!res) {
-      return AstarteDeviceSdk::astarte_tl::unexpected(res.error());
+      spdlog::error("Pairing failed: {}", res.error());
+      throw EndToEndAstarteDeviceException("Device pairing failed.");
     }
 
     if (res.value().length() != CREDENTIAL_SECRET_LEN) {
-      spdlog::error("Expected: {}", CREDENTIAL_SECRET_LEN);
-      spdlog::error("Actual: {}", res.value().length());
+      spdlog::error("Credential secret length mismatch. Expected: {}, Actual: {}",
+                    CREDENTIAL_SECRET_LEN, res.value().length());
       throw EndToEndMismatchException("Incorrect length for the credential secret.");
     }
-    return {};
-  }
 
- private:
-  TestActionPairingApiRegistration(std::string pairing_token) : pairing_token_(pairing_token) {}
-  std::string pairing_token_;
-};
+    spdlog::info("Device paired successfully.");
+  };
+}
+
+}  // namespace Actions
