@@ -45,19 +45,18 @@ int main() {
 
   // Create configuration structs
 #ifdef ASTARTE_TRANSPORT_GRPC
-  TransportConfigVariant transport_config =
-      GrpcTestConfig{.server_addr = config["grpc"]["server_addr"].value<std::string>().value(),
-                     .node_id = config["grpc"]["node_id"].value<std::string>().value(),
-                     .interfaces = {
-                         astarte_interfaces::DeviceDatastream::FILE,
-                         astarte_interfaces::ServerDatastream::FILE,
-                         astarte_interfaces::DeviceAggregate::FILE,
-                         astarte_interfaces::ServerAggregate::FILE,
-                         astarte_interfaces::DeviceProperty::FILE,
-                         astarte_interfaces::ServerProperty::FILE,
-                     }};
-
-  orchestrator.with_transport_config(transport_config);
+  TestGrpcDeviceConfig grpc_conf = {
+      .server_addr = config["grpc"]["server_addr"].value<std::string>().value(),
+      .node_id = config["grpc"]["node_id"].value<std::string>().value(),
+      .interfaces = {
+          astarte_interfaces::DeviceDatastream::FILE,
+          astarte_interfaces::ServerDatastream::FILE,
+          astarte_interfaces::DeviceAggregate::FILE,
+          astarte_interfaces::ServerAggregate::FILE,
+          astarte_interfaces::DeviceProperty::FILE,
+          astarte_interfaces::ServerProperty::FILE,
+      }};
+  orchestrator.with_device_factory(std::make_shared<TestGrpcDeviceFactory>(grpc_conf));
 
   orchestrator.add_test_case(testcases::device_status());
   orchestrator.add_test_case(testcases::device_reconnection());
@@ -78,25 +77,25 @@ int main() {
   auto credential_secret_opt = config.at("mqtt").at_path("credential_secret").value<std::string>();
 
   if (pairing_token_opt) {
-    // execute only pairing api tests
     orchestrator.execute_without_device(testcases::device_pairing(pairing_token_opt.value()));
   } else if (credential_secret_opt) {
     auto store_dir = config["mqtt"]["store_dir"].value<std::string>().value();
 
-    TransportConfigVariant transport_config =
-        MqttTestConfig{.cfg = MqttConfig::with_credential_secret(
-                           realm, device_id, credential_secret_opt.value(),
-                           astarte_fmt::format("{}/pairing", astarte_base_url), store_dir),
-                       .interfaces = {
-                           astarte_interfaces::DeviceDatastream::FILE,
-                           astarte_interfaces::ServerDatastream::FILE,
-                           astarte_interfaces::DeviceAggregate::FILE,
-                           astarte_interfaces::ServerAggregate::FILE,
-                           astarte_interfaces::DeviceProperty::FILE,
-                           astarte_interfaces::ServerProperty::FILE,
-                       }};
-
-    orchestrator.with_transport_config(std::move(transport_config));
+    TestMqttDeviceConfig mqtt_conf = {
+        .realm = realm,
+        .device_id = device_id,
+        .credential_secret = credential_secret_opt.value(),
+        .pairing_url = astarte_fmt::format("{}/pairing", astarte_base_url),
+        .store_dir = store_dir,
+        .interfaces = {
+            astarte_interfaces::DeviceDatastream::FILE,
+            astarte_interfaces::ServerDatastream::FILE,
+            astarte_interfaces::DeviceAggregate::FILE,
+            astarte_interfaces::ServerAggregate::FILE,
+            astarte_interfaces::DeviceProperty::FILE,
+            astarte_interfaces::ServerProperty::FILE,
+        }};
+    orchestrator.with_device_factory(std::make_shared<TestMqttDeviceFactory>(std::move(mqtt_conf)));
 
     orchestrator.add_test_case(testcases::device_status());
     // TODO: add test cases to execute here

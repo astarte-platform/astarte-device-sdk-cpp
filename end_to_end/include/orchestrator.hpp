@@ -12,13 +12,8 @@
 #include <variant>
 #include <vector>
 
-#if defined(ASTARTE_TRANSPORT_GRPC)
-#include "astarte_device_sdk/grpc/device_grpc.hpp"
-#else
-#include "astarte_device_sdk/mqtt/device_mqtt.hpp"
-#endif
 #include "case.hpp"
-#include "transport.hpp"
+#include "device_factory.hpp"
 
 using namespace std::chrono_literals;
 
@@ -34,9 +29,8 @@ class TestOrchestrator {
  public:
   explicit TestOrchestrator(const struct CURLConfig& config_curl) : curl_config_(config_curl) {}
 
-  // set a specific transport for the orchestrator
-  auto with_transport_config(TransportConfigVariant transport_config) -> TestOrchestrator& {
-    transport_config_ = std::optional(std::move(transport_config));
+  auto with_device_factory(std::shared_ptr<TestDeviceFactory> factory) -> TestOrchestrator& {
+    device_factory_ = std::move(factory);
     return *this;
   }
 
@@ -61,8 +55,8 @@ class TestOrchestrator {
     spdlog::info("Executing all end to end test cases...");
 
     // if no transport has been defined, terminate the execution
-    if (!transport_config_) {
-      spdlog::warn("Couldn't execute tests since no transport has been defined.");
+    if (!device_factory_) {
+      spdlog::warn("Couldn't execute tests since no device factory has been defined.");
       return;
     }
 
@@ -73,50 +67,16 @@ class TestOrchestrator {
       test_case.configure_curl(curl_config_.astarte_base_url, curl_config_.appengine_token,
                                curl_config_.realm, curl_config_.device_id);
 
-      // Create a new device of the correct transport type
-#if defined(ASTARTE_TRANSPORT_GRPC)
-      auto config_grpc = std::get<struct GrpcTestConfig>(transport_config_.value());
+      std::shared_ptr<AstarteDevice> device = device_factory_->create_device();
+      test_case.attach_device(device);
 
-      std::shared_ptr<AstarteDeviceGrpc> device_grpc =
-          std::make_shared<AstarteDeviceGrpc>(config_grpc.server_addr, config_grpc.node_id);
-
-      for (const std::filesystem::path& interface_path : config_grpc.interfaces) {
-        auto res = device_grpc->add_interface_from_file(interface_path);
-        if (!res) {
-          throw EndToEndAstarteDeviceException(astarte_fmt::format("{}", res.error()));
-        }
-      }
-      test_case.attach_device(device_grpc);
-#else
-      auto config_mqtt = std::get<MqttTestConfig>(*std::move(transport_config_));
-
-      auto res = AstarteDeviceMqtt::create(std::move(config_mqtt.cfg));
-      if (!res) {
-        spdlog::error("Couldn't create an Astarte MQTT device.");
-        throw EndToEndAstarteDeviceException(astarte_fmt::format("{}", res.error()));
-      }
-      std::shared_ptr<AstarteDeviceMqtt> device_mqtt =
-          std::make_shared<AstarteDeviceMqtt>(*std::move(res));
-
-      for (const std::filesystem::path& interface_path : config_mqtt.interfaces) {
-        auto res = device_mqtt->add_interface_from_file(interface_path);
-        if (!res) {
-          spdlog::error("Couldn't add interface.");
-          throw EndToEndAstarteDeviceException(astarte_fmt::format("{}", res.error()));
-        }
-      }
-
-      test_case.attach_device(device_mqtt);
-#endif
-
-      // run the isolated test
       test_case.start();
       test_case.execute();
     }
   }
 
  private:
-  std::optional<TransportConfigVariant> transport_config_;
+  std::shared_ptr<TestDeviceFactory> device_factory_;
   struct CURLConfig curl_config_;
   std::queue<TestCase> test_cases_;
 };
