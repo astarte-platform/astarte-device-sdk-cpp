@@ -24,11 +24,57 @@
 using AstarteDeviceSdk::AstarteData;
 using AstarteDeviceSdk::AstarteMessage;
 
+bool validate_config(const toml::table& config) {
+  bool is_valid = true;
+
+  // 1. Helper to check top-level string keys
+  auto check_key = [&](const std::string& key) {
+    if (!config[key].is_string()) {
+      spdlog::error("Configuration Error: Missing or invalid string key '{}'", key);
+      is_valid = false;
+    }
+  };
+
+  // 2. Validate general configuration
+  check_key("realm");
+  check_key("device_id");
+  check_key("appengine_token");
+  check_key("astarte_base_url");
+
+  // 3. Validate transport specifics
+#ifdef ASTARTE_TRANSPORT_GRPC
+  if (!config["grpc"].is_table()) {
+    spdlog::error("Configuration Error: Missing '[grpc]' table. gRPC settings must be nested.");
+    is_valid = false;
+  } else {
+    if (!config["grpc"]["server_addr"].is_string()) {
+      spdlog::error("Configuration Error: Missing 'server_addr' inside [grpc] table.");
+      is_valid = false;
+    }
+    if (!config["grpc"]["node_id"].is_string()) {
+      spdlog::error("Configuration Error: Missing 'node_id' inside [grpc] table.");
+      is_valid = false;
+    }
+  }
+#else
+  if (!config["mqtt"].is_table()) {
+    spdlog::error("Configuration Error: Missing '[mqtt]' table.");
+    is_valid = false;
+  }
+#endif
+
+  return is_valid;
+}
+
 int main() {
   spdlog::set_level(spdlog::level::debug);
 
   // Parse configuration from toml
   toml::table config = toml::parse_file("end_to_end/config.toml");
+  if (!validate_config(config)) {
+    spdlog::error("Configuration validation failed. Aborting tests.");
+    return 1;
+  }
 
   auto realm = config["realm"].value<std::string>().value();
   auto device_id = config["device_id"].value<std::string>().value();
