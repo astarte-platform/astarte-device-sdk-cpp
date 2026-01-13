@@ -53,10 +53,11 @@ auto mappings_from_interface(const json& interface)
 
   for (const auto& mapping : interface.at("mappings")) {
     auto endpoint = mapping.at("endpoint");
-    auto mapping_type = astarte_type_from_str(mapping.at("type"));
-    if (!mapping_type) {
-      return astarte_tl::unexpected(mapping_type.error());
+    auto type_res = astarte_type_from_str(mapping.at("type"));
+    if (!type_res) {
+      return astarte_tl::unexpected(type_res.error());
     }
+    auto type = type_res.value();
     auto explicit_timestamp =
         optional_value_from_json_interface<bool>(mapping, "explicit_timestamp");
     auto reliability = optional_value_from_json_interface<Reliability>(mapping, "reliability");
@@ -70,17 +71,17 @@ auto mappings_from_interface(const json& interface)
     auto description = optional_value_from_json_interface<std::string>(mapping, "description");
     auto doc = optional_value_from_json_interface<std::string>(mapping, "doc");
 
-    mappings.emplace_back(Mapping{.endpoint = endpoint,
-                                  .mapping_type = mapping_type.value(),
-                                  .explicit_timestamp = explicit_timestamp,
-                                  .reliability = reliability,
-                                  .retention = retention,
-                                  .expiry = expiry,
-                                  .database_retention_policy = database_retention_policy,
-                                  .database_retention_ttl = database_retention_ttl,
-                                  .allow_unset = allow_unset,
-                                  .description = description,
-                                  .doc = doc});
+    mappings.emplace_back(Mapping{.endpoint_ = endpoint,
+                                  .type_ = type,
+                                  .explicit_timestamp_ = explicit_timestamp,
+                                  .reliability_ = reliability,
+                                  .retention_ = retention,
+                                  .expiry_ = expiry,
+                                  .database_retention_policy_ = database_retention_policy,
+                                  .database_retention_ttl_ = database_retention_ttl,
+                                  .allow_unset_ = allow_unset,
+                                  .description_ = description,
+                                  .doc_ = doc});
   }
 
   return mappings;
