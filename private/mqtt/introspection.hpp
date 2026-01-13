@@ -177,17 +177,17 @@ struct Mapping {
    *
    * It can be parametrized (e.g. `/foo/%{path}/baz`).
    */
-  std::string endpoint;
+  std::string endpoint_;
   /**
    * @brief Define the type of the mapping.
    *
    * This represent the data that will be published on the mapping.
    */
-  AstarteType mapping_type;
+  AstarteType type_;
   /**
    * @brief Allow to set a custom timestamp.
    */
-  std::optional<bool> explicit_timestamp;
+  std::optional<bool> explicit_timestamp_;
   /**
    * @brief Define when to consider the data delivered.
    *
@@ -196,7 +196,7 @@ struct Mapping {
    * been received at least once (guaranteed) or when we know that the data has been received
    * exactly once (unique). Unreliable by default.
    */
-  std::optional<Reliability> reliability;
+  std::optional<Reliability> reliability_;
   /**
    * @brief Retention of the data when not deliverable.
    *
@@ -205,7 +205,7 @@ struct Mapping {
    * memory (volatile) or on disk (stored), and guaranteed to be delivered in the timeframe
    * defined by the expiry.
    */
-  std::optional<Retention> retention;
+  std::optional<Retention> retention_;
   /**
    * @brief Expiry for the retain data.
    *
@@ -213,35 +213,35 @@ struct Mapping {
    * be kept before giving up and erasing it from the persistent cache. A value <= 0 means the
    * persistent cache never expires, and is the default.
    */
-  std::optional<int64_t> expiry;
+  std::optional<int64_t> expiry_;
   /**
    * @brief Expiry for the retain data.
    *
    * Useful only with datastream. Defines whether data should expire from the database after a
    * given interval. Valid values are: `no_ttl` and `use_ttl`.
    */
-  std::optional<DatabaseRetentionPolicy> database_retention_policy;
+  std::optional<DatabaseRetentionPolicy> database_retention_policy_;
   /**
    * @brief Seconds to keep the data in the database.
    *
    * Useful when `database_retention_policy` is "`use_ttl`". Defines how many seconds a specific
    * data entry should be kept before erasing it from the database.
    */
-  std::optional<int64_t> database_retention_ttl;
+  std::optional<int64_t> database_retention_ttl_;
   /**
    * @brief Allow the property to be unset.
    *
    * Used only with properties.
    */
-  std::optional<bool> allow_unset;
+  std::optional<bool> allow_unset_;
   /**
    * @brief An optional description of the mapping.
    */
-  std::optional<std::string> description;
+  std::optional<std::string> description_;
   /**
    * @brief A string containing documentation that will be injected in the generated client code.
    */
-  std::optional<std::string> doc;
+  std::optional<std::string> doc_;
 };
 
 /**

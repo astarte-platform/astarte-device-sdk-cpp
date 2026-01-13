@@ -272,36 +272,36 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Mapping> {
     auto out = ctx.out();
 
     astarte_fmt::format_to(out, "Mapping {{");
-    astarte_fmt::format_to(out, "endpoint: {}", mapping.endpoint);
-    astarte_fmt::format_to(out, ", type: {}", mapping.mapping_type);
-    if (mapping.explicit_timestamp) {
-      astarte_fmt::format_to(out, ", explicit_timestamp: {}", mapping.explicit_timestamp.value());
+    astarte_fmt::format_to(out, "endpoint: {}", mapping.endpoint_);
+    astarte_fmt::format_to(out, ", type: {}", mapping.type_);
+    if (mapping.explicit_timestamp_) {
+      astarte_fmt::format_to(out, ", explicit_timestamp: {}", mapping.explicit_timestamp_.value());
     }
-    if (mapping.reliability) {
-      astarte_fmt::format_to(out, ", reliability: {}", mapping.reliability.value());
+    if (mapping.reliability_) {
+      astarte_fmt::format_to(out, ", reliability: {}", mapping.reliability_.value());
     }
-    if (mapping.retention) {
-      astarte_fmt::format_to(out, ", retention: {}", mapping.retention.value());
+    if (mapping.retention_) {
+      astarte_fmt::format_to(out, ", retention: {}", mapping.retention_.value());
     }
-    if (mapping.expiry) {
-      astarte_fmt::format_to(out, ", expiry: {}", mapping.expiry.value());
+    if (mapping.expiry_) {
+      astarte_fmt::format_to(out, ", expiry: {}", mapping.expiry_.value());
     }
-    if (mapping.database_retention_policy) {
+    if (mapping.database_retention_policy_) {
       astarte_fmt::format_to(out, ", database_retention_policy: {}",
-                             mapping.database_retention_policy.value());
+                             mapping.database_retention_policy_.value());
     }
-    if (mapping.database_retention_ttl) {
+    if (mapping.database_retention_ttl_) {
       astarte_fmt::format_to(out, ", database_retention_ttl: {}",
-                             mapping.database_retention_ttl.value());
+                             mapping.database_retention_ttl_.value());
     }
-    if (mapping.allow_unset) {
-      astarte_fmt::format_to(out, ", allow_unset: {}", mapping.allow_unset.value());
+    if (mapping.allow_unset_) {
+      astarte_fmt::format_to(out, ", allow_unset: {}", mapping.allow_unset_.value());
     }
-    if (mapping.description) {
-      astarte_fmt::format_to(out, ", description: {}", mapping.description.value());
+    if (mapping.description_) {
+      astarte_fmt::format_to(out, ", description: {}", mapping.description_.value());
     }
-    if (mapping.doc) {
-      astarte_fmt::format_to(out, ", doc: {}", mapping.doc.value());
+    if (mapping.doc_) {
+      astarte_fmt::format_to(out, ", doc: {}", mapping.doc_.value());
     }
     astarte_fmt::format_to(out, "}}");
 
