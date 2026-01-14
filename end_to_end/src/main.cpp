@@ -66,6 +66,11 @@ bool validate_config(const toml::table& config) {
   if (!config["mqtt"].is_table()) {
     spdlog::error("Configuration Error: Missing '[mqtt]' table.");
     is_valid = false;
+  } else {
+    if (!config["mqtt"]["pairing_token"].is_string()) {
+      spdlog::error("Configuration Error: Missing 'pairing_token' inside [mqtt] table.");
+      is_valid = false;
+    }
   }
 #endif
 
@@ -117,8 +122,7 @@ int main() {
       .device_id = device_id,
   };
 
-  TestOrchestrator orchestrator(config_http);
-
+  std::shared_ptr<TestDeviceFactory> device_factory = nullptr;
 #ifdef ASTARTE_TRANSPORT_GRPC
   TestGrpcDeviceConfig grpc_conf = {
       .server_addr = config["grpc"]["server_addr"].value<std::string>().value(),
@@ -132,51 +136,40 @@ int main() {
           astarte_interfaces::ServerProperty::FILE,
       }};
 
-  orchestrator.with_device_factory(std::make_shared<TestGrpcDeviceFactory>(grpc_conf));
-
-  // Register and run tests
-  register_standard_test_suite(orchestrator);
-  orchestrator.execute_all();
-
+  device_factory = std::make_shared<TestGrpcDeviceFactory>(grpc_conf);
 #else
   auto pairing_token_opt = config.at("mqtt").at_path("pairing_token").value<std::string>();
-  auto credential_secret_opt = config.at("mqtt").at_path("credential_secret").value<std::string>();
 
-  if (pairing_token_opt) {
-    // Mode 1: Device Pairing (No Device Factory needed yet)
-    orchestrator.execute_without_device(testcases::device_pairing(pairing_token_opt.value()));
+  // TODO(sorru): enable when at least one test will use this
+  // auto store_dir = config["mqtt"]["store_dir"].value<std::string>().value();
+  // TestMqttDeviceConfig mqtt_conf = {
+  //     .realm = realm,
+  //     .device_id = device_id,
+  //     .credential_secret = credential_secret_opt.value(),
+  //     .pairing_url = astarte_fmt::format("{}/pairing", astarte_base_url),
+  //     .store_dir = store_dir,
+  //     .interfaces = {
+  //         astarte_interfaces::DeviceDatastream::FILE,
+  //         astarte_interfaces::ServerDatastream::FILE,
+  //         astarte_interfaces::DeviceAggregate::FILE,
+  //         astarte_interfaces::ServerAggregate::FILE,
+  //         astarte_interfaces::DeviceProperty::FILE,
+  //         astarte_interfaces::ServerProperty::FILE,
+  //     }};
+  // device_factory = std::make_shared<TestMqttDeviceFactory>(std::move(mqtt_conf));
 
-  } else if (credential_secret_opt) {
-    // Mode 2: Standard Tests using existing credentials
-    auto store_dir = config["mqtt"]["store_dir"].value<std::string>().value();
-
-    TestMqttDeviceConfig mqtt_conf = {
-        .realm = realm,
-        .device_id = device_id,
-        .credential_secret = credential_secret_opt.value(),
-        .pairing_url = astarte_fmt::format("{}/pairing", astarte_base_url),
-        .store_dir = store_dir,
-        .interfaces = {
-            astarte_interfaces::DeviceDatastream::FILE,
-            astarte_interfaces::ServerDatastream::FILE,
-            astarte_interfaces::DeviceAggregate::FILE,
-            astarte_interfaces::ServerAggregate::FILE,
-            astarte_interfaces::DeviceProperty::FILE,
-            astarte_interfaces::ServerProperty::FILE,
-        }};
-
-    orchestrator.with_device_factory(std::make_shared<TestMqttDeviceFactory>(std::move(mqtt_conf)));
-
-    // Register and run tests
-    register_standard_test_suite(orchestrator);
-    orchestrator.execute_all();
-
-  } else {
-    spdlog::error(
-        "MQTT Config Error: Either 'credential_secret' or 'pairing_token' must be provided.");
-    return 1;
-  }
 #endif
+
+  TestOrchestrator orchestrator(config_http, device_factory);
+
+#ifdef ASTARTE_TRANSPORT_GRPC
+  register_standard_test_suite(orchestrator);
+#else
+  orchestrator.add_test_case(testcases::device_pairing(pairing_token_opt.value()));
+  // Standard tests using existing credentials (device functionality not yet implemented)
+  // register_standard_test_suite(orchestrator);
+#endif
+  orchestrator.execute_all();
 
   return 0;
 }

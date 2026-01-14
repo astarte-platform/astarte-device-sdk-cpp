@@ -16,12 +16,14 @@ namespace testcases {
 using namespace std::chrono_literals;
 
 TestCase device_pairing(std::string pairing_token) {
-  return TestCase("Pairing", {
-                                 Actions::RegisterDevice(pairing_token),
-                                 Actions::Sleep(1s),
-                                 Actions::CheckDeviceStatus(false),
-                                 Actions::Sleep(1s),
-                             });
+  return TestCase("Pairing",
+                  {
+                      Actions::RegisterDevice(pairing_token),
+                      Actions::Sleep(1s),
+                      Actions::CheckDeviceStatus(false),
+                      Actions::Sleep(1s),
+                  },
+                  false);
 }
 
 }  // namespace testcases

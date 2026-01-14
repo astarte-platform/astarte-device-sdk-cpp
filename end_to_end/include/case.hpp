@@ -14,14 +14,15 @@
 
 #include "action.hpp"
 #include "astarte_device_sdk/device.hpp"
+#include "device_factory.hpp"
 
 using AstarteDeviceSdk::AstarteDevice;
 
 // End to end test case
 class TestCase {
  public:
-  TestCase(std::string name, std::vector<Action> actions)
-      : name_(std::move(name)), actions_(std::move(actions)) {}
+  TestCase(std::string name, std::vector<Action> actions, bool generate_device = true)
+      : name_(std::move(name)), actions_(std::move(actions)), generate_device_(generate_device) {}
 
   ~TestCase() = default;
 
@@ -31,19 +32,28 @@ class TestCase {
   auto operator=(const TestCase&) -> TestCase& = delete;
   auto operator=(TestCase&& other) -> TestCase& = default;
 
-  /**
-   * @brief Executes the test case with the provided device and HTTP configuration.
-   *
-   * @param device The Astarte device instance to use. Can be nullptr if a device is not required.
-   * @param http_config Configuration for REST API interactions.
-   */
-  void execute(std::shared_ptr<AstarteDevice> device, const TestHttpConfig& http_config) {
+  void add_device_factory(std::shared_ptr<TestDeviceFactory> factory) {
+    device_factory_ = std::move(factory);
+  }
+
+  // Executes the test case with the provided HTTP configuration.
+  void execute(const TestHttpConfig& http_config) {
     spdlog::info("Starting Test Case: {}", name_);
 
-    // 1. Create the RX Queue for this specific run
+    // 1. Create a fresh device instance for each test case
+    std::shared_ptr<AstarteDevice> device = nullptr;
+    if (generate_device_) {
+      if (!device_factory_) {
+        spdlog::error("Couldn't execute test case since no device factory has been defined.");
+        return;
+      }
+      device = device_factory_->create_device();
+    }
+
+    // 2. Create the RX Queue for this specific run
     auto rx_queue = std::make_shared<SharedQueue<AstarteMessage>>();
 
-    // 2. Start the background reception thread (if device is present)
+    // 3. Start the background reception thread (if device is present)
     std::unique_ptr<std::jthread> rx_thread;
 
     if (device) {
@@ -59,10 +69,10 @@ class TestCase {
       });
     }
 
-    // 3. Build the context
+    // 4. Build the context
     TestCaseContext ctx{.device = device, .rx_queue = rx_queue, .http = http_config};
 
-    // 4. Execute all actions
+    // 5. Execute all actions
     try {
       for (const auto& action : actions_) {
         action(ctx);
@@ -76,5 +86,7 @@ class TestCase {
 
  private:
   std::string name_;
+  bool generate_device_;
+  std::shared_ptr<TestDeviceFactory> device_factory_;
   std::vector<Action> actions_;
 };
