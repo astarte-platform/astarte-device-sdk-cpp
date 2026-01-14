@@ -1,4 +1,4 @@
-// (C) Copyright 2025, SECO Mind Srl
+// (C) Copyright 2025 - 2026, SECO Mind Srl
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -364,8 +364,8 @@ auto MqttConnection::connect(std::shared_ptr<Introspection> introspection)
 
 auto MqttConnection::is_connected() const -> bool { return connected_->load(); }
 
-auto MqttConnection::send_individual(std::string_view interface_name, std::string_view path,
-                                     uint8_t qos, const std::span<uint8_t> data)
+auto MqttConnection::send(std::string_view interface_name, std::string_view path, uint8_t qos,
+                          const std::span<uint8_t> data)
     -> astarte_tl::expected<void, AstarteError> {
   if (!path.starts_with('/')) {
     return astarte_tl::unexpected(AstarteMqttError(

@@ -1,4 +1,4 @@
-// (C) Copyright 2025, SECO Mind Srl
+// (C) Copyright 2025 - 2026, SECO Mind Srl
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -103,6 +103,64 @@ auto convert_version(std::string_view version_type, int64_t version)
   return static_cast<uint32_t>(version);
 }
 
+auto Mapping::match_path(std::string_view path) const -> bool {
+  // copy the endpoint
+  std::string_view endpoint = endpoint_;
+
+  // check lengths and trailing slash
+  if (path.length() < 2 || path.back() == '/') {
+    return false;
+  }
+  // check leading slash consistency
+  if (endpoint.empty() || path.front() != endpoint.front()) {
+    return false;
+  }
+
+  // remove the leading slash to prepare for segment iteration
+  // (we know both start with same char, usually '/')
+  endpoint.remove_prefix(1);
+  path.remove_prefix(1);
+
+  while (!endpoint.empty() && !path.empty()) {
+    const std::string_view endpoint_seg = pop_next_segment(endpoint);
+    const std::string_view path_seg = pop_next_segment(path);
+
+    if (!is_segment_match(endpoint_seg, path_seg)) {
+      return false;
+    }
+  }
+
+  // both strings must be fully consumed. If one has leftovers there is a length mismatch.
+  return endpoint.empty() && path.empty();
+}
+
+auto Mapping::check_data_type(const AstarteData& data) const
+    -> astarte_tl::expected<void, AstarteError> {
+  if (type_ != data.get_type()) {
+    spdlog::error("Astarte data type and mapping type do not match");
+    return astarte_tl::unexpected(
+        AstarteInterfaceValidationError("Astarte data type and mapping type do not match"));
+  }
+
+  if ((type_ == AstarteType::kDouble) && (!std::isfinite(data.into<double>()))) {
+    spdlog::error("Astarte data double is not a number");
+    return astarte_tl::unexpected(
+        AstarteInterfaceValidationError("Astarte data double is not a number"));
+  }
+
+  if (type_ == AstarteType::kDoubleArray) {
+    for (const double value : data.into<std::vector<double>>()) {
+      if (!std::isfinite(value)) {
+        spdlog::error("Astarte data double is not a number");
+        return astarte_tl::unexpected(
+            AstarteInterfaceValidationError("Astarte data double is not a number"));
+      }
+    }
+  }
+
+  return {};
+}
+
 // NOLINTNEXTLINE(readability-function-size)
 auto Interface::try_from_json(const json& interface)
     -> astarte_tl::expected<Interface, AstarteError> {
@@ -149,7 +207,7 @@ auto Interface::try_from_json(const json& interface)
 auto Interface::get_mapping(std::string_view path) const
     -> astarte_tl::expected<const Mapping*, AstarteError> {
   for (const auto& mapping : mappings_) {
-    if (mapping.check_path(path)) {
+    if (mapping.match_path(path)) {
       return &mapping;
     }
   }
@@ -165,26 +223,40 @@ auto Interface::validate_individual(std::string_view path, const AstarteData& da
   if (!mapping_res) {
     return astarte_tl::unexpected(mapping_res.error());
   }
-
   const Mapping* mapping = mapping_res.value();
 
-  // Note: check_data must be const in Mapping class as discussed before
-  auto res = mapping->check_data(data);
+  auto res = mapping->check_data_type(data);
   if (!res) {
     return astarte_tl::unexpected(res.error());
   }
 
-  if (mapping->explicit_timestamp_ && timestamp == nullptr) {
+  if ((mapping->explicit_timestamp_.has_value() && mapping->explicit_timestamp_.value()) &&
+      timestamp == nullptr) {
     spdlog::error("Explicit timestamp required for interface {}, path {}", interface_name_, path);
     return astarte_tl::unexpected(AstarteInterfaceValidationError(astarte_fmt::format(
         "Explicit timestamp required for interface {}, path {}", interface_name_, path)));
   }
 
-  if (!mapping->explicit_timestamp_ && timestamp != nullptr) {
+  if ((mapping->explicit_timestamp_.has_value() && !mapping->explicit_timestamp_.value()) &&
+      timestamp != nullptr) {
     spdlog::error("Explicit timestamp not supported for interface {}, path {}", interface_name_,
                   path);
     return astarte_tl::unexpected(AstarteInterfaceValidationError(astarte_fmt::format(
         "Explicit timestamp not supported for interface {}, path {}", interface_name_, path)));
+  }
+
+  return {};
+}
+
+auto Interface::validate_object(std::string_view common_path, const AstarteDatastreamObject& object,
+                                const std::chrono::system_clock::time_point* timestamp) const
+    -> astarte_tl::expected<void, AstarteError> {
+  for (const auto& [endpoint_path, data] : object) {
+    auto path = astarte_fmt::format("{}/{}", common_path, endpoint_path);
+    auto res = this->validate_individual(path, data, timestamp);
+    if (!res) {
+      return astarte_tl::unexpected(res.error());
+    }
   }
 
   return {};

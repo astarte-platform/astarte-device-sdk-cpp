@@ -1,4 +1,4 @@
-// (C) Copyright 2025, SECO Mind Srl
+// (C) Copyright 2025 - 2026, SECO Mind Srl
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -133,7 +133,7 @@ int main() {
       auto integer_value = AstarteDeviceSdk::AstarteData(43);
       auto send_res = device.send_individual(interface_name, integer_path, integer_value, &now);
       if (!send_res) {
-        spdlog::error("send error: {}", send_res.error());
+        spdlog::error("send datastream individual error: {}", send_res.error());
         return EXIT_FAILURE;
       }
 
@@ -141,7 +141,7 @@ int main() {
       auto longinteger_value = AstarteDeviceSdk::AstarteData(8589934592);
       send_res = device.send_individual(interface_name, longinteger_path, longinteger_value, &now);
       if (!send_res) {
-        spdlog::error("send error: {}", send_res.error());
+        spdlog::error("send datastream individual error: {}", send_res.error());
         return EXIT_FAILURE;
       }
 
@@ -149,7 +149,7 @@ int main() {
       auto double_value = AstarteDeviceSdk::AstarteData(43.5);
       send_res = device.send_individual(interface_name, double_path, double_value, &now);
       if (!send_res) {
-        spdlog::error("send error: {}", send_res.error());
+        spdlog::error("send datastream individual error: {}", send_res.error());
         return EXIT_FAILURE;
       }
 
@@ -157,7 +157,7 @@ int main() {
       auto boolean_value = AstarteDeviceSdk::AstarteData(true);
       send_res = device.send_individual(interface_name, boolean_path, boolean_value, &now);
       if (!send_res) {
-        spdlog::error("send error: {}", send_res.error());
+        spdlog::error("send datastream individual error: {}", send_res.error());
         return EXIT_FAILURE;
       }
 
@@ -166,7 +166,7 @@ int main() {
       auto string_value = AstarteDeviceSdk::AstarteData(hello_string);
       send_res = device.send_individual(interface_name, string_path, string_value, &now);
       if (!send_res) {
-        spdlog::error("send error: {}", send_res.error());
+        spdlog::error("send datastream individual error: {}", send_res.error());
         return EXIT_FAILURE;
       }
 
@@ -175,7 +175,7 @@ int main() {
       auto binaryblob_value = AstarteDeviceSdk::AstarteData(binaryblob);
       send_res = device.send_individual(interface_name, binaryblob_path, binaryblob_value, &now);
       if (!send_res) {
-        spdlog::error("send error: {}", send_res.error());
+        spdlog::error("send datastream individual error: {}", send_res.error());
         return EXIT_FAILURE;
       }
 
@@ -183,7 +183,7 @@ int main() {
       auto datetime_value = AstarteDeviceSdk::AstarteData(std::chrono::system_clock::now());
       send_res = device.send_individual(interface_name, datetime_path, datetime_value, &now);
       if (!send_res) {
-        spdlog::error("send error: {}", send_res.error());
+        spdlog::error("send datastream individual error: {}", send_res.error());
         return EXIT_FAILURE;
       }
 
@@ -193,7 +193,7 @@ int main() {
       send_res =
           device.send_individual(interface_name, integerarray_path, integerarray_value, &now);
       if (!send_res) {
-        spdlog::error("send error: {}", send_res.error());
+        spdlog::error("send datastream individual error: {}", send_res.error());
         return EXIT_FAILURE;
       }
 
@@ -203,7 +203,7 @@ int main() {
       send_res = device.send_individual(interface_name, longintegerarray_path,
                                         longintegerarray_value, &now);
       if (!send_res) {
-        spdlog::error("send error: {}", send_res.error());
+        spdlog::error("send datastream individual error: {}", send_res.error());
         return EXIT_FAILURE;
       }
 
@@ -213,7 +213,7 @@ int main() {
       send_res =
           device.send_individual(interface_name, doubleararray_path, doublearray_value, &now);
       if (!send_res) {
-        spdlog::error("send error: {}", send_res.error());
+        spdlog::error("send datastream individual error: {}", send_res.error());
         return EXIT_FAILURE;
       }
 
@@ -223,7 +223,7 @@ int main() {
       send_res =
           device.send_individual(interface_name, booleanarray_path, booleanarray_value, &now);
       if (!send_res) {
-        spdlog::error("send error: {}", send_res.error());
+        spdlog::error("send datastream individual error: {}", send_res.error());
         return EXIT_FAILURE;
       }
 
@@ -232,7 +232,7 @@ int main() {
       auto stringarray_value = AstarteDeviceSdk::AstarteData(stringarray);
       send_res = device.send_individual(interface_name, stringarray_path, stringarray_value, &now);
       if (!send_res) {
-        spdlog::error("send error: {}", send_res.error());
+        spdlog::error("send datastream individual error: {}", send_res.error());
         return EXIT_FAILURE;
       }
 
@@ -242,7 +242,7 @@ int main() {
       send_res =
           device.send_individual(interface_name, binaryblobarray_path, binaryblobarray_value, &now);
       if (!send_res) {
-        spdlog::error("send error: {}", send_res.error());
+        spdlog::error("send datastream individual error: {}", send_res.error());
         return EXIT_FAILURE;
       }
 
@@ -253,14 +253,50 @@ int main() {
       send_res =
           device.send_individual(interface_name, datetimearray_path, datetimearray_value, &now);
       if (!send_res) {
-        spdlog::error("send error: {}", send_res.error());
+        spdlog::error("send datastream individual error: {}", send_res.error());
         return EXIT_FAILURE;
       }
 
-      std::this_thread::sleep_for(std::chrono::seconds(2));
+      sleep(3);
     }
 
-    sleep(3);
+    {
+      auto interface_name = std::string("org.astarte-platform.cpp.examples.DeviceAggregate");
+      auto common_path = std::string("/sensor15");
+
+      AstarteDeviceSdk::AstarteDatastreamObject data = {
+          {"integer_endpoint", AstarteDeviceSdk::AstarteData(43)},
+          {"longinteger_endpoint", AstarteDeviceSdk::AstarteData(8589934592)},
+          {"double_endpoint", AstarteDeviceSdk::AstarteData(43.5)},
+          {"boolean_endpoint", AstarteDeviceSdk::AstarteData(true)},
+          {"string_endpoint", AstarteDeviceSdk::AstarteData(std::string("Hello from cpp!"))},
+          {"binaryblob_endpoint",
+           AstarteDeviceSdk::AstarteData(std::vector<uint8_t>{10, 20, 30, 40, 50})},
+          {"datetime_endpoint", AstarteDeviceSdk::AstarteData(std::chrono::system_clock::now())},
+          {"integerarray_endpoint",
+           AstarteDeviceSdk::AstarteData(std::vector<int32_t>{10, 20, 30, 40, 50})},
+          {"longintegerarray_endpoint",
+           AstarteDeviceSdk::AstarteData(std::vector<int64_t>{8589934592, 8589934593, 8589939592})},
+          {"doublearray_endpoint", AstarteDeviceSdk::AstarteData(std::vector<double>{1.2, 3.4})},
+          {"booleanarray_endpoint",
+           AstarteDeviceSdk::AstarteData(std::vector<bool>{true, false, true})},
+          {"stringarray_endpoint", AstarteDeviceSdk::AstarteData(std::vector<std::string>{
+                                       "Hello ", "world ", "from ", "C++"})},
+          {"binaryblobarray_endpoint",
+           AstarteDeviceSdk::AstarteData(
+               std::vector<std::vector<uint8_t>>{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}})},
+          {"datetimearray_endpoint",
+           AstarteDeviceSdk::AstarteData(std::vector<std::chrono::system_clock::time_point>{
+               std::chrono::system_clock::now(), std::chrono::system_clock::now()})}};
+
+      auto send_res = device.send_object(interface_name, common_path, data, nullptr);
+      if (!send_res) {
+        spdlog::error("send datastream object error: {}", send_res.error());
+        return EXIT_FAILURE;
+      }
+
+      sleep(3);
+    }
 
     auto disconn_res = device.disconnect();
     if (!disconn_res) {

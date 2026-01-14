@@ -1,4 +1,4 @@
-// (C) Copyright 2025, SECO Mind Srl
+// (C) Copyright 2025 - 2026, SECO Mind Srl
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -9,10 +9,12 @@
 
 #include <algorithm>
 #include <astarte_device_sdk/data.hpp>
+#include <astarte_device_sdk/object.hpp>
 #include <astarte_device_sdk/ownership.hpp>
 #include <astarte_device_sdk/type.hpp>
 #include <cmath>
 #include <format>
+#include <functional>
 #include <map>
 #include <nlohmann/json.hpp>
 #include <optional>
@@ -212,67 +214,21 @@ bool is_segment_match(std::string_view pattern, std::string_view path_seg) {
 
 struct Mapping {
  public:
-  // verify that the mapping endpoint correspont to a given path
-  auto check_path(std::string_view path) const -> bool {
-    // copy the endpoint
-    std::string_view endpoint = endpoint_;
+  /**
+   * @brief Check that the mapping endpoint matches a given path.
+   *
+   * @param path The Astarte interface path to check.
+   * @return a boolean stating if the mapping endpoint matches the path or not.
+   */
+  auto match_path(std::string_view path) const -> bool;
 
-    // check lengths and trailing slash
-    if (path.length() < 2 || path.back() == '/') {
-      return false;
-    }
-    // check leading slash consistency
-    if (endpoint.empty() || path.front() != endpoint.front()) {
-      return false;
-    }
-
-    // remove the leading slash to prepare for segment iteration
-    // (we know both start with same char, usually '/')
-    endpoint.remove_prefix(1);
-    path.remove_prefix(1);
-
-    while (!endpoint.empty() && !path.empty()) {
-      std::string_view endpoint_seg = pop_next_segment(endpoint);
-      std::string_view path_seg = pop_next_segment(path);
-
-      if (!is_segment_match(endpoint_seg, path_seg)) {
-        return false;
-      }
-    }
-
-    // both strings must be fully consumed. If one has leftovers there is a length mismatch.
-    if (!endpoint.empty() || !path.empty()) {
-      return false;
-    }
-
-    return true;
-  }
-
-  auto check_data(const AstarteData& data) const -> astarte_tl::expected<void, AstarteError> {
-    if (type_ != data.get_type()) {
-      spdlog::error("Astarte data type and mapping type do not match");
-      return astarte_tl::unexpected(
-          AstarteInterfaceValidationError("Astarte data type and mapping type do not match"));
-    }
-
-    if ((type_ == AstarteType::kDouble) && (!std::isfinite(data.into<double>()))) {
-      spdlog::error("Astarte data double is not a number");
-      return astarte_tl::unexpected(
-          AstarteInterfaceValidationError("Astarte data double is not a number"));
-    }
-
-    if (type_ == AstarteType::kDoubleArray) {
-      for (double value : data.into<std::vector<double>>()) {
-        if (!std::isfinite(value)) {
-          spdlog::error("Astarte data double is not a number");
-          return astarte_tl::unexpected(
-              AstarteInterfaceValidationError("Astarte data double is not a number"));
-        }
-      }
-    }
-
-    return {};
-  }
+  /**
+   * @brief Check that the Astarte data matches the mapping type
+   *
+   * @param data The AstarteData to check.
+   * @return an error if the check fails.
+   */
+  auto check_data_type(const AstarteData& data) const -> astarte_tl::expected<void, AstarteError>;
 
   /**
    * @brief Path of the mapping.
@@ -440,13 +396,45 @@ class Interface {
    */
   [[nodiscard]] const std::vector<Mapping>& mappings() const { return mappings_; }
 
+  /**
+   * @brief Retrieve the mapping associated to a given path if it exists.
+   *
+   * @param path the Astarte interface path.
+   * @return a pointer to the mapping associated with the path, an error otherwise.
+   */
   [[nodiscard]] auto get_mapping(std::string_view path) const
       -> astarte_tl::expected<const Mapping*, AstarteError>;
 
+  /**
+   * @brief Validate an Astarte individual.
+   *
+   * @param path the Astarte interface path.
+   * @param data the value to validate.
+   * @param timestamp a pointer to the timestamp poiting out when the data is sent.
+   * @return an error if the falidation fails, nothing otherwise.
+   */
   auto validate_individual(std::string_view path, const AstarteData& data,
                            const std::chrono::system_clock::time_point* timestamp) const
       -> astarte_tl::expected<void, AstarteError>;
 
+  /**
+   * @brief Validate an Astarte object.
+   *
+   * @param common_path common path of the Astarte interface enpoints.
+   * @param object the Astarte object data to validate.
+   * @param timestamp a pointer to the timestamp pointing out when the data is sent.
+   * @return an error if the falidation fails, nothing otherwise.
+   */
+  auto validate_object(std::string_view common_path, const AstarteDatastreamObject& object,
+                       const std::chrono::system_clock::time_point* timestamp) const
+      -> astarte_tl::expected<void, AstarteError>;
+
+  /**
+   * @brief Get the MQTT QoS from a certain mapping endpoint.
+   *
+   * @param path the Astarte interface path.
+   * @return the QoS value, an error otherwise.
+   */
   auto get_qos(std::string_view path) const -> astarte_tl::expected<uint8_t, AstarteError>;
 
  private:

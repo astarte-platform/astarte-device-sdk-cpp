@@ -1,4 +1,4 @@
-# (C) Copyright 2025, SECO Mind Srl
+# (C) Copyright 2025 - 2026, SECO Mind Srl
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -113,6 +113,7 @@ function(
         "src/mqtt/pairing.cpp"
         "src/mqtt/connection.cpp"
         "src/mqtt/introspection.cpp"
+        "src/mqtt/serialize.cpp"
     )
     list(
         APPEND
@@ -122,6 +123,7 @@ function(
         "private/mqtt/crypto.hpp"
         "private/mqtt/device_mqtt_impl.hpp"
         "private/mqtt/introspection.hpp"
+        "private/mqtt/serialize.hpp"
     )
     set(${ASTARTE_MQTT_PUBLIC_HEADERS} ${${ASTARTE_MQTT_PUBLIC_HEADERS}} PARENT_SCOPE)
     set(${ASTARTE_MQTT_SOURCES} ${${ASTARTE_MQTT_SOURCES}} PARENT_SCOPE)

@@ -5,7 +5,6 @@
 #ifndef ASTARTE_DEVICE_SDK_MQTT_ERRORS_H
 #define ASTARTE_DEVICE_SDK_MQTT_ERRORS_H
 
-#include <cstdint>
 #include <memory>
 #include <optional>
 #include <string>

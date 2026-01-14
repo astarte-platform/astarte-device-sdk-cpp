@@ -1,4 +1,4 @@
-// (C) Copyright 2025, SECO Mind Srl
+// (C) Copyright 2025 - 2026, SECO Mind Srl
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -39,170 +39,11 @@
 #include "astarte_device_sdk/stored_property.hpp"
 #include "mqtt/connection.hpp"
 #include "mqtt/introspection.hpp"
+#include "mqtt/serialize.hpp"
 
 namespace AstarteDeviceSdk {
 
 using json = nlohmann::json;
-
-namespace bson {
-// Define BSON types (see here:
-// https://www.mongodb.com/docs/manual/reference/bson-types/#bson-types)
-constexpr uint8_t BSON_TYPE_EOO = 0x00;
-constexpr uint8_t BSON_TYPE_DOUBLE = 0x01;
-constexpr uint8_t BSON_TYPE_STRING = 0x02;
-constexpr uint8_t BSON_TYPE_BIN = 0x05;
-constexpr uint8_t BSON_TYPE_BOOL = 0x08;
-constexpr uint8_t BSON_TYPE_DATE = 0x09;
-constexpr uint8_t BSON_TYPE_INT32 = 0x10;
-constexpr uint8_t BSON_TYPE_INT64 = 0x12;
-
-/**
- * @brief Helper to patch BSON type tags.
- * nlohmann/json serializes integers as Int64 (0x12).
- * This patches the type byte to Date (0x09) if required.
- *
- * @param bson_data BSON data to patch.
- * @param key_name key to patch.
- * @param target_type new bson type.
- */
-// NOLINTNEXTLINE(readability-function-size)
-void patch_bson_tag(std::vector<uint8_t>& bson_data, const std::string& key_name,
-                    uint8_t target_type) {
-  // skip document size
-  size_t i = 4;  // NOLINT(readability-identifier-length)
-  while (i < bson_data.size() - 1) {
-    const uint8_t type = bson_data[i];
-    if (type == BSON_TYPE_EOO) {
-      break;
-    }
-    // skip type byte
-    i++;
-
-    // read Key
-    std::string current_key;
-    while (i < bson_data.size() && bson_data[i] != BSON_TYPE_EOO) {
-      current_key += static_cast<char>(bson_data[i]);
-      i++;
-    }
-    // skip null terminator
-    i++;
-
-    // check if this is the key we want to patch
-    if (current_key == key_name) {
-      // calculate position of the type byte we skipped
-      // pos = current (i) - null(1) - keylen - typebyte(1)
-      const size_t type_offset = i - 1 - current_key.size() - 1;
-
-      // if it is currently Int64 (0x12) and we want Date (0x09), patch it.
-      if (bson_data[type_offset] == BSON_TYPE_INT64 && target_type == BSON_TYPE_DATE) {
-        bson_data[type_offset] = target_type;
-      }
-      return;
-    }
-
-    // generic Skipper (Simplified for flat {"t":..., "v":...} structure)
-    // 64-bit
-    if (type == BSON_TYPE_INT64 || type == BSON_TYPE_DATE || type == BSON_TYPE_DOUBLE) {
-      i += 8;
-    }
-    // 32-bit
-    else if (type == BSON_TYPE_INT32) {
-      i += 4;
-    }
-    // bool
-    else if (type == BSON_TYPE_BOOL) {
-      i += 1;
-    }
-    // binary or string
-    else if (type == BSON_TYPE_BIN || type == BSON_TYPE_STRING) {
-      int32_t len = 0;
-      std::memcpy(&len, &bson_data[i], 4);  // read length
-      i += 4 + len;
-      // binary has extra subtype byte
-      if (type == BSON_TYPE_BIN) {
-        i += 1;
-      }
-    }
-  }
-}
-
-/**
- * @brief Serialize AstarteData to BSON bytes.
- *
- * @param data Astarte data to serialize to BSON.
- * @param timestamp Timestamp value to serialize to BSON if not null.
- * @return a vector of bytes representing the serialized data.
- */
-// NOLINTNEXTLINE(readability-function-size)
-auto serialize_astarte(const AstarteData& data,
-                       const std::chrono::system_clock::time_point* timestamp)
-    -> std::vector<uint8_t> {
-  json j;  // NOLINT(readability-identifier-length)
-
-  bool needs_date_patch = false;
-
-  // access the raw variant from your class
-  std::visit(
-      [&](auto&& arg) {
-        using T = std::decay_t<decltype(arg)>;
-
-        // handle Binary Blob
-        if constexpr (std::is_same_v<T, std::vector<uint8_t>>) {
-          j["v"] = json::binary(arg, BSON_TYPE_EOO);
-        }
-        // handle DateTime (std::chrono::system_clock::time_point)
-        else if constexpr (std::is_same_v<T, std::chrono::system_clock::time_point>) {
-          // Convert to milliseconds
-          auto millis =
-              std::chrono::duration_cast<std::chrono::milliseconds>(arg.time_since_epoch()).count();
-
-          j["v"] = millis;
-          needs_date_patch = true;  // Flag for post-processing
-        }
-        // handle Array of Binaries
-        else if constexpr (std::is_same_v<T, std::vector<std::vector<uint8_t>>>) {
-          std::vector<json> binary_array;
-          binary_array.reserve(arg.size());
-          std::transform(arg.begin(), arg.end(), std::back_inserter(binary_array),
-                         [](const auto& bin) { return json::binary(bin, BSON_TYPE_EOO); });
-
-          j["v"] = binary_array;
-        }
-        // handle Array of DateTimes
-        else if constexpr (std::is_same_v<T, std::vector<std::chrono::system_clock::time_point>>) {
-          std::vector<int64_t> dates;
-          dates.reserve(arg.size());
-          std::transform(arg.begin(), arg.end(), std::back_inserter(dates), [](const auto& time) {
-            return std::chrono::duration_cast<std::chrono::milliseconds>(time.time_since_epoch())
-                .count();
-          });
-
-          j["v"] = dates;
-        }
-        // default handler (int, double, string, bool, and the respective vectors)
-        else {
-          j["v"] = arg;
-        }
-      },
-      data.get_raw_data());
-
-  if (timestamp != nullptr) {
-    j["t"] = std::chrono::duration_cast<std::chrono::milliseconds>(timestamp->time_since_epoch())
-                 .count();
-  }
-
-  // convert to BSON
-  std::vector<uint8_t> bson_bytes = json::to_bson(j);
-
-  // apply patch if needed (convert Int64 tag to Date tag)
-  if (needs_date_patch) {
-    patch_bson_tag(bson_bytes, "v", BSON_TYPE_DATE);
-  }
-
-  return bson_bytes;
-}
-
-}  // namespace bson
 
 auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::create(config::MqttConfig& cfg)
     -> astarte_tl::expected<std::shared_ptr<AstarteDeviceMqttImpl>, AstarteError> {
@@ -293,7 +134,7 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::disconnect()
   return connection_.disconnect();
 }
 
-// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static, readability-function-size)
 auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::send_individual(
     std::string_view interface_name, std::string_view path, const AstarteData& data,
     const std::chrono::system_clock::time_point* timestamp)
@@ -307,13 +148,13 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::send_individual(
   // check if the interface exists in the device introspection
   auto interface_res = introspection_->get(std::string(interface_name));
   if (!interface_res) {
-    spdlog::error("couldn't send data since the interface {} is not in the device introspection",
-                  interface_name);
-    return astarte_tl::unexpected(AstarteMqttError(astarte_fmt::format(
-        "couldn't send data since the interface {} is not in the device introspection",
-        interface_name)));
+    auto msg = astarte_fmt::format(
+        "couldn't send data since the interface {} not found in introspection", interface_name);
+    spdlog::error(msg);
+    return astarte_tl::unexpected(AstarteMqttError(msg));
   }
-  auto interface = interface_res.value();
+
+  auto* interface = interface_res.value();
 
   // validate data
   auto res = interface->validate_individual(path, data, timestamp);
@@ -330,25 +171,83 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::send_individual(
 
   // serialize data to bson ({"v": <data>})
   // if timestamp is set add it ({"v": <data>, "t": <timestamp>})
-  auto data_bson = bson::serialize_astarte(data, timestamp);
+  json bson;
+  bson::serialize_astarte_individual(bson, "v", data, timestamp);
 
   // check that the generated bson is not 0 size
-  if (data_bson.empty()) {
+  if (bson.empty()) {
     return astarte_tl::unexpected(
-        AstarteDataSerializationError("Failed to serialize data to BSON"));
+        AstarteDataSerializationError("Failed to serialize individual data to BSON"));
   }
 
-  // send individual data
-  return connection_.send_individual(interface_name, path, qos, data_bson);
+  spdlog::trace("dump individual: {}", bson.dump());
+
+  // convert BSON to bytes
+  std::vector<uint8_t> bson_bytes = json::to_bson(bson);
+
+  return connection_.send(interface_name, path, qos, bson_bytes);
 }
-// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static, readability-function-size)
 auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::send_object(
-    std::string_view /* interface_name */, std::string_view /* path */,
-    const AstarteDatastreamObject& /* object */,
-    const std::chrono::system_clock::time_point* /* timestamp */)
+    std::string_view interface_name, std::string_view path, const AstarteDatastreamObject& object,
+    const std::chrono::system_clock::time_point* timestamp)
     -> astarte_tl::expected<void, AstarteError> {
-  TODO("not yet implemented");
+  if (!connection_.is_connected()) {
+    spdlog::error("couldn't send data since the device is not connected");
+    return astarte_tl::unexpected(
+        AstarteMqttError("couldn't send data since the device is not connected"));
+  }
+
+  // check if the interface exists in the device introspection
+  auto interface_res = introspection_->get(std::string(interface_name));
+  if (!interface_res) {
+    auto msg = astarte_fmt::format(
+        "couldn't send data since the interface {} not found in introspection", interface_name);
+    spdlog::error(msg);
+    return astarte_tl::unexpected(AstarteMqttError(msg));
+  }
+  auto* interface = interface_res.value();
+
+  if (interface->mappings().size() != object.size()) {
+    spdlog::error("incomplete aggregated datastream");
+    return astarte_tl::unexpected(AstarteInterfaceValidationError(astarte_fmt::format(
+        "incomplete aggregated datastream: the interface contains {} mappings, provided {}",
+        interface->mappings().size(), object.size())));
+  }
+
+  // validate data
+  auto validate_res = interface->validate_object(path, object, timestamp);
+  if (!validate_res) {
+    return validate_res;
+  }
+
+  // get qos
+  auto qos_res = interface->get_qos(path);
+  if (!qos_res) {
+    return astarte_tl::unexpected(qos_res.error());
+  }
+  auto qos = qos_res.value();
+
+  // serialize data to bson ({"v": {<path1>: <data1>, <path2>: <data2>, ...}})
+  // if timestamp is set add it ({"v": {<path1>: <data1>, <path2>: <data2>, ...}, "t": <timestamp>})
+  json bson;
+  bson::serialize_astarte_object(bson, object, timestamp);
+
+  // check that the generated bson is not 0 size
+  if (bson.empty()) {
+    return astarte_tl::unexpected(
+        AstarteDataSerializationError("Failed to serialize object data to BSON"));
+  }
+
+  spdlog::trace("dump object: {}", bson.dump());
+
+  // convert BSON to bytes
+  std::vector<uint8_t> bson_bytes = json::to_bson(bson);
+
+  return connection_.send(interface_name, path, qos, bson_bytes);
 }
+
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::set_property(std::string_view /* interface_name */,
                                                             std::string_view /* path */,
