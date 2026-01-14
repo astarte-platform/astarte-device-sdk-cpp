@@ -12,7 +12,7 @@
 #include <vector>
 
 #include "astarte_device_sdk/device.hpp"
-#include "exceptions.hpp"  // Added include
+#include "exceptions.hpp"
 
 #ifdef ASTARTE_TRANSPORT_GRPC
 #include "astarte_device_sdk/grpc/device_grpc.hpp"

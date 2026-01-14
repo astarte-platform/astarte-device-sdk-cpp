@@ -11,7 +11,7 @@
 namespace testcases {
 using namespace std::chrono_literals;
 
-TestCase server_aggregate() {
+TestCase server_aggregate(std::string device_id) {
   AstarteDatastreamObject astarte_obj = {
       {"integer_endpoint", AstarteData(12)},
       {"double_endpoint", AstarteData(54.4)},
@@ -45,6 +45,7 @@ TestCase server_aggregate() {
                    Actions::ReadReceivedDeviceData(AstarteMessage(
                        astarte_interfaces::ServerAggregate::INTERFACE, "/sensor1", astarte_obj)),
 
-                   Actions::Sleep(1s), Actions::Disconnect(), Actions::Sleep(1s)});
+                   Actions::Sleep(1s), Actions::Disconnect(), Actions::Sleep(1s)},
+                  device_id);
 }
 }  // namespace testcases

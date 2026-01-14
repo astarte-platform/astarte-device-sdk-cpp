@@ -14,7 +14,7 @@
 namespace testcases {
 using namespace std::chrono_literals;
 
-TestCase server_property() {
+TestCase server_property(std::string device_id) {
   return TestCase(
       "Server property to Device",
       {Actions::Connect(), Actions::Sleep(1s),
@@ -213,10 +213,11 @@ TestCase server_property() {
                                                       "/sensor1/binaryblobarray_endpoint",
                                                       AstartePropertyIndividual(std::nullopt))),
 
-       Actions::Sleep(1s), Actions::Disconnect(), Actions::Sleep(1s)});
+       Actions::Sleep(1s), Actions::Disconnect(), Actions::Sleep(1s)},
+      device_id);
 }
 
-TestCase server_property_on_new_device() {
+TestCase server_property_on_new_device(std::string device_id) {
   return TestCase(
       "Server property to a new Device",
       {Actions::Sleep(1s), Actions::Connect(), Actions::Sleep(1s),
@@ -251,6 +252,7 @@ TestCase server_property_on_new_device() {
                                                 "/sensor1/longinteger_endpoint",
                                                 AstartePropertyIndividual(std::nullopt))),
 
-       Actions::Sleep(1s), Actions::Disconnect(), Actions::Sleep(1s)});
+       Actions::Sleep(1s), Actions::Disconnect(), Actions::Sleep(1s)},
+      device_id);
 }
 }  // namespace testcases

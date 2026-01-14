@@ -14,7 +14,7 @@
 namespace testcases {
 using namespace std::chrono_literals;
 
-TestCase device_datastream() {
+TestCase device_datastream(std::string device_id) {
   return TestCase(
       "Device to Astarte",
       {Actions::Connect(),
@@ -174,6 +174,7 @@ TestCase device_datastream() {
 
        Actions::Sleep(1s),
        Actions::Disconnect(),
-       Actions::Sleep(1s)});
+       Actions::Sleep(1s)},
+      device_id);
 }
 }  // namespace testcases

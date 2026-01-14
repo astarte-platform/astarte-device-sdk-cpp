@@ -12,7 +12,7 @@
 namespace testcases {
 using namespace std::chrono_literals;
 
-TestCase device_add_remove_interface() {
+TestCase device_add_remove_interface(std::string device_id) {
   return TestCase(
       "Add/remove interfaces",
       {Actions::Connect(), Actions::Sleep(1s),
@@ -55,7 +55,8 @@ TestCase device_add_remove_interface() {
                                                   "/integer_endpoint",
                                                   AstartePropertyIndividual(AstarteData(12)))),
 
-       Actions::Sleep(1s), Actions::Disconnect(), Actions::Sleep(1s)});
+       Actions::Sleep(1s), Actions::Disconnect(), Actions::Sleep(1s)},
+      device_id);
 }
 
 }  // namespace testcases

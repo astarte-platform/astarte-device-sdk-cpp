@@ -15,7 +15,7 @@ namespace testcases {
 
 using namespace std::chrono_literals;
 
-TestCase device_pairing(std::string pairing_token) {
+TestCase device_pairing(std::string pairing_token, std::string device_id) {
   return TestCase("Pairing",
                   {
                       Actions::RegisterDevice(pairing_token),
@@ -23,7 +23,7 @@ TestCase device_pairing(std::string pairing_token) {
                       Actions::CheckDeviceStatus(false),
                       Actions::Sleep(1s),
                   },
-                  false);
+                  device_id, false);
 }
 
 }  // namespace testcases

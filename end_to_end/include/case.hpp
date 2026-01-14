@@ -21,8 +21,12 @@ using AstarteDeviceSdk::AstarteDevice;
 // End to end test case
 class TestCase {
  public:
-  TestCase(std::string name, std::vector<Action> actions, bool generate_device = true)
-      : name_(std::move(name)), actions_(std::move(actions)), generate_device_(generate_device) {}
+  TestCase(std::string name, std::vector<Action> actions, std::string device_id,
+           bool generate_device = true)
+      : name_(std::move(name)),
+        actions_(std::move(actions)),
+        device_id_(std::move(device_id)),
+        generate_device_(generate_device) {}
 
   ~TestCase() = default;
 
@@ -70,7 +74,8 @@ class TestCase {
     }
 
     // 4. Build the context
-    TestCaseContext ctx{.device = device, .rx_queue = rx_queue, .http = http_config};
+    TestCaseContext ctx{
+        .device_id = device_id_, .device = device, .rx_queue = rx_queue, .http = http_config};
 
     // 5. Execute all actions
     try {
@@ -86,6 +91,7 @@ class TestCase {
 
  private:
   std::string name_;
+  std::string device_id_;
   bool generate_device_;
   std::shared_ptr<TestDeviceFactory> device_factory_;
   std::vector<Action> actions_;

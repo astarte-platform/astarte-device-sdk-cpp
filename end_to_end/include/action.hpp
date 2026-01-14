@@ -48,10 +48,10 @@ struct TestHttpConfig {
   std::string astarte_base_url;
   std::string appengine_token;
   std::string realm;
-  std::string device_id;
 };
 
 struct TestCaseContext {
+  std::string device_id;
   std::shared_ptr<AstarteDevice> device;
   std::shared_ptr<SharedQueue<AstarteMessage>> rx_queue;
   TestHttpConfig http;
@@ -66,9 +66,9 @@ using Action = std::function<void(const TestCaseContext&)>;
 namespace detail {
 
 // Helper to construct the full URL for REST actions
-inline std::string build_url(const TestHttpConfig& cfg, const std::string& path_suffix = "") {
-  return cfg.astarte_base_url + "/appengine/v1/" + cfg.realm + "/devices/" + cfg.device_id +
-         path_suffix;
+inline std::string build_url(const TestCaseContext& ctx, const std::string& path_suffix = "") {
+  return ctx.http.astarte_base_url + "/appengine/v1/" + ctx.http.realm + "/devices/" +
+         ctx.device_id + path_suffix;
 }
 
 // Logic for validating Datastream Individual responses
@@ -385,7 +385,7 @@ inline Action CheckDeviceStatus(
   return [expected_conn = expected_connection_status,
           expected_intro = std::move(expected_introspection)](const TestCaseContext& ctx) {
     spdlog::info("Checking device status...");
-    std::string url = detail::build_url(ctx.http);
+    std::string url = detail::build_url(ctx);
     spdlog::trace("HTTP GET: {}", url);
 
     auto response = cpr::Get(cpr::Url{url}, cpr::Header{{"Content-Type", "application/json"}},
@@ -420,8 +420,7 @@ inline Action CheckDeviceStatus(
 inline Action TransmitRESTData(AstarteMessage message) {
   return [msg = std::move(message)](const TestCaseContext& ctx) {
     spdlog::info("Transmitting REST data...");
-    std::string url =
-        detail::build_url(ctx.http, "/interfaces/" + msg.get_interface() + msg.get_path());
+    std::string url = detail::build_url(ctx, "/interfaces/" + msg.get_interface() + msg.get_path());
     spdlog::info("REQUEST: {}", url);
 
     auto make_payload = [](const auto& data) {
@@ -469,7 +468,7 @@ inline Action FetchRESTData(
     std::optional<std::chrono::system_clock::time_point> timestamp = std::nullopt) {
   return [msg = std::move(message), ts = timestamp](const TestCaseContext& ctx) {
     spdlog::info("Fetching REST data...");
-    std::string url = detail::build_url(ctx.http, "/interfaces/" + msg.get_interface());
+    std::string url = detail::build_url(ctx, "/interfaces/" + msg.get_interface());
 
     auto response = cpr::Get(cpr::Url{url}, cpr::Header{{"Content-Type", "application/json"}},
                              cpr::Header{{"Authorization", "Bearer " + ctx.http.appengine_token}});

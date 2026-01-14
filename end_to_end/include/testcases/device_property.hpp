@@ -350,7 +350,7 @@ std::vector<Action> get_properties() {
   };
 }
 
-TestCase device_property() {
+TestCase device_property(std::string device_id) {
   auto set_all_props = set_all_properties();
   auto unset_all_props = unset_all_properties();
   auto check_all_props_with_value = check_all_properties_have_value();
@@ -369,10 +369,10 @@ TestCase device_property() {
   actions.push_back(Actions::Disconnect());
   actions.push_back(Actions::Sleep(1s));
 
-  return TestCase("Device property to Astarte", actions);
+  return TestCase("Device property to Astarte", actions, device_id);
 }
 
-TestCase device_property_getter() {
+TestCase device_property_getter(std::string device_id) {
   auto set_all_props = set_all_properties();
   auto get_props = get_properties();
   auto unset_all_props = unset_all_properties();
@@ -387,7 +387,7 @@ TestCase device_property_getter() {
   actions.push_back(Actions::Disconnect());
   actions.push_back(Actions::Sleep(1s));
 
-  return TestCase("Device property getter", actions);
+  return TestCase("Device property getter", actions, device_id);
 }
 
 }  // namespace testcases

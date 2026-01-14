@@ -12,7 +12,7 @@ namespace testcases {
 
 using namespace std::chrono_literals;
 
-TestCase device_status() {
+TestCase device_status(std::string device_id) {
   return TestCase(
       "Device status",
       {Actions::Connect(), Actions::Sleep(1s),
@@ -24,6 +24,7 @@ TestCase device_status() {
                                     std::string(astarte_interfaces::ServerAggregate::INTERFACE),
                                     std::string(astarte_interfaces::DeviceProperty::INTERFACE),
                                     std::string(astarte_interfaces::ServerProperty::INTERFACE)}),
-       Actions::Disconnect(), Actions::Sleep(1s)});
+       Actions::Disconnect(), Actions::Sleep(1s)},
+      device_id);
 }
 }  // namespace testcases

@@ -71,6 +71,10 @@ bool validate_config(const toml::table& config) {
       spdlog::error("Configuration Error: Missing 'pairing_token' inside [mqtt] table.");
       is_valid = false;
     }
+    if (!config["mqtt"]["device_id_registration"].is_string()) {
+      spdlog::error("Configuration Error: Missing 'device_id_registration' inside [mqtt] table.");
+      is_valid = false;
+    }
   }
 #endif
 
@@ -78,18 +82,18 @@ bool validate_config(const toml::table& config) {
 }
 
 // Helper to register the standard suite of tests applicable to any transport
-void register_standard_test_suite(TestOrchestrator& orchestrator) {
-  orchestrator.add_test_case(testcases::device_status());
-  orchestrator.add_test_case(testcases::device_reconnection());
-  orchestrator.add_test_case(testcases::device_add_remove_interface());
-  orchestrator.add_test_case(testcases::device_datastream());
-  orchestrator.add_test_case(testcases::server_datastream());
-  orchestrator.add_test_case(testcases::device_aggregate());
-  orchestrator.add_test_case(testcases::server_aggregate());
-  orchestrator.add_test_case(testcases::device_property());
-  orchestrator.add_test_case(testcases::device_property_getter());
-  orchestrator.add_test_case(testcases::server_property());
-  orchestrator.add_test_case(testcases::server_property_on_new_device());
+void register_standard_test_suite(TestOrchestrator& orchestrator, std::string device_id) {
+  orchestrator.add_test_case(testcases::device_status(device_id));
+  orchestrator.add_test_case(testcases::device_reconnection(device_id));
+  orchestrator.add_test_case(testcases::device_add_remove_interface(device_id));
+  orchestrator.add_test_case(testcases::device_datastream(device_id));
+  orchestrator.add_test_case(testcases::server_datastream(device_id));
+  orchestrator.add_test_case(testcases::device_aggregate(device_id));
+  orchestrator.add_test_case(testcases::server_aggregate(device_id));
+  orchestrator.add_test_case(testcases::device_property(device_id));
+  orchestrator.add_test_case(testcases::device_property_getter(device_id));
+  orchestrator.add_test_case(testcases::server_property(device_id));
+  orchestrator.add_test_case(testcases::server_property_on_new_device(device_id));
 }
 
 int main() {
@@ -119,7 +123,6 @@ int main() {
       .astarte_base_url = astarte_base_url,
       .appengine_token = appengine_token,
       .realm = realm,
-      .device_id = device_id,
   };
 
   std::shared_ptr<TestDeviceFactory> device_factory = nullptr;
@@ -139,6 +142,8 @@ int main() {
   device_factory = std::make_shared<TestGrpcDeviceFactory>(grpc_conf);
 #else
   auto pairing_token_opt = config.at("mqtt").at_path("pairing_token").value<std::string>();
+  auto device_id_registration_opt =
+      config.at("mqtt").at_path("device_id_registration").value<std::string>();
 
   // TODO(sorru): enable when at least one test will use this
   // auto store_dir = config["mqtt"]["store_dir"].value<std::string>().value();
@@ -163,9 +168,10 @@ int main() {
   TestOrchestrator orchestrator(config_http, device_factory);
 
 #ifdef ASTARTE_TRANSPORT_GRPC
-  register_standard_test_suite(orchestrator);
+  register_standard_test_suite(orchestrator, device_id);
 #else
-  orchestrator.add_test_case(testcases::device_pairing(pairing_token_opt.value()));
+  orchestrator.add_test_case(
+      testcases::device_pairing(pairing_token_opt.value(), device_id_registration_opt.value()));
   // Standard tests using existing credentials (device functionality not yet implemented)
   // register_standard_test_suite(orchestrator);
 #endif
