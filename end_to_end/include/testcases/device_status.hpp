@@ -6,7 +6,7 @@
 
 #include "action.hpp"
 #include "case.hpp"
-#include "constants/astarte_interfaces.hpp"
+#include "constants/interfaces.hpp"
 
 namespace testcases {
 
@@ -20,12 +20,12 @@ TestCase device_status(std::string device_id) {
          actions::CheckDeviceStatus(
              true,
              std::vector<std::string>{
-                 std::string(astarte_interfaces::DeviceDatastream::INTERFACE),
-                 std::string(astarte_interfaces::ServerDatastream::INTERFACE),
-                 std::string(astarte_interfaces::DeviceAggregate::INTERFACE),
-                 std::string(astarte_interfaces::ServerAggregate::INTERFACE),
-                 std::string(astarte_interfaces::DeviceProperty::INTERFACE),
-                 std::string(astarte_interfaces::ServerProperty::INTERFACE)
+                 std::string(constants::interfaces::DeviceDatastream::INTERFACE),
+                 std::string(constants::interfaces::ServerDatastream::INTERFACE),
+                 std::string(constants::interfaces::DeviceAggregate::INTERFACE),
+                 std::string(constants::interfaces::ServerAggregate::INTERFACE),
+                 std::string(constants::interfaces::DeviceProperty::INTERFACE),
+                 std::string(constants::interfaces::ServerProperty::INTERFACE)
              }
          ),
          actions::Disconnect(),

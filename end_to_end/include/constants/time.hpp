@@ -6,9 +6,11 @@
 
 #include <chrono>
 
-namespace astarte_time {
+namespace constants::time {
+
 using namespace std::chrono_literals;
 
 constexpr std::chrono::system_clock::time_point TIMESTAMP =
     std::chrono::sys_days{1987y / 5 / 1} + 15h + 32min;
-}  // namespace astarte_time
+
+}  // namespace constants::time

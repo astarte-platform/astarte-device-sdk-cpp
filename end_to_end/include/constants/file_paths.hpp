@@ -4,8 +4,8 @@
 
 #pragma once
 
-namespace file_paths {
+namespace constants::file_paths {
 
-constexpr const char* CONFIG_FILE = "end_to_end/config.toml";
+constexpr const char* CONFIG = "end_to_end/config.toml";
 
-}  // namespace file_paths
+}  // namespace constants::file_paths

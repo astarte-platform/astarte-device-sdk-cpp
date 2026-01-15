@@ -28,8 +28,8 @@
 #endif
 
 // Constants
-#include "constants/astarte_interfaces.hpp"
 #include "constants/file_paths.hpp"
+#include "constants/interfaces.hpp"
 
 bool validate_config(const toml::table& config) {
   bool is_valid = true;
@@ -111,7 +111,7 @@ int main() {
   // Parse configuration from toml
   toml::table config;
   try {
-    config = toml::parse_file(file_paths::CONFIG_FILE);
+    config = toml::parse_file(constants::file_paths::CONFIG);
   } catch (const toml::parse_error& err) {
     spdlog::error("Parsing config.toml failed:\n{}", err.what());
     return 1;
@@ -140,12 +140,12 @@ int main() {
       .server_addr = config["grpc"]["server_addr"].value<std::string>().value(),
       .node_id = config["grpc"]["node_id"].value<std::string>().value(),
       .interfaces = {
-          astarte_interfaces::DeviceDatastream::FILE,
-          astarte_interfaces::ServerDatastream::FILE,
-          astarte_interfaces::DeviceAggregate::FILE,
-          astarte_interfaces::ServerAggregate::FILE,
-          astarte_interfaces::DeviceProperty::FILE,
-          astarte_interfaces::ServerProperty::FILE,
+          constants::interfaces::DeviceDatastream::FILE,
+          constants::interfaces::ServerDatastream::FILE,
+          constants::interfaces::DeviceAggregate::FILE,
+          constants::interfaces::ServerAggregate::FILE,
+          constants::interfaces::DeviceProperty::FILE,
+          constants::interfaces::ServerProperty::FILE,
       }};
 
   device_factory = std::make_shared<TestGrpcDeviceFactory>(grpc_conf);
@@ -162,12 +162,12 @@ int main() {
       .pairing_url = astarte_fmt::format("{}/pairing", astarte_base_url),
       .store_dir = store_dir,
       .interfaces = {
-          astarte_interfaces::DeviceDatastream::FILE,
-          astarte_interfaces::ServerDatastream::FILE,
-          astarte_interfaces::DeviceAggregate::FILE,
-          astarte_interfaces::ServerAggregate::FILE,
-          astarte_interfaces::DeviceProperty::FILE,
-          astarte_interfaces::ServerProperty::FILE,
+          constants::interfaces::DeviceDatastream::FILE,
+          constants::interfaces::ServerDatastream::FILE,
+          constants::interfaces::DeviceAggregate::FILE,
+          constants::interfaces::ServerAggregate::FILE,
+          constants::interfaces::DeviceProperty::FILE,
+          constants::interfaces::ServerProperty::FILE,
       }};
   device_factory = std::make_shared<TestMqttDeviceFactory>(std::move(mqtt_conf));
 #endif

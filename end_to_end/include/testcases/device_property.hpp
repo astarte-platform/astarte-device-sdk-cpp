@@ -9,8 +9,9 @@
 
 #include "action.hpp"
 #include "case.hpp"
-#include "constants/astarte_interfaces.hpp"
-#include "constants/astarte_time.hpp"
+#include "constants/data_sets.hpp"
+#include "constants/interfaces.hpp"
+#include "constants/time.hpp"
 
 namespace testcases {
 using namespace std::chrono_literals;
@@ -20,102 +21,74 @@ using AstarteDeviceSdk::AstarteOwnership;
 std::vector<Action> set_all_properties() {
     return {
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/integer_endpoint",
-            AstartePropertyIndividual(AstarteData(12))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::Integer::ENDPOINT_FULL,
+            AstartePropertyIndividual(constants::data_sets::Integer::DATA)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/longinteger_endpoint",
-            AstartePropertyIndividual(AstarteData(17179869184))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::LongInteger::ENDPOINT_FULL,
+            AstartePropertyIndividual(constants::data_sets::LongInteger::DATA)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/double_endpoint",
-            AstartePropertyIndividual(AstarteData(54.4))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::Double::ENDPOINT_FULL,
+            AstartePropertyIndividual(constants::data_sets::Double::DATA)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/boolean_endpoint",
-            AstartePropertyIndividual(AstarteData(true))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::Boolean::ENDPOINT_FULL,
+            AstartePropertyIndividual(constants::data_sets::Boolean::DATA)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/string_endpoint",
-            AstartePropertyIndividual(AstarteData(std::string("Hello C++!")))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::String::ENDPOINT_FULL,
+            AstartePropertyIndividual(constants::data_sets::String::DATA)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/datetime_endpoint",
-            AstartePropertyIndividual(AstarteData(
-                std::chrono::system_clock::time_point(
-                    std::chrono::sys_days(
-                        std::chrono::year_month_day(
-                            std::chrono::year(1994), std::chrono::month(4), std::chrono::day(12)
-                        )
-                    ) +
-                    std::chrono::hours(10) + std::chrono::minutes(15) + std::chrono::seconds(0)
-                )
-            ))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::Datetime::ENDPOINT_FULL,
+            AstartePropertyIndividual(constants::data_sets::Datetime::DATA)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/binaryblob_endpoint",
-            AstartePropertyIndividual(AstarteData(std::vector<uint8_t>{0x23, 0x43, 0xF5}))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::BinaryBlob::ENDPOINT_FULL,
+            AstartePropertyIndividual(constants::data_sets::BinaryBlob::DATA)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/integerarray_endpoint",
-            AstartePropertyIndividual(AstarteData(std::vector<int32_t>{13, 2}))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::IntegerArray::ENDPOINT_FULL,
+            AstartePropertyIndividual(constants::data_sets::IntegerArray::DATA)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/longintegerarray_endpoint",
-            AstartePropertyIndividual(AstarteData(std::vector<int64_t>{17179869184, 5}))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::LongIntegerArray::ENDPOINT_FULL,
+            AstartePropertyIndividual(constants::data_sets::LongIntegerArray::DATA)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/doublearray_endpoint",
-            AstartePropertyIndividual(AstarteData(std::vector<double>{0.5}))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::DoubleArray::ENDPOINT_FULL,
+            AstartePropertyIndividual(constants::data_sets::DoubleArray::DATA)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/booleanarray_endpoint",
-            AstartePropertyIndividual(AstarteData(std::vector<bool>{false, true}))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::BooleanArray::ENDPOINT_FULL,
+            AstartePropertyIndividual(constants::data_sets::BooleanArray::DATA)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/stringarray_endpoint",
-            AstartePropertyIndividual(
-                AstarteData(std::vector<std::string>{"Hello ", "world ", "from ", "C++"})
-            )
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::StringArray::ENDPOINT_FULL,
+            AstartePropertyIndividual(constants::data_sets::StringArray::DATA)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/datetimearray_endpoint",
-            AstartePropertyIndividual(AstarteData(
-                std::vector<std::chrono::system_clock::time_point>{
-                    std::chrono::sys_days(
-                        std::chrono::year_month_day(
-                            std::chrono::year(1994), std::chrono::month(4), std::chrono::day(12)
-                        )
-                    ) + std::chrono::hours(10) +
-                        std::chrono::minutes(15) + std::chrono::seconds(0),
-                    std::chrono::sys_days(
-                        std::chrono::year_month_day(
-                            std::chrono::year(1985), std::chrono::month(5), std::chrono::day(22)
-                        )
-                    ) + std::chrono::hours(0) +
-                        std::chrono::minutes(0) + std::chrono::seconds(12),
-                }
-            ))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::DatetimeArray::ENDPOINT_FULL,
+            AstartePropertyIndividual(constants::data_sets::DatetimeArray::DATA)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/binaryblobarray_endpoint",
-            AstartePropertyIndividual(AstarteData(
-                std::vector<std::vector<uint8_t>>{{0x23, 0x43, 0xF5}, {0x43, 0xF3, 0x00}}
-            ))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::BinaryBlobArray::ENDPOINT_FULL,
+            AstartePropertyIndividual(constants::data_sets::BinaryBlobArray::DATA)
         )),
     };
 }
@@ -123,87 +96,74 @@ std::vector<Action> set_all_properties() {
 std::vector<Action> check_all_properties_have_value() {
     return {
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "integer_endpoint",
-            AstartePropertyIndividual(AstarteData(12))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::Integer::ENDPOINT_PARTIAL,
+            AstartePropertyIndividual(constants::data_sets::Integer::DATA)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "longinteger_endpoint",
-            AstartePropertyIndividual(AstarteData(17179869184))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::LongInteger::ENDPOINT_PARTIAL,
+            AstartePropertyIndividual(constants::data_sets::LongInteger::DATA)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "double_endpoint",
-            AstartePropertyIndividual(AstarteData(54.4))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::Double::ENDPOINT_PARTIAL,
+            AstartePropertyIndividual(constants::data_sets::Double::DATA)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "boolean_endpoint",
-            AstartePropertyIndividual(AstarteData(true))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::Boolean::ENDPOINT_PARTIAL,
+            AstartePropertyIndividual(constants::data_sets::Boolean::DATA)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "string_endpoint",
-            AstartePropertyIndividual(AstarteData(std::string("Hello C++!")))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::String::ENDPOINT_PARTIAL,
+            AstartePropertyIndividual(constants::data_sets::String::DATA)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "datetime_endpoint",
-            AstartePropertyIndividual(AstarteData(
-                std::chrono::system_clock::time_point(
-                    std::chrono::sys_days{1994y / 4 / 12} + 10h + 15min
-                )
-            ))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::Datetime::ENDPOINT_PARTIAL,
+            AstartePropertyIndividual(constants::data_sets::Datetime::DATA)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "binaryblob_endpoint",
-            AstartePropertyIndividual(AstarteData(std::vector<uint8_t>{0x23, 0x43, 0xF5}))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::BinaryBlob::ENDPOINT_PARTIAL,
+            AstartePropertyIndividual(constants::data_sets::BinaryBlob::DATA)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "integerarray_endpoint",
-            AstartePropertyIndividual(AstarteData(std::vector<int32_t>{13, 2}))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::IntegerArray::ENDPOINT_PARTIAL,
+            AstartePropertyIndividual(constants::data_sets::IntegerArray::DATA)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "longintegerarray_endpoint",
-            AstartePropertyIndividual(AstarteData(std::vector<int64_t>{17179869184, 5}))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::LongIntegerArray::ENDPOINT_PARTIAL,
+            AstartePropertyIndividual(constants::data_sets::LongIntegerArray::DATA)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "doublearray_endpoint",
-            AstartePropertyIndividual(AstarteData(std::vector<double>{0.5}))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::DoubleArray::ENDPOINT_PARTIAL,
+            AstartePropertyIndividual(constants::data_sets::DoubleArray::DATA)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "booleanarray_endpoint",
-            AstartePropertyIndividual(AstarteData(std::vector<bool>{false, true}))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::BooleanArray::ENDPOINT_PARTIAL,
+            AstartePropertyIndividual(constants::data_sets::BooleanArray::DATA)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "stringarray_endpoint",
-            AstartePropertyIndividual(
-                AstarteData(std::vector<std::string>{"Hello ", "world ", "from ", "C++"})
-            )
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::StringArray::ENDPOINT_PARTIAL,
+            AstartePropertyIndividual(constants::data_sets::StringArray::DATA)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "datetimearray_endpoint",
-            AstartePropertyIndividual(AstarteData(
-                std::vector<std::chrono::system_clock::time_point>{
-                    std::chrono::sys_days{1994y / 4 / 12} + 10h + 15min,
-                    std::chrono::sys_days{1985y / 5 / 22} + 12s,
-                }
-            ))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::DatetimeArray::ENDPOINT_PARTIAL,
+            AstartePropertyIndividual(constants::data_sets::DatetimeArray::DATA)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "binaryblobarray_endpoint",
-            AstartePropertyIndividual(AstarteData(
-                std::vector<std::vector<uint8_t>>{{0x23, 0x43, 0xF5}, {0x43, 0xF3, 0x00}}
-            ))
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::BinaryBlobArray::ENDPOINT_PARTIAL,
+            AstartePropertyIndividual(constants::data_sets::BinaryBlobArray::DATA)
         )),
     };
 }
@@ -211,73 +171,73 @@ std::vector<Action> check_all_properties_have_value() {
 std::vector<Action> unset_all_properties() {
     return {
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/integer_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::Integer::ENDPOINT_FULL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/longinteger_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::LongInteger::ENDPOINT_FULL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/double_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::Double::ENDPOINT_FULL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/boolean_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::Boolean::ENDPOINT_FULL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/string_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::String::ENDPOINT_FULL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/datetime_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::Datetime::ENDPOINT_FULL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/binaryblob_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::BinaryBlob::ENDPOINT_FULL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/integerarray_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::IntegerArray::ENDPOINT_FULL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/longintegerarray_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::LongIntegerArray::ENDPOINT_FULL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/doublearray_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::DoubleArray::ENDPOINT_FULL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/booleanarray_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::BooleanArray::ENDPOINT_FULL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/stringarray_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::StringArray::ENDPOINT_FULL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/datetimearray_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::DatetimeArray::ENDPOINT_FULL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "/binaryblobarray_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::BinaryBlobArray::ENDPOINT_FULL,
             AstartePropertyIndividual(std::nullopt)
         )),
     };
@@ -286,73 +246,73 @@ std::vector<Action> unset_all_properties() {
 std::vector<Action> check_all_properties_no_value() {
     return {
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "integer_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::Integer::ENDPOINT_PARTIAL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "longinteger_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::LongInteger::ENDPOINT_PARTIAL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "double_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::Double::ENDPOINT_PARTIAL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "boolean_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::Boolean::ENDPOINT_PARTIAL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "string_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::String::ENDPOINT_PARTIAL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "datetime_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::Datetime::ENDPOINT_PARTIAL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "binaryblob_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::BinaryBlob::ENDPOINT_PARTIAL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "integerarray_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::IntegerArray::ENDPOINT_PARTIAL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "longintegerarray_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::LongIntegerArray::ENDPOINT_PARTIAL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "doublearray_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::DoubleArray::ENDPOINT_PARTIAL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "booleanarray_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::BooleanArray::ENDPOINT_PARTIAL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "stringarray_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::StringArray::ENDPOINT_PARTIAL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "datetimearray_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::DatetimeArray::ENDPOINT_PARTIAL,
             AstartePropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(AstarteMessage(
-            astarte_interfaces::DeviceProperty::INTERFACE,
-            "binaryblobarray_endpoint",
+            constants::interfaces::DeviceProperty::INTERFACE,
+            constants::data_sets::BinaryBlobArray::ENDPOINT_PARTIAL,
             AstartePropertyIndividual(std::nullopt)
         )),
     };
@@ -361,294 +321,230 @@ std::vector<Action> check_all_properties_no_value() {
 std::vector<Action> get_properties() {
     return {
         actions::GetDeviceProperty(
-            std::string(astarte_interfaces::DeviceProperty::INTERFACE),
-            "/integer_endpoint",
-            AstartePropertyIndividual(AstarteData(12))
+            std::string(constants::interfaces::DeviceProperty::INTERFACE),
+            std::string(constants::data_sets::Integer::ENDPOINT_FULL),
+            AstartePropertyIndividual(constants::data_sets::Integer::DATA)
         ),
         actions::GetDeviceProperty(
-            std::string(astarte_interfaces::DeviceProperty::INTERFACE),
-            "/double_endpoint",
-            AstartePropertyIndividual(AstarteData(54.4))
+            std::string(constants::interfaces::DeviceProperty::INTERFACE),
+            std::string(constants::data_sets::Double::ENDPOINT_FULL),
+            AstartePropertyIndividual(constants::data_sets::Double::DATA)
         ),
         actions::GetDeviceProperty(
-            std::string(astarte_interfaces::DeviceProperty::INTERFACE),
-            "/boolean_endpoint",
-            AstartePropertyIndividual(AstarteData(true))
+            std::string(constants::interfaces::DeviceProperty::INTERFACE),
+            std::string(constants::data_sets::Boolean::ENDPOINT_FULL),
+            AstartePropertyIndividual(constants::data_sets::Boolean::DATA)
         ),
         actions::GetDeviceProperty(
-            std::string(astarte_interfaces::DeviceProperty::INTERFACE),
-            "/integerarray_endpoint",
-            AstartePropertyIndividual(AstarteData(std::vector<int32_t>{13, 2}))
+            std::string(constants::interfaces::DeviceProperty::INTERFACE),
+            std::string(constants::data_sets::IntegerArray::ENDPOINT_FULL),
+            AstartePropertyIndividual(constants::data_sets::IntegerArray::DATA)
         ),
         actions::GetDeviceProperty(
-            std::string(astarte_interfaces::DeviceProperty::INTERFACE),
-            "/doublearray_endpoint",
-            AstartePropertyIndividual(AstarteData(std::vector<double>{0.5}))
+            std::string(constants::interfaces::DeviceProperty::INTERFACE),
+            std::string(constants::data_sets::DoubleArray::ENDPOINT_FULL),
+            AstartePropertyIndividual(constants::data_sets::DoubleArray::DATA)
         ),
         actions::GetDeviceProperties(
-            std::string(astarte_interfaces::DeviceProperty::INTERFACE),
+            std::string(constants::interfaces::DeviceProperty::INTERFACE),
             {AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/integer_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::Integer::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(12)
+                 constants::data_sets::Integer::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/longinteger_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::LongInteger::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(17179869184)
+                 constants::data_sets::LongInteger::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/double_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::Double::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(54.4)
+                 constants::data_sets::Double::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/boolean_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::Boolean::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(true)
+                 constants::data_sets::Boolean::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/string_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::String::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(std::string("Hello C++!"))
+                 constants::data_sets::String::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/datetime_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::Datetime::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(
-                     std::chrono::system_clock::time_point(
-                         std::chrono::sys_days(
-                             std::chrono::year_month_day(
-                                 std::chrono::year(1994),
-                                 std::chrono::month(4),
-                                 std::chrono::day(12)
-                             )
-                         ) +
-                         std::chrono::hours(10) + std::chrono::minutes(15) + std::chrono::seconds(0)
-                     )
-                 )
+                 constants::data_sets::Datetime::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/binaryblob_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::BinaryBlob::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(std::vector<uint8_t>{0x23, 0x43, 0xF5})
+                 constants::data_sets::BinaryBlob::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/integerarray_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::IntegerArray::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(std::vector<int32_t>{13, 2})
+                 constants::data_sets::IntegerArray::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/longintegerarray_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::LongIntegerArray::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(std::vector<int64_t>{17179869184, 5})
+                 constants::data_sets::LongIntegerArray::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/doublearray_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::DoubleArray::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(std::vector<double>{0.5})
+                 constants::data_sets::DoubleArray::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/booleanarray_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::BooleanArray::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(std::vector<bool>{false, true})
+                 constants::data_sets::BooleanArray::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/stringarray_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::StringArray::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(std::vector<std::string>{"Hello ", "world ", "from ", "C++"})
+                 constants::data_sets::StringArray::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/datetimearray_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::DatetimeArray::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(
-                     std::vector<std::chrono::system_clock::time_point>{
-                         std::chrono::sys_days(
-                             std::chrono::year_month_day(
-                                 std::chrono::year(1994),
-                                 std::chrono::month(4),
-                                 std::chrono::day(12)
-                             )
-                         ) + std::chrono::hours(10) +
-                             std::chrono::minutes(15) + std::chrono::seconds(0),
-                         std::chrono::sys_days(
-                             std::chrono::year_month_day(
-                                 std::chrono::year(1985),
-                                 std::chrono::month(5),
-                                 std::chrono::day(22)
-                             )
-                         ) + std::chrono::hours(0) +
-                             std::chrono::minutes(0) + std::chrono::seconds(12),
-                     }
-                 )
+                 constants::data_sets::DatetimeArray::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/binaryblobarray_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::BinaryBlobArray::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(
-                     std::vector<std::vector<uint8_t>>{{0x23, 0x43, 0xF5}, {0x43, 0xF3, 0x00}}
-                 )
+                 constants::data_sets::BinaryBlobArray::DATA
              )}
         ),
         actions::GetAllFilteredProperties(
             std::nullopt,
             {AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/integer_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::Integer::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(12)
+                 constants::data_sets::Integer::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/longinteger_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::LongInteger::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(17179869184)
+                 constants::data_sets::LongInteger::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/double_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::Double::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(54.4)
+                 constants::data_sets::Double::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/boolean_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::Boolean::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(true)
+                 constants::data_sets::Boolean::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/string_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::String::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(std::string("Hello C++!"))
+                 constants::data_sets::String::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/datetime_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::Datetime::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(
-                     std::chrono::system_clock::time_point(
-                         std::chrono::sys_days(
-                             std::chrono::year_month_day(
-                                 std::chrono::year(1994),
-                                 std::chrono::month(4),
-                                 std::chrono::day(12)
-                             )
-                         ) +
-                         std::chrono::hours(10) + std::chrono::minutes(15) + std::chrono::seconds(0)
-                     )
-                 )
+                 constants::data_sets::Datetime::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/binaryblob_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::BinaryBlob::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(std::vector<uint8_t>{0x23, 0x43, 0xF5})
+                 constants::data_sets::BinaryBlob::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/integerarray_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::IntegerArray::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(std::vector<int32_t>{13, 2})
+                 constants::data_sets::IntegerArray::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/longintegerarray_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::LongIntegerArray::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(std::vector<int64_t>{17179869184, 5})
+                 constants::data_sets::LongIntegerArray::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/doublearray_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::DoubleArray::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(std::vector<double>{0.5})
+                 constants::data_sets::DoubleArray::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/booleanarray_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::BooleanArray::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(std::vector<bool>{false, true})
+                 constants::data_sets::BooleanArray::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/stringarray_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::StringArray::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(std::vector<std::string>{"Hello ", "world ", "from ", "C++"})
+                 constants::data_sets::StringArray::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/datetimearray_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::DatetimeArray::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(
-                     std::vector<std::chrono::system_clock::time_point>{
-                         std::chrono::sys_days(
-                             std::chrono::year_month_day(
-                                 std::chrono::year(1994),
-                                 std::chrono::month(4),
-                                 std::chrono::day(12)
-                             )
-                         ) + std::chrono::hours(10) +
-                             std::chrono::minutes(15) + std::chrono::seconds(0),
-                         std::chrono::sys_days(
-                             std::chrono::year_month_day(
-                                 std::chrono::year(1985),
-                                 std::chrono::month(5),
-                                 std::chrono::day(22)
-                             )
-                         ) + std::chrono::hours(0) +
-                             std::chrono::minutes(0) + std::chrono::seconds(12),
-                     }
-                 )
+                 constants::data_sets::DatetimeArray::DATA
              ),
              AstarteStoredProperty(
-                 astarte_interfaces::DeviceProperty::INTERFACE,
-                 "/binaryblobarray_endpoint",
+                 constants::interfaces::DeviceProperty::INTERFACE,
+                 std::string(constants::data_sets::BinaryBlobArray::ENDPOINT_FULL),
                  0,
                  AstarteOwnership::kDevice,
-                 AstarteData(
-                     std::vector<std::vector<uint8_t>>{{0x23, 0x43, 0xF5}, {0x43, 0xF3, 0x00}}
-                 )
+                 constants::data_sets::BinaryBlobArray::DATA
              )}
         ),
     };

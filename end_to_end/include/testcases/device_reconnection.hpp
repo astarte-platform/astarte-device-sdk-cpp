@@ -6,8 +6,9 @@
 
 #include "action.hpp"
 #include "case.hpp"
-#include "constants/astarte_interfaces.hpp"
-#include "constants/astarte_time.hpp"
+#include "constants/data_sets.hpp"
+#include "constants/interfaces.hpp"
+#include "constants/time.hpp"
 
 namespace testcases {
 
@@ -23,11 +24,11 @@ TestCase device_reconnection(std::string device_id) {
          actions::ExpectFailure(
              actions::TransmitDeviceData(
                  AstarteMessage(
-                     astarte_interfaces::DeviceDatastream::INTERFACE,
-                     "/integer_endpoint",
-                     AstarteDatastreamIndividual(AstarteData(12))
+                     constants::interfaces::DeviceDatastream::INTERFACE,
+                     constants::data_sets::Integer::ENDPOINT_FULL,
+                     AstarteDatastreamIndividual(constants::data_sets::Integer::DATA)
                  ),
-                 astarte_time::TIMESTAMP
+                 constants::time::TIMESTAMP
              )
          ),
          actions::Sleep(1s),
@@ -35,20 +36,20 @@ TestCase device_reconnection(std::string device_id) {
          actions::Sleep(1s),
          actions::TransmitDeviceData(
              AstarteMessage(
-                 astarte_interfaces::DeviceDatastream::INTERFACE,
-                 "/integer_endpoint",
-                 AstarteDatastreamIndividual(AstarteData(12))
+                 constants::interfaces::DeviceDatastream::INTERFACE,
+                 constants::data_sets::Integer::ENDPOINT_FULL,
+                 AstarteDatastreamIndividual(constants::data_sets::Integer::DATA)
              ),
-             astarte_time::TIMESTAMP
+             constants::time::TIMESTAMP
          ),
          actions::Sleep(1s),
          actions::FetchRESTData(
              AstarteMessage(
-                 astarte_interfaces::DeviceDatastream::INTERFACE,
-                 "integer_endpoint",
-                 AstarteDatastreamIndividual(AstarteData(12))
+                 constants::interfaces::DeviceDatastream::INTERFACE,
+                 constants::data_sets::Integer::ENDPOINT_PARTIAL,
+                 AstarteDatastreamIndividual(constants::data_sets::Integer::DATA)
              ),
-             astarte_time::TIMESTAMP
+             constants::time::TIMESTAMP
          ),
          actions::Sleep(1s),
          actions::Disconnect(),
