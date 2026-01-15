@@ -42,22 +42,22 @@ TestCase device_aggregate(std::string device_id) {
 
     return TestCase(
         "Send Astarte Aggregate",
-        {Actions::Connect(),
-         Actions::Sleep(1s),
+        {actions::Connect(),
+         actions::Sleep(1s),
 
-         Actions::TransmitDeviceData(
+         actions::TransmitDeviceData(
              AstarteMessage(astarte_interfaces::DeviceAggregate::INTERFACE, "/sensor1", astarte_obj)
          ),
 
-         Actions::Sleep(1s),
+         actions::Sleep(1s),
 
-         Actions::FetchRESTData(
+         actions::FetchRESTData(
              AstarteMessage(astarte_interfaces::DeviceAggregate::INTERFACE, "sensor1", astarte_obj)
          ),
 
-         Actions::Sleep(1s),
-         Actions::Disconnect(),
-         Actions::Sleep(1s)},
+         actions::Sleep(1s),
+         actions::Disconnect(),
+         actions::Sleep(1s)},
         device_id
     );
 }

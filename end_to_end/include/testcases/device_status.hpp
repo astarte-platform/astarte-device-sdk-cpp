@@ -15,9 +15,9 @@ using namespace std::chrono_literals;
 TestCase device_status(std::string device_id) {
     return TestCase(
         "Device status",
-        {Actions::Connect(),
-         Actions::Sleep(1s),
-         Actions::CheckDeviceStatus(
+        {actions::Connect(),
+         actions::Sleep(1s),
+         actions::CheckDeviceStatus(
              true,
              std::vector<std::string>{
                  std::string(astarte_interfaces::DeviceDatastream::INTERFACE),
@@ -28,8 +28,8 @@ TestCase device_status(std::string device_id) {
                  std::string(astarte_interfaces::ServerProperty::INTERFACE)
              }
          ),
-         Actions::Disconnect(),
-         Actions::Sleep(1s)},
+         actions::Disconnect(),
+         actions::Sleep(1s)},
         device_id
     );
 }

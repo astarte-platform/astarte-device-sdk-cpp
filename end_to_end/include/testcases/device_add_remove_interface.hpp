@@ -15,9 +15,9 @@ using namespace std::chrono_literals;
 TestCase device_add_remove_interface(std::string device_id) {
     return TestCase(
         "Add/remove interfaces",
-        {Actions::Connect(),
-         Actions::Sleep(1s),
-         Actions::TransmitDeviceData(
+        {actions::Connect(),
+         actions::Sleep(1s),
+         actions::TransmitDeviceData(
              AstarteMessage(
                  astarte_interfaces::DeviceDatastream::INTERFACE,
                  "/integer_endpoint",
@@ -25,16 +25,16 @@ TestCase device_add_remove_interface(std::string device_id) {
              ),
              astarte_time::TIMESTAMP
          ),
-         Actions::TransmitDeviceData(AstarteMessage(
+         actions::TransmitDeviceData(AstarteMessage(
              astarte_interfaces::DeviceProperty::INTERFACE,
              "/integer_endpoint",
              AstartePropertyIndividual(AstarteData(12))
          )),
-         Actions::Sleep(1s),
-         Actions::RemoveInterface(std::string(astarte_interfaces::DeviceDatastream::INTERFACE)),
-         Actions::Sleep(1s),
-         Actions::ExpectFailure(
-             Actions::TransmitDeviceData(
+         actions::Sleep(1s),
+         actions::RemoveInterface(std::string(astarte_interfaces::DeviceDatastream::INTERFACE)),
+         actions::Sleep(1s),
+         actions::ExpectFailure(
+             actions::TransmitDeviceData(
                  AstarteMessage(
                      astarte_interfaces::DeviceDatastream::INTERFACE,
                      "/integer_endpoint",
@@ -43,15 +43,15 @@ TestCase device_add_remove_interface(std::string device_id) {
                  astarte_time::TIMESTAMP
              )
          ),
-         Actions::TransmitDeviceData(AstarteMessage(
+         actions::TransmitDeviceData(AstarteMessage(
              astarte_interfaces::DeviceProperty::INTERFACE,
              "/integer_endpoint",
              AstartePropertyIndividual(AstarteData(12))
          )),
-         Actions::Sleep(1s),
-         Actions::AddInterfaceFile(std::string(astarte_interfaces::DeviceDatastream::FILE)),
-         Actions::Sleep(1s),
-         Actions::TransmitDeviceData(
+         actions::Sleep(1s),
+         actions::AddInterfaceFile(std::string(astarte_interfaces::DeviceDatastream::FILE)),
+         actions::Sleep(1s),
+         actions::TransmitDeviceData(
              AstarteMessage(
                  astarte_interfaces::DeviceDatastream::INTERFACE,
                  "/integer_endpoint",
@@ -59,15 +59,15 @@ TestCase device_add_remove_interface(std::string device_id) {
              ),
              astarte_time::TIMESTAMP
          ),
-         Actions::TransmitDeviceData(AstarteMessage(
+         actions::TransmitDeviceData(AstarteMessage(
              astarte_interfaces::DeviceProperty::INTERFACE,
              "/integer_endpoint",
              AstartePropertyIndividual(AstarteData(12))
          )),
 
-         Actions::Sleep(1s),
-         Actions::Disconnect(),
-         Actions::Sleep(1s)},
+         actions::Sleep(1s),
+         actions::Disconnect(),
+         actions::Sleep(1s)},
         device_id
     );
 }

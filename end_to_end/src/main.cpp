@@ -29,6 +29,7 @@
 
 // Constants
 #include "constants/astarte_interfaces.hpp"
+#include "constants/file_paths.hpp"
 
 bool validate_config(const toml::table& config) {
   bool is_valid = true;
@@ -110,7 +111,7 @@ int main() {
   // Parse configuration from toml
   toml::table config;
   try {
-    config = toml::parse_file("end_to_end/config.toml");
+    config = toml::parse_file(file_paths::CONFIG_FILE);
   } catch (const toml::parse_error& err) {
     spdlog::error("Parsing config.toml failed:\n{}", err.what());
     return 1;
@@ -150,10 +151,9 @@ int main() {
   device_factory = std::make_shared<TestGrpcDeviceFactory>(grpc_conf);
 #else
   auto store_dir = config["mqtt"]["store_dir"].value<std::string>().value();
-  auto pairing_token_opt = config.at("mqtt").at_path("pairing_token").value<std::string>();
-  auto device_id_registration_opt =
-      config.at("mqtt").at_path("device_id_registration").value<std::string>();
-  auto credential_secret_opt = config.at("mqtt").at_path("credential_secret").value<std::string>();
+  auto pairing_token_opt = config["mqtt"]["pairing_token"].value<std::string>();
+  auto device_id_registration_opt = config["mqtt"]["device_id_registration"].value<std::string>();
+  auto credential_secret_opt = config["mqtt"]["credential_secret"].value<std::string>();
 
   TestMqttDeviceConfig mqtt_conf = {
       .realm = realm,
@@ -179,10 +179,10 @@ int main() {
 #else
   orchestrator.add_test_case(
       testcases::device_pairing(pairing_token_opt.value(), device_id_registration_opt.value()));
-  // Standard tests using existing credentials (device functionality not yet implemented)
+  // Standard tests using existing credentials
   orchestrator.add_test_case(testcases::device_status(device_id));
+  // Other device functionalities have to be implemented
   // register_standard_test_suite(orchestrator);
-
 #endif
   orchestrator.execute_all();
 

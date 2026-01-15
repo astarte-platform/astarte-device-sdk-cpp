@@ -172,6 +172,7 @@ jobs:
         run: |
           APPENGINE_TOKEN=$(astartectl utils gen-jwt appengine)
           PAIRING_TOKEN=$(astartectl utils gen-jwt pairing)
+          # Device ID to be used only for on-board registration
           DEVICE_ID_REGISTRATION=$(astartectl utils device-id generate-random)
           DEVICE_ID=$(astartectl utils device-id generate-random)
           CREDENTIAL_SECRET=$(astartectl pairing agent register --compact-output -- "$DEVICE_ID")

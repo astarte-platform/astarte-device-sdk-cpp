@@ -16,12 +16,12 @@ using namespace std::chrono_literals;
 TestCase device_reconnection(std::string device_id) {
     return TestCase(
         "Device Reconnection",
-        {Actions::Connect(),
-         Actions::Sleep(1s),
-         Actions::Disconnect(),
-         Actions::Sleep(1s),
-         Actions::ExpectFailure(
-             Actions::TransmitDeviceData(
+        {actions::Connect(),
+         actions::Sleep(1s),
+         actions::Disconnect(),
+         actions::Sleep(1s),
+         actions::ExpectFailure(
+             actions::TransmitDeviceData(
                  AstarteMessage(
                      astarte_interfaces::DeviceDatastream::INTERFACE,
                      "/integer_endpoint",
@@ -30,10 +30,10 @@ TestCase device_reconnection(std::string device_id) {
                  astarte_time::TIMESTAMP
              )
          ),
-         Actions::Sleep(1s),
-         Actions::Connect(),
-         Actions::Sleep(1s),
-         Actions::TransmitDeviceData(
+         actions::Sleep(1s),
+         actions::Connect(),
+         actions::Sleep(1s),
+         actions::TransmitDeviceData(
              AstarteMessage(
                  astarte_interfaces::DeviceDatastream::INTERFACE,
                  "/integer_endpoint",
@@ -41,8 +41,8 @@ TestCase device_reconnection(std::string device_id) {
              ),
              astarte_time::TIMESTAMP
          ),
-         Actions::Sleep(1s),
-         Actions::FetchRESTData(
+         actions::Sleep(1s),
+         actions::FetchRESTData(
              AstarteMessage(
                  astarte_interfaces::DeviceDatastream::INTERFACE,
                  "integer_endpoint",
@@ -50,9 +50,9 @@ TestCase device_reconnection(std::string device_id) {
              ),
              astarte_time::TIMESTAMP
          ),
-         Actions::Sleep(1s),
-         Actions::Disconnect(),
-         Actions::Sleep(1s)},
+         actions::Sleep(1s),
+         actions::Disconnect(),
+         actions::Sleep(1s)},
         device_id
     );
 }

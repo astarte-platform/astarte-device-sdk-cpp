@@ -19,32 +19,32 @@ using AstarteDeviceSdk::AstarteOwnership;
 
 std::vector<Action> set_all_properties() {
     return {
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/integer_endpoint",
             AstartePropertyIndividual(AstarteData(12))
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/longinteger_endpoint",
             AstartePropertyIndividual(AstarteData(17179869184))
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/double_endpoint",
             AstartePropertyIndividual(AstarteData(54.4))
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/boolean_endpoint",
             AstartePropertyIndividual(AstarteData(true))
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/string_endpoint",
             AstartePropertyIndividual(AstarteData(std::string("Hello C++!")))
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/datetime_endpoint",
             AstartePropertyIndividual(AstarteData(
@@ -58,39 +58,39 @@ std::vector<Action> set_all_properties() {
                 )
             ))
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/binaryblob_endpoint",
             AstartePropertyIndividual(AstarteData(std::vector<uint8_t>{0x23, 0x43, 0xF5}))
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/integerarray_endpoint",
             AstartePropertyIndividual(AstarteData(std::vector<int32_t>{13, 2}))
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/longintegerarray_endpoint",
             AstartePropertyIndividual(AstarteData(std::vector<int64_t>{17179869184, 5}))
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/doublearray_endpoint",
             AstartePropertyIndividual(AstarteData(std::vector<double>{0.5}))
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/booleanarray_endpoint",
             AstartePropertyIndividual(AstarteData(std::vector<bool>{false, true}))
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/stringarray_endpoint",
             AstartePropertyIndividual(
                 AstarteData(std::vector<std::string>{"Hello ", "world ", "from ", "C++"})
             )
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/datetimearray_endpoint",
             AstartePropertyIndividual(AstarteData(
@@ -110,7 +110,7 @@ std::vector<Action> set_all_properties() {
                 }
             ))
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/binaryblobarray_endpoint",
             AstartePropertyIndividual(AstarteData(
@@ -122,32 +122,32 @@ std::vector<Action> set_all_properties() {
 
 std::vector<Action> check_all_properties_have_value() {
     return {
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "integer_endpoint",
             AstartePropertyIndividual(AstarteData(12))
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "longinteger_endpoint",
             AstartePropertyIndividual(AstarteData(17179869184))
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "double_endpoint",
             AstartePropertyIndividual(AstarteData(54.4))
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "boolean_endpoint",
             AstartePropertyIndividual(AstarteData(true))
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "string_endpoint",
             AstartePropertyIndividual(AstarteData(std::string("Hello C++!")))
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "datetime_endpoint",
             AstartePropertyIndividual(AstarteData(
@@ -156,39 +156,39 @@ std::vector<Action> check_all_properties_have_value() {
                 )
             ))
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "binaryblob_endpoint",
             AstartePropertyIndividual(AstarteData(std::vector<uint8_t>{0x23, 0x43, 0xF5}))
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "integerarray_endpoint",
             AstartePropertyIndividual(AstarteData(std::vector<int32_t>{13, 2}))
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "longintegerarray_endpoint",
             AstartePropertyIndividual(AstarteData(std::vector<int64_t>{17179869184, 5}))
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "doublearray_endpoint",
             AstartePropertyIndividual(AstarteData(std::vector<double>{0.5}))
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "booleanarray_endpoint",
             AstartePropertyIndividual(AstarteData(std::vector<bool>{false, true}))
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "stringarray_endpoint",
             AstartePropertyIndividual(
                 AstarteData(std::vector<std::string>{"Hello ", "world ", "from ", "C++"})
             )
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "datetimearray_endpoint",
             AstartePropertyIndividual(AstarteData(
@@ -198,7 +198,7 @@ std::vector<Action> check_all_properties_have_value() {
                 }
             ))
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "binaryblobarray_endpoint",
             AstartePropertyIndividual(AstarteData(
@@ -210,72 +210,72 @@ std::vector<Action> check_all_properties_have_value() {
 
 std::vector<Action> unset_all_properties() {
     return {
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/integer_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/longinteger_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/double_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/boolean_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/string_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/datetime_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/binaryblob_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/integerarray_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/longintegerarray_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/doublearray_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/booleanarray_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/stringarray_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/datetimearray_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::TransmitDeviceData(AstarteMessage(
+        actions::TransmitDeviceData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "/binaryblobarray_endpoint",
             AstartePropertyIndividual(std::nullopt)
@@ -285,72 +285,72 @@ std::vector<Action> unset_all_properties() {
 
 std::vector<Action> check_all_properties_no_value() {
     return {
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "integer_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "longinteger_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "double_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "boolean_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "string_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "datetime_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "binaryblob_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "integerarray_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "longintegerarray_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "doublearray_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "booleanarray_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "stringarray_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "datetimearray_endpoint",
             AstartePropertyIndividual(std::nullopt)
         )),
-        Actions::FetchRESTData(AstarteMessage(
+        actions::FetchRESTData(AstarteMessage(
             astarte_interfaces::DeviceProperty::INTERFACE,
             "binaryblobarray_endpoint",
             AstartePropertyIndividual(std::nullopt)
@@ -360,32 +360,32 @@ std::vector<Action> check_all_properties_no_value() {
 
 std::vector<Action> get_properties() {
     return {
-        Actions::GetDeviceProperty(
+        actions::GetDeviceProperty(
             std::string(astarte_interfaces::DeviceProperty::INTERFACE),
             "/integer_endpoint",
             AstartePropertyIndividual(AstarteData(12))
         ),
-        Actions::GetDeviceProperty(
+        actions::GetDeviceProperty(
             std::string(astarte_interfaces::DeviceProperty::INTERFACE),
             "/double_endpoint",
             AstartePropertyIndividual(AstarteData(54.4))
         ),
-        Actions::GetDeviceProperty(
+        actions::GetDeviceProperty(
             std::string(astarte_interfaces::DeviceProperty::INTERFACE),
             "/boolean_endpoint",
             AstartePropertyIndividual(AstarteData(true))
         ),
-        Actions::GetDeviceProperty(
+        actions::GetDeviceProperty(
             std::string(astarte_interfaces::DeviceProperty::INTERFACE),
             "/integerarray_endpoint",
             AstartePropertyIndividual(AstarteData(std::vector<int32_t>{13, 2}))
         ),
-        Actions::GetDeviceProperty(
+        actions::GetDeviceProperty(
             std::string(astarte_interfaces::DeviceProperty::INTERFACE),
             "/doublearray_endpoint",
             AstartePropertyIndividual(AstarteData(std::vector<double>{0.5}))
         ),
-        Actions::GetDeviceProperties(
+        actions::GetDeviceProperties(
             std::string(astarte_interfaces::DeviceProperty::INTERFACE),
             {AstarteStoredProperty(
                  astarte_interfaces::DeviceProperty::INTERFACE,
@@ -518,7 +518,7 @@ std::vector<Action> get_properties() {
                  )
              )}
         ),
-        Actions::GetAllFilteredProperties(
+        actions::GetAllFilteredProperties(
             std::nullopt,
             {AstarteStoredProperty(
                  astarte_interfaces::DeviceProperty::INTERFACE,
@@ -660,19 +660,19 @@ TestCase device_property(std::string device_id) {
     auto check_all_props_with_value = check_all_properties_have_value();
     auto check_all_props_no_value = check_all_properties_no_value();
 
-    std::vector<Action> actions = {Actions::Connect(), Actions::Sleep(1s)};
+    std::vector<Action> actions = {actions::Connect(), actions::Sleep(1s)};
     actions.insert(actions.end(), set_all_props.begin(), set_all_props.end());
-    actions.push_back(Actions::Sleep(1s));
+    actions.push_back(actions::Sleep(1s));
     actions.insert(
         actions.end(), check_all_props_with_value.begin(), check_all_props_with_value.end()
     );
-    actions.push_back(Actions::Sleep(1s));
+    actions.push_back(actions::Sleep(1s));
     actions.insert(actions.end(), unset_all_props.begin(), unset_all_props.end());
-    actions.push_back(Actions::Sleep(1s));
+    actions.push_back(actions::Sleep(1s));
     actions.insert(actions.end(), check_all_props_no_value.begin(), check_all_props_no_value.end());
-    actions.push_back(Actions::Sleep(1s));
-    actions.push_back(Actions::Disconnect());
-    actions.push_back(Actions::Sleep(1s));
+    actions.push_back(actions::Sleep(1s));
+    actions.push_back(actions::Disconnect());
+    actions.push_back(actions::Sleep(1s));
 
     return TestCase("Device property to Astarte", actions, device_id);
 }
@@ -682,15 +682,15 @@ TestCase device_property_getter(std::string device_id) {
     auto get_props = get_properties();
     auto unset_all_props = unset_all_properties();
 
-    std::vector<Action> actions = {Actions::Connect(), Actions::Sleep(1s)};
+    std::vector<Action> actions = {actions::Connect(), actions::Sleep(1s)};
     actions.insert(actions.end(), set_all_props.begin(), set_all_props.end());
-    actions.push_back(Actions::Sleep(1s));
+    actions.push_back(actions::Sleep(1s));
     actions.insert(actions.end(), get_props.begin(), get_props.end());
-    actions.push_back(Actions::Sleep(1s));
+    actions.push_back(actions::Sleep(1s));
     actions.insert(actions.end(), unset_all_props.begin(), unset_all_props.end());
-    actions.push_back(Actions::Sleep(1s));
-    actions.push_back(Actions::Disconnect());
-    actions.push_back(Actions::Sleep(1s));
+    actions.push_back(actions::Sleep(1s));
+    actions.push_back(actions::Disconnect());
+    actions.push_back(actions::Sleep(1s));
 
     return TestCase("Device property getter", actions, device_id);
 }

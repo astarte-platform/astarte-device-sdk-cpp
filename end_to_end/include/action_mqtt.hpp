@@ -7,7 +7,7 @@
 #include "action.hpp"
 #include "astarte_device_sdk/mqtt/pairing.hpp"
 
-namespace Actions {
+namespace actions {
 
 using AstarteDeviceSdk::AstarteError;
 using AstarteDeviceSdk::PairingApi;
@@ -42,4 +42,4 @@ inline Action RegisterDevice(std::string pairing_token) {
   };
 }
 
-}  // namespace Actions
+}  // namespace actions

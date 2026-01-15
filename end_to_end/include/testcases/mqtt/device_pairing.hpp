@@ -19,10 +19,10 @@ TestCase device_pairing(std::string pairing_token, std::string device_id) {
     return TestCase(
         "Pairing",
         {
-            Actions::RegisterDevice(pairing_token),
-            Actions::Sleep(1s),
-            Actions::CheckDeviceStatus(false),
-            Actions::Sleep(1s),
+            actions::RegisterDevice(pairing_token),
+            actions::Sleep(1s),
+            actions::CheckDeviceStatus(false),
+            actions::Sleep(1s),
         },
         device_id,
         false

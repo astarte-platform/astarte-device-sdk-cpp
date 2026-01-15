@@ -63,7 +63,7 @@ using Action = std::function<void(const TestCaseContext&)>;
 // Implementation details
 // -----------------------------------------------------------------------------
 
-namespace detail {
+namespace actions_helpers {
 
 // Helper to construct the full URL for REST actions
 inline std::string build_url(const TestCaseContext& ctx, const std::string& path_suffix = "") {
@@ -159,16 +159,16 @@ inline void check_property_unset(const json& response_json, const AstarteMessage
   }
 }
 
-}  // namespace detail
+}  // namespace actions_helpers
 
 // -----------------------------------------------------------------------------
-// Actions
+// actions
 // -----------------------------------------------------------------------------
 
-namespace Actions {
+namespace actions {
 
 // -----------------------------------------------------------------------------
-// Meta Actions
+// Meta actions
 // -----------------------------------------------------------------------------
 
 // Wrapper to inverse success criteria (Expect Failure)
@@ -186,7 +186,7 @@ inline Action ExpectFailure(Action action) {
 }
 
 // -----------------------------------------------------------------------------
-// Utility Actions
+// Utility actions
 // -----------------------------------------------------------------------------
 
 inline Action Sleep(std::chrono::milliseconds duration) {
@@ -201,7 +201,7 @@ inline Action Sleep(std::chrono::seconds duration) {
 }
 
 // -----------------------------------------------------------------------------
-// Connection Actions
+// Connection actions
 // -----------------------------------------------------------------------------
 
 inline Action Connect() {
@@ -376,7 +376,7 @@ inline Action GetAllFilteredProperties(std::optional<AstarteOwnership> ownership
 }
 
 // -----------------------------------------------------------------------------
-// REST API Actions (HTTP)
+// REST API actions (HTTP)
 // -----------------------------------------------------------------------------
 
 inline Action CheckDeviceStatus(
@@ -385,7 +385,7 @@ inline Action CheckDeviceStatus(
   return [expected_conn = expected_connection_status,
           expected_intro = std::move(expected_introspection)](const TestCaseContext& ctx) {
     spdlog::info("Checking device status...");
-    std::string url = detail::build_url(ctx);
+    std::string url = actions_helpers::build_url(ctx);
     spdlog::trace("HTTP GET: {}", url);
 
     auto response = cpr::Get(cpr::Url{url}, cpr::Header{{"Content-Type", "application/json"}},
@@ -420,7 +420,8 @@ inline Action CheckDeviceStatus(
 inline Action TransmitRESTData(AstarteMessage message) {
   return [msg = std::move(message)](const TestCaseContext& ctx) {
     spdlog::info("Transmitting REST data...");
-    std::string url = detail::build_url(ctx, "/interfaces/" + msg.get_interface() + msg.get_path());
+    std::string url =
+        actions_helpers::build_url(ctx, "/interfaces/" + msg.get_interface() + msg.get_path());
     spdlog::info("REQUEST: {}", url);
 
     auto make_payload = [](const auto& data) {
@@ -468,7 +469,7 @@ inline Action FetchRESTData(
     std::optional<std::chrono::system_clock::time_point> timestamp = std::nullopt) {
   return [msg = std::move(message), ts = timestamp](const TestCaseContext& ctx) {
     spdlog::info("Fetching REST data...");
-    std::string url = detail::build_url(ctx, "/interfaces/" + msg.get_interface());
+    std::string url = actions_helpers::build_url(ctx, "/interfaces/" + msg.get_interface());
 
     auto response = cpr::Get(cpr::Url{url}, cpr::Header{{"Content-Type", "application/json"}},
                              cpr::Header{{"Authorization", "Bearer " + ctx.http.appengine_token}});
@@ -482,19 +483,19 @@ inline Action FetchRESTData(
 
     if (msg.is_datastream()) {
       if (msg.is_individual()) {
-        detail::check_datastream_individual(response_json, msg);
+        actions_helpers::check_datastream_individual(response_json, msg);
       } else {
-        detail::check_datastream_aggregate(response_json, msg);
+        actions_helpers::check_datastream_aggregate(response_json, msg);
       }
     } else {
       const auto expected_data(msg.into<AstartePropertyIndividual>());
       if (expected_data.get_value().has_value()) {
-        detail::check_individual_property(response_json, msg, expected_data);
+        actions_helpers::check_individual_property(response_json, msg, expected_data);
       } else {
-        detail::check_property_unset(response_json, msg);
+        actions_helpers::check_property_unset(response_json, msg);
       }
     }
   };
 }
 
-}  // namespace Actions
+}  // namespace actions
