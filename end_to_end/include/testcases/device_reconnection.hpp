@@ -14,24 +14,46 @@ namespace testcases {
 using namespace std::chrono_literals;
 
 TestCase device_reconnection(std::string device_id) {
-  return TestCase(
-      "Device Reconnection",
-      {Actions::Connect(), Actions::Sleep(1s), Actions::Disconnect(), Actions::Sleep(1s),
-       Actions::ExpectFailure(Actions::TransmitDeviceData(
-           AstarteMessage(astarte_interfaces::DeviceDatastream::INTERFACE, "/integer_endpoint",
-                          AstarteDatastreamIndividual(AstarteData(12))),
-           astarte_time::TIMESTAMP)),
-       Actions::Sleep(1s), Actions::Connect(), Actions::Sleep(1s),
-       Actions::TransmitDeviceData(
-           AstarteMessage(astarte_interfaces::DeviceDatastream::INTERFACE, "/integer_endpoint",
-                          AstarteDatastreamIndividual(AstarteData(12))),
-           astarte_time::TIMESTAMP),
-       Actions::Sleep(1s),
-       Actions::FetchRESTData(
-           AstarteMessage(astarte_interfaces::DeviceDatastream::INTERFACE, "integer_endpoint",
-                          AstarteDatastreamIndividual(AstarteData(12))),
-           astarte_time::TIMESTAMP),
-       Actions::Sleep(1s), Actions::Disconnect(), Actions::Sleep(1s)},
-      device_id);
+    return TestCase(
+        "Device Reconnection",
+        {Actions::Connect(),
+         Actions::Sleep(1s),
+         Actions::Disconnect(),
+         Actions::Sleep(1s),
+         Actions::ExpectFailure(
+             Actions::TransmitDeviceData(
+                 AstarteMessage(
+                     astarte_interfaces::DeviceDatastream::INTERFACE,
+                     "/integer_endpoint",
+                     AstarteDatastreamIndividual(AstarteData(12))
+                 ),
+                 astarte_time::TIMESTAMP
+             )
+         ),
+         Actions::Sleep(1s),
+         Actions::Connect(),
+         Actions::Sleep(1s),
+         Actions::TransmitDeviceData(
+             AstarteMessage(
+                 astarte_interfaces::DeviceDatastream::INTERFACE,
+                 "/integer_endpoint",
+                 AstarteDatastreamIndividual(AstarteData(12))
+             ),
+             astarte_time::TIMESTAMP
+         ),
+         Actions::Sleep(1s),
+         Actions::FetchRESTData(
+             AstarteMessage(
+                 astarte_interfaces::DeviceDatastream::INTERFACE,
+                 "integer_endpoint",
+                 AstarteDatastreamIndividual(AstarteData(12))
+             ),
+             astarte_time::TIMESTAMP
+         ),
+         Actions::Sleep(1s),
+         Actions::Disconnect(),
+         Actions::Sleep(1s)},
+        device_id
+    );
 }
 }  // namespace testcases
