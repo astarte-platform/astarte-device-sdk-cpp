@@ -13,11 +13,45 @@
 
 using AstarteDeviceSdk::Interface;
 using AstarteDeviceSdk::Introspection;
+
 using nlohmann::json;
 
 // helper matchers
 MATCHER(IsExpected, "") { return arg.has_value(); }
 MATCHER(IsUnexpected, "") { return !arg.has_value(); }
+
+TEST(AstarteTestInterface, ConvertFromJson) {
+  auto json = json::parse("{}");
+
+  // an intrerface must contains at least interface_name, version_major, version_minor,
+  // interface_type, ownership, mappings
+  auto res = Interface::try_from_json(json);
+  ASSERT_THAT(res, IsUnexpected());
+
+  json.update({{"interface_name", "test.Test"}});
+  res = Interface::try_from_json(json);
+  ASSERT_THAT(res, IsUnexpected());
+
+  json.update({{"version_major", 0}});
+  res = Interface::try_from_json(json);
+  ASSERT_THAT(res, IsUnexpected());
+
+  json.update({{"version_minor", 1}});
+  res = Interface::try_from_json(json);
+  ASSERT_THAT(res, IsUnexpected());
+
+  json.update({{"type", "datastream"}});
+  res = Interface::try_from_json(json);
+  ASSERT_THAT(res, IsUnexpected());
+
+  json.update({{"ownership", "device"}});
+  res = Interface::try_from_json(json);
+  ASSERT_THAT(res, IsUnexpected());
+
+  json.update({{"mappings", json::array()}});
+  res = Interface::try_from_json(json);
+  ASSERT_THAT(res, IsExpected());
+}
 
 constexpr std::string_view interface_str = R"({
     "interface_name": "test.Test",

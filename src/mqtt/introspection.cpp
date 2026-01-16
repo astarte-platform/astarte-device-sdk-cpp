@@ -48,20 +48,46 @@ inline auto aggregation_from_str(std::string aggr)
 
 auto mappings_from_interface(const json& interface)
     -> astarte_tl::expected<std::vector<Mapping>, AstarteError> {
+  if (!interface.contains("mappings")) {
+    return astarte_tl::unexpected(
+        AstarteInterfaceValidationError("Missing required field: mappings"));
+  }
+
+  const auto& mappings_json = interface["mappings"];
+
+  if (!mappings_json.is_array()) {
+    return astarte_tl::unexpected(
+        AstarteInterfaceValidationError("'mappings' field must be an array"));
+  }
+
   std::vector<Mapping> mappings;
 
-  for (const auto& mapping : interface.at("mappings")) {
-    auto endpoint = mapping.at("endpoint");
-    auto type_res = astarte_type_from_str(mapping.at("type"));
+  // reserve memory to avoid reallocations
+  mappings.reserve(mappings_json.size());
+
+  for (const auto& mapping : mappings_json) {
+    if (!mapping.contains("endpoint")) {
+      return astarte_tl::unexpected(
+          AstarteInterfaceValidationError("Mapping missing required field: endpoint"));
+    }
+    auto endpoint = mapping["endpoint"].get<std::string>();
+
+    if (!mapping.contains("type")) {
+      return astarte_tl::unexpected(
+          AstarteInterfaceValidationError("Mapping missing required field: type"));
+    }
+    auto type_res = astarte_type_from_str(mapping["type"].get<std::string>());
     if (!type_res) {
       return astarte_tl::unexpected(type_res.error());
     }
     auto type = type_res.value();
+
     auto explicit_timestamp =
         optional_value_from_json_interface<bool>(mapping, "explicit_timestamp");
-    auto reliability =
-        std::optional(optional_value_from_json_interface<Reliability>(mapping, "reliability")
-                          .value_or(Reliability::kUnreliable));
+
+    // Handle reliability default
+    auto reliability_opt = optional_value_from_json_interface<Reliability>(mapping, "reliability");
+    auto reliability = std::optional(reliability_opt.value_or(Reliability::kUnreliable));
     auto retention = optional_value_from_json_interface<Retention>(mapping, "retention");
     auto expiry = optional_value_from_json_interface<int64_t>(mapping, "expiry");
     auto database_retention_policy = optional_value_from_json_interface<DatabaseRetentionPolicy>(
@@ -72,7 +98,8 @@ auto mappings_from_interface(const json& interface)
     auto description = optional_value_from_json_interface<std::string>(mapping, "description");
     auto doc = optional_value_from_json_interface<std::string>(mapping, "doc");
 
-    mappings.emplace_back(Mapping{.endpoint_ = endpoint,
+    // Construct and move into vector
+    mappings.emplace_back(Mapping{.endpoint_ = std::move(endpoint),
                                   .type_ = type,
                                   .explicit_timestamp_ = explicit_timestamp,
                                   .reliability_ = reliability,
@@ -164,27 +191,55 @@ auto Mapping::check_data_type(const AstarteData& data) const
 // NOLINTNEXTLINE(readability-function-size)
 auto Interface::try_from_json(const json& interface)
     -> astarte_tl::expected<Interface, AstarteError> {
-  const auto& interface_name = interface.at("interface_name");
-  auto version_major = convert_version("major", interface.at("version_major"));
+  // helper lambda to safely get a reference to a JSON field
+  auto get_field = [&](std::string_view key) -> astarte_tl::expected<json, AstarteError> {
+    if (!interface.contains(key)) {
+      return astarte_tl::unexpected(
+          AstarteInterfaceValidationError(astarte_fmt::format("Missing required field: {}", key)));
+    }
+    return interface.at(key);
+  };
+
+  // retrieve interface fields
+  auto name_json = get_field("interface_name");
+  if (!name_json) return astarte_tl::unexpected(name_json.error());
+  const auto interface_name = name_json.value().get<std::string>();
+
+  auto maj_json = get_field("version_major");
+  if (!maj_json) return astarte_tl::unexpected(maj_json.error());
+
+  auto version_major = convert_version("major", maj_json.value().get<int64_t>());
   if (!version_major) {
     return astarte_tl::unexpected(version_major.error());
   }
-  auto version_minor = convert_version("minor", interface.at("version_minor"));
+
+  auto min_json = get_field("version_minor");
+  if (!min_json) return astarte_tl::unexpected(min_json.error());
+
+  auto version_minor = convert_version("minor", min_json.value().get<int64_t>());
   if (!version_minor) {
     return astarte_tl::unexpected(version_minor.error());
   }
-  auto interface_type = interface_type_from_str(interface.at("type"));
+
+  auto type_json = get_field("type");
+  if (!type_json) return astarte_tl::unexpected(type_json.error());
+
+  auto interface_type = interface_type_from_str(type_json.value().get<std::string>());
   if (!interface_type) {
     return astarte_tl::unexpected(interface_type.error());
   }
-  auto ownership = ownership_from_str(interface.at("ownership"));
+
+  auto own_json = get_field("ownership");
+  if (!own_json) return astarte_tl::unexpected(own_json.error());
+
+  auto ownership = ownership_from_str(own_json.value().get<std::string>());
   if (!ownership) {
     return astarte_tl::unexpected(ownership.error());
   }
+
   std::optional<Aggregation> aggregation = std::nullopt;
-  auto contains_aggr = interface.contains("aggregation");
-  if (contains_aggr) {
-    auto res = aggregation_from_str(interface.at("aggregation"));
+  if (interface.contains("aggregation")) {
+    auto res = aggregation_from_str(interface.at("aggregation").get<std::string>());
     if (!res) {
       return astarte_tl::unexpected(res.error());
     }
