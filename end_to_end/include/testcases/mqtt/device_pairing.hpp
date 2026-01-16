@@ -8,17 +8,25 @@
 
 #include <vector>
 
+#include "action_mqtt.hpp"
 #include "case.hpp"
 
 namespace testcases {
 
-TestCase device_pairing(std::string pairing_token) {
-  return TestCase("Pairing", std::vector<std::shared_ptr<TestAction>>{
-                                 TestActionPairingApiRegistration::Create(pairing_token),
-                                 TestActionSleep::Create(std::chrono::seconds(1)),
-                                 TestActionCheckDeviceStatus::Create(false),
-                                 TestActionSleep::Create(std::chrono::seconds(1)),
-                             });
+using namespace std::chrono_literals;
+
+TestCase device_pairing(std::string pairing_token, std::string device_id) {
+    return TestCase(
+        "Pairing",
+        {
+            actions::RegisterDevice(pairing_token),
+            actions::Sleep(1s),
+            actions::CheckDeviceStatus(false),
+            actions::Sleep(1s),
+        },
+        device_id,
+        false
+    );
 }
 
 }  // namespace testcases

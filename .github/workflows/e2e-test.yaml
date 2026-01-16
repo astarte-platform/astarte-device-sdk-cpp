@@ -172,12 +172,17 @@ jobs:
         run: |
           APPENGINE_TOKEN=$(astartectl utils gen-jwt appengine)
           PAIRING_TOKEN=$(astartectl utils gen-jwt pairing)
+          # Device ID to be used only for on-board registration
+          DEVICE_ID_REGISTRATION=$(astartectl utils device-id generate-random)
           DEVICE_ID=$(astartectl utils device-id generate-random)
+          CREDENTIAL_SECRET=$(astartectl pairing agent register --compact-output -- "$DEVICE_ID")
           echo "E2E_REALM=test" >> $GITHUB_ENV
           echo "E2E_APPENGINE_TOKEN=$APPENGINE_TOKEN" >> $GITHUB_ENV
           echo "E2E_PAIRING_TOKEN=$PAIRING_TOKEN" >> $GITHUB_ENV
           echo "E2E_ASTARTE_BASE_URL=https://api.autotest.astarte-platform.org" >> $GITHUB_ENV
           echo "E2E_DEVICE_ID=$DEVICE_ID" >> $GITHUB_ENV
+          echo "E2E_DEVICE_ID_REGISTRATION=$DEVICE_ID_REGISTRATION" >> $GITHUB_ENV
+          echo "E2E_CREDENTIAL_SECRET=$CREDENTIAL_SECRET" >> $GITHUB_ENV
       - name: Fill in C++ client config
         working-directory: ./astarte-device-sdk-cpp/end_to_end
         run: |
@@ -188,7 +193,12 @@ jobs:
           echo "[mqtt]" >> config.toml
           echo "store_dir = \"./tmp\"" >> config.toml
           echo "pairing_token = \"$E2E_PAIRING_TOKEN\"" >> config.toml
+          echo "device_id_registration = \"$E2E_DEVICE_ID_REGISTRATION\"" >> config.toml
+          echo "credential_secret = \"$E2E_CREDENTIAL_SECRET\"" >> config.toml
           cat config.toml
+      - name: Create store directory
+        working-directory: ./astarte-device-sdk-cpp
+        run: mkdir tmp
       - name: Build the end to end tests with mqtt
         working-directory: ./astarte-device-sdk-cpp
         run: ./end_to_end.sh --fresh --ext-tools --transport mqtt

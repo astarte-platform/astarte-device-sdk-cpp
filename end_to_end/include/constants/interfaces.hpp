@@ -7,8 +7,8 @@
 #include <string>
 #include <string_view>
 
-namespace astarte_interfaces {
-// Datastream
+namespace constants::interfaces {
+
 struct DeviceDatastream {
   static constexpr std::string_view INTERFACE =
       "org.astarte-platform.cpp.end-to-end.DeviceDatastream";
@@ -22,7 +22,6 @@ struct ServerDatastream {
       "end_to_end/interfaces/org.astarte-platform.cpp.end-to-end.ServerDatastream.json";
 };
 
-// Property
 struct DeviceProperty {
   static constexpr std::string_view INTERFACE =
       "org.astarte-platform.cpp.end-to-end.DeviceProperty";
@@ -36,7 +35,6 @@ struct ServerProperty {
       "end_to_end/interfaces/org.astarte-platform.cpp.end-to-end.ServerProperty.json";
 };
 
-// Aggregate
 struct DeviceAggregate {
   static constexpr std::string_view INTERFACE =
       "org.astarte-platform.cpp.end-to-end.DeviceAggregate";
@@ -49,4 +47,4 @@ struct ServerAggregate {
   static constexpr std::string_view FILE =
       "end_to_end/interfaces/org.astarte-platform.cpp.end-to-end.ServerAggregate.json";
 };
-}  // namespace astarte_interfaces
+}  // namespace constants::interfaces

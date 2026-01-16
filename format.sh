@@ -8,9 +8,11 @@
 check_only=false
 venv_dir=".venv"
 clang_format_package_name="clang-format"
-clang_format_package_version="19.1.6"
+clang_format_package_version="21.1.8"
 gersemi_package_name="gersemi"
 gersemi_package_version="0.21.0"
+end_to_end_testcases="end_to_end/include/testcases"
+end_to_end_testcases_format="end_to_end/include/testcases/.clang-format"
 
 # --- Helper Functions ---
 display_help() {
@@ -29,6 +31,26 @@ EOF
 error_exit() {
     echo "Error: $1" >&2
     exit 1
+}
+
+run_clang_format() {
+    local style="$1"
+    local context_name="$2"
+    shift 2
+    local files=("${@}")
+
+    if [ ${#files[@]} -eq 0 ]; then
+        error_exit "No files found for ${context_name}."
+    fi
+
+    echo "Executing: clang-format --style='${style}' ${command_args[*]} ${files[*]}"
+    if ! clang-format --style="${style}" "${command_args[@]}" "${files[@]}"; then
+        if [ "$check_only" = true ]; then
+            error_exit "clang-format check for ${context_name} failed. Some files need formatting."
+        else
+            error_exit "clang-format application for ${context_name} failed."
+        fi
+    fi
 }
 
 # --- Argument Parsing ---
@@ -114,11 +136,13 @@ file_patterns=(
     "end_to_end/src/"*.cpp
     "end_to_end/include/"*.hpp
     "end_to_end/include/constants/"*.hpp
+)
+file_patterns_end_to_end_testcases=(
     "end_to_end/include/testcases/"*.hpp
 	"end_to_end/include/testcases/mqtt/"*.hpp
 )
 
-command_args=("--style=file")
+command_args=()
 if [ "$check_only" = true ]; then
     echo "Running clang-format in check mode (dry run)..."
     command_args+=("--dry-run" "-Werror")
@@ -127,15 +151,11 @@ else
     command_args+=("-i")
 fi
 
-# Run clang-format on all files at once
-echo "Executing: clang-format ${command_args[*]} ${file_patterns[*]}"
-if ! clang-format "${command_args[@]}" "${file_patterns[@]}"; then
-    if [ "$check_only" = true ]; then
-        error_exit "clang-format check failed. Some files need formatting."
-    else
-        error_exit "clang-format application failed."
-    fi
-fi
+# Run on standard files
+run_clang_format "file" "standard files" "${file_patterns[@]}"
+
+# Run on end-to-end test cases
+run_clang_format "file:${end_to_end_testcases_format}" "end-to-end testcases" "${file_patterns_end_to_end_testcases[@]}"
 
 if [ "$check_only" = true ]; then
     echo "Clang-format check passed. All specified files are correctly formatted."

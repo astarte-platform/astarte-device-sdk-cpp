@@ -4,40 +4,57 @@
 
 #pragma once
 
+#include "action.hpp"
 #include "case.hpp"
-#include "constants/astarte_interfaces.hpp"
-#include "constants/astarte_time.hpp"
+#include "constants/data_sets.hpp"
+#include "constants/interfaces.hpp"
+#include "constants/time.hpp"
 
 namespace testcases {
 
-TestCase device_reconnection() {
-  return TestCase(
-      "Device Reconnection",
-      std::vector<std::shared_ptr<TestAction>>{
-          TestActionConnect::Create(), TestActionSleep::Create(std::chrono::seconds(1)),
-          TestActionDisconnect::Create(), TestActionSleep::Create(std::chrono::seconds(1)),
+using namespace std::chrono_literals;
 
-          // before reconnecting, we try to send an AstarteIndividual, which should fail
-          TestActionTransmitMqttData::Create(
-              AstarteMessage(astarte_interfaces::DeviceDatastream::INTERFACE, "/integer_endpoint",
-                             AstarteDatastreamIndividual(AstarteData(12))),
-              astarte_time::TIMESTAMP, true),
-          TestActionSleep::Create(std::chrono::seconds(1)),
-
-          TestActionConnect::Create(), TestActionSleep::Create(std::chrono::seconds(1)),
-
-          // send an AstarteIndividual and check for success
-          TestActionTransmitMqttData::Create(
-              AstarteMessage(astarte_interfaces::DeviceDatastream::INTERFACE, "/integer_endpoint",
-                             AstarteDatastreamIndividual(AstarteData(12))),
-              astarte_time::TIMESTAMP),
-          TestActionSleep::Create(std::chrono::seconds(1)),
-          TestActionFetchRESTData::Create(
-              AstarteMessage(astarte_interfaces::DeviceDatastream::INTERFACE, "integer_endpoint",
-                             AstarteDatastreamIndividual(AstarteData(12))),
-              astarte_time::TIMESTAMP),
-          TestActionSleep::Create(std::chrono::seconds(1)),
-
-          TestActionDisconnect::Create(), TestActionSleep::Create(std::chrono::seconds(1))});
+TestCase device_reconnection(std::string device_id) {
+    return TestCase(
+        "Device Reconnection",
+        {actions::Connect(),
+         actions::Sleep(1s),
+         actions::Disconnect(),
+         actions::Sleep(1s),
+         actions::ExpectFailure(
+             actions::TransmitDeviceData(
+                 AstarteMessage(
+                     constants::interfaces::DeviceDatastream::INTERFACE,
+                     constants::data_sets::Integer::ENDPOINT_FULL,
+                     AstarteDatastreamIndividual(constants::data_sets::Integer::DATA)
+                 ),
+                 constants::time::TIMESTAMP
+             )
+         ),
+         actions::Sleep(1s),
+         actions::Connect(),
+         actions::Sleep(1s),
+         actions::TransmitDeviceData(
+             AstarteMessage(
+                 constants::interfaces::DeviceDatastream::INTERFACE,
+                 constants::data_sets::Integer::ENDPOINT_FULL,
+                 AstarteDatastreamIndividual(constants::data_sets::Integer::DATA)
+             ),
+             constants::time::TIMESTAMP
+         ),
+         actions::Sleep(1s),
+         actions::FetchRESTData(
+             AstarteMessage(
+                 constants::interfaces::DeviceDatastream::INTERFACE,
+                 constants::data_sets::Integer::ENDPOINT_PARTIAL,
+                 AstarteDatastreamIndividual(constants::data_sets::Integer::DATA)
+             ),
+             constants::time::TIMESTAMP
+         ),
+         actions::Sleep(1s),
+         actions::Disconnect(),
+         actions::Sleep(1s)},
+        device_id
+    );
 }
 }  // namespace testcases

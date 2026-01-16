@@ -4,49 +4,65 @@
 
 #pragma once
 
+#include "action.hpp"
 #include "case.hpp"
-#include "constants/astarte_interfaces.hpp"
+#include "constants/data_sets.hpp"
+#include "constants/interfaces.hpp"
 
 namespace testcases {
 using namespace std::chrono_literals;
 
-TestCase server_aggregate() {
-  AstarteDatastreamObject astarte_obj = {
-      {"integer_endpoint", AstarteData(12)},
-      {"double_endpoint", AstarteData(54.4)},
-      {"boolean_endpoint", AstarteData(true)},
-      {"longinteger_endpoint", AstarteData(17179869184)},
-      {"string_endpoint", AstarteData(std::string("Hello C++!"))},
-      {"datetime_endpoint", AstarteData(std::chrono::system_clock::time_point(
-                                std::chrono::sys_days{1994y / 4 / 12} + 10h + 15min))},
-      {"binaryblob_endpoint", AstarteData(std::vector<uint8_t>{0x23, 0x43, 0xF5})},
-      {"integerarray_endpoint", AstarteData(std::vector<int32_t>{13, 2})},
-      {"longintegerarray_endpoint", AstarteData(std::vector<int64_t>{17179869184, 5})},
-      {"doublearray_endpoint", AstarteData(std::vector<double>{0.5})},
-      {"booleanarray_endpoint", AstarteData(std::vector<bool>{false, true})},
-      {"stringarray_endpoint",
-       AstarteData(std::vector<std::string>{"Hello ", "world ", "from ", "C++"})},
-      {"binaryblobarray_endpoint",
-       AstarteData(std::vector<std::vector<uint8_t>>{{0x23, 0x43, 0xF5}, {0x43, 0xF3, 0x00}})},
-      {"datetimearray_endpoint", AstarteData(std::vector<std::chrono::system_clock::time_point>{
-                                     std::chrono::sys_days{1994y / 4 / 12} + 10h + 15min,
-                                     std::chrono::sys_days{1985y / 5 / 22} + 12s,
-                                 })}};
+TestCase server_aggregate(std::string device_id) {
+    AstarteDatastreamObject astarte_obj = {
+        {std::string(constants::data_sets::Integer::ENDPOINT_PARTIAL),
+         constants::data_sets::Integer::DATA},
+        {std::string(constants::data_sets::Double::ENDPOINT_PARTIAL),
+         constants::data_sets::Double::DATA},
+        {std::string(constants::data_sets::Boolean::ENDPOINT_PARTIAL),
+         constants::data_sets::Boolean::DATA},
+        {std::string(constants::data_sets::LongInteger::ENDPOINT_PARTIAL),
+         constants::data_sets::LongInteger::DATA},
+        {std::string(constants::data_sets::String::ENDPOINT_PARTIAL),
+         constants::data_sets::String::DATA},
+        {std::string(constants::data_sets::Datetime::ENDPOINT_PARTIAL),
+         constants::data_sets::Datetime::DATA},
+        {std::string(constants::data_sets::BinaryBlob::ENDPOINT_PARTIAL),
+         constants::data_sets::BinaryBlob::DATA},
+        {std::string(constants::data_sets::IntegerArray::ENDPOINT_PARTIAL),
+         constants::data_sets::IntegerArray::DATA},
+        {std::string(constants::data_sets::LongIntegerArray::ENDPOINT_PARTIAL),
+         constants::data_sets::LongIntegerArray::DATA},
+        {std::string(constants::data_sets::DoubleArray::ENDPOINT_PARTIAL),
+         constants::data_sets::DoubleArray::DATA},
+        {std::string(constants::data_sets::BooleanArray::ENDPOINT_PARTIAL),
+         constants::data_sets::BooleanArray::DATA},
+        {std::string(constants::data_sets::StringArray::ENDPOINT_PARTIAL),
+         constants::data_sets::StringArray::DATA},
+        {std::string(constants::data_sets::BinaryBlobArray::ENDPOINT_PARTIAL),
+         constants::data_sets::BinaryBlobArray::DATA},
+        {std::string(constants::data_sets::DatetimeArray::ENDPOINT_PARTIAL),
+         constants::data_sets::DatetimeArray::DATA}
+    };
 
-  return TestCase(
-      "Send Astarte Aggregate",
-      std::vector<std::shared_ptr<TestAction>>{
-          TestActionConnect::Create(), TestActionSleep::Create(std::chrono::seconds(1)),
+    return TestCase(
+        "Send Astarte Aggregate",
+        {actions::Connect(),
+         actions::Sleep(1s),
 
-          TestActionTransmitRESTData::Create(AstarteMessage(
-              astarte_interfaces::ServerAggregate::INTERFACE, "/sensor1", astarte_obj)),
+         actions::TransmitRESTData(AstarteMessage(
+             constants::interfaces::ServerAggregate::INTERFACE, "/sensor1", astarte_obj
+         )),
 
-          TestActionSleep::Create(std::chrono::seconds(1)),
+         actions::Sleep(1s),
 
-          TestActionReadReceivedMqttData::Create(AstarteMessage(
-              astarte_interfaces::ServerAggregate::INTERFACE, "/sensor1", astarte_obj)),
+         actions::ReadReceivedDeviceData(AstarteMessage(
+             constants::interfaces::ServerAggregate::INTERFACE, "/sensor1", astarte_obj
+         )),
 
-          TestActionSleep::Create(std::chrono::seconds(1)), TestActionDisconnect::Create(),
-          TestActionSleep::Create(std::chrono::seconds(1))});
+         actions::Sleep(1s),
+         actions::Disconnect(),
+         actions::Sleep(1s)},
+        device_id
+    );
 }
 }  // namespace testcases
