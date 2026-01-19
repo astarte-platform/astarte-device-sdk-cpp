@@ -31,20 +31,6 @@ namespace AstarteDeviceSdk {
 using json = nlohmann::json;
 
 /**
- * @brief Extract an optional value from a JSON object.
- *
- * @tparam T The type of the value to extract.
- * @param interface The JSON object to parse.
- * @param key The key of the value to extract.
- * @return An std::optional<T> containing the value if the key exists, or std::nullopt otherwise.
- */
-template <typename T>
-inline auto optional_value_from_json_interface(const json& interface, std::string_view key)
-    -> std::optional<T> {
-  return interface.contains(key) ? std::optional<T>(interface.at(key)) : std::nullopt;
-}
-
-/**
  * @brief Define the type of an Astarte interface.
  */
 enum InterfaceType {
@@ -270,7 +256,7 @@ struct Mapping {
  * @param interface The JSON object representing an Astarte interface.
  * @return A vector of Mapping objects parsed from the interface, an error otherwise.
  */
-auto mappings_from_interface(const json& interface)
+auto mappings_from_interface_json(const json& interface)
     -> astarte_tl::expected<std::vector<Mapping>, AstarteError>;
 
 /**
