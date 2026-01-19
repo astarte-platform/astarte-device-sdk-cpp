@@ -19,6 +19,41 @@
 #include <utility>
 #include <vector>
 
+namespace {
+// helper function to pop the next segment off the front of the view and advances the view.
+// Equivalent to finding the next '/' and moving the pointer past it.
+auto pop_next_segment(std::string_view& str) -> std::string_view {
+  auto pos = str.find('/');
+  auto segment = str.substr(0, pos);
+
+  if (pos == std::string_view::npos) {
+    // no slash found: this is the last segment. Consume the whole string.
+    str = {};
+  } else {
+    // slash found: Move view past the slash.
+    str.remove_prefix(pos + 1);
+  }
+  return segment;
+}
+
+// helper function to check if the specific segment matches (handles logic for %{params})
+auto is_segment_match(std::string_view pattern, std::string_view path_seg) -> bool {
+  // check for parameter format to start with "%{" and end with "}"
+  if (pattern.size() >= 3 && pattern.starts_with("%{") && pattern.ends_with("}")) {
+    // path segment cannot be empty
+    if (path_seg.empty()) {
+      return false;
+    }
+
+    // path segment cannot contain forbidden chars
+    return path_seg.find_first_of("#+") == std::string_view::npos;
+  }
+
+  return pattern == path_seg;
+}
+
+}  // namespace
+
 namespace AstarteDeviceSdk {
 
 auto interface_type_from_str(std::string typ) -> astarte_tl::expected<InterfaceType, AstarteError> {
@@ -202,11 +237,15 @@ auto Interface::try_from_json(const json& interface)
 
   // retrieve interface fields
   auto name_json = get_field("interface_name");
-  if (!name_json) return astarte_tl::unexpected(name_json.error());
+  if (!name_json) {
+    return astarte_tl::unexpected(name_json.error());
+  }
   const auto interface_name = name_json.value().get<std::string>();
 
   auto maj_json = get_field("version_major");
-  if (!maj_json) return astarte_tl::unexpected(maj_json.error());
+  if (!maj_json) {
+    return astarte_tl::unexpected(maj_json.error());
+  }
 
   auto version_major = convert_version("major", maj_json.value().get<int64_t>());
   if (!version_major) {
@@ -214,7 +253,9 @@ auto Interface::try_from_json(const json& interface)
   }
 
   auto min_json = get_field("version_minor");
-  if (!min_json) return astarte_tl::unexpected(min_json.error());
+  if (!min_json) {
+    return astarte_tl::unexpected(min_json.error());
+  }
 
   auto version_minor = convert_version("minor", min_json.value().get<int64_t>());
   if (!version_minor) {
@@ -222,7 +263,9 @@ auto Interface::try_from_json(const json& interface)
   }
 
   auto type_json = get_field("type");
-  if (!type_json) return astarte_tl::unexpected(type_json.error());
+  if (!type_json) {
+    return astarte_tl::unexpected(type_json.error());
+  }
 
   auto interface_type = interface_type_from_str(type_json.value().get<std::string>());
   if (!interface_type) {
@@ -230,7 +273,9 @@ auto Interface::try_from_json(const json& interface)
   }
 
   auto own_json = get_field("ownership");
-  if (!own_json) return astarte_tl::unexpected(own_json.error());
+  if (!own_json) {
+    return astarte_tl::unexpected(own_json.error());
+  }
 
   auto ownership = ownership_from_str(own_json.value().get<std::string>());
   if (!ownership) {

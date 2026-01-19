@@ -174,44 +174,6 @@ NLOHMANN_JSON_SERIALIZE_ENUM(DatabaseRetentionPolicy, {
                                                           {kUseTtl, "use_ttl"},
                                                       })
 
-namespace {
-
-// helper function to pop the next segment off the front of the view and advances the view.
-// Equivalent to finding the next '/' and moving the pointer past it.
-auto pop_next_segment(std::string_view& str) -> std::string_view {
-  auto pos = str.find('/');
-  auto segment = str.substr(0, pos);
-
-  if (pos == std::string_view::npos) {
-    // no slash found: this is the last segment. Consume the whole string.
-    str = {};
-  } else {
-    // slash found: Move view past the slash.
-    str.remove_prefix(pos + 1);
-  }
-  return segment;
-}
-
-// helper function to check if the specific segment matches (handles logic for %{params})
-bool is_segment_match(std::string_view pattern, std::string_view path_seg) {
-  // check for parameter format to start with "%{" and end with "}"
-  if (pattern.size() >= 3 && pattern.starts_with("%{") && pattern.ends_with("}")) {
-    // path segment cannot be empty
-    if (path_seg.empty()) {
-      return false;
-    }
-    // path segment cannot contain forbidden chars
-    if (path_seg.find_first_of("#+") != std::string_view::npos) {
-      return false;
-    }
-    return true;
-  }
-
-  return pattern == path_seg;
-}
-
-}  // namespace
-
 struct Mapping {
  public:
   /**
