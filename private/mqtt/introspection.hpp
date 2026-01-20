@@ -56,7 +56,7 @@ auto interface_type_from_str(std::string typ) -> astarte_tl::expected<InterfaceT
 /**
  * @brief Define the aggregation type for interface mappings.
  */
-enum Aggregation {
+enum InterfaceAggregation {
   /**
    * @brief Data is collected as individual, distinct values.
    */
@@ -68,13 +68,14 @@ enum Aggregation {
 };
 
 /**
- * @brief Convert a string to an Aggregation enum.
+ * @brief Convert a string to an InterfaceAggregation enum.
  *
  * @param aggr The string representation of the aggregation (e.g., "individual", "object").
- * @return The corresponding Aggregation enum value, an error if the string is not a valid
+ * @return The corresponding InterfaceAggregation enum value, an error if the string is not a valid
  * aggregation type.
  */
-auto aggregation_from_str(std::string aggr) -> astarte_tl::expected<Aggregation, AstarteError>;
+auto aggregation_from_str(std::string aggr)
+    -> astarte_tl::expected<InterfaceAggregation, AstarteError>;
 
 /**
  * @brief Reliability of a datastream.
@@ -327,7 +328,9 @@ class Interface {
   /**
    * @return The aggregation of the mappings (Individual or Object), if present.
    */
-  [[nodiscard]] const std::optional<Aggregation>& aggregation() const { return aggregation_; }
+  [[nodiscard]] const std::optional<InterfaceAggregation>& aggregation() const {
+    return aggregation_;
+  }
 
   /**
    * @return The optional description.
@@ -388,7 +391,7 @@ class Interface {
  private:
   Interface(std::string interface_name, uint32_t version_major, uint32_t version_minor,
             InterfaceType interface_type, AstarteOwnership ownership,
-            std::optional<Aggregation> aggregation, std::optional<std::string> description,
+            std::optional<InterfaceAggregation> aggregation, std::optional<std::string> description,
             std::optional<std::string> doc, std::vector<Mapping> mappings)
       : interface_name_(std::move(interface_name)),
         version_major_(version_major),
@@ -405,7 +408,7 @@ class Interface {
   uint32_t version_minor_;
   InterfaceType interface_type_;
   AstarteOwnership ownership_;
-  std::optional<Aggregation> aggregation_;
+  std::optional<InterfaceAggregation> aggregation_;
   std::optional<std::string> description_;
   std::optional<std::string> doc_;
   std::vector<Mapping> mappings_;

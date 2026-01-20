@@ -156,16 +156,16 @@ auto interface_type_from_str(std::string typ) -> astarte_tl::expected<InterfaceT
 }
 
 inline auto aggregation_from_str(std::string aggr)
-    -> astarte_tl::expected<Aggregation, AstarteError> {
+    -> astarte_tl::expected<InterfaceAggregation, AstarteError> {
   if (aggr == "individual") {
-    return Aggregation::kIndividual;
+    return InterfaceAggregation::kIndividual;
   }
   if (aggr == "object") {
-    return Aggregation::kObject;
+    return InterfaceAggregation::kObject;
   }
 
   return astarte_tl::unexpected(AstarteInvalidInterfaceAggregationError(
-      astarte_fmt::format("Aggregation not valid: {}", aggr)));
+      astarte_fmt::format("InterfaceAggregation not valid: {}", aggr)));
 }
 
 auto mappings_from_interface_json(const json& interface)
@@ -357,7 +357,7 @@ auto Interface::try_from_json(const json& interface)
     return astarte_tl::unexpected(ownership.error());
   }
 
-  std::optional<Aggregation> aggregation = std::nullopt;
+  std::optional<InterfaceAggregation> aggregation = std::nullopt;
   if (interface.contains("aggregation")) {
     const auto& agg_val = interface.at("aggregation");
     if (agg_val.is_string()) {
@@ -452,7 +452,7 @@ auto Interface::validate_object(std::string_view common_path, const AstarteDatas
 auto Interface::get_qos(std::string_view path) const
     -> astarte_tl::expected<uint8_t, AstarteError> {
   auto mapping_exp = [&]() -> astarte_tl::expected<const Mapping*, AstarteError> {
-    if (aggregation_.has_value() && (aggregation_.value() == Aggregation::kIndividual)) {
+    if (aggregation_.has_value() && (aggregation_.value() == InterfaceAggregation::kIndividual)) {
       auto mapping_res = get_mapping(path);
       if (!mapping_res) {
         return astarte_tl::unexpected(mapping_res.error());
@@ -460,7 +460,7 @@ auto Interface::get_qos(std::string_view path) const
       return mapping_res.value();
     }
 
-    // object Aggregation (return the first mapping)
+    // object InterfaceAggregation (return the first mapping)
     if (mappings_.empty()) {
       return astarte_tl::unexpected(AstarteMqttError("Interface has no mappings"));
     }

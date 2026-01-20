@@ -11,12 +11,12 @@
 
 #include "mqtt/introspection.hpp"
 
-using AstarteDeviceSdk::Aggregation;
 using AstarteDeviceSdk::aggregation_from_str;
 using AstarteDeviceSdk::astarte_type_from_str;
 using AstarteDeviceSdk::AstarteData;
 using AstarteDeviceSdk::Interface;
 using AstarteDeviceSdk::interface_type_from_str;
+using AstarteDeviceSdk::InterfaceAggregation;
 using AstarteDeviceSdk::InterfaceType;
 using AstarteDeviceSdk::Introspection;
 using AstarteDeviceSdk::Mapping;
@@ -35,8 +35,8 @@ TEST(AstarteTestInterfaceType, ConvertFromString) {
 }
 
 TEST(AstarteTestInterfaceAggregate, ConvertFromString) {
-  ASSERT_THAT(aggregation_from_str("individual"), IsExpected(Aggregation::kIndividual));
-  ASSERT_THAT(aggregation_from_str("object"), IsExpected(Aggregation::kObject));
+  ASSERT_THAT(aggregation_from_str("individual"), IsExpected(InterfaceAggregation::kIndividual));
+  ASSERT_THAT(aggregation_from_str("object"), IsExpected(InterfaceAggregation::kObject));
   ASSERT_THAT(aggregation_from_str("test"), IsUnexpected());
 }
 
@@ -120,8 +120,8 @@ TEST(AstarteTestInterface, ConvertFromJson) {
 
   // an intrerface must contains at least interface_name, version_major, version_minor,
   // interface_type, ownership, mappings.
-  // the absense of fields Aggregation, description and doc does not prevent to build a valid
-  // Interface object
+  // the absense of fields InterfaceAggregation, description and doc does not prevent to build a
+  // valid Interface object
 
   auto res = Interface::try_from_json(json);
   ASSERT_THAT(res, IsUnexpected());
