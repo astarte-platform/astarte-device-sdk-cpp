@@ -165,7 +165,7 @@ inline auto aggregation_from_str(std::string aggr)
   }
 
   return astarte_tl::unexpected(AstarteInvalidInterfaceAggregationError(
-      astarte_fmt::format("InterfaceAggregation not valid: {}", aggr)));
+      astarte_fmt::format("interface aggregation not valid: {}", aggr)));
 }
 
 auto mappings_from_interface_json(const json& interface)

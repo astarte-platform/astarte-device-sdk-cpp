@@ -8,6 +8,7 @@
 #if !defined(ASTARTE_TRANSPORT_GRPC)
 #include <nlohmann/json.hpp>
 #include <string_view>
+#include <variant>
 
 #include "mqtt/introspection.hpp"
 
@@ -26,18 +27,26 @@ using nlohmann::json;
 // helper matchers
 MATCHER(IsExpected, "") { return arg.has_value(); }
 MATCHER_P(IsExpected, value, "") { return arg.has_value() && (arg.value() == value); }
-MATCHER(IsUnexpected, "") { return !arg.has_value(); }
+MATCHER_P(IsUnexpected, error_msg, "") {
+  if (arg.has_value()) {
+    return false;
+  }
+  // visit the error variant to access the actual error object stored inside
+  std::string actual_msg = std::visit([](const auto& e) { return e.message(); }, arg.error());
+  // check if the retrieved message contains the expected substring
+  return actual_msg.find(error_msg) != std::string::npos;
+}
 
 TEST(AstarteTestInterfaceType, ConvertFromString) {
   ASSERT_THAT(interface_type_from_str("datastream"), IsExpected(InterfaceType::kDatastream));
   ASSERT_THAT(interface_type_from_str("properties"), IsExpected(InterfaceType::kProperty));
-  ASSERT_THAT(interface_type_from_str("test"), IsUnexpected());
+  ASSERT_THAT(interface_type_from_str("test"), IsUnexpected("interface type not valid"));
 }
 
 TEST(AstarteTestInterfaceAggregate, ConvertFromString) {
   ASSERT_THAT(aggregation_from_str("individual"), IsExpected(InterfaceAggregation::kIndividual));
   ASSERT_THAT(aggregation_from_str("object"), IsExpected(InterfaceAggregation::kObject));
-  ASSERT_THAT(aggregation_from_str("test"), IsUnexpected());
+  ASSERT_THAT(aggregation_from_str("test"), IsUnexpected("interface aggregation not valid"));
 }
 
 TEST(AstarteTestInterface, ConvertFromJsonMappings) {
@@ -72,29 +81,33 @@ TEST(AstarteTestInterface, ConvertFromJsonMappings) {
   // mapping missing required endpoint
   auto missing_endpoint = base_interface;
   missing_endpoint["mappings"] = json::array({{{"type", "double"}}});
-  ASSERT_THAT(Interface::try_from_json(missing_endpoint), IsUnexpected());
+  ASSERT_THAT(Interface::try_from_json(missing_endpoint),
+              IsUnexpected("Missing required field: endpoint"));
 
   // mapping missing required type
   auto missing_type = base_interface;
   missing_type["mappings"] = json::array({{{"endpoint", "/test"}}});
-  ASSERT_THAT(Interface::try_from_json(missing_type), IsUnexpected());
+  ASSERT_THAT(Interface::try_from_json(missing_type), IsUnexpected("Missing required field: type"));
 
   // mapping with invalid type value
   auto invalid_type_val = base_interface;
   invalid_type_val["mappings"] =
       json::array({{{"endpoint", "/test"}, {"type", "not_a_valid_astarte_type"}}});
-  ASSERT_THAT(Interface::try_from_json(invalid_type_val), IsUnexpected());
+  ASSERT_THAT(Interface::try_from_json(invalid_type_val),
+              IsUnexpected("data type not valid: not_a_valid_astarte_type"));
 
   // endpoint is not a string
   auto wrong_endpoint_type = base_interface;
   wrong_endpoint_type["mappings"] = json::array({{{"endpoint", 123}, {"type", "double"}}});
-  ASSERT_THAT(Interface::try_from_json(wrong_endpoint_type), IsUnexpected());
+  ASSERT_THAT(Interface::try_from_json(wrong_endpoint_type),
+              IsUnexpected("Field endpoint has invalid type"));
 
   // mappings array contains a non-object
   auto malformed_array = base_interface;
   malformed_array["mappings"] = json::array(
       {json::object({{"endpoint", "/ok"}, {"type", "double"}}), "this_should_be_an_object"});
-  ASSERT_THAT(Interface::try_from_json(malformed_array), IsUnexpected());
+  ASSERT_THAT(Interface::try_from_json(malformed_array),
+              IsUnexpected("Each element in 'mappings' must be an object"));
 
   // optional fields type safety
   auto wrong_optional_type = base_interface;
@@ -124,31 +137,31 @@ TEST(AstarteTestInterface, ConvertFromJson) {
   // valid Interface object
 
   auto res = Interface::try_from_json(json);
-  ASSERT_THAT(res, IsUnexpected());
+  ASSERT_THAT(res, IsUnexpected("Missing required field: interface_name"));
 
   json.update({{"interface_name", "test.Test"}});
   res = Interface::try_from_json(json);
-  ASSERT_THAT(res, IsUnexpected());
+  ASSERT_THAT(res, IsUnexpected("Missing required field: version_major"));
 
   json.update({{"version_major", 0}});
   res = Interface::try_from_json(json);
-  ASSERT_THAT(res, IsUnexpected());
+  ASSERT_THAT(res, IsUnexpected("Missing required field: version_minor"));
 
   json.update({{"version_minor", 1}});
   res = Interface::try_from_json(json);
-  ASSERT_THAT(res, IsUnexpected());
+  ASSERT_THAT(res, IsUnexpected("Missing required field: type"));
 
   json.update({{"type", "datastream"}});
   res = Interface::try_from_json(json);
-  ASSERT_THAT(res, IsUnexpected());
+  ASSERT_THAT(res, IsUnexpected("Missing required field: ownership"));
 
   json.update({{"ownership", "device"}});
   res = Interface::try_from_json(json);
-  ASSERT_THAT(res, IsUnexpected());
+  ASSERT_THAT(res, IsUnexpected("Missing required field: mappings"));
 
   json.update({{"mappings", json::array()}});
   res = Interface::try_from_json(json);
-  ASSERT_THAT(res, IsUnexpected());
+  ASSERT_THAT(res, IsUnexpected("There must be at least one mapping"));
 
   json.update({{"mappings", json::array({{{"endpoint", "/test"},
                                           {"type", "boolean"},
@@ -174,35 +187,42 @@ TEST(AstarteTestInterface, ConvertFromJson) {
 
   auto wrong_name = json;
   wrong_name["interface_name"] = nullptr;
-  ASSERT_THAT(Interface::try_from_json(wrong_name), IsUnexpected());
+  ASSERT_THAT(Interface::try_from_json(wrong_name),
+              IsUnexpected("Field interface_name has invalid type"));
 
   auto wrong_major = json;
   wrong_major.update({{"version_major", -1}});
-  ASSERT_THAT(Interface::try_from_json(wrong_major), IsUnexpected());
+  ASSERT_THAT(Interface::try_from_json(wrong_major),
+              IsUnexpected("received negative major version value"));
 
   wrong_major["version_major"] = "not_a_number";
-  ASSERT_THAT(Interface::try_from_json(wrong_major), IsUnexpected());
+  ASSERT_THAT(Interface::try_from_json(wrong_major),
+              IsUnexpected("Field version_major has invalid type"));
 
   auto wrong_minor = json;
   wrong_minor.update({{"version_minor", -1}});
-  ASSERT_THAT(Interface::try_from_json(wrong_minor), IsUnexpected());
+  ASSERT_THAT(Interface::try_from_json(wrong_minor),
+              IsUnexpected("received negative minor version value"));
 
   auto wrong_type = json;
   wrong_type.update({{"type", "wrong"}});
-  ASSERT_THAT(Interface::try_from_json(wrong_type), IsUnexpected());
+  ASSERT_THAT(Interface::try_from_json(wrong_type), IsUnexpected("interface type not valid"));
 
   auto wrong_ownership = json;
   wrong_ownership.update({{"ownership", "wrong"}});
-  ASSERT_THAT(Interface::try_from_json(wrong_ownership), IsUnexpected());
+  ASSERT_THAT(Interface::try_from_json(wrong_ownership),
+              IsUnexpected("interface ownershipe not valid: wrong"));
 
   auto wrong_aggregation = json;
   wrong_aggregation.update({{"aggregation", "wrong"}});
-  ASSERT_THAT(Interface::try_from_json(wrong_aggregation), IsUnexpected());
+  ASSERT_THAT(Interface::try_from_json(wrong_aggregation),
+              IsUnexpected("interface aggregation not valid"));
 
   // mappings can only be an array, not an object
   auto wrong_mappings = json;
   wrong_mappings["mappings"] = json::object();
-  ASSERT_THAT(Interface::try_from_json(wrong_mappings), IsUnexpected());
+  ASSERT_THAT(Interface::try_from_json(wrong_mappings),
+              IsUnexpected("Field mappings has invalid type"));
 }
 
 class AstarteTestInterfaceValidation : public testing::Test {
@@ -251,7 +271,8 @@ TEST_F(AstarteTestInterfaceValidation, DataTypeCompatibilityMatrix) {
 
     // test incorrect match (for simplicity, we try to send a boolean to every non-boolean type)
     if (entry.astarte_type != "boolean") {
-      EXPECT_THAT(iface.validate_individual("/path", AstarteData(false), nullptr), IsUnexpected());
+      EXPECT_THAT(iface.validate_individual("/path", AstarteData(false), nullptr),
+                  IsUnexpected("Astarte data type and mapping type do not match"));
     }
   }
 }
@@ -264,7 +285,8 @@ TEST_F(AstarteTestInterfaceValidation, TimestampCheck) {
 
   EXPECT_THAT(iface_req.validate_individual("/test", AstarteData(1.1), &timestamp), IsExpected());
   // timestamp required but not provided
-  EXPECT_THAT(iface_req.validate_individual("/test", AstarteData(1.1), nullptr), IsUnexpected());
+  EXPECT_THAT(iface_req.validate_individual("/test", AstarteData(1.1), nullptr),
+              IsUnexpected("Explicit timestamp required"));
 
   // interface doesn't require explicit timestamp
   auto iface_forbid = create_test_interface("/test", "double", false);
@@ -272,7 +294,7 @@ TEST_F(AstarteTestInterfaceValidation, TimestampCheck) {
   EXPECT_THAT(iface_forbid.validate_individual("/test", AstarteData(1.1), nullptr), IsExpected());
   // timestamp provided even if not requested
   EXPECT_THAT(iface_forbid.validate_individual("/test", AstarteData(1.1), &timestamp),
-              IsUnexpected());
+              IsUnexpected("Explicit timestamp not supported"));
 }
 
 TEST_F(AstarteTestInterfaceValidation, PathResolution) {
@@ -283,11 +305,12 @@ TEST_F(AstarteTestInterfaceValidation, PathResolution) {
               IsExpected());
 
   // incomplete path
-  EXPECT_THAT(iface.validate_individual("/sensors/123", AstarteData(1.1), nullptr), IsUnexpected());
+  EXPECT_THAT(iface.validate_individual("/sensors/123", AstarteData(1.1), nullptr),
+              IsUnexpected("couldn't find mapping with path"));
 
   // path prefix mismatch
   EXPECT_THAT(iface.validate_individual("/actuators/1/value", AstarteData(1.1), nullptr),
-              IsUnexpected());
+              IsUnexpected("couldn't find mapping with path"));
 }
 
 TEST_F(AstarteTestInterfaceValidation, CheckDatatType) {
@@ -371,14 +394,14 @@ TEST_F(AstarteTestIntrospection, CheckInsertion) {
   {
     auto iface = update({{"ownership", "server"}});
     auto res = introspection_.checked_insert(std::move(iface));
-    ASSERT_THAT(res, IsUnexpected());
+    ASSERT_THAT(res, IsUnexpected("the new interface has a different ownership"));
   }
 
   // type mismatch (expected: datastream, got: properties)
   {
     auto iface = update({{"type", "properties"}});
     auto res = introspection_.checked_insert(std::move(iface));
-    ASSERT_THAT(res, IsUnexpected());
+    ASSERT_THAT(res, IsUnexpected("the new interface has a different type"));
   }
 
   // update to version 1.0 (valid major ppgrade)
@@ -393,7 +416,7 @@ TEST_F(AstarteTestIntrospection, CheckInsertion) {
   {
     auto iface = update({{"version_major", 0}, {"version_minor", 9}});
     auto res = introspection_.checked_insert(std::move(iface));
-    ASSERT_THAT(res, IsUnexpected());
+    ASSERT_THAT(res, IsUnexpected("the new major version is lower"));
   }
 
   // update to version 1.2 (valid minor upgrade)
@@ -408,7 +431,7 @@ TEST_F(AstarteTestIntrospection, CheckInsertion) {
   {
     auto iface = update({{"version_major", 1}, {"version_minor", 1}});
     auto res = introspection_.checked_insert(std::move(iface));
-    ASSERT_THAT(res, IsUnexpected());
+    ASSERT_THAT(res, IsUnexpected("the new minor version is lower"));
   }
 
   // idempotency (current: 1.2, new: 1.2)
@@ -431,7 +454,7 @@ TEST_F(AstarteTestIntrospection, CheckGetInterface) {
   // trying to retrieve an inexistent interface
   {
     auto res = introspection_.get("inexistent.Interface");
-    ASSERT_THAT(res, IsUnexpected());
+    ASSERT_THAT(res, IsUnexpected("couldn't find interface"));
   }
 }
 
