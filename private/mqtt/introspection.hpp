@@ -1,4 +1,4 @@
-// (C) Copyright 2025, SECO Mind Srl
+// (C) Copyright 2025 - 2026, SECO Mind Srl
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -7,10 +7,14 @@
 
 #include <spdlog/spdlog.h>
 
-#include <astarte_device_sdk/errors.hpp>
+#include <algorithm>
+#include <astarte_device_sdk/data.hpp>
+#include <astarte_device_sdk/object.hpp>
 #include <astarte_device_sdk/ownership.hpp>
 #include <astarte_device_sdk/type.hpp>
+#include <cmath>
 #include <format>
+#include <functional>
 #include <map>
 #include <nlohmann/json.hpp>
 #include <optional>
@@ -25,20 +29,6 @@ namespace AstarteDeviceSdk {
  * @brief alias for nlohmann json
  */
 using json = nlohmann::json;
-
-/**
- * @brief Extract an optional value from a JSON object.
- *
- * @tparam T The type of the value to extract.
- * @param interface The JSON object to parse.
- * @param key The key of the value to extract.
- * @return An std::optional<T> containing the value if the key exists, or std::nullopt otherwise.
- */
-template <typename T>
-inline auto optional_value_from_json_interface(const json& interface, std::string_view key)
-    -> std::optional<T> {
-  return interface.contains(key) ? std::optional<T>(interface.at(key)) : std::nullopt;
-}
 
 /**
  * @brief Define the type of an Astarte interface.
@@ -66,7 +56,7 @@ auto interface_type_from_str(std::string typ) -> astarte_tl::expected<InterfaceT
 /**
  * @brief Define the aggregation type for interface mappings.
  */
-enum Aggregation {
+enum InterfaceAggregation {
   /**
    * @brief Data is collected as individual, distinct values.
    */
@@ -78,13 +68,14 @@ enum Aggregation {
 };
 
 /**
- * @brief Convert a string to an Aggregation enum.
+ * @brief Convert a string to an InterfaceAggregation enum.
  *
  * @param aggr The string representation of the aggregation (e.g., "individual", "object").
- * @return The corresponding Aggregation enum value, an error if the string is not a valid
+ * @return The corresponding InterfaceAggregation enum value, an error if the string is not a valid
  * aggregation type.
  */
-auto aggregation_from_str(std::string aggr) -> astarte_tl::expected<Aggregation, AstarteError>;
+auto aggregation_from_str(std::string aggr)
+    -> astarte_tl::expected<InterfaceAggregation, AstarteError>;
 
 /**
  * @brief Reliability of a datastream.
@@ -173,6 +164,22 @@ NLOHMANN_JSON_SERIALIZE_ENUM(DatabaseRetentionPolicy, {
 struct Mapping {
  public:
   /**
+   * @brief Check that the mapping endpoint matches a given path.
+   *
+   * @param path The Astarte interface path to check.
+   * @return a boolean stating if the mapping endpoint matches the path or not.
+   */
+  auto match_path(std::string_view path) const -> bool;
+
+  /**
+   * @brief Check that the Astarte data matches the mapping type
+   *
+   * @param data The AstarteData to check.
+   * @return an error if the check fails.
+   */
+  auto check_data_type(const AstarteData& data) const -> astarte_tl::expected<void, AstarteError>;
+
+  /**
    * @brief Path of the mapping.
    *
    * It can be parametrized (e.g. `/foo/%{path}/baz`).
@@ -250,7 +257,7 @@ struct Mapping {
  * @param interface The JSON object representing an Astarte interface.
  * @return A vector of Mapping objects parsed from the interface, an error otherwise.
  */
-auto mappings_from_interface(const json& interface)
+auto mappings_from_interface_json(const json& interface)
     -> astarte_tl::expected<std::vector<Mapping>, AstarteError>;
 
 /**
@@ -321,7 +328,9 @@ class Interface {
   /**
    * @return The aggregation of the mappings (Individual or Object), if present.
    */
-  [[nodiscard]] const std::optional<Aggregation>& aggregation() const { return aggregation_; }
+  [[nodiscard]] const std::optional<InterfaceAggregation>& aggregation() const {
+    return aggregation_;
+  }
 
   /**
    * @return The optional description.
@@ -338,10 +347,51 @@ class Interface {
    */
   [[nodiscard]] const std::vector<Mapping>& mappings() const { return mappings_; }
 
+  /**
+   * @brief Retrieve the mapping associated to a given path if it exists.
+   *
+   * @param path the Astarte interface path.
+   * @return a pointer to the mapping associated with the path, an error otherwise.
+   */
+  [[nodiscard]] auto get_mapping(std::string_view path) const
+      -> astarte_tl::expected<const Mapping*, AstarteError>;
+
+  /**
+   * @brief Validate an Astarte individual.
+   *
+   * @param path the Astarte interface path.
+   * @param data the value to validate.
+   * @param timestamp a pointer to the timestamp poiting out when the data is sent.
+   * @return an error if the falidation fails, nothing otherwise.
+   */
+  auto validate_individual(std::string_view path, const AstarteData& data,
+                           const std::chrono::system_clock::time_point* timestamp) const
+      -> astarte_tl::expected<void, AstarteError>;
+
+  /**
+   * @brief Validate an Astarte object.
+   *
+   * @param common_path common path of the Astarte interface enpoints.
+   * @param object the Astarte object data to validate.
+   * @param timestamp a pointer to the timestamp pointing out when the data is sent.
+   * @return an error if the falidation fails, nothing otherwise.
+   */
+  auto validate_object(std::string_view common_path, const AstarteDatastreamObject& object,
+                       const std::chrono::system_clock::time_point* timestamp) const
+      -> astarte_tl::expected<void, AstarteError>;
+
+  /**
+   * @brief Get the MQTT QoS from a certain mapping endpoint.
+   *
+   * @param path the Astarte interface path.
+   * @return the QoS value, an error otherwise.
+   */
+  auto get_qos(std::string_view path) const -> astarte_tl::expected<uint8_t, AstarteError>;
+
  private:
   Interface(std::string interface_name, uint32_t version_major, uint32_t version_minor,
             InterfaceType interface_type, AstarteOwnership ownership,
-            std::optional<Aggregation> aggregation, std::optional<std::string> description,
+            std::optional<InterfaceAggregation> aggregation, std::optional<std::string> description,
             std::optional<std::string> doc, std::vector<Mapping> mappings)
       : interface_name_(std::move(interface_name)),
         version_major_(version_major),
@@ -358,7 +408,7 @@ class Interface {
   uint32_t version_minor_;
   InterfaceType interface_type_;
   AstarteOwnership ownership_;
-  std::optional<Aggregation> aggregation_;
+  std::optional<InterfaceAggregation> aggregation_;
   std::optional<std::string> description_;
   std::optional<std::string> doc_;
   std::vector<Mapping> mappings_;
@@ -384,7 +434,6 @@ class Introspection {
    * @param interface The interface to add.
    * @return an error if the operation fails
    */
-  // TODO: change return value into std::except<void, AstarteError> if the operation failed.
   auto checked_insert(Interface interface) -> astarte_tl::expected<void, AstarteError>;
 
   /**
@@ -393,6 +442,15 @@ class Introspection {
    * @return a view over the introspection interfaces.
    */
   auto values() const { return std::views::values(interfaces_); }
+
+  /**
+   * @brief get an interface reference if the interface is contained in the device introspection.
+   *
+   * @param interface_name the interface name.
+   * @return the interface reference if found inside the introspection, an error otherwise.
+   */
+  [[nodiscard]] auto get(const std::string& interface_name)
+      -> astarte_tl::expected<Interface*, AstarteError>;
 
  private:
   /**

@@ -1,4 +1,4 @@
-// (C) Copyright 2025, SECO Mind Srl
+// (C) Copyright 2025 - 2026, SECO Mind Srl
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -25,12 +25,14 @@ namespace astarte_tl = ::tl;
 namespace astarte_tl = ::std;
 #endif
 
+class AstarteDataSerializationError;
 class AstarteFileOpenError;
 class AstarteInvalidInputError;
 class AstarteInternalError;
 class AstarteOperationRefusedError;
 class AstarteGrpcLibError;
 class AstarteMsgHubError;
+class AstarteInterfaceValidationError;
 class AstarteInvalidInterfaceVersionError;
 class AstarteInvalidInterfaceTypeError;
 class AstarteInvalidInterfaceOwnershipeError;
@@ -57,20 +59,19 @@ class AstarteMqttConnectionError;
  *
  * This type is intended to be used as the error type 'E' in std::expected<T, E>.
  */
-using AstarteError =
-    std::variant<AstarteInternalError, AstarteFileOpenError, AstarteInvalidInputError,
-                 AstarteInvalidInterfaceVersionError, AstarteInvalidInterfaceTypeError,
-                 AstarteInvalidInterfaceOwnershipeError, AstarteInvalidInterfaceAggregationError,
-                 AstarteInvalidAstarteTypeError,
+using AstarteError = std::variant<
+    AstarteDataSerializationError, AstarteInternalError, AstarteFileOpenError,
+    AstarteInvalidInputError, AstarteInterfaceValidationError, AstarteInvalidInterfaceVersionError,
+    AstarteInvalidInterfaceTypeError, AstarteInvalidInterfaceOwnershipeError,
+    AstarteInvalidInterfaceAggregationError, AstarteInvalidAstarteTypeError,
 #if !defined(ASTARTE_TRANSPORT_GRPC)
-                 AstarteOperationRefusedError, AstarteGrpcLibError, AstarteMsgHubError,
-                 AstarteJsonParsingError, AstarteDeviceRegistrationError, AstartePairingApiError,
-                 AstarteMqttError, AstarteInvalidUrlError, AstarteRetrieveBrokerUrlError,
-                 AstarteReadCredentialError, AstarteWriteCredentialError, AstartePairingConfigError,
-                 AstarteCryptoError, AstarteUuidError, AstarteHttpError,
-                 AstarteMqttConnectionError>;
+    AstarteOperationRefusedError, AstarteGrpcLibError, AstarteMsgHubError, AstarteJsonParsingError,
+    AstarteDeviceRegistrationError, AstartePairingApiError, AstarteMqttError,
+    AstarteInvalidUrlError, AstarteRetrieveBrokerUrlError, AstarteReadCredentialError,
+    AstarteWriteCredentialError, AstartePairingConfigError, AstarteCryptoError, AstarteUuidError,
+    AstarteHttpError, AstarteMqttConnectionError>;
 #else
-                 AstarteOperationRefusedError, AstarteGrpcLibError, AstarteMsgHubError>;
+    AstarteOperationRefusedError, AstarteGrpcLibError, AstarteMsgHubError>;
 #endif
 
 /**
@@ -118,6 +119,27 @@ class AstarteErrorBase {
   std::string type_;
   std::string message_;
   std::shared_ptr<AstarteErrorBase> other_;
+};
+
+/**
+ * @brief Specific error for when a serializaion operation failed.
+ */
+class AstarteDataSerializationError : public AstarteErrorBase {
+ public:
+  /**
+   * @brief Standard error constructor.
+   * @param message The error message.
+   */
+  explicit AstarteDataSerializationError(std::string_view message);
+  /**
+   * @brief Nested error constructor.
+   * @param message The error message.
+   * @param other The error to nest.
+   */
+  explicit AstarteDataSerializationError(std::string_view message, const AstarteError& other);
+
+ private:
+  static constexpr std::string_view k_type_ = "AstarteDataSerializationError";
 };
 
 /**
@@ -263,6 +285,27 @@ class AstarteMsgHubError : public AstarteErrorBase {
 /************************************************
  *       Interface validation errors       *
  ***********************************************/
+
+/**
+ * @brief Error during the Interface validation.
+ */
+class AstarteInterfaceValidationError : public AstarteErrorBase {
+ public:
+  /**
+   * @brief Standard error constructor.
+   * @param message The error message.
+   */
+  explicit AstarteInterfaceValidationError(std::string_view message);
+  /**
+   * @brief Nested error constructor.
+   * @param message The error message.
+   * @param other The error to nest.
+   */
+  explicit AstarteInterfaceValidationError(std::string_view message, const AstarteError& other);
+
+ private:
+  static constexpr std::string_view k_type_ = "AstarteInterfaceValidationError";
+};
 
 /**
  * @brief Either the minor or the major version is incorrect.

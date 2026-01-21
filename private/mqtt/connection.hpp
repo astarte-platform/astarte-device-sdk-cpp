@@ -1,4 +1,4 @@
-// (C) Copyright 2025, SECO Mind Srl
+// (C) Copyright 2025 - 2026, SECO Mind Srl
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -161,6 +161,17 @@ class MqttConnection {
    * @return True if the device is connected to Astarte, false otherwise.
    */
   [[nodiscard]] auto is_connected() const -> bool;
+
+  /**
+   * @brief Send an individual or object data to Astarte.
+   * @param interface_name The interface on which data will be sent.
+   * @param path The mapping path of the Astarte interface on which data will be sentr.
+   * @param qos The quality of service value. It could be only 0, 1 or 2.
+   * @param data A vector of bytes containing the BSON data to send to Astarte.
+   * @return an error if sending failed, nothing otherwise.
+   */
+  auto send(std::string_view interface_name, std::string_view path, uint8_t qos,
+            const std::span<uint8_t> data) -> astarte_tl::expected<void, AstarteError>;
 
   /**
    * @brief Disconnect the client from the Astarte MQTT broker.

@@ -62,10 +62,10 @@ inline std::ostream& operator<<(std::ostream& out, const AstarteDeviceSdk::Inter
 }
 
 /**
- * @brief astarte_fmt::formatter specialization for Aggregation.
+ * @brief astarte_fmt::formatter specialization for InterfaceAggregation.
  */
 template <>
-struct astarte_fmt::formatter<AstarteDeviceSdk::Aggregation> {
+struct astarte_fmt::formatter<AstarteDeviceSdk::InterfaceAggregation> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -77,21 +77,21 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Aggregation> {
   }
 
   /**
-   * @brief Format the Aggregation enum.
-   * @param msg The Aggregation to format.
+   * @brief Format the InterfaceAggregation enum.
+   * @param msg The InterfaceAggregation to format.
    * @param ctx The format context.
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const AstarteDeviceSdk::Aggregation& aggr, FormatContext& ctx) const {
+  auto format(const AstarteDeviceSdk::InterfaceAggregation& aggr, FormatContext& ctx) const {
     auto out = ctx.out();
 
     switch (aggr) {
-      case AstarteDeviceSdk::Aggregation::kIndividual:
+      case AstarteDeviceSdk::InterfaceAggregation::kIndividual:
         astarte_fmt::format_to(out, "individual");
         break;
 
-      case AstarteDeviceSdk::Aggregation::kObject:
+      case AstarteDeviceSdk::InterfaceAggregation::kObject:
         astarte_fmt::format_to(out, "object");
         break;
     }
@@ -100,7 +100,8 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Aggregation> {
   }
 };
 
-inline std::ostream& operator<<(std::ostream& out, const AstarteDeviceSdk::Aggregation aggr) {
+inline std::ostream& operator<<(std::ostream& out,
+                                const AstarteDeviceSdk::InterfaceAggregation aggr) {
   out << astarte_fmt::format("{}", aggr);
   return out;
 }

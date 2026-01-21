@@ -1,4 +1,4 @@
-// (C) Copyright 2025, SECO Mind Srl
+// (C) Copyright 2025 - 2026, SECO Mind Srl
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -23,6 +23,14 @@ auto AstarteErrorBase::type() const -> const std::string& { return type_; }
 auto AstarteErrorBase::nested_error() const -> const std::shared_ptr<AstarteErrorBase>& {
   return other_;
 }
+
+AstarteDataSerializationError::AstarteDataSerializationError(std::string_view message)
+    : AstarteErrorBase(k_type_, message) {}
+AstarteDataSerializationError::AstarteDataSerializationError(std::string_view message,
+                                                             const AstarteError& other)
+    : AstarteErrorBase(
+          k_type_, message,
+          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
 
 AstarteInternalError::AstarteInternalError(std::string_view message)
     : AstarteErrorBase(k_type_, message) {}
@@ -80,6 +88,14 @@ AstarteInvalidInterfaceTypeError::AstarteInvalidInterfaceTypeError(std::string_v
     : AstarteErrorBase(k_type_, message) {}
 AstarteInvalidInterfaceTypeError::AstarteInvalidInterfaceTypeError(std::string_view message,
                                                                    const AstarteError& other)
+    : AstarteErrorBase(
+          k_type_, message,
+          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+
+AstarteInterfaceValidationError::AstarteInterfaceValidationError(std::string_view message)
+    : AstarteErrorBase(k_type_, message) {}
+AstarteInterfaceValidationError::AstarteInterfaceValidationError(std::string_view message,
+                                                                 const AstarteError& other)
     : AstarteErrorBase(
           k_type_, message,
           std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}

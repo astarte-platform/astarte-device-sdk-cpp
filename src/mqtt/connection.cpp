@@ -1,4 +1,4 @@
-// (C) Copyright 2025, SECO Mind Srl
+// (C) Copyright 2025 - 2026, SECO Mind Srl
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -244,8 +244,12 @@ void MqttConnectionCallback::message_arrived(mqtt::const_message_ptr msg) {
   spdlog::debug("Message received at {}: {}", msg->get_topic(), msg->get_payload_str());
 }
 
-void MqttConnectionCallback::delivery_complete(mqtt::delivery_token_ptr /* token */) {
-  spdlog::debug("Delivery completed.");
+void MqttConnectionCallback::delivery_complete(mqtt::delivery_token_ptr token) {
+  auto message = token->get_message();
+  auto payload = message->get_payload_str();
+  auto topic = message->get_topic();
+  auto qos = message->get_qos();
+  spdlog::debug("Delivery completed. Payload: {}, Topic: {}, Qos: {},", payload, topic, qos);
 }
 
 // NOLINTNEXTLINE(readability-function-size)
@@ -359,6 +363,38 @@ auto MqttConnection::connect(std::shared_ptr<Introspection> introspection)
 }
 
 auto MqttConnection::is_connected() const -> bool { return connected_->load(); }
+
+auto MqttConnection::send(std::string_view interface_name, std::string_view path, uint8_t qos,
+                          const std::span<uint8_t> data)
+    -> astarte_tl::expected<void, AstarteError> {
+  if (!path.starts_with('/')) {
+    return astarte_tl::unexpected(AstarteMqttError(
+        astarte_fmt::format("couldn't publish since path doesn't starts with /: {}", path)));
+  }
+
+  if (qos > 2) {
+    return astarte_tl::unexpected(
+        AstarteMqttError(astarte_fmt::format("couldn't publish since QoS is {}", qos)));
+  }
+
+  auto topic =
+      astarte_fmt::format("{}/{}/{}{}", cfg_.realm(), cfg_.device_id(), interface_name, path);
+  spdlog::debug("publishing on topic {}", topic);
+
+  try {
+    auto token = client_->publish(topic, data.data(), data.size(), qos, false);
+    auto message = token->get_message();
+    spdlog::trace("Publishing... Topic: {}, Qos: {},", message->get_topic(), message->get_qos());
+    token->wait();
+  } catch (...) {  // TODO(rgallor): catch the correct paho error and report it inside the log.
+    // TODO(rgallor): determine whether the exception is due to a connection error, if it caused the
+    // device disconection (eventually reconnect) connected_->store(false);
+    spdlog::error("failed to publish astarte individual");
+    return astarte_tl::unexpected(AstarteMqttError("failed to publish astarte individual"));
+  }
+
+  return {};
+}
 
 auto MqttConnection::disconnect() -> astarte_tl::expected<void, AstarteError> {
   try {
