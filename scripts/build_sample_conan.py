@@ -83,7 +83,7 @@ def build_sample_with_conan(lib_src_dir, sample_to_build, transport, qt_version=
         "create",
         lib_src_dir,
         "--build=missing",
-        f"--options=transport={transport}",
+        f"--options=&:transport={transport}",
         "--settings=build_type=Debug",
         "--settings=compiler.cppstd=20",
         "--settings:build=compiler.cppstd=20",
