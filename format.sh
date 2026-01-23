@@ -128,10 +128,10 @@ file_patterns=(
     "include/astarte_device_sdk/"*.hpp
 	"include/astarte_device_sdk/grpc/"*.hpp
     "include/astarte_device_sdk/mqtt/"*.hpp
-    "include/astarte_device_sdk/mqtt/connection/"*.hpp
     "private/"*.hpp
 	"private/grpc/"*.hpp
 	"private/mqtt/"*.hpp
+    "private/mqtt/connection/"*.hpp
     "samples/"*/*/*.cpp
     "samples/"*/*/*.hpp
     "unit/"*.cpp

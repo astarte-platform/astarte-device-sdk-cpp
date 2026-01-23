@@ -14,13 +14,12 @@
 #include "astarte_device_sdk/mqtt/errors.hpp"
 #include "astarte_device_sdk/mqtt/formatter.hpp"
 #include "mqtt/connection/listener.hpp"
-#include "mqtt/introspection.hpp"
-
 #include "mqtt/iaction_listener.h"
 #include "mqtt/iasync_client.h"
+#include "mqtt/introspection.hpp"
 #include "mqtt/thread_queue.h"
 
-namespace AstarteDeviceSdk {
+namespace AstarteDeviceSdk::mqtt_connection {
 
 /**
  * @brief Implements `mqtt::callback` to handle connection life-cycle events and session setup.
@@ -28,7 +27,7 @@ namespace AstarteDeviceSdk {
  * This class owns the device state (ID, introspection) and is responsible for
  * subscribing to topics and publishing introspection when a session is established.
  */
-class MqttConnectionCallback : public virtual mqtt::callback {
+class Callback : public virtual mqtt::callback {
  public:
   /**
    * @brief Construct a new Connection Callback object.
@@ -41,10 +40,10 @@ class MqttConnectionCallback : public virtual mqtt::callback {
    * @param handshake_error A flag stating if an error occurred while attempting to connect to
    * Astarte.
    */
-  MqttConnectionCallback(mqtt::iasync_client* client, std::string realm, std::string device_id,
-                         std::shared_ptr<Introspection> introspection,
-                         std::shared_ptr<std::atomic<bool>> connected,
-                        std::shared_ptr<mqtt::thread_queue<mqtt::token_ptr>> connection_tokens);
+  Callback(mqtt::iasync_client* client, std::string realm, std::string device_id,
+           std::shared_ptr<Introspection> introspection,
+           std::shared_ptr<std::atomic<bool>> connected,
+           std::shared_ptr<mqtt::thread_queue<mqtt::token_ptr>> session_setup_tokens);
 
   /**
    * @brief Performs the Astarte session setup.
@@ -114,12 +113,12 @@ class MqttConnectionCallback : public virtual mqtt::callback {
   /// @brief The flag stating if the device is successfully connected to Astarte.
   std::shared_ptr<std::atomic<bool>> connected_;
 
-  std::shared_ptr<mqtt::thread_queue<mqtt::token_ptr>> connection_tokens_;
+  std::shared_ptr<mqtt::thread_queue<mqtt::token_ptr>> session_setup_tokens_;
 
   std::shared_ptr<SessionSetupListener> session_setup_listener_;
-  std::shared_ptr<MqttDisconnectionListener> disconnection_listener_;
+  std::shared_ptr<DisconnectionListener> disconnection_listener_;
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace AstarteDeviceSdk::mqtt_connection
 
 #endif  // ASTARTE_MQTT_CONNECTION_CALLBACKS_H

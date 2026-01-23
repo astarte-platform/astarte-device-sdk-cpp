@@ -15,7 +15,6 @@
 #include <utility>
 #include <vector>
 
-// ... other includes kept as in your original file ...
 #include "astarte_device_sdk/mqtt/config.hpp"
 #include "astarte_device_sdk/mqtt/errors.hpp"
 #include "astarte_device_sdk/mqtt/pairing.hpp"
@@ -30,7 +29,7 @@
 #include "mqtt/message.h"
 #include "mqtt/token.h"
 
-namespace AstarteDeviceSdk {
+namespace AstarteDeviceSdk::mqtt_connection {
 
 namespace {
 
@@ -109,11 +108,10 @@ auto build_mqtt_options(config::MqttConfig& cfg)
 }  // namespace
 
 // ============================================================================
-// MqttConnection Implementation
+// Connection Implementation
 // ============================================================================
 
-auto MqttConnection::create(config::MqttConfig& cfg)
-    -> astarte_tl::expected<MqttConnection, AstarteError> {
+auto Connection::create(config::MqttConfig& cfg) -> astarte_tl::expected<Connection, AstarteError> {
   auto realm = cfg.realm();
   auto device_id = cfg.device_id();
   auto pairing_url = cfg.pairing_url();
@@ -156,18 +154,18 @@ auto MqttConnection::create(config::MqttConfig& cfg)
   auto client_id = astarte_fmt::format("{}/{}", realm, device_id);
   auto client = std::make_unique<mqtt::async_client>(broker_url.value(), client_id);
 
-  return MqttConnection(std::move(cfg), std::move(options.value()), std::move(client));
+  return Connection(std::move(cfg), std::move(options.value()), std::move(client));
 }
 
-MqttConnection::MqttConnection(config::MqttConfig cfg, mqtt::connect_options options,
-                               std::unique_ptr<mqtt::async_client> client)
+Connection::Connection(config::MqttConfig cfg, mqtt::connect_options options,
+                       std::unique_ptr<mqtt::async_client> client)
     : cfg_(std::move(cfg)),
-      options_(std::move(options)),
+      connect_options_(std::move(options)),
       client_(std::move(client)),
       connected_(std::make_shared<std::atomic<bool>>(false)),
-      connection_tokens_(std::make_shared<mqtt::thread_queue<mqtt::token_ptr>>()) {}
+      session_setup_tokens_(std::make_shared<mqtt::thread_queue<mqtt::token_ptr>>()) {}
 
-auto MqttConnection::connect(std::shared_ptr<Introspection> introspection)
+auto Connection::connect(std::shared_ptr<Introspection> introspection)
     -> astarte_tl::expected<void, AstarteError> {
   try {
     spdlog::debug("Setting up connection callback...");
@@ -176,13 +174,13 @@ auto MqttConnection::connect(std::shared_ptr<Introspection> introspection)
 
     // TODO: this could be moved in the constructor if the Introspection is also passed during
     // object instantiation
-    cb_ = std::make_unique<MqttConnectionCallback>(
-        client_.get(), std::string(cfg_.realm()), std::string(cfg_.device_id()),
-        std::move(introspection), connected_, connection_tokens_);
-    client_->set_callback(*cb_);
+    callback_ = std::make_unique<Callback>(client_.get(), std::string(cfg_.realm()),
+                                           std::string(cfg_.device_id()), std::move(introspection),
+                                           connected_, session_setup_tokens_);
+    client_->set_callback(*callback_);
 
     spdlog::debug("Connecting device to the Astarte MQTT broker...");
-    client_->connect(options_)->wait();
+    client_->connect(connect_options_)->wait();
 
     // TODO: decide if to remove the certificates
     // // Remove the client certificate and private key from filesystem
@@ -206,11 +204,10 @@ auto MqttConnection::connect(std::shared_ptr<Introspection> introspection)
   return {};
 }
 
-auto MqttConnection::is_connected() const -> bool { return connected_->load(); }
+auto Connection::is_connected() const -> bool { return connected_->load(); }
 
-auto MqttConnection::send(std::string_view interface_name, std::string_view path, uint8_t qos,
-                          const std::span<uint8_t> data)
-    -> astarte_tl::expected<void, AstarteError> {
+auto Connection::send(std::string_view interface_name, std::string_view path, uint8_t qos,
+                      const std::span<uint8_t> data) -> astarte_tl::expected<void, AstarteError> {
   if (!path.starts_with('/')) {
     return astarte_tl::unexpected(AstarteMqttError(
         astarte_fmt::format("couldn't publish since path doesn't starts with /: {}", path)));
@@ -230,7 +227,8 @@ auto MqttConnection::send(std::string_view interface_name, std::string_view path
     auto message = token->get_message();
     spdlog::trace("Publishing... Topic: {}, Qos: {},", message->get_topic(), message->get_qos());
     token->wait();
-  } catch (...) {  // TODO(rgallor): catch the correct paho error and report it inside the log.
+  } catch (...) {
+    // TODO(rgallor): catch the correct paho error and report it inside the log.
     // TODO(rgallor): determine whether the exception is due to a connection error, if it caused the
     // device disconection (eventually reconnect) connected_->store(false);
     spdlog::error("failed to publish astarte individual");
@@ -240,7 +238,7 @@ auto MqttConnection::send(std::string_view interface_name, std::string_view path
   return {};
 }
 
-auto MqttConnection::disconnect(std::chrono::milliseconds timeout)
+auto Connection::disconnect(std::chrono::milliseconds timeout)
     -> astarte_tl::expected<void, AstarteError> {
   try {
     auto toks = client_->get_pending_delivery_tokens();
@@ -249,7 +247,7 @@ auto MqttConnection::disconnect(std::chrono::milliseconds timeout)
     }
 
     spdlog::debug("Disconnecting device from Astarte...");
-    // TODO: clear the tokens for the handshake
+    session_setup_tokens_->clear();
     client_->disconnect(timeout.count())->wait();
     connected_->store(false);
     spdlog::info("Device disconnected from Astarte requested.");
@@ -261,4 +259,4 @@ auto MqttConnection::disconnect(std::chrono::milliseconds timeout)
   return {};
 }
 
-}  // namespace AstarteDeviceSdk
+}  // namespace AstarteDeviceSdk::mqtt_connection
