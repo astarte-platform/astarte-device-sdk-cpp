@@ -22,25 +22,6 @@
 
 namespace AstarteDeviceSdk::config {
 
-using namespace std::chrono_literals;
-
-/** @brief Default keep alive interval in seconds for the MQTT connection. */
-constexpr uint32_t DEFAULT_KEEP_ALIVE = 30;
-
-/** @brief Default connection timeout in seconds for the MQTT connection. */
-constexpr uint32_t DEFAULT_CONNECTION_TIMEOUT = 5;
-
-/** @brief Default disconnection timeout in seconds for the MQTT connection. */
-constexpr auto DEFAULT_DISCONNECTION_TIMEOUT = 1s;
-
-/** @brief Default file name inside the store directory where the certificate is stored in PEM
- * format. */
-constexpr std::string_view CLIENT_CERTIFICATE_FILE = "client-certificate.pem";
-
-/** @brief Default file name inside the store directory where the private key is stored in PEM
- * format. */
-constexpr std::string_view PRIVATE_KEY_FILE = "client-priv-key.pem";
-
 /**
  * @brief A type-safe wrapper for Astarte credentials, distinguishing between a credential secret
  * and a pairing token.
@@ -52,8 +33,9 @@ class Credential {
    * @param credential The pairing token string.
    * @return A new Credential instance of type PAIRING_TOKEN.
    */
-  static auto pairing_token(std::string_view credential) -> Credential {
-    return Credential{CredentialType::PAIRING_TOKEN, std::string(credential)};
+  static auto pairing_token(std::string_view credential, std::string_view store_dir) -> Credential {
+    return Credential{CredentialType::PAIRING_TOKEN, std::string(credential),
+                      std::string(store_dir)};
   }
 
   /**
@@ -61,8 +43,9 @@ class Credential {
    * @param credential The credential secret string.
    * @return A new Credential instance of type CREDENTIAL_SECRET.
    */
-  static auto secret(std::string_view credential) -> Credential {
-    return Credential{CredentialType::CREDENTIAL_SECRET, std::string(credential)};
+  static auto secret(std::string_view credential, std::string_view store_dir) -> Credential {
+    return Credential{CredentialType::CREDENTIAL_SECRET, std::string(credential),
+                      std::string(store_dir)};
   }
 
   /**
@@ -83,6 +66,39 @@ class Credential {
    */
   auto value() const -> std::string { return credential_; }
 
+  static auto get_device_certificate_path(const std::string_view store_dir) -> std::string;
+
+  static auto get_device_key_path(const std::string_view store_dir) -> std::string;
+
+  /**
+   * @brief Retrieve and persist device crypto credentials.
+  .
+  * @param api The PairingApi instance used to request the credentials.
+  * @param secret The credential secret used to authenticate the request.
+  * @param store_dir The directory path where the certificate and private key files will be created.
+  * @return an error if the API request fails or file writing errors occur.
+  */
+  static auto store_device_key_and_certificate(const std::string_view client_priv_key,
+                                               const std::string_view client_cert,
+                                               const std::string_view store_dir)
+      -> astarte_tl::expected<void, AstarteError>;
+
+  /**
+   * @brief Retrieve and persist device crypto credentials.
+  .
+   * @param api The PairingApi instance used to request the credentials.
+   * @param secret The credential secret used to authenticate the request.
+   * @param store_dir The directory path where the certificate and private key files will be
+  created.
+   * @return an error if the API request fails or file writing errors occur.
+  */
+  static auto validate_client_certificate(PairingApi& api, const std::string_view secret,
+                                          const std::string_view store_dir)
+      -> astarte_tl::expected<bool, AstarteError>;
+
+  static auto delete_client_certificate_and_key(const std::string_view store_dir)
+      -> astarte_tl::expected<void, AstarteError>;
+
  private:
   /// @brief Enum to differentiate credential types.
   enum CredentialType {
@@ -92,48 +108,12 @@ class Credential {
 
   CredentialType typ_;
   std::string credential_;
+  std::string store_dir_;
 
   /// @brief Private constructor to enforce creation through static factory methods.
-  Credential(CredentialType t, std::string cred) : typ_(t), credential_(std::move(cred)) {}
+  Credential(CredentialType t, std::string cred, std::string store_dir)
+      : typ_(t), credential_(std::move(cred)), store_dir_(std::move(store_dir)) {}
 };
-
-}  // namespace AstarteDeviceSdk::config
-
-/**
- * @brief File read and write utilities
- */
-namespace AstarteDeviceSdk::config {
-
-#include <unistd.h>
-
-#include <cstdio>
-#include <system_error>
-#include <vector>
-
-#ifdef _WIN32
-#include <io.h>
-#define fsync _commit
-#define fileno _fileno
-#endif
-
-/**
- * @brief Reads the entire content of a file into a string.
- * @param file_path The path to the file to be read.
- * @return the file content as a string, or an error if the file cannot be opened.
- */
-auto read_from_file(const std::filesystem::path& file_path)
-    -> astarte_tl::expected<std::string, AstarteError>;
-
-/**
- * @brief Writes a string to a file, overwriting any existing content.
- * @param file_path The path to the file to be written.
- * @param data The string content to write to the file.
- * @return an error in case the write operation failed, nothing otherwise.
- */
-auto write_to_file(const std::filesystem::path& file_path, std::string_view data)
-    -> astarte_tl::expected<void, AstarteError>;
-
-auto secure_shred_file(const std::string& path) -> astarte_tl::expected<void, AstarteError>;
 
 }  // namespace AstarteDeviceSdk::config
 

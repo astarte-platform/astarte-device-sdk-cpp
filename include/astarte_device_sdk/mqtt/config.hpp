@@ -23,8 +23,20 @@
  * @brief Namespace for configuration classes definition.
  */
 namespace AstarteDeviceSdk::config {
+
+using namespace std::chrono_literals;
+
 // Forward declaration, needed to make Credential private.
 class Credential;
+
+/** @brief Default keep alive interval in seconds for the MQTT connection. */
+constexpr uint32_t DEFAULT_KEEP_ALIVE = 30;
+
+/** @brief Default connection timeout in seconds for the MQTT connection. */
+constexpr uint32_t DEFAULT_CONNECTION_TIMEOUT = 5;
+
+/** @brief Default disconnection timeout in seconds for the MQTT connection. */
+constexpr auto DEFAULT_DISCONNECTION_TIMEOUT = 1s;
 
 /**
  * @brief Configuration for the Astarte MQTT connection.
@@ -74,12 +86,6 @@ class MqttConfig {
   auto pairing_url() -> std::string_view { return pairing_url_; }
 
   /**
-   * @brief Check if the credential is of type pairing token.
-   * @return a boolean stating if the stored credential is a pairing token or not.
-   */
-  auto cred_is_pairing_token() -> bool;
-
-  /**
    * @brief Check if the credential is of type credential secret.
    * @return a boolean stating if the stored credential is a credential secret or not.
    */
@@ -89,7 +95,7 @@ class MqttConfig {
    * @brief Retrieve the credential value
    * @return a string representing the credential value.
    */
-  auto cred_value() -> std::string;
+  auto credential_secret() -> std::optional<std::string>;
 
   /**
    * @brief Get the configured store directory.

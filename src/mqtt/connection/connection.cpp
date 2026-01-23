@@ -4,6 +4,13 @@
 
 #include "mqtt/connection/connection.hpp"
 
+#include <mqtt/async_client.h>
+#include <mqtt/connect_options.h>
+#include <mqtt/delivery_token.h>
+#include <mqtt/exception.h>
+#include <mqtt/iasync_client.h>
+#include <mqtt/message.h>
+#include <mqtt/token.h>
 #include <spdlog/spdlog.h>
 
 #include <atomic>
@@ -19,57 +26,15 @@
 #include "astarte_device_sdk/mqtt/errors.hpp"
 #include "astarte_device_sdk/mqtt/pairing.hpp"
 #include "astarte_device_sdk/ownership.hpp"
-#include "mqtt/async_client.h"
-#include "mqtt/connect_options.h"
 #include "mqtt/credentials.hpp"
-#include "mqtt/delivery_token.h"
-#include "mqtt/exception.h"
-#include "mqtt/iasync_client.h"
 #include "mqtt/introspection.hpp"
-#include "mqtt/message.h"
-#include "mqtt/token.h"
+#include "mqtt/persistence.hpp"
 
 namespace AstarteDeviceSdk::mqtt_connection {
 
+using config::Credential;
+
 namespace {
-
-using config::CLIENT_CERTIFICATE_FILE;
-using config::PRIVATE_KEY_FILE;
-
-/**
- * @brief Retrieve and persist device crypto credentials.
-.
- * @param api The PairingApi instance used to request the credentials.
- * @param secret The credential secret used to authenticate the request.
- * @param store_dir The directory path where the certificate and private key files will be created.
- * @return an error if the API request fails or file writing errors occur.
-*/
-auto setup_crypto_files(PairingApi& api, const std::string_view secret,
-                        const std::string_view store_dir)
-    -> astarte_tl::expected<void, AstarteError> {
-  // TODO(rgallor): instead of always generating new certificates, allow credential storage and
-  // retrieval.
-  auto key_cert_res = api.get_device_key_and_cert(secret);
-  if (!key_cert_res) {
-    return astarte_tl::unexpected(key_cert_res.error());
-  }
-
-  auto [client_priv_key, client_cert] = key_cert_res.value();
-
-  const std::vector<std::pair<std::string, std::string>> files = {
-      {astarte_fmt::format("{}/{}", store_dir, CLIENT_CERTIFICATE_FILE), client_cert},
-      {astarte_fmt::format("{}/{}", store_dir, PRIVATE_KEY_FILE), client_priv_key}};
-
-  for (const auto& [path, content] : files) {
-    auto write_res = config::write_to_file(path, content);
-    if (!write_res) {
-      spdlog::error("Failed to write to {}. Error: {}", path, write_res.error());
-      return astarte_tl::unexpected(write_res.error());
-    }
-  }
-
-  return {};
-}
 
 auto build_mqtt_options(config::MqttConfig& cfg)
     -> astarte_tl::expected<mqtt::connect_options, AstarteError> {
@@ -94,8 +59,8 @@ auto build_mqtt_options(config::MqttConfig& cfg)
           .enable_server_cert_auth(true)
           .verify(false)
           // Astarte MQTT broker requires client authentication (mutual TLS),
-          .key_store(astarte_fmt::format("{}/{}", cfg.store_dir(), CLIENT_CERTIFICATE_FILE))
-          .private_key(astarte_fmt::format("{}/{}", cfg.store_dir(), PRIVATE_KEY_FILE))
+          .key_store(Credential::get_device_certificate_path(cfg.store_dir()))
+          .private_key(Credential::get_device_key_path(cfg.store_dir()))
           .error_handler([](const std::string& msg) { spdlog::error("TLS error: {}", msg); })
           .finalize();
 
@@ -115,6 +80,7 @@ auto Connection::create(config::MqttConfig& cfg) -> astarte_tl::expected<Connect
   auto realm = cfg.realm();
   auto device_id = cfg.device_id();
   auto pairing_url = cfg.pairing_url();
+  auto credential_secret = cfg.credential_secret().value();
 
   auto res = PairingApi::create(realm, device_id, pairing_url);
   if (!res) {
@@ -123,23 +89,20 @@ auto Connection::create(config::MqttConfig& cfg) -> astarte_tl::expected<Connect
   }
   auto api = res.value();
 
-  auto credential_secret = cfg.cred_value();
-  if (cfg.cred_is_pairing_token()) {
-    auto res = api.register_device(cfg.cred_value());
-    if (!res) {
-      spdlog::error("failed to register the device. Error {}", res.error());
-      return astarte_tl::unexpected(res.error());
-    }
-    credential_secret = res.value();
-  }
-
   auto broker_url = api.get_broker_url(credential_secret);
   if (!broker_url) {
     spdlog::error("failed to retrieve Astarte MQTT broker URL. Error: {}", broker_url.error());
     return astarte_tl::unexpected(broker_url.error());
   }
 
-  auto crypto_setup = setup_crypto_files(api, credential_secret, cfg.store_dir());
+  auto certificate_key_pair = api.get_device_key_and_certificate(credential_secret);
+  if (!certificate_key_pair) {
+    return astarte_tl::unexpected(certificate_key_pair.error());
+  }
+  auto [device_private_key, device_certificate] = certificate_key_pair.value();
+
+  auto crypto_setup = Credential::store_device_key_and_certificate(
+      device_private_key, device_certificate, cfg.store_dir());
   if (!crypto_setup) {
     spdlog::error("failed to setup crypto info. Error: {}", crypto_setup.error());
     return astarte_tl::unexpected(crypto_setup.error());
@@ -154,23 +117,43 @@ auto Connection::create(config::MqttConfig& cfg) -> astarte_tl::expected<Connect
   auto client_id = astarte_fmt::format("{}/{}", realm, device_id);
   auto client = std::make_unique<mqtt::async_client>(broker_url.value(), client_id);
 
-  return Connection(std::move(cfg), std::move(options.value()), std::move(client));
+  return Connection(std::move(cfg), std::move(options.value()), std::move(client), std::move(api));
 }
 
 Connection::Connection(config::MqttConfig cfg, mqtt::connect_options options,
-                       std::unique_ptr<mqtt::async_client> client)
+                       std::unique_ptr<mqtt::async_client> client, PairingApi pairing_api)
     : cfg_(std::move(cfg)),
       connect_options_(std::move(options)),
       client_(std::move(client)),
       connected_(std::make_shared<std::atomic<bool>>(false)),
-      session_setup_tokens_(std::make_shared<mqtt::thread_queue<mqtt::token_ptr>>()) {}
+      session_setup_tokens_(std::make_shared<mqtt::thread_queue<mqtt::token_ptr>>()),
+      pairing_api_(std::move(pairing_api)) {}
 
 auto Connection::connect(std::shared_ptr<Introspection> introspection)
     -> astarte_tl::expected<void, AstarteError> {
   try {
     spdlog::debug("Setting up connection callback...");
 
-    // TODO: Check if the certificates are valid from the previous connection if any
+    auto cert_is_valid = Credential::validate_client_certificate(
+        pairing_api_, cfg_.credential_secret().value(), cfg_.store_dir());
+    if (!cert_is_valid) {
+      return astarte_tl::unexpected(cert_is_valid.error());
+    }
+    if (!cert_is_valid.value()) {
+      auto certificate_key_pair =
+          pairing_api_.get_device_key_and_certificate(cfg_.credential_secret().value());
+      if (!certificate_key_pair) {
+        return astarte_tl::unexpected(certificate_key_pair.error());
+      }
+      auto [device_private_key, device_certificate] = certificate_key_pair.value();
+
+      auto crypto_setup = Credential::store_device_key_and_certificate(
+          device_private_key, device_certificate, cfg_.store_dir());
+      if (!crypto_setup) {
+        spdlog::error("failed to setup crypto info. Error: {}", crypto_setup.error());
+        return astarte_tl::unexpected(crypto_setup.error());
+      }
+    }
 
     // TODO: this could be moved in the constructor if the Introspection is also passed during
     // object instantiation
@@ -182,18 +165,9 @@ auto Connection::connect(std::shared_ptr<Introspection> introspection)
     spdlog::debug("Connecting device to the Astarte MQTT broker...");
     client_->connect(connect_options_)->wait();
 
-    // TODO: decide if to remove the certificates
-    // // Remove the client certificate and private key from filesystem
-    // auto res = config::secure_shred_file(
-    //                astarte_fmt::format("{}/{}", cfg_.store_dir(), CLIENT_CERTIFICATE_FILE))
-    //                .and_then([&]() {
-    //                  return config::secure_shred_file(
-    //                      astarte_fmt::format("{}/{}", cfg_.store_dir(), PRIVATE_KEY_FILE));
-    //                });
-    // if (!res) {
-    //   spdlog::error("failed to delete client cert or private key from filesystem. Error: {}",
-    //                 res.error());
-    // }
+    Credential::delete_client_certificate_and_key(cfg_.store_dir());
+
+    // TODO: check if connection is fully established and add timeout if needed.
 
   } catch (const mqtt::exception& e) {
     spdlog::error("Error while trying to connect to Astarte: {}", e.what());

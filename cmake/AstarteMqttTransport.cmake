@@ -114,6 +114,7 @@ function(
         "src/mqtt/device_mqtt.cpp"
         "src/mqtt/errors.cpp"
         "src/mqtt/introspection.cpp"
+        "src/mqtt/persistence.cpp"
         "src/mqtt/pairing.cpp"
         "src/mqtt/serialize.cpp"
     )
@@ -127,6 +128,7 @@ function(
         "private/mqtt/crypto.hpp"
         "private/mqtt/device_mqtt_impl.hpp"
         "private/mqtt/introspection.hpp"
+        "private/mqtt/persistence.hpp"
         "private/mqtt/serialize.hpp"
     )
     set(${ASTARTE_MQTT_PUBLIC_HEADERS} ${${ASTARTE_MQTT_PUBLIC_HEADERS}} PARENT_SCOPE)

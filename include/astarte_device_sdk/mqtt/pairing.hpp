@@ -53,22 +53,13 @@ class PairingApi {
       -> astarte_tl::expected<std::string, AstarteError>;
 
   /**
-   * @brief Retrieve the Astarte device private key and certificate.
+   * @brief Retrieve the Astarte device certificate and relative private key.
    * @param credential_secret The Astarte device credential necessary to authenticate to the broker.
    * @param timeout_ms A timeout value to perform the HTTP request.
    * @return The device key and certificate on success, an error otherwise.
    */
-  auto get_device_key_and_cert(std::string_view credential_secret, int timeout_ms = 0) const
+  auto get_device_key_and_certificate(std::string_view credential_secret, int timeout_ms = 0) const
       -> astarte_tl::expected<std::tuple<std::string, std::string>, AstarteError>;
-
- private:
-  /**
-   * @brief Constructor for the PairingApi class.
-   * @param realm The Astarte realm name.
-   * @param device_id The Astarte device id.
-   * @param pairing_url string containing the Astarte pairing API URL.
-   */
-  PairingApi(std::string_view realm, std::string_view device_id, ada::url_aggregator pairing_url);
 
   /**
    * @brief Check if the Astarte device certificate is valid.
@@ -80,6 +71,15 @@ class PairingApi {
    */
   auto device_cert_valid(std::string_view certificate, std::string_view credential_secret,
                          int timeout_ms = 0) const -> astarte_tl::expected<bool, AstarteError>;
+
+ private:
+  /**
+   * @brief Constructor for the PairingApi class.
+   * @param realm The Astarte realm name.
+   * @param device_id The Astarte device id.
+   * @param pairing_url string containing the Astarte pairing API URL.
+   */
+  PairingApi(std::string_view realm, std::string_view device_id, ada::url_aggregator pairing_url);
 
   /** @brief The Astarte realm name. */
   const std::string realm_;

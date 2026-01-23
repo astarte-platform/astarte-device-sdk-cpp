@@ -54,15 +54,6 @@ int main() {
     auto secret = secret_res.value();
     spdlog::trace("credential secret: {}", secret);
 
-    auto key_cert_res = api.get_device_key_and_cert(secret);
-    if (!key_cert_res) {
-      spdlog::error("failed to get the device key or cert: {}", key_cert_res.error());
-      return EXIT_FAILURE;
-    }
-    auto [key, cert] = key_cert_res.value();
-    spdlog::trace("key: {}", key);
-    spdlog::trace("cert: {}", cert);
-
     store_cred_secret(db, cfg.device_id, secret);
     in_db = true;
     cred_opt = std::optional(secret);

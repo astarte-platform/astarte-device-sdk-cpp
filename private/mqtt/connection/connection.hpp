@@ -89,8 +89,9 @@ class Connection {
 
  private:
   Connection(config::MqttConfig cfg, mqtt::connect_options options,
-             std::unique_ptr<mqtt::async_client> client);
+             std::unique_ptr<mqtt::async_client> client, PairingApi pairing_api);
 
+  PairingApi pairing_api_;
   /// @brief The MQTT configuration object.
   config::MqttConfig cfg_;
   /// @brief The Paho MQTT connection options.

@@ -255,7 +255,8 @@ auto PairingApi::get_broker_url(std::string_view credential_secret, int timeout_
   return parse_json<std::string>(res.text, "/data/protocols/astarte_mqtt_v1/broker_url");
 }
 
-auto PairingApi::get_device_key_and_cert(std::string_view credential_secret, int timeout_ms) const
+auto PairingApi::get_device_key_and_certificate(std::string_view credential_secret,
+                                                int timeout_ms) const
     -> astarte_tl::expected<std::tuple<std::string, std::string>, AstarteError> {
   auto request_url = pairing_url_;
   const std::string pathname =
