@@ -252,7 +252,6 @@ void MqttConnectionCallback::delivery_complete(mqtt::delivery_token_ptr token) {
   spdlog::debug("Delivery completed. Payload: {}, Topic: {}, Qos: {},", payload, topic, qos);
 }
 
-// NOLINTNEXTLINE(readability-function-size)
 auto MqttConnection::create(config::MqttConfig& cfg)
     -> astarte_tl::expected<MqttConnection, AstarteError> {
   auto realm = cfg.realm();

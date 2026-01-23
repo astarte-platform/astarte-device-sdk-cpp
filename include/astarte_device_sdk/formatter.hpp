@@ -180,6 +180,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteData> {
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
+  // NOLINTNEXTLINE(readability-function-size)
   auto format(const AstarteDeviceSdk::AstarteData& data, FormatContext& ctx) const {
     auto out = ctx.out();
 
@@ -190,8 +191,8 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteData> {
     } else if (std::holds_alternative<double>(data.get_raw_data())) {
       out = astarte_fmt::format_to(out, "{}", std::get<double>(data.get_raw_data()));
     } else if (std::holds_alternative<bool>(data.get_raw_data())) {
-      auto s = (std::get<bool>(data.get_raw_data()) ? "true" : "false");
-      out = astarte_fmt::format_to(out, "{}", s);
+      const auto* bool_str = (std::get<bool>(data.get_raw_data()) ? "true" : "false");
+      out = astarte_fmt::format_to(out, "{}", bool_str);
     } else if (std::holds_alternative<std::string>(data.get_raw_data())) {
       out = astarte_fmt::format_to(out, R"("{}")", std::get<std::string>(data.get_raw_data()));
     } else if (std::holds_alternative<std::vector<uint8_t>>(data.get_raw_data())) {
@@ -221,7 +222,8 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteData> {
   }
 };
 
-inline std::ostream& operator<<(std::ostream& out, const AstarteDeviceSdk::AstarteData data) {
+inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::AstarteData& data)
+    -> std::ostream& {
   out << astarte_fmt::format("{}", data);
   return out;
 }
@@ -300,7 +302,8 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteType> {
   }
 };
 
-inline std::ostream& operator<<(std::ostream& out, const AstarteDeviceSdk::AstarteType typ) {
+inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::AstarteType typ)
+    -> std::ostream& {
   out << astarte_fmt::format("{}", typ);
   return out;
 }
@@ -333,8 +336,8 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteDatastreamIndividual> {
   }
 };
 
-inline std::ostream& operator<<(std::ostream& out,
-                                const AstarteDeviceSdk::AstarteDatastreamIndividual data) {
+inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::AstarteDatastreamIndividual& data)
+    -> std::ostream& {
   out << astarte_fmt::format("{}", data);
   return out;
 }
@@ -380,8 +383,8 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteDatastreamObject> {
   }
 };
 
-inline std::ostream& operator<<(std::ostream& out,
-                                const AstarteDeviceSdk::AstarteDatastreamObject data) {
+inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::AstarteDatastreamObject& data)
+    -> std::ostream& {
   out << astarte_fmt::format("{}", data);
   return out;
 }
@@ -410,16 +413,17 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstartePropertyIndividual> {
    */
   template <typename FormatContext>
   auto format(const AstarteDeviceSdk::AstartePropertyIndividual& data, FormatContext& ctx) const {
-    if (data.get_value().has_value()) {
-      return astarte_fmt::format_to(ctx.out(), "{}", data.get_value().value());
+    const auto& opt_data = data.get_value();
+    if (opt_data.has_value()) {
+      return astarte_fmt::format_to(ctx.out(), "{}", opt_data.value());
     }
 
     return ctx.out();
   }
 };
 
-inline std::ostream& operator<<(std::ostream& out,
-                                const AstarteDeviceSdk::AstartePropertyIndividual data) {
+inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::AstartePropertyIndividual& data)
+    -> std::ostream& {
   out << astarte_fmt::format("{}", data);
   return out;
 }
@@ -470,7 +474,8 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteMessage> {
   }
 };
 
-inline std::ostream& operator<<(std::ostream& out, const AstarteDeviceSdk::AstarteMessage msg) {
+inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::AstarteMessage& msg)
+    -> std::ostream& {
   out << astarte_fmt::format("{}", msg);
   return out;
 }
@@ -505,8 +510,8 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteStoredProperty> {
   }
 };
 
-inline std::ostream& operator<<(std::ostream& out,
-                                const AstarteDeviceSdk::AstarteStoredProperty prop) {
+inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::AstarteStoredProperty& prop)
+    -> std::ostream& {
   out << astarte_fmt::format("{}", prop);
   return out;
 }
@@ -549,8 +554,8 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteOwnership> {
   }
 };
 
-inline std::ostream& operator<<(std::ostream& out,
-                                const AstarteDeviceSdk::AstarteOwnership ownership) {
+inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::AstarteOwnership ownership)
+    -> std::ostream& {
   out << astarte_fmt::format("{}", ownership);
   return out;
 }
@@ -580,7 +585,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteErrorBase> {
   auto format(const AstarteDeviceSdk::AstarteErrorBase& err, FormatContext& ctx) const {
     auto out = astarte_fmt::format_to(ctx.out(), "{}: {}", err.type(), err.message());
 
-    std::string indent = "";
+    std::string indent;
     const AstarteDeviceSdk::AstarteErrorBase* current = &err;
     while (const auto& nested = current->nested_error()) {
       indent += "  ";
@@ -596,6 +601,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteErrorBase> {
  * @brief Formatter specialization for AstarteDeviceSdk::AstarteError.
  */
 template <>
+// NOLINTNEXTLINE(cert-dcl58-cpp)
 struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteError> {
   /**
    * @brief Parse the format string. Default implementation.

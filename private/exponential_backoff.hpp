@@ -69,7 +69,7 @@ class ExponentialBackoff {
     }
 
     // Bound the delay to the maximum
-    ChronoMillisRep bounded_delay = std::min(delay, cutoff_coeff_.count());
+    const ChronoMillisRep bounded_delay = std::min(delay, cutoff_coeff_.count());
 
     // Store the new delay before jitter application
     prev_delay_ = bounded_delay;
@@ -84,7 +84,7 @@ class ExponentialBackoff {
       jitter_maximum = max_milliseconds - bounded_delay;
     }
     std::uniform_int_distribution<ChronoMillisRep> dist(jitter_minimum, jitter_maximum);
-    ChronoMillisRep jittered_delay = bounded_delay + dist(gen_);
+    const ChronoMillisRep jittered_delay = bounded_delay + dist(gen_);
 
     // Convert to a chrono object
     return std::chrono::milliseconds(jittered_delay);

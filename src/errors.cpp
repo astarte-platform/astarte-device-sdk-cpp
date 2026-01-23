@@ -17,7 +17,6 @@ AstarteErrorBase::AstarteErrorBase(std::string_view type, std::string_view messa
 AstarteErrorBase::AstarteErrorBase(std::string_view type, std::string_view message,
                                    const AstarteErrorBase& other)
     : type_(type), message_(message), other_(std::make_shared<AstarteErrorBase>(other)) {}
-AstarteErrorBase::~AstarteErrorBase() = default;
 auto AstarteErrorBase::message() const -> const std::string& { return message_; }
 auto AstarteErrorBase::type() const -> const std::string& { return type_; }
 auto AstarteErrorBase::nested_error() const -> const std::shared_ptr<AstarteErrorBase>& {

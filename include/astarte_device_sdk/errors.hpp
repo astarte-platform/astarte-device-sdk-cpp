@@ -82,22 +82,37 @@ using AstarteError = std::variant<
 class AstarteErrorBase {
  public:
   /** @brief Destructor for the Astarte error. */
-  virtual ~AstarteErrorBase();
+  virtual ~AstarteErrorBase() = default;
+  /** @brief Default copy constructor. */
+  AstarteErrorBase(const AstarteErrorBase&) = default;
+  /**
+   * @brief Default copy assignment operator.
+   * @return The new class.
+   */
+  auto operator=(const AstarteErrorBase&) -> AstarteErrorBase& = default;
+  /** @brief Delete move constructor. */
+  AstarteErrorBase(AstarteErrorBase&&) = delete;
+  /**
+   * @brief Default move assignment operator.
+   * @return The new instance.
+   */
+  auto operator=(AstarteErrorBase&&) -> AstarteErrorBase& = default;
+
   /**
    * @brief Return the message encapsulated in the error.
    * @return The error message.
    */
-  auto message() const -> const std::string&;
+  [[nodiscard]] auto message() const -> const std::string&;
   /**
    * @brief Return the type encapsulated in the error.
    * @return The error type.
    */
-  auto type() const -> const std::string&;
+  [[nodiscard]] auto type() const -> const std::string&;
   /**
    * @brief Return the nested error.
    * @return The error.
    */
-  auto nested_error() const -> const std::shared_ptr<AstarteErrorBase>&;
+  [[nodiscard]] auto nested_error() const -> const std::shared_ptr<AstarteErrorBase>&;
 
  protected:
   /**

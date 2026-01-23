@@ -32,7 +32,7 @@ class AstarteMessage {
    */
   template <typename T>
   AstarteMessage(std::string_view interface, std::string_view path, T data)
-      : interface_(interface), path_(path), data_(data) {}
+      : interface_(interface), path_(path), data_(std::move(data)) {}
 
   /**
    * @brief Get the interface of the message.

@@ -134,7 +134,7 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::disconnect()
   return connection_.disconnect();
 }
 
-// NOLINTNEXTLINE(readability-convert-member-functions-to-static, readability-function-size)
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::send_individual(
     std::string_view interface_name, std::string_view path, const AstarteData& data,
     const std::chrono::system_clock::time_point* timestamp)
@@ -188,7 +188,7 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::send_individual(
   return connection_.send(interface_name, path, qos, bson_bytes);
 }
 
-// NOLINTNEXTLINE(readability-convert-member-functions-to-static, readability-function-size)
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::send_object(
     std::string_view interface_name, std::string_view path, const AstarteDatastreamObject& object,
     const std::chrono::system_clock::time_point* timestamp)
