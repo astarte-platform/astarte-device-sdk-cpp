@@ -311,7 +311,6 @@ auto Mapping::check_data_type(const AstarteData& data) const
   return {};
 }
 
-// NOLINTNEXTLINE(readability-function-size)
 auto Interface::try_from_json(const json& interface)
     -> astarte_tl::expected<Interface, AstarteError> {
   // retrieve interface fields

@@ -48,7 +48,7 @@ class AstarteData {
    * @param value The content of the Astarte data instance.
    */
   template <AstarteDataAllowedType T>
-  explicit AstarteData(T value) {
+  explicit AstarteData(const T& value) {
     if constexpr (std::is_same_v<T, std::string_view>) {
       data_ = std::string(value);
     } else {

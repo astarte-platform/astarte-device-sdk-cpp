@@ -25,7 +25,7 @@ namespace AstarteDeviceSdk::config {
 #include <vector>
 
 namespace {
-// helper function to reduce complexity of secure_shred_file [readability-function-size]
+// helper function to reduce complexity of secure_shred_file
 auto overwrite_file_zeros(FILE* file, int64_t size) -> astarte_tl::expected<void, AstarteError> {
   if (std::fseek(file, 0, SEEK_SET) != 0) {
     return astarte_tl::unexpected(AstarteWriteCredentialError(astarte_fmt::format(
@@ -87,7 +87,6 @@ auto write_to_file(const std::filesystem::path& file_path, std::string_view data
   return {};
 }
 
-// NOLINTNEXTLINE(readability-function-size)
 auto secure_shred_file(const std::string& path) -> astarte_tl::expected<void, AstarteError> {
   FILE* file = std::fopen(path.c_str(), "rb+");
 

@@ -27,7 +27,7 @@ class SharedQueue {
     return std::nullopt;
   }
   void push(const T& item) {
-    std::unique_lock<std::mutex> mlock(mutex_);
+    const std::unique_lock<std::mutex> mlock(mutex_);
     queue_.push(item);
     condition_.notify_one();
   }
