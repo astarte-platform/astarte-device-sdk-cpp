@@ -7,6 +7,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <memory>
@@ -126,6 +127,16 @@ class MqttConfig {
   }
 
   /**
+   * @brief Set the MQTT connection timeout.
+   * @param duration The timeout duration in milliseconds.
+   * @return A reference to the MqttConfig object for chaining.
+   */
+  auto disconnection_timeout(std::chrono::milliseconds duration) -> MqttConfig& {
+    this->disconn_timeout_ = duration;
+    return *this;
+  }
+
+  /**
    * @brief Get the MQTT keep-alive interval.
    * @return The connection keepalive value..
    */
@@ -136,6 +147,12 @@ class MqttConfig {
    * @return The connection timeout value.
    */
   auto connection_timeout() -> uint32_t { return conn_timeout_; }
+
+  /**
+   * @brief Get the MQTT connection timeout.
+   * @return The connection timeout value.
+   */
+  auto disconnection_timeout() -> std::chrono::milliseconds { return disconn_timeout_; }
 
  private:
   /**
@@ -156,6 +173,7 @@ class MqttConfig {
   bool ignore_ssl_;
   uint32_t keepalive_;
   uint32_t conn_timeout_;
+  std::chrono::milliseconds disconn_timeout_;
 };
 
 }  // namespace AstarteDeviceSdk::config

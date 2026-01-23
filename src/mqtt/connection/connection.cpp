@@ -238,8 +238,7 @@ auto Connection::send(std::string_view interface_name, std::string_view path, ui
   return {};
 }
 
-auto Connection::disconnect(std::chrono::milliseconds timeout)
-    -> astarte_tl::expected<void, AstarteError> {
+auto Connection::disconnect() -> astarte_tl::expected<void, AstarteError> {
   try {
     auto toks = client_->get_pending_delivery_tokens();
     if (!toks.empty()) {
@@ -248,7 +247,7 @@ auto Connection::disconnect(std::chrono::milliseconds timeout)
 
     spdlog::debug("Disconnecting device from Astarte...");
     session_setup_tokens_->clear();
-    client_->disconnect(timeout.count())->wait();
+    client_->disconnect(cfg_.disconnection_timeout().count())->wait();
     connected_->store(false);
     spdlog::info("Device disconnected from Astarte requested.");
   } catch (const mqtt::exception& e) {

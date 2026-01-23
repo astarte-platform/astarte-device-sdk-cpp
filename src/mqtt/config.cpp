@@ -27,7 +27,8 @@ MqttConfig::MqttConfig(std::string_view realm, std::string_view device_id,
       store_dir_(store_dir),
       ignore_ssl_(false),
       keepalive_(DEFAULT_KEEP_ALIVE),
-      conn_timeout_(DEFAULT_CONNECTION_TIMEOUT) {}
+      conn_timeout_(DEFAULT_CONNECTION_TIMEOUT),
+      disconn_timeout_(DEFAULT_DISCONNECTION_TIMEOUT) {}
 
 auto MqttConfig::with_credential_secret(std::string_view realm, std::string_view device_id,
                                         std::string_view credential, std::string_view pairing_url,

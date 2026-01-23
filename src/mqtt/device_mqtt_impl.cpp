@@ -133,7 +133,7 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::disconnect()
     return {};
   }
   // TODO: Propagate this
-  return connection_.disconnect(std::chrono::milliseconds(1s));
+  return connection_.disconnect();
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)

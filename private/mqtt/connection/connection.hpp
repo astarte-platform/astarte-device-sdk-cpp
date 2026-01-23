@@ -85,7 +85,7 @@ class Connection {
    * @brief Disconnect the client from the Astarte MQTT broker.
    * @return an error if the disconnection operation fails.
    */
-  auto disconnect(std::chrono::milliseconds timeout) -> astarte_tl::expected<void, AstarteError>;
+  auto disconnect() -> astarte_tl::expected<void, AstarteError>;
 
  private:
   Connection(config::MqttConfig cfg, mqtt::connect_options options,

@@ -8,6 +8,7 @@
 #include <spdlog/spdlog.h>
 #include <unistd.h>
 
+#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <optional>
@@ -21,6 +22,8 @@
 
 namespace AstarteDeviceSdk::config {
 
+using namespace std::chrono_literals;
+
 /** @brief Default keep alive interval in seconds for the MQTT connection. */
 constexpr uint32_t DEFAULT_KEEP_ALIVE = 30;
 
@@ -28,7 +31,7 @@ constexpr uint32_t DEFAULT_KEEP_ALIVE = 30;
 constexpr uint32_t DEFAULT_CONNECTION_TIMEOUT = 5;
 
 /** @brief Default disconnection timeout in seconds for the MQTT connection. */
-constexpr uint32_t DEFAULT_DISCONNECTION_TIMEOUT = 1;
+constexpr auto DEFAULT_DISCONNECTION_TIMEOUT = 1s;
 
 /** @brief Default file name inside the store directory where the certificate is stored in PEM
  * format. */
