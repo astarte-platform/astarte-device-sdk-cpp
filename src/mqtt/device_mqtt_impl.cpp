@@ -37,11 +37,13 @@
 #include "astarte_device_sdk/ownership.hpp"
 #include "astarte_device_sdk/property.hpp"
 #include "astarte_device_sdk/stored_property.hpp"
-#include "mqtt/connection.hpp"
+#include "mqtt/connection/connection.hpp"
 #include "mqtt/introspection.hpp"
 #include "mqtt/serialize.hpp"
 
 namespace AstarteDeviceSdk {
+
+using namespace std::chrono_literals;
 
 using json = nlohmann::json;
 
@@ -130,8 +132,8 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::disconnect()
     spdlog::debug("device already disconnected");
     return {};
   }
-
-  return connection_.disconnect();
+  // TODO: Propagate this
+  return connection_.disconnect(std::chrono::milliseconds(1s));
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)

@@ -124,9 +124,11 @@ file_patterns=(
     "src/"*.cpp
 	"src/grpc/"*.cpp
     "src/mqtt/"*.cpp
+    "src/mqtt/connection/"*.cpp
     "include/astarte_device_sdk/"*.hpp
 	"include/astarte_device_sdk/grpc/"*.hpp
     "include/astarte_device_sdk/mqtt/"*.hpp
+    "include/astarte_device_sdk/mqtt/connection/"*.hpp
     "private/"*.hpp
 	"private/grpc/"*.hpp
 	"private/mqtt/"*.hpp

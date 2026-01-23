@@ -27,6 +27,9 @@ constexpr uint32_t DEFAULT_KEEP_ALIVE = 30;
 /** @brief Default connection timeout in seconds for the MQTT connection. */
 constexpr uint32_t DEFAULT_CONNECTION_TIMEOUT = 5;
 
+/** @brief Default disconnection timeout in seconds for the MQTT connection. */
+constexpr uint32_t DEFAULT_DISCONNECTION_TIMEOUT = 1;
+
 /** @brief Default file name inside the store directory where the certificate is stored in PEM
  * format. */
 constexpr std::string_view CLIENT_CERTIFICATE_FILE = "client-certificate.pem";

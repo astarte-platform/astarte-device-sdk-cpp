@@ -124,6 +124,8 @@ int main() {
       return EXIT_FAILURE;
     }
 
+    sleep(5);
+
     // sending device datastream individual
     {
       auto interface_name("org.astarte-platform.cpp.examples.DeviceDatastream");
@@ -139,8 +141,8 @@ int main() {
 
       auto longinteger_path("/longinteger_endpoint");
       auto longinteger_value = AstarteDeviceSdk::AstarteData(8589934592);
-      send_res = device.send_individual(interface_name, longinteger_path, longinteger_value, &now);
-      if (!send_res) {
+      send_res = device.send_individual(interface_name, longinteger_path, longinteger_value,
+      &now); if (!send_res) {
         spdlog::error("send datastream individual error: {}", send_res.error());
         return EXIT_FAILURE;
       }
@@ -230,8 +232,8 @@ int main() {
       auto stringarray_path("/stringarray_endpoint");
       std::vector<std::string> stringarray = {"Hello ", "world ", "from ", "C++"};
       auto stringarray_value = AstarteDeviceSdk::AstarteData(stringarray);
-      send_res = device.send_individual(interface_name, stringarray_path, stringarray_value, &now);
-      if (!send_res) {
+      send_res = device.send_individual(interface_name, stringarray_path, stringarray_value,
+      &now); if (!send_res) {
         spdlog::error("send datastream individual error: {}", send_res.error());
         return EXIT_FAILURE;
       }
@@ -240,7 +242,8 @@ int main() {
       std::vector<std::vector<uint8_t>> binaryblobarray = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
       auto binaryblobarray_value = AstarteDeviceSdk::AstarteData(binaryblobarray);
       send_res =
-          device.send_individual(interface_name, binaryblobarray_path, binaryblobarray_value, &now);
+          device.send_individual(interface_name, binaryblobarray_path, binaryblobarray_value,
+          &now);
       if (!send_res) {
         spdlog::error("send datastream individual error: {}", send_res.error());
         return EXIT_FAILURE;
@@ -276,7 +279,8 @@ int main() {
           {"integerarray_endpoint",
            AstarteDeviceSdk::AstarteData(std::vector<int32_t>{10, 20, 30, 40, 50})},
           {"longintegerarray_endpoint",
-           AstarteDeviceSdk::AstarteData(std::vector<int64_t>{8589934592, 8589934593, 8589939592})},
+           AstarteDeviceSdk::AstarteData(std::vector<int64_t>{8589934592, 8589934593,
+           8589939592})},
           {"doublearray_endpoint", AstarteDeviceSdk::AstarteData(std::vector<double>{1.2, 3.4})},
           {"booleanarray_endpoint",
            AstarteDeviceSdk::AstarteData(std::vector<bool>{true, false, true})},
@@ -299,6 +303,22 @@ int main() {
     }
 
     auto disconn_res = device.disconnect();
+    if (!disconn_res) {
+      spdlog::error("disconnection error: {}", disconn_res.error());
+      return EXIT_FAILURE;
+    }
+
+    sleep(5);
+
+    conn_res = device.connect();
+    if (!conn_res) {
+      spdlog::error("connection error: {}", conn_res.error());
+      return EXIT_FAILURE;
+    }
+
+    sleep(5);
+
+    disconn_res = device.disconnect();
     if (!disconn_res) {
       spdlog::error("disconnection error: {}", disconn_res.error());
       return EXIT_FAILURE;

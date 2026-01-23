@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "mqtt/connection.hpp"
+#include "mqtt/connection/connection.hpp"
 
 #include <spdlog/spdlog.h>
 
@@ -109,148 +109,8 @@ auto build_mqtt_options(config::MqttConfig& cfg)
 }  // namespace
 
 // ============================================================================
-// MqttConnectionCallback Implementation
+// MqttConnection Implementation
 // ============================================================================
-
-MqttConnectionCallback::MqttConnectionCallback(mqtt::iasync_client* client, std::string realm,
-                                               std::string device_id,
-                                               std::shared_ptr<Introspection> introspection,
-                                               std::shared_ptr<std::atomic<bool>> connected)
-    : client_(client),
-      realm_(std::move(realm)),
-      device_id_(std::move(device_id)),
-      introspection_(std::move(introspection)),
-      connected_(std::move(connected)),
-      handshake_error_(std::make_shared<std::atomic<bool>>(false)) {}
-
-// TODO(rgallor): Perform additional checks. The "handshake" with astarte should have been completed
-// in a previous connection and the device introspection should not have changed since the last
-// connection.
-auto MqttConnectionCallback::perform_session_setup(bool session_present)
-    -> astarte_tl::expected<void, AstarteError> {
-  if (handshake_error_ || !session_present) {
-    auto res = setup_subscriptions();
-    if (!res) {
-      return astarte_tl::unexpected(res.error());
-    }
-    spdlog::debug("Subscription to Astarte topics completed.");
-
-    res = send_introspection();
-    if (!res) {
-      return astarte_tl::unexpected(res.error());
-    }
-    spdlog::debug("Introspection sent to Astarte.");
-
-    res = send_emptycache();
-    if (!res) {
-      return astarte_tl::unexpected(res.error());
-    }
-    spdlog::debug("EmptyCache sent to Astarte.");
-  } else {
-    spdlog::debug("Session present: skipping subscription and introspection setup.");
-  }
-
-  return {};
-}
-
-auto MqttConnectionCallback::setup_subscriptions() -> astarte_tl::expected<void, AstarteError> {
-  // Define a collection of topics to subscribe to
-  auto topics = mqtt::string_collection();
-  auto qoss = mqtt::iasync_client::qos_collection();
-
-  spdlog::debug("Subscribing to topic /control/consumer/properties");
-  topics.push_back(astarte_fmt::format("{}/{}/control/consumer/properties", realm_, device_id_));
-  qoss.push_back(2);
-
-  for (const auto& interface : introspection_->values()) {
-    // consider only server-owned properties
-    if (interface.ownership() == AstarteOwnership::kDevice) {
-      continue;
-    }
-
-    auto topic = astarte_fmt::format("{}/{}/{}/#", realm_, device_id_, interface.interface_name());
-    spdlog::debug("Subscribing to topic {}", topic);
-    topics.push_back(std::move(topic));
-    qoss.push_back(2);
-  }
-
-  if (!topics.empty()) {
-    try {
-      client_->subscribe(std::make_shared<mqtt::string_collection>(topics), qoss);
-    } catch (...) {
-      spdlog::error("failed to setup subscriptions");
-      handshake_error_->store(true);
-      return astarte_tl::unexpected(AstarteMqttConnectionError("failed to setup subscriptions"));
-    }
-  }
-
-  return {};
-}
-
-auto MqttConnectionCallback::send_introspection() -> astarte_tl::expected<void, AstarteError> {
-  // Create the stringified representation of the introspection to send to Astarte
-  auto introspection_str = std::string();
-  for (const auto& interface : introspection_->values()) {
-    introspection_str += astarte_fmt::format("{}:{}:{};", interface.interface_name(),
-                                             interface.version_major(), interface.version_minor());
-  }
-  // Remove last unnecessary ";"
-  if (!introspection_str.empty()) {
-    introspection_str.pop_back();
-  }
-
-  auto base_topic = astarte_fmt::format("{}/{}", realm_, device_id_);
-  try {
-    client_->publish(base_topic, introspection_str, 2, false);
-    return {};
-  } catch (...) {
-    spdlog::error("failed to publish introspection");
-    handshake_error_->store(true);
-    return astarte_tl::unexpected(AstarteMqttConnectionError("failed to publish introspection"));
-  }
-}
-
-auto MqttConnectionCallback::send_emptycache() -> astarte_tl::expected<void, AstarteError> {
-  auto emptycache_topic = astarte_fmt::format("{}/{}/control/emptyCache", realm_, device_id_);
-  try {
-    client_->publish(emptycache_topic, "1", 2, false);
-    return {};
-  } catch (...) {
-    spdlog::error("failed to perform empty cache");
-    handshake_error_->store(true);
-    return astarte_tl::unexpected(AstarteMqttConnectionError("failed to perform empty cache"));
-  }
-}
-
-void MqttConnectionCallback::connected(const std::string& /* cause */) {
-  spdlog::info("Device connected to Astarte.");
-
-  // if (cause.find("automatic reconnect") != std::string::npos) {
-  //   spdlog::info("Callback cause: {}", cause);
-
-  //   // On auto-reconnect, we might want to ensure the session is set up correctly.
-  //   // Passing false ensures we re-subscribe and re-send introspection.
-  //   perform_session_setup(false);
-  // }
-}
-
-void MqttConnectionCallback::connection_lost(const std::string& cause) {
-  spdlog::warn("Connection lost: {}, waiting for auto-reconnect...", cause);
-  connected_->store(false);
-}
-
-void MqttConnectionCallback::message_arrived(mqtt::const_message_ptr msg) {
-  // TODO(rgallor): handle message reception
-  spdlog::debug("Message received at {}: {}", msg->get_topic(), msg->get_payload_str());
-}
-
-void MqttConnectionCallback::delivery_complete(mqtt::delivery_token_ptr token) {
-  auto message = token->get_message();
-  auto payload = message->get_payload_str();
-  auto topic = message->get_topic();
-  auto qos = message->get_qos();
-  spdlog::debug("Delivery completed. Payload: {}, Topic: {}, Qos: {},", payload, topic, qos);
-}
 
 auto MqttConnection::create(config::MqttConfig& cfg)
     -> astarte_tl::expected<MqttConnection, AstarteError> {
@@ -304,54 +164,39 @@ MqttConnection::MqttConnection(config::MqttConfig cfg, mqtt::connect_options opt
     : cfg_(std::move(cfg)),
       options_(std::move(options)),
       client_(std::move(client)),
-      connected_(std::make_shared<std::atomic<bool>>(false)) {}
+      connected_(std::make_shared<std::atomic<bool>>(false)),
+      connection_tokens_(std::make_shared<mqtt::thread_queue<mqtt::token_ptr>>()) {}
 
 auto MqttConnection::connect(std::shared_ptr<Introspection> introspection)
     -> astarte_tl::expected<void, AstarteError> {
   try {
     spdlog::debug("Setting up connection callback...");
 
-    cb_ = std::make_unique<MqttConnectionCallback>(client_.get(), std::string(cfg_.realm()),
-                                                   std::string(cfg_.device_id()),
-                                                   std::move(introspection), connected_);
+    // TODO: Check if the certificates are valid from the previous connection if any
+
+    // TODO: this could be moved in the constructor if the Introspection is also passed during
+    // object instantiation
+    cb_ = std::make_unique<MqttConnectionCallback>(
+        client_.get(), std::string(cfg_.realm()), std::string(cfg_.device_id()),
+        std::move(introspection), connected_, connection_tokens_);
     client_->set_callback(*cb_);
 
     spdlog::debug("Connecting device to the Astarte MQTT broker...");
-    auto tok = client_->connect(options_);
-    tok->wait();
+    client_->connect(options_)->wait();
 
-    // we remove the client certificate and private key from filesystem
-    auto res = config::secure_shred_file(
-                   astarte_fmt::format("{}/{}", cfg_.store_dir(), CLIENT_CERTIFICATE_FILE))
-                   .and_then([&]() {
-                     return config::secure_shred_file(
-                         astarte_fmt::format("{}/{}", cfg_.store_dir(), PRIVATE_KEY_FILE));
-                   });
-    if (!res) {
-      spdlog::error("failed to delete client cert or private key from filesystem. Error: {}",
-                    res.error());
-      return astarte_tl::unexpected(res.error());
-    }
+    // TODO: decide if to remove the certificates
+    // // Remove the client certificate and private key from filesystem
+    // auto res = config::secure_shred_file(
+    //                astarte_fmt::format("{}/{}", cfg_.store_dir(), CLIENT_CERTIFICATE_FILE))
+    //                .and_then([&]() {
+    //                  return config::secure_shred_file(
+    //                      astarte_fmt::format("{}/{}", cfg_.store_dir(), PRIVATE_KEY_FILE));
+    //                });
+    // if (!res) {
+    //   spdlog::error("failed to delete client cert or private key from filesystem. Error: {}",
+    //                 res.error());
+    // }
 
-    // MQTT connection is now established. Check Session Present.
-    auto conn_res = tok->get_connect_response();
-    const bool session_present = conn_res.is_session_present();
-
-    if (session_present) {
-      spdlog::info("Session resumed from broker.");
-    } else {
-      spdlog::info("Starting a new session...");
-    }
-
-    auto setup_res = cb_->perform_session_setup(session_present);
-    if (!setup_res) {
-      spdlog::error("failed to perform session setup");
-      connected_->store(false);
-      client_->disconnect()->wait();
-      return astarte_tl::unexpected(setup_res.error());
-    }
-
-    connected_->store(true);
   } catch (const mqtt::exception& e) {
     spdlog::error("Error while trying to connect to Astarte: {}", e.what());
     return astarte_tl::unexpected(AstarteMqttConnectionError(
@@ -395,7 +240,8 @@ auto MqttConnection::send(std::string_view interface_name, std::string_view path
   return {};
 }
 
-auto MqttConnection::disconnect() -> astarte_tl::expected<void, AstarteError> {
+auto MqttConnection::disconnect(std::chrono::milliseconds timeout)
+    -> astarte_tl::expected<void, AstarteError> {
   try {
     auto toks = client_->get_pending_delivery_tokens();
     if (!toks.empty()) {
@@ -403,8 +249,10 @@ auto MqttConnection::disconnect() -> astarte_tl::expected<void, AstarteError> {
     }
 
     spdlog::debug("Disconnecting device from Astarte...");
-    client_->disconnect()->wait();
-    spdlog::info("Device disconnected from Astarte.");
+    // TODO: clear the tokens for the handshake
+    client_->disconnect(timeout.count())->wait();
+    connected_->store(false);
+    spdlog::info("Device disconnected from Astarte requested.");
   } catch (const mqtt::exception& e) {
     return astarte_tl::unexpected(AstarteMqttConnectionError(astarte_fmt::format(
         "Mqtt disconnection error (ID {}): {}", e.get_reason_code(), e.what())));
