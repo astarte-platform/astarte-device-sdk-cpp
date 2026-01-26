@@ -17,7 +17,6 @@
 #include <format>
 namespace astarte_fmt = ::std;
 #else  // (__cplusplus >= 202002L) && (__has_include(<format>))
-// NOLINTNEXTLINE: avoid clang-tidy warning regarding fmt library not used directly
 #include <spdlog/fmt/fmt.h>
 
 #include <iomanip>
@@ -40,7 +39,6 @@ namespace astarte_fmt = ::fmt;
  */
 namespace utils {
 // These functions are only used for pretty printing
-// NOLINTBEGIN(concurrency-mt-unsafe)
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 /**
  * @brief Format a vector of bytes into a Base64 string literal.
@@ -151,7 +149,6 @@ void format_vector(OutputIt& out, const std::vector<T>& data) {
   }
   out = astarte_fmt::format_to(out, "]");
 }
-// NOLINTEND(concurrency-mt-unsafe)
 
 }  // namespace utils
 

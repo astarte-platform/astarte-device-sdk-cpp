@@ -8,8 +8,8 @@ namespace AstarteDeviceSdk::mqtt_connection {
 
 Callback::Callback(mqtt::iasync_client* client, std::string realm, std::string device_id,
                    std::shared_ptr<Introspection> introspection,
-                   std::shared_ptr<std::atomic<bool>> connected,
-                   std::shared_ptr<mqtt::thread_queue<mqtt::token_ptr>> session_setup_tokens)
+                   const std::shared_ptr<std::atomic<bool>>& connected,
+                   const std::shared_ptr<mqtt::thread_queue<mqtt::token_ptr>>& session_setup_tokens)
     : client_(client),
       realm_(std::move(realm)),
       device_id_(std::move(device_id)),
@@ -73,7 +73,7 @@ auto Callback::setup_subscriptions() -> astarte_tl::expected<void, AstarteError>
 
   if (!topics.empty()) {
     try {
-      mqtt::token_ptr sub_token =
+      const mqtt::token_ptr sub_token =
           client_->subscribe(std::make_shared<mqtt::string_collection>(topics), qoss, nullptr,
                              *session_setup_listener_);
       session_setup_tokens_->put(sub_token);
@@ -100,9 +100,9 @@ auto Callback::send_introspection() -> astarte_tl::expected<void, AstarteError> 
 
   auto base_topic = astarte_fmt::format("{}/{}", realm_, device_id_);
   try {
-    mqtt::const_message_ptr message =
+    const mqtt::const_message_ptr message =
         mqtt::message::create(base_topic, introspection_str, 2, false);
-    mqtt::token_ptr pub_token = client_->publish(message, nullptr, *session_setup_listener_);
+    const mqtt::token_ptr pub_token = client_->publish(message, nullptr, *session_setup_listener_);
     session_setup_tokens_->put(pub_token);
     return {};
   } catch (...) {
@@ -114,8 +114,8 @@ auto Callback::send_introspection() -> astarte_tl::expected<void, AstarteError> 
 auto Callback::send_emptycache() -> astarte_tl::expected<void, AstarteError> {
   auto emptycache_topic = astarte_fmt::format("{}/{}/control/emptyCache", realm_, device_id_);
   try {
-    mqtt::const_message_ptr message = mqtt::message::create(emptycache_topic, "1", 2, false);
-    mqtt::token_ptr pub_token = client_->publish(message, nullptr, *session_setup_listener_);
+    const mqtt::const_message_ptr message = mqtt::message::create(emptycache_topic, "1", 2, false);
+    const mqtt::token_ptr pub_token = client_->publish(message, nullptr, *session_setup_listener_);
     session_setup_tokens_->put(pub_token);
     return {};
   } catch (...) {

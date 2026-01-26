@@ -5,6 +5,7 @@
 #ifndef ASTARTE_MQTT_CONFIG_H
 #define ASTARTE_MQTT_CONFIG_H
 
+#include <ada.h>
 #include <spdlog/spdlog.h>
 
 #include <chrono>
@@ -15,7 +16,6 @@
 #include <string>
 #include <string_view>
 
-#include "ada.h"
 #include "astarte_device_sdk/mqtt/errors.hpp"
 #include "astarte_device_sdk/mqtt/pairing.hpp"
 
@@ -53,7 +53,13 @@ class MqttConfig {
    * @brief Move assignment operator for the MqttConfig class.
    * @return A reference to this MqttConfig object.
    */
-  MqttConfig& operator=(MqttConfig&&) noexcept;
+  auto operator=(MqttConfig&&) noexcept -> MqttConfig&;
+
+  /** @brief Copy constructor is deleted. */
+  MqttConfig(const MqttConfig&) = delete;
+  /** @brief Copy assignment operator is deleted. */
+  auto operator=(const MqttConfig&) -> MqttConfig& = delete;
+
   ~MqttConfig();
 
   /**
@@ -65,45 +71,47 @@ class MqttConfig {
    * @param store_dir Path to a local directory for persisting state.
    * @return A new MqttConfig object.
    */
-  static auto with_credential_secret(std::string_view realm, std::string_view device_id,
-                                     std::string_view credential, std::string_view pairing_url,
-                                     std::string_view store_dir) -> MqttConfig;
+  [[nodiscard]] static auto with_credential_secret(std::string_view realm,
+                                                   std::string_view device_id,
+                                                   std::string_view credential,
+                                                   std::string_view pairing_url,
+                                                   std::string_view store_dir) -> MqttConfig;
 
   /**
    * @brief Get the configured realm.
    * @return a string containing the realm
    */
-  auto realm() -> std::string_view { return realm_; }
+  [[nodiscard]] auto realm() -> std::string_view { return realm_; }
 
   /**
    * @brief Get the configured device ID.
    * @return a string containing the device ID
    */
-  auto device_id() -> std::string_view { return device_id_; }
+  [[nodiscard]] auto device_id() -> std::string_view { return device_id_; }
 
   /**
    * @brief Get the configured Pairing API URL.
    * @return a string containing the pairing URL
    */
-  auto pairing_url() -> std::string_view { return pairing_url_; }
+  [[nodiscard]] auto pairing_url() -> std::string_view { return pairing_url_; }
 
   /**
    * @brief Check if the credential is of type credential secret.
    * @return a boolean stating if the stored credential is a credential secret or not.
    */
-  auto cred_is_credential_secret() -> bool;
+  [[nodiscard]] auto cred_is_credential_secret() -> bool;
 
   /**
    * @brief Retrieve the credential value
    * @return a string representing the credential value.
    */
-  auto credential_secret() -> std::optional<std::string>;
+  [[nodiscard]] auto credential_secret() -> std::optional<std::string>;
 
   /**
    * @brief Get the configured store directory.
    * @return a string containing the store directory.
    */
-  auto store_dir() -> std::string_view { return store_dir_; }
+  [[nodiscard]] auto store_dir() -> std::string_view { return store_dir_; }
 
   /**
    * @brief Set the MQTT keep-alive interval.
@@ -148,19 +156,21 @@ class MqttConfig {
    * @brief Get the MQTT keep-alive interval.
    * @return The connection keepalive value..
    */
-  auto keepalive() -> uint32_t { return keepalive_; }
+  [[nodiscard]] auto keepalive() const -> uint32_t { return keepalive_; }
 
   /**
    * @brief Get the MQTT connection timeout.
    * @return The connection timeout value.
    */
-  auto connection_timeout() -> uint32_t { return conn_timeout_; }
+  [[nodiscard]] auto connection_timeout() const -> uint32_t { return conn_timeout_; }
 
   /**
    * @brief Get the MQTT connection timeout.
    * @return The connection timeout value.
    */
-  auto disconnection_timeout() -> std::chrono::milliseconds { return disconn_timeout_; }
+  [[nodiscard]] auto disconnection_timeout() const -> std::chrono::milliseconds {
+    return disconn_timeout_;
+  }
 
  private:
   /**
@@ -178,7 +188,7 @@ class MqttConfig {
   std::string pairing_url_;
   std::unique_ptr<Credential> credential_;
   std::string store_dir_;
-  bool ignore_ssl_;
+  bool ignore_ssl_{false};
   uint32_t keepalive_;
   uint32_t conn_timeout_;
   std::chrono::milliseconds disconn_timeout_;

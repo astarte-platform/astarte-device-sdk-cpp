@@ -80,7 +80,13 @@ auto Connection::create(config::MqttConfig& cfg) -> astarte_tl::expected<Connect
   auto realm = cfg.realm();
   auto device_id = cfg.device_id();
   auto pairing_url = cfg.pairing_url();
-  auto credential_secret = cfg.credential_secret().value();
+  auto credential_secret = cfg.credential_secret();
+  if (!credential_secret) {
+    constexpr std::string_view reason =
+        "Connection creation is only supported using a credential secret.";
+    spdlog::error(reason);
+    return astarte_tl::unexpected(AstarteMqttConnectionError(astarte_fmt::format(reason)));
+  }
 
   auto res = PairingApi::create(realm, device_id, pairing_url);
   if (!res) {
@@ -89,13 +95,13 @@ auto Connection::create(config::MqttConfig& cfg) -> astarte_tl::expected<Connect
   }
   auto api = res.value();
 
-  auto broker_url = api.get_broker_url(credential_secret);
+  auto broker_url = api.get_broker_url(credential_secret.value());
   if (!broker_url) {
     spdlog::error("failed to retrieve Astarte MQTT broker URL. Error: {}", broker_url.error());
     return astarte_tl::unexpected(broker_url.error());
   }
 
-  auto certificate_key_pair = api.get_device_key_and_certificate(credential_secret);
+  auto certificate_key_pair = api.get_device_key_and_certificate(credential_secret.value());
   if (!certificate_key_pair) {
     return astarte_tl::unexpected(certificate_key_pair.error());
   }
@@ -134,14 +140,22 @@ auto Connection::connect(std::shared_ptr<Introspection> introspection)
   try {
     spdlog::debug("Setting up connection callback...");
 
+    auto credential_secret = cfg_.credential_secret();
+    if (!credential_secret) {
+      constexpr std::string_view reason =
+          "Attempting a connection when the credential secret is missing.";
+      spdlog::error(reason);
+      return astarte_tl::unexpected(AstarteMqttConnectionError(astarte_fmt::format(reason)));
+    }
+
     auto cert_is_valid = Credential::validate_client_certificate(
-        pairing_api_, cfg_.credential_secret().value(), cfg_.store_dir());
+        pairing_api_, credential_secret.value(), cfg_.store_dir());
     if (!cert_is_valid) {
       return astarte_tl::unexpected(cert_is_valid.error());
     }
     if (!cert_is_valid.value()) {
       auto certificate_key_pair =
-          pairing_api_.get_device_key_and_certificate(cfg_.credential_secret().value());
+          pairing_api_.get_device_key_and_certificate(credential_secret.value());
       if (!certificate_key_pair) {
         return astarte_tl::unexpected(certificate_key_pair.error());
       }
@@ -155,8 +169,8 @@ auto Connection::connect(std::shared_ptr<Introspection> introspection)
       }
     }
 
-    // TODO: this could be moved in the constructor if the Introspection is also passed during
-    // object instantiation
+    // TODO(sorru94): this could be moved in the constructor if the Introspection is also passed
+    // during object instantiation
     callback_ = std::make_unique<Callback>(client_.get(), std::string(cfg_.realm()),
                                            std::string(cfg_.device_id()), std::move(introspection),
                                            connected_, session_setup_tokens_);
@@ -167,7 +181,7 @@ auto Connection::connect(std::shared_ptr<Introspection> introspection)
 
     Credential::delete_client_certificate_and_key(cfg_.store_dir());
 
-    // TODO: check if connection is fully established and add timeout if needed.
+    // TODO(sorru94): check if connection is fully established and add timeout if needed.
 
   } catch (const mqtt::exception& e) {
     spdlog::error("Error while trying to connect to Astarte: {}", e.what());
@@ -221,7 +235,7 @@ auto Connection::disconnect() -> astarte_tl::expected<void, AstarteError> {
 
     spdlog::debug("Disconnecting device from Astarte...");
     session_setup_tokens_->clear();
-    client_->disconnect(cfg_.disconnection_timeout().count())->wait();
+    client_->disconnect(static_cast<int>(cfg_.disconnection_timeout().count()))->wait();
     connected_->store(false);
     spdlog::info("Device disconnected from Astarte requested.");
   } catch (const mqtt::exception& e) {

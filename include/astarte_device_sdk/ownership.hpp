@@ -10,10 +10,11 @@
  * @brief Ownership definitions for communication with Astarte.
  */
 
-#include <astarte_device_sdk/errors.hpp>
 #include <cstdint>
 #include <format>
 #include <string>
+
+#include "astarte_device_sdk/errors.hpp"
 
 namespace AstarteDeviceSdk {
 

@@ -179,7 +179,7 @@ class AstarteDeviceMqtt : public AstarteDevice {
    * @brief Construct an AstarteDeviceMqttImpl instance.
    * @param impl a shared pointer to the AstarteDeviceMqttImpl object.
    */
-  AstarteDeviceMqtt(std::shared_ptr<AstarteDeviceMqttImpl> impl);
+  explicit AstarteDeviceMqtt(std::shared_ptr<AstarteDeviceMqttImpl> impl);
 };
 
 }  // namespace AstarteDeviceSdk

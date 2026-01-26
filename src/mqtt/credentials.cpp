@@ -46,14 +46,14 @@ auto Credential::validate_client_certificate(PairingApi& api, const std::string_
   if (Persistence::exists(file_path)) {
     auto res = Persistence::read_from_file(file_path);
     if (!res) {
-      // TODO: This should be its own error
+      // TODO(sorru94) This should be its own error
       spdlog::error("Failed to read the client certificate from {}. Error: {}", file_path,
                     res.error());
       return astarte_tl::unexpected(res.error());
     }
     auto valid = api.device_cert_valid(res.value(), secret);
     if (!valid) {
-      // TODO: This should be its own error
+      // TODO(sorru94): This should be its own error
       spdlog::error("Failed to validate the client certificate. Error: {}", valid.error());
       return astarte_tl::unexpected(valid.error());
     }

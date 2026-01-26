@@ -162,9 +162,7 @@ struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
   AstarteDeviceMqttImpl(config::MqttConfig cfg, mqtt_connection::Connection connection);
 
   config::MqttConfig cfg_;
-  // TODO: make the connection async by moving the connection handling to a separate thread
   mqtt_connection::Connection connection_;
-  // TODO: the following paramenters can be gathered into SharedState struct
   std::shared_ptr<Introspection> introspection_ = std::make_shared<Introspection>();
 };
 

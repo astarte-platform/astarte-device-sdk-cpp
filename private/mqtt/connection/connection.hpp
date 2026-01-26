@@ -33,17 +33,19 @@ namespace AstarteDeviceSdk::mqtt_connection {
  */
 class Connection {
  public:
+  /** @brief Default destructor for the Connection class. */
+  ~Connection() = default;
   /** @brief Copy constructor for the Connection class. */
   Connection(const Connection&) = delete;
   /** @brief Move constructor for the Connection class. */
-  Connection(Connection&&) = default;
+  Connection(Connection&&) noexcept = default;
   /** @brief Copy assignment operator for the Connection class. */
-  Connection& operator=(const Connection&) = delete;
+  auto operator=(const Connection&) -> Connection& = delete;
   /**
    * @brief Move assignment operator for the Connection class.
    * @return A reference to this Connection object.
    */
-  Connection& operator=(Connection&&) = default;
+  auto operator=(Connection&&) noexcept -> Connection& = default;
 
   /**
    * @brief Construct a new Mqtt Connection object.
@@ -79,7 +81,7 @@ class Connection {
    * @return an error if sending failed, nothing otherwise.
    */
   auto send(std::string_view interface_name, std::string_view path, uint8_t qos,
-            const std::span<uint8_t> data) -> astarte_tl::expected<void, AstarteError>;
+            std::span<uint8_t> data) -> astarte_tl::expected<void, AstarteError>;
 
   /**
    * @brief Disconnect the client from the Astarte MQTT broker.

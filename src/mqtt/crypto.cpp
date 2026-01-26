@@ -85,24 +85,32 @@ class MbedPk {
 };
 
 #if MBEDTLS_VERSION_MAJOR < 0x04
-struct MbedDrbgGuard {
-  mbedtls_ctr_drbg_context ctx;
-  MbedDrbgGuard() { mbedtls_ctr_drbg_init(&ctx); }
-  ~MbedDrbgGuard() { mbedtls_ctr_drbg_free(&ctx); }
+class MbedDrbgGuard {
+ public:
+  MbedDrbgGuard() { mbedtls_ctr_drbg_init(&ctx_); }
+  ~MbedDrbgGuard() { mbedtls_ctr_drbg_free(&ctx_); }
   MbedDrbgGuard(const MbedDrbgGuard&) = delete;
   auto operator=(const MbedDrbgGuard&) -> MbedDrbgGuard& = delete;
   MbedDrbgGuard(MbedDrbgGuard&&) = delete;
   auto operator=(MbedDrbgGuard&&) -> MbedDrbgGuard& = delete;
+  auto ctx() -> mbedtls_ctr_drbg_context& { return ctx_; }
+
+ private:
+  mbedtls_ctr_drbg_context ctx_{};
 };
 
-struct MbedEntropyGuard {
-  mbedtls_entropy_context ctx;
-  MbedEntropyGuard() { mbedtls_entropy_init(&ctx); }
-  ~MbedEntropyGuard() { mbedtls_entropy_free(&ctx); }
+class MbedEntropyGuard {
+ public:
+  MbedEntropyGuard() { mbedtls_entropy_init(&ctx_); }
+  ~MbedEntropyGuard() { mbedtls_entropy_free(&ctx_); }
   MbedEntropyGuard(const MbedEntropyGuard&) = delete;
   auto operator=(const MbedEntropyGuard&) -> MbedEntropyGuard& = delete;
   MbedEntropyGuard(MbedEntropyGuard&&) = delete;
   auto operator=(MbedEntropyGuard&&) -> MbedEntropyGuard& = delete;
+  auto ctx() -> mbedtls_entropy_context& { return ctx_; }
+
+ private:
+  mbedtls_entropy_context ctx_{};
 };
 #endif
 
@@ -132,20 +140,20 @@ class MbedX509WriteCsr {
     MbedEntropyGuard entropy;
     MbedDrbgGuard drbg;
 
-    std::string pers = "astarte_credentials_create_key";
+    const std::string pers_str = "astarte_credentials_create_key";
+    std::vector<unsigned char> pers(pers_str.begin(), pers_str.end());
 
     return res
         .and_then([&]() {
           return mbedtls_ret_to_astarte_errors(
-              mbedtls_ctr_drbg_seed(&drbg.ctx, mbedtls_entropy_func, &entropy.ctx,
-                                    reinterpret_cast<const unsigned char*>(pers.c_str()),
-                                    pers.length()),
+              mbedtls_ctr_drbg_seed(&drbg.ctx(), mbedtls_entropy_func, &entropy.ctx(), pers.data(),
+                                    pers.size()),
               "mbedtls_ctr_drbg_seed");
         })
         .and_then([&]() {
           return mbedtls_ret_to_astarte_errors(
               mbedtls_x509write_csr_pem(&ctx_, csr_buf.data(), csr_buf.size(),
-                                        mbedtls_ctr_drbg_random, &drbg.ctx),
+                                        mbedtls_ctr_drbg_random, &drbg.ctx()),
               "mbedtls_x509write_csr_pem");
         })
         .transform([&]() { return csr_buf; });

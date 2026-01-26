@@ -42,8 +42,8 @@ class Callback : public virtual mqtt::callback {
    */
   Callback(mqtt::iasync_client* client, std::string realm, std::string device_id,
            std::shared_ptr<Introspection> introspection,
-           std::shared_ptr<std::atomic<bool>> connected,
-           std::shared_ptr<mqtt::thread_queue<mqtt::token_ptr>> session_setup_tokens);
+           const std::shared_ptr<std::atomic<bool>>& connected,
+           const std::shared_ptr<mqtt::thread_queue<mqtt::token_ptr>>& session_setup_tokens);
 
   /**
    * @brief Performs the Astarte session setup.
