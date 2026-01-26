@@ -37,8 +37,8 @@ class Callback : public virtual mqtt::callback {
    * @param device_id The Astarte Device ID.
    * @param introspection A reference to the collection of device interfaces.
    * @param connected A flag stating if the client is correctly connected to Astarte.
-   * @param handshake_error A flag stating if an error occurred while attempting to connect to
-   * Astarte.
+   * @param session_setup_tokens Tokens from the paho MQTT library related to the session setup
+   * procedure.
    */
   Callback(mqtt::iasync_client* client, std::string realm, std::string device_id,
            std::shared_ptr<Introspection> introspection,
@@ -52,7 +52,6 @@ class Callback : public virtual mqtt::callback {
    * and emptyCache messages.
    *
    * @param session_present Indicates if the broker resumed a previous session.
-   * If true, subscriptions might be skipped depending on logic.
    * @return an error if the operation fails
    */
   auto perform_session_setup(bool session_present) -> astarte_tl::expected<void, AstarteError>;
@@ -112,10 +111,11 @@ class Callback : public virtual mqtt::callback {
   std::shared_ptr<Introspection> introspection_;
   /// @brief The flag stating if the device is successfully connected to Astarte.
   std::shared_ptr<std::atomic<bool>> connected_;
-
+  /// @brief Paho MQTT tokens for the messages of an Astarte session setup.
   std::shared_ptr<mqtt::thread_queue<mqtt::token_ptr>> session_setup_tokens_;
-
+  /// @brief Paho MQTT listener for the messages of an Astarte session setup.
   std::shared_ptr<SessionSetupListener> session_setup_listener_;
+  /// @brief Paho MQTT listener for the disconnection.
   std::shared_ptr<DisconnectionListener> disconnection_listener_;
 };
 

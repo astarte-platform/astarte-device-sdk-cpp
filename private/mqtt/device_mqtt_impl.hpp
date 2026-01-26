@@ -157,7 +157,7 @@ struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
   /**
    * @brief Private constructor for an AstarteDeviceMqttImpl instance.
    * @param cfg set of MQTT configuration options used to connect a device to Astarte.
-   * @param MQTT connection object.
+   * @param connection connection object.
    */
   AstarteDeviceMqttImpl(config::MqttConfig cfg, mqtt_connection::Connection connection);
 

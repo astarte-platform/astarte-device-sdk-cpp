@@ -91,6 +91,7 @@ class Connection {
   Connection(config::MqttConfig cfg, mqtt::connect_options options,
              std::unique_ptr<mqtt::async_client> client, PairingApi pairing_api);
 
+  /// @brief Pairing API object.
   PairingApi pairing_api_;
   /// @brief The MQTT configuration object.
   config::MqttConfig cfg_;

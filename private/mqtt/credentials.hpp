@@ -31,6 +31,7 @@ class Credential {
   /**
    * @brief Creates a Credential instance from a pairing token.
    * @param credential The pairing token string.
+   * @param store_dir The directory to use for storage.
    * @return A new Credential instance of type PAIRING_TOKEN.
    */
   static auto pairing_token(std::string_view credential, std::string_view store_dir) -> Credential {
@@ -41,6 +42,7 @@ class Credential {
   /**
    * @brief Creates a Credential instance from a credential secret.
    * @param credential The credential secret string.
+   * @param store_dir The directory to use for storage.
    * @return A new Credential instance of type CREDENTIAL_SECRET.
    */
   static auto secret(std::string_view credential, std::string_view store_dir) -> Credential {
@@ -66,18 +68,28 @@ class Credential {
    */
   auto value() const -> std::string { return credential_; }
 
+  /**
+   * @brief Get the path for the device certificate PEM file.
+   * @param store_dir The directory to used for storage.
+   * @return The path to the file.
+   */
   static auto get_device_certificate_path(const std::string_view store_dir) -> std::string;
 
+  /**
+   * @brief Get the path for the device private key PEM file.
+   * @param store_dir The directory to used for storage.
+   * @return The path to the file.
+   */
   static auto get_device_key_path(const std::string_view store_dir) -> std::string;
 
   /**
    * @brief Retrieve and persist device crypto credentials.
-  .
-  * @param api The PairingApi instance used to request the credentials.
-  * @param secret The credential secret used to authenticate the request.
-  * @param store_dir The directory path where the certificate and private key files will be created.
-  * @return an error if the API request fails or file writing errors occur.
-  */
+   *
+   * @param client_priv_key The device private key as a PEM string.
+   * @param client_cert The device certificate as a PEM string.
+   * @param store_dir The directory path where the certificate and private key files can be stored.
+   * @return an error if the API request fails or file writing errors occur.
+   */
   static auto store_device_key_and_certificate(const std::string_view client_priv_key,
                                                const std::string_view client_cert,
                                                const std::string_view store_dir)
@@ -85,13 +97,12 @@ class Credential {
 
   /**
    * @brief Retrieve and persist device crypto credentials.
-  .
+   *
    * @param api The PairingApi instance used to request the credentials.
    * @param secret The credential secret used to authenticate the request.
-   * @param store_dir The directory path where the certificate and private key files will be
-  created.
+   * @param store_dir The directory path where the certificate and private key files are stored.
    * @return an error if the API request fails or file writing errors occur.
-  */
+   */
   static auto validate_client_certificate(PairingApi& api, const std::string_view secret,
                                           const std::string_view store_dir)
       -> astarte_tl::expected<bool, AstarteError>;
@@ -106,13 +117,13 @@ class Credential {
     PAIRING_TOKEN,
   };
 
-  CredentialType typ_;
-  std::string credential_;
-  std::string store_dir_;
-
   /// @brief Private constructor to enforce creation through static factory methods.
   Credential(CredentialType t, std::string cred, std::string store_dir)
       : typ_(t), credential_(std::move(cred)), store_dir_(std::move(store_dir)) {}
+
+  CredentialType typ_;
+  std::string credential_;
+  std::string store_dir_;
 };
 
 }  // namespace AstarteDeviceSdk::config

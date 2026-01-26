@@ -16,8 +16,9 @@
 
 namespace AstarteDeviceSdk {
 
-/// using namespace for timeout values
+/// @cond DO_NOT_DOCUMENT
 using namespace std::chrono_literals;
+/// @endcond
 
 /** @brief Class providing the methods to perform the Astarte pairing operations */
 class PairingApi {

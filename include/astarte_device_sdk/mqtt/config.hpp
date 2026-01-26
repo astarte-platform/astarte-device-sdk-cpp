@@ -24,7 +24,9 @@
  */
 namespace AstarteDeviceSdk::config {
 
+/// @cond DO_NOT_DOCUMENT
 using namespace std::chrono_literals;
+/// @endcond
 
 // Forward declaration, needed to make Credential private.
 class Credential;
