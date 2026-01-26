@@ -85,7 +85,7 @@ auto get_field(const json& interface, std::string_view key, json::value_t expect
 // helper to map C++ types to JSON types
 template <typename T>
 constexpr auto get_json_type() -> json::value_t {
-  if constexpr (std::is_same_v<T, std::string>) {
+  if constexpr (std::is_same_v<T, std::string> || std::is_enum_v<T>) {
     return json::value_t::string;
   }
   if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>) {
@@ -155,7 +155,7 @@ auto interface_type_from_str(std::string typ) -> astarte_tl::expected<InterfaceT
       AstarteInvalidInterfaceTypeError(astarte_fmt::format("interface type not valid: {}", typ)));
 }
 
-inline auto aggregation_from_str(std::string aggr)
+auto aggregation_from_str(std::string aggr)
     -> astarte_tl::expected<InterfaceAggregation, AstarteError> {
   if (aggr == "individual") {
     return InterfaceAggregation::kIndividual;
@@ -469,7 +469,7 @@ auto Interface::validate_object(std::string_view common_path, const AstarteDatas
 auto Interface::get_qos(std::string_view path) const
     -> astarte_tl::expected<uint8_t, AstarteError> {
   auto mapping_exp = [&]() -> astarte_tl::expected<const Mapping*, AstarteError> {
-    if (aggregation_.has_value() && (aggregation_.value() == InterfaceAggregation::kIndividual)) {
+    if (!aggregation_.has_value() || (aggregation_.value() == InterfaceAggregation::kIndividual)) {
       auto mapping_res = get_mapping(path);
       if (!mapping_res) {
         return astarte_tl::unexpected(mapping_res.error());
