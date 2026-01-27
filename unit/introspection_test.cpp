@@ -6,6 +6,8 @@
 #include <gtest/gtest.h>
 
 #if !defined(ASTARTE_TRANSPORT_GRPC)
+#include <cmath>
+#include <limits>
 #include <nlohmann/json.hpp>
 #include <string_view>
 #include <variant>
@@ -15,12 +17,17 @@
 using AstarteDeviceSdk::aggregation_from_str;
 using AstarteDeviceSdk::astarte_type_from_str;
 using AstarteDeviceSdk::AstarteData;
+using AstarteDeviceSdk::AstarteDatastreamObject;
+using AstarteDeviceSdk::AstarteType;
+using AstarteDeviceSdk::DatabaseRetentionPolicy;
 using AstarteDeviceSdk::Interface;
 using AstarteDeviceSdk::interface_type_from_str;
 using AstarteDeviceSdk::InterfaceAggregation;
 using AstarteDeviceSdk::InterfaceType;
 using AstarteDeviceSdk::Introspection;
 using AstarteDeviceSdk::Mapping;
+using AstarteDeviceSdk::Reliability;
+using AstarteDeviceSdk::Retention;
 
 using nlohmann::json;
 
@@ -67,7 +74,7 @@ TEST(AstarteTestInterface, ConvertFromJsonMappings) {
   full_mappings["mappings"] = json::array({{{"endpoint", "/full/path"},
                                             {"type", "integer"},
                                             {"explicit_timestamp", true},
-                                            {"reliability", "reliable"},
+                                            {"reliability", "guaranteed"},
                                             {"retention", "stored"},
                                             {"expiry", 3600},
                                             {"database_retention_policy", "use_ttl"},
@@ -77,6 +84,12 @@ TEST(AstarteTestInterface, ConvertFromJsonMappings) {
                                             {"doc", "test doc"}}});
   res = Interface::try_from_json(full_mappings);
   ASSERT_THAT(res, IsExpected());
+
+  // Verify parsed values for the complex mapping
+  const auto& mapping = res.value().mappings()[0];
+  ASSERT_THAT(mapping.reliability(), testing::Optional(Reliability::kGuaranteed));
+  ASSERT_THAT(mapping.retention(), testing::Optional(Retention::kStored));
+  ASSERT_THAT(mapping.expiry(), testing::Optional(3600));
 
   // mapping missing required endpoint
   auto missing_endpoint = base_interface;
@@ -117,7 +130,7 @@ TEST(AstarteTestInterface, ConvertFromJsonMappings) {
   // because our new optional helper returns nullopt on type mismatch,
   // the interface is still valid, but the value is ignored/defaulted.
   ASSERT_THAT(res, IsExpected());
-  ASSERT_FALSE(res.value().mappings()[0].explicit_timestamp_.has_value());
+  ASSERT_FALSE(res.value().mappings()[0].explicit_timestamp().has_value());
 
   // multiple mappings
   auto multi_mappings = base_interface;
@@ -315,9 +328,12 @@ TEST_F(AstarteTestInterfaceValidation, PathResolution) {
 
 TEST_F(AstarteTestInterfaceValidation, CheckDatatType) {
   auto check = [](std::string astarte_type_str, auto value) -> bool {
-    Mapping m;
     auto type_res = astarte_type_from_str(astarte_type_str);
-    m.type_ = type_res.value();
+    if (!type_res) {
+      return false;
+    }
+    Mapping m("/test", type_res.value(), std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+              std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
     return m.check_data_type(AstarteData(value)).has_value();
   };
 
@@ -340,6 +356,80 @@ TEST_F(AstarteTestInterfaceValidation, CheckDatatType) {
   EXPECT_FALSE(check("double", int32_t(1)));
   EXPECT_FALSE(check("integer", 1.1));
   EXPECT_FALSE(check("boolean", std::string("true")));
+}
+
+TEST_F(AstarteTestInterfaceValidation, FiniteDoubleCheck) {
+  // Test that checking data type explicitly rejects NaN and Inf for doubles
+  auto type_res = astarte_type_from_str("double");
+  ASSERT_TRUE(type_res.has_value());
+
+  Mapping m("/test", type_res.value(), std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+            std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
+
+  EXPECT_THAT(m.check_data_type(AstarteData(std::numeric_limits<double>::quiet_NaN())),
+              IsUnexpected("Astarte data double is not a number"));
+  EXPECT_THAT(m.check_data_type(AstarteData(std::numeric_limits<double>::infinity())),
+              IsUnexpected("Astarte data double is not a number"));
+  EXPECT_THAT(m.check_data_type(AstarteData(1.0)), IsExpected());
+
+  // Check double arrays
+  auto array_type_res = astarte_type_from_str("doublearray");
+  ASSERT_TRUE(array_type_res.has_value());
+  Mapping m_arr("/test_arr", array_type_res.value(), std::nullopt, std::nullopt, std::nullopt,
+                std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
+
+  EXPECT_THAT(m_arr.check_data_type(
+                  AstarteData(std::vector<double>{1.0, std::numeric_limits<double>::quiet_NaN()})),
+              IsUnexpected("Astarte data double is not a number"));
+  EXPECT_THAT(m_arr.check_data_type(AstarteData(std::vector<double>{1.0, 2.0})), IsExpected());
+}
+
+TEST(AstarteTestInterfaceGetQoS, GetQosLevels) {
+  // 1. Test Individual Aggregation (default) with mixed QoS
+  json ind_json = {
+      {"interface_name", "test.Individual"},
+      {"version_major", 1},
+      {"version_minor", 0},
+      {"type", "datastream"},
+      {"ownership", "device"},
+      {"mappings",
+       json::array({
+           {{"endpoint", "/unreliable"}, {"type", "integer"}, {"reliability", "unreliable"}},
+           {{"endpoint", "/guaranteed"}, {"type", "integer"}, {"reliability", "guaranteed"}},
+           {{"endpoint", "/unique"}, {"type", "integer"}, {"reliability", "unique"}},
+           {{"endpoint", "/default"}, {"type", "integer"}}  // default should be unreliable
+       })}};
+
+  auto ind_iface_res = Interface::try_from_json(ind_json);
+  ASSERT_THAT(ind_iface_res, IsExpected());
+  const auto& ind_iface = ind_iface_res.value();
+
+  // 0 = unreliable, 1 = guaranteed, 2 = unique (matches MQTT QoS levels)
+  EXPECT_THAT(ind_iface.get_qos("/unreliable"), IsExpected(0));
+  EXPECT_THAT(ind_iface.get_qos("/guaranteed"), IsExpected(1));
+  EXPECT_THAT(ind_iface.get_qos("/unique"), IsExpected(2));
+  EXPECT_THAT(ind_iface.get_qos("/default"), IsExpected(0));
+  EXPECT_THAT(ind_iface.get_qos("/invalid/path"), IsUnexpected("couldn't find mapping"));
+
+  // 2. Test Object Aggregation
+  // For objects, get_qos should return the reliability of the first mapping
+  json obj_json = {
+      {"interface_name", "test.Object"},
+      {"version_major", 1},
+      {"version_minor", 0},
+      {"type", "datastream"},
+      {"ownership", "device"},
+      {"aggregation", "object"},
+      {"mappings",
+       json::array({{{"endpoint", "/lat"}, {"type", "double"}, {"reliability", "guaranteed"}},
+                    {{"endpoint", "/long"}, {"type", "double"}, {"reliability", "guaranteed"}}})}};
+
+  auto obj_iface_res = Interface::try_from_json(obj_json);
+  ASSERT_THAT(obj_iface_res, IsExpected());
+  const auto& obj_iface = obj_iface_res.value();
+
+  EXPECT_THAT(obj_iface.get_qos("/lat"), IsExpected(1));
+  EXPECT_THAT(obj_iface.get_qos("/random"), IsExpected(1));
 }
 
 constexpr std::string_view interface_str = R"({
@@ -456,6 +546,29 @@ TEST_F(AstarteTestIntrospection, CheckGetInterface) {
     auto res = introspection_.get("inexistent.Interface");
     ASSERT_THAT(res, IsUnexpected("couldn't find interface"));
   }
+}
+
+TEST_F(AstarteTestIntrospection, ValidateObject) {
+  // Test the validate_object method on the interface loaded in SetUp (test.Test, aggregated object)
+  auto* iface = introspection_.get("test.Test").value();
+
+  AstarteDatastreamObject obj_data = {{"double_endpoint", AstarteData(1.5)},
+                                      {"integer_endpoint", AstarteData(42)}};
+
+  EXPECT_THAT(iface->validate_object("/1", obj_data, nullptr), IsExpected());
+
+  // Invalid data type in object
+  AstarteDatastreamObject bad_data = {
+      {"double_endpoint", AstarteData(std::string("string instead of double"))}};
+
+  EXPECT_THAT(iface->validate_object("/1", bad_data, nullptr),
+              IsUnexpected("Astarte data type and mapping type do not match"));
+
+  // Path that doesn't match object structure (extra fields)
+  AstarteDatastreamObject unknown_field = {{"unknown_endpoint", AstarteData(1.0)}};
+
+  EXPECT_THAT(iface->validate_object("/1", unknown_field, nullptr),
+              IsUnexpected("couldn't find mapping with path"));
 }
 
 #endif

@@ -104,25 +104,31 @@ function(
     list(
         APPEND
         ${ASTARTE_MQTT_SOURCES}
+        "src/mqtt/connection/callbacks.cpp"
+        "src/mqtt/connection/connection.cpp"
+        "src/mqtt/connection/listener.cpp"
         "src/mqtt/config.cpp"
         "src/mqtt/credentials.cpp"
         "src/mqtt/crypto.cpp"
         "src/mqtt/device_mqtt_impl.cpp"
         "src/mqtt/device_mqtt.cpp"
         "src/mqtt/errors.cpp"
-        "src/mqtt/pairing.cpp"
-        "src/mqtt/connection.cpp"
         "src/mqtt/introspection.cpp"
+        "src/mqtt/persistence.cpp"
+        "src/mqtt/pairing.cpp"
         "src/mqtt/serialize.cpp"
     )
     list(
         APPEND
         ${ASTARTE_MQTT_PRIVATE_HEADERS}
-        "private/mqtt/connection.hpp"
+        "private/mqtt/connection/callbacks.hpp"
+        "private/mqtt/connection/connection.hpp"
+        "private/mqtt/connection/listener.hpp"
         "private/mqtt/credentials.hpp"
         "private/mqtt/crypto.hpp"
         "private/mqtt/device_mqtt_impl.hpp"
         "private/mqtt/introspection.hpp"
+        "private/mqtt/persistence.hpp"
         "private/mqtt/serialize.hpp"
     )
     set(${ASTARTE_MQTT_PUBLIC_HEADERS} ${${ASTARTE_MQTT_PUBLIC_HEADERS}} PARENT_SCOPE)

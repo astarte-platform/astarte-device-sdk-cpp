@@ -37,17 +37,19 @@
 #include "astarte_device_sdk/ownership.hpp"
 #include "astarte_device_sdk/property.hpp"
 #include "astarte_device_sdk/stored_property.hpp"
-#include "mqtt/connection.hpp"
+#include "mqtt/connection/connection.hpp"
 #include "mqtt/introspection.hpp"
 #include "mqtt/serialize.hpp"
 
 namespace AstarteDeviceSdk {
 
+using namespace std::chrono_literals;
+
 using json = nlohmann::json;
 
 auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::create(config::MqttConfig& cfg)
     -> astarte_tl::expected<std::shared_ptr<AstarteDeviceMqttImpl>, AstarteError> {
-  auto conn = MqttConnection::create(cfg);
+  auto conn = mqtt_connection::Connection::create(cfg);
   if (!conn) {
     spdlog::error("failed to create a MQTT connection. Error: {}", conn.error());
     return astarte_tl::unexpected(conn.error());
@@ -57,8 +59,8 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::create(config::MqttConfig& cfg)
       new AstarteDeviceMqttImpl(std::move(cfg), std::move(conn.value())));
 }
 
-AstarteDeviceMqtt::AstarteDeviceMqttImpl::AstarteDeviceMqttImpl(config::MqttConfig cfg,
-                                                                MqttConnection connection)
+AstarteDeviceMqtt::AstarteDeviceMqttImpl::AstarteDeviceMqttImpl(
+    config::MqttConfig cfg, mqtt_connection::Connection connection)
     : cfg_(std::move(cfg)), connection_(std::move(connection)) {}
 
 AstarteDeviceMqtt::AstarteDeviceMqttImpl::~AstarteDeviceMqttImpl() = default;
@@ -130,11 +132,9 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::disconnect()
     spdlog::debug("device already disconnected");
     return {};
   }
-
   return connection_.disconnect();
 }
 
-// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::send_individual(
     std::string_view interface_name, std::string_view path, const AstarteData& data,
     const std::chrono::system_clock::time_point* timestamp)
@@ -188,7 +188,6 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::send_individual(
   return connection_.send(interface_name, path, qos, bson_bytes);
 }
 
-// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::send_object(
     std::string_view interface_name, std::string_view path, const AstarteDatastreamObject& object,
     const std::chrono::system_clock::time_point* timestamp)

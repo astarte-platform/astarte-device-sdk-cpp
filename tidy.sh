@@ -107,6 +107,7 @@ if [ "$transport" == "grpc" ]; then
     source_files+=("src/grpc/"*.cpp)
 else
     source_files+=("src/mqtt/"*.cpp)
+    source_files+=("src/mqtt/connection/"*.cpp)
 fi
 
 echo "Analyzing ${#source_files[@]} file(s) with clang-tidy:"

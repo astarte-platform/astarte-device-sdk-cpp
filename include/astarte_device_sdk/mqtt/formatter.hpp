@@ -56,7 +56,8 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::InterfaceType> {
   }
 };
 
-inline std::ostream& operator<<(std::ostream& out, const AstarteDeviceSdk::InterfaceType typ) {
+inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::InterfaceType typ)
+    -> std::ostream& {
   out << astarte_fmt::format("{}", typ);
   return out;
 }
@@ -100,8 +101,8 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::InterfaceAggregation> {
   }
 };
 
-inline std::ostream& operator<<(std::ostream& out,
-                                const AstarteDeviceSdk::InterfaceAggregation aggr) {
+inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::InterfaceAggregation aggr)
+    -> std::ostream& {
   out << astarte_fmt::format("{}", aggr);
   return out;
 }
@@ -149,7 +150,8 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Reliability> {
   }
 };
 
-inline std::ostream& operator<<(std::ostream& out, const AstarteDeviceSdk::Reliability rel) {
+inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::Reliability rel)
+    -> std::ostream& {
   out << astarte_fmt::format("{}", rel);
   return out;
 }
@@ -197,7 +199,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Retention> {
   }
 };
 
-inline std::ostream& operator<<(std::ostream& out, const AstarteDeviceSdk::Retention ret) {
+inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::Retention ret) -> std::ostream& {
   out << astarte_fmt::format("{}", ret);
   return out;
 }
@@ -241,8 +243,8 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::DatabaseRetentionPolicy> {
   }
 };
 
-inline std::ostream& operator<<(std::ostream& out,
-                                const AstarteDeviceSdk::DatabaseRetentionPolicy ret_pol) {
+inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::DatabaseRetentionPolicy ret_pol)
+    -> std::ostream& {
   out << astarte_fmt::format("{}", ret_pol);
   return out;
 }
@@ -269,40 +271,39 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Mapping> {
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
+  // NOLINTNEXTLINE(readability-function-size)
   auto format(const AstarteDeviceSdk::Mapping& mapping, FormatContext& ctx) const {
     auto out = ctx.out();
 
     astarte_fmt::format_to(out, "Mapping {{");
-    astarte_fmt::format_to(out, "endpoint: {}", mapping.endpoint_);
-    astarte_fmt::format_to(out, ", type: {}", mapping.type_);
-    if (mapping.explicit_timestamp_) {
-      astarte_fmt::format_to(out, ", explicit_timestamp: {}", mapping.explicit_timestamp_.value());
+    astarte_fmt::format_to(out, "endpoint: {}", mapping.endpoint());
+    astarte_fmt::format_to(out, ", type: {}", mapping.type());
+    if (auto val = mapping.explicit_timestamp()) {
+      astarte_fmt::format_to(out, ", explicit_timestamp: {}", *val);
     }
-    if (mapping.reliability_) {
-      astarte_fmt::format_to(out, ", reliability: {}", mapping.reliability_.value());
+    if (auto val = mapping.reliability()) {
+      astarte_fmt::format_to(out, ", reliability: {}", *val);
     }
-    if (mapping.retention_) {
-      astarte_fmt::format_to(out, ", retention: {}", mapping.retention_.value());
+    if (auto val = mapping.retention()) {
+      astarte_fmt::format_to(out, ", retention: {}", *val);
     }
-    if (mapping.expiry_) {
-      astarte_fmt::format_to(out, ", expiry: {}", mapping.expiry_.value());
+    if (auto val = mapping.expiry()) {
+      astarte_fmt::format_to(out, ", expiry: {}", *val);
     }
-    if (mapping.database_retention_policy_) {
-      astarte_fmt::format_to(out, ", database_retention_policy: {}",
-                             mapping.database_retention_policy_.value());
+    if (auto val = mapping.database_retention_policy()) {
+      astarte_fmt::format_to(out, ", database_retention_policy: {}", *val);
     }
-    if (mapping.database_retention_ttl_) {
-      astarte_fmt::format_to(out, ", database_retention_ttl: {}",
-                             mapping.database_retention_ttl_.value());
+    if (auto val = mapping.database_retention_ttl()) {
+      astarte_fmt::format_to(out, ", database_retention_ttl: {}", *val);
     }
-    if (mapping.allow_unset_) {
-      astarte_fmt::format_to(out, ", allow_unset: {}", mapping.allow_unset_.value());
+    if (auto val = mapping.allow_unset()) {
+      astarte_fmt::format_to(out, ", allow_unset: {}", *val);
     }
-    if (mapping.description_) {
-      astarte_fmt::format_to(out, ", description: {}", mapping.description_.value());
+    if (auto val = mapping.description()) {
+      astarte_fmt::format_to(out, ", description: {}", *val);
     }
-    if (mapping.doc_) {
-      astarte_fmt::format_to(out, ", doc: {}", mapping.doc_.value());
+    if (auto val = mapping.doc()) {
+      astarte_fmt::format_to(out, ", doc: {}", *val);
     }
     astarte_fmt::format_to(out, "}}");
 
@@ -310,7 +311,8 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Mapping> {
   }
 };
 
-inline std::ostream& operator<<(std::ostream& out, const AstarteDeviceSdk::Mapping mapping) {
+inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::Mapping& mapping)
+    -> std::ostream& {
   out << astarte_fmt::format("{}", mapping);
   return out;
 }
@@ -346,14 +348,17 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Interface> {
     astarte_fmt::format_to(out, "  minor version: {}\n", interface.version_minor());
     astarte_fmt::format_to(out, "  interface type: {}\n", interface.interface_type());
     astarte_fmt::format_to(out, "  ownership: {}\n", interface.ownership());
-    if (interface.aggregation()) {
-      astarte_fmt::format_to(out, "  aggregation: {}\n", interface.aggregation().value());
+    auto aggr = interface.aggregation();
+    if (aggr) {
+      astarte_fmt::format_to(out, "  aggregation: {}\n", *aggr);
     }
-    if (interface.description()) {
-      astarte_fmt::format_to(out, "  description: {}\n", interface.description().value());
+    auto desc = interface.description();
+    if (desc) {
+      astarte_fmt::format_to(out, "  description: {}\n", *desc);
     }
-    if (interface.doc()) {
-      astarte_fmt::format_to(out, "  doc: {}\n", interface.doc().value());
+    auto doc = interface.doc();
+    if (doc) {
+      astarte_fmt::format_to(out, "  doc: {}\n", *doc);
     }
     astarte_fmt::format_to(out, "  mappings: ");
     utils::format_vector(out, interface.mappings());
@@ -365,7 +370,8 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Interface> {
   }
 };
 
-inline std::ostream& operator<<(std::ostream& out, const AstarteDeviceSdk::Interface interface) {
+inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::Interface& interface)
+    -> std::ostream& {
   out << astarte_fmt::format("{}", interface);
   return out;
 }

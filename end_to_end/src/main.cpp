@@ -181,6 +181,7 @@ int main() {
       testcases::device_pairing(pairing_token_opt.value(), device_id_registration_opt.value()));
   // Standard tests using existing credentials
   orchestrator.add_test_case(testcases::device_status(device_id));
+  orchestrator.add_test_case(testcases::device_reconnection(device_id));
   orchestrator.add_test_case(testcases::device_datastream(device_id));
   orchestrator.add_test_case(testcases::device_aggregate(device_id));
   // Other device functionalities have to be implemented

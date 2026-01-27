@@ -23,7 +23,7 @@
 #include "astarte_device_sdk/ownership.hpp"
 #include "astarte_device_sdk/property.hpp"
 #include "astarte_device_sdk/stored_property.hpp"
-#include "mqtt/connection.hpp"
+#include "mqtt/connection/connection.hpp"
 #include "mqtt/introspection.hpp"
 
 namespace AstarteDeviceSdk {
@@ -157,14 +157,12 @@ struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
   /**
    * @brief Private constructor for an AstarteDeviceMqttImpl instance.
    * @param cfg set of MQTT configuration options used to connect a device to Astarte.
-   * @param MQTT connection object.
+   * @param connection connection object.
    */
-  AstarteDeviceMqttImpl(config::MqttConfig cfg, MqttConnection connection);
+  AstarteDeviceMqttImpl(config::MqttConfig cfg, mqtt_connection::Connection connection);
 
   config::MqttConfig cfg_;
-  // TODO: make the connection async by moving the connection handling to a separate thread
-  MqttConnection connection_;
-  // TODO: the following paramenters can be gathered into SharedState struct
+  mqtt_connection::Connection connection_;
   std::shared_ptr<Introspection> introspection_ = std::make_shared<Introspection>();
 };
 

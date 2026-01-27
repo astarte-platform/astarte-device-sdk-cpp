@@ -33,7 +33,7 @@
 #include "astarte_device_sdk/ownership.hpp"
 #include "astarte_device_sdk/property.hpp"
 #include "astarte_device_sdk/stored_property.hpp"
-#include "grpc/grpc_formatter.hpp"  // NOLINT
+#include "grpc/grpc_formatter.hpp"
 
 namespace AstarteDeviceSdk {
 

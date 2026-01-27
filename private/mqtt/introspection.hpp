@@ -8,11 +8,8 @@
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
-#include <astarte_device_sdk/data.hpp>
-#include <astarte_device_sdk/object.hpp>
-#include <astarte_device_sdk/ownership.hpp>
-#include <astarte_device_sdk/type.hpp>
 #include <cmath>
+#include <cstdint>
 #include <format>
 #include <functional>
 #include <map>
@@ -22,6 +19,11 @@
 #include <string>
 #include <string_view>
 #include <utility>
+
+#include "astarte_device_sdk/data.hpp"
+#include "astarte_device_sdk/object.hpp"
+#include "astarte_device_sdk/ownership.hpp"
+#include "astarte_device_sdk/type.hpp"
 
 namespace AstarteDeviceSdk {
 
@@ -33,7 +35,7 @@ using json = nlohmann::json;
 /**
  * @brief Define the type of an Astarte interface.
  */
-enum InterfaceType {
+enum InterfaceType : uint8_t {
   /**
    * @brief A datastream interface, used for time-series data.
    */
@@ -56,7 +58,7 @@ auto interface_type_from_str(std::string typ) -> astarte_tl::expected<InterfaceT
 /**
  * @brief Define the aggregation type for interface mappings.
  */
-enum InterfaceAggregation {
+enum InterfaceAggregation : uint8_t {
   /**
    * @brief Data is collected as individual, distinct values.
    */
@@ -85,7 +87,7 @@ auto aggregation_from_str(std::string aggr)
  * [Reliability](https://docs.astarte-platform.org/astarte/latest/040-interface_schema.html#astarte-mapping-schema-reliability)
  * for more information.
  */
-enum Reliability {
+enum Reliability : uint8_t {
   /**
    * @brief If the transport sends the data. Default.
    */
@@ -114,7 +116,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Reliability, {
  * [Retention](https://docs.astarte-platform.org/astarte/latest/040-interface_schema.html#astarte-mapping-schema-retention)
  * for more information.
  */
-enum Retention {
+enum Retention : uint8_t {
   /**
    * @brief Data is discarded. Default.
    */
@@ -142,7 +144,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Retention, {
  * Policy](https://docs.astarte-platform.org/astarte/latest/040-interface_schema.html#astarte-mapping-schema-database_retention_policy)
  * for more information.
  */
-enum DatabaseRetentionPolicy {
+enum DatabaseRetentionPolicy : uint8_t {
   /**
    * @brief The data will never expiry. Default.
    */
@@ -161,15 +163,33 @@ NLOHMANN_JSON_SERIALIZE_ENUM(DatabaseRetentionPolicy, {
                                                           {kUseTtl, "use_ttl"},
                                                       })
 
-struct Mapping {
+class Mapping {
  public:
+  Mapping(std::string endpoint, AstarteType type, std::optional<bool> explicit_timestamp,
+          std::optional<Reliability> reliability, std::optional<Retention> retention,
+          std::optional<int64_t> expiry,
+          std::optional<DatabaseRetentionPolicy> database_retention_policy,
+          std::optional<int64_t> database_retention_ttl, std::optional<bool> allow_unset,
+          std::optional<std::string> description, std::optional<std::string> doc)
+      : endpoint_(std::move(endpoint)),
+        type_(type),
+        explicit_timestamp_(explicit_timestamp),
+        reliability_(reliability),
+        retention_(retention),
+        expiry_(expiry),
+        database_retention_policy_(database_retention_policy),
+        database_retention_ttl_(database_retention_ttl),
+        allow_unset_(allow_unset),
+        description_(std::move(description)),
+        doc_(std::move(doc)) {}
+
   /**
    * @brief Check that the mapping endpoint matches a given path.
    *
    * @param path The Astarte interface path to check.
    * @return a boolean stating if the mapping endpoint matches the path or not.
    */
-  auto match_path(std::string_view path) const -> bool;
+  [[nodiscard]] auto match_path(std::string_view path) const -> bool;
 
   /**
    * @brief Check that the Astarte data matches the mapping type
@@ -177,24 +197,30 @@ struct Mapping {
    * @param data The AstarteData to check.
    * @return an error if the check fails.
    */
-  auto check_data_type(const AstarteData& data) const -> astarte_tl::expected<void, AstarteError>;
+  [[nodiscard]] auto check_data_type(const AstarteData& data) const
+      -> astarte_tl::expected<void, AstarteError>;
 
   /**
    * @brief Path of the mapping.
    *
    * It can be parametrized (e.g. `/foo/%{path}/baz`).
    */
-  std::string endpoint_;
+  [[nodiscard]] auto endpoint() const -> const std::string& { return endpoint_; }
+
   /**
    * @brief Define the type of the mapping.
    *
    * This represent the data that will be published on the mapping.
    */
-  AstarteType type_;
+  [[nodiscard]] auto type() const -> AstarteType { return type_; }
+
   /**
    * @brief Allow to set a custom timestamp.
    */
-  std::optional<bool> explicit_timestamp_;
+  [[nodiscard]] auto explicit_timestamp() const -> std::optional<bool> {
+    return explicit_timestamp_;
+  }
+
   /**
    * @brief Define when to consider the data delivered.
    *
@@ -203,7 +229,8 @@ struct Mapping {
    * been received at least once (guaranteed) or when we know that the data has been received
    * exactly once (unique). Unreliable by default.
    */
-  std::optional<Reliability> reliability_;
+  [[nodiscard]] auto reliability() const -> std::optional<Reliability> { return reliability_; }
+
   /**
    * @brief Retention of the data when not deliverable.
    *
@@ -212,7 +239,8 @@ struct Mapping {
    * memory (volatile) or on disk (stored), and guaranteed to be delivered in the timeframe
    * defined by the expiry.
    */
-  std::optional<Retention> retention_;
+  [[nodiscard]] auto retention() const -> std::optional<Retention> { return retention_; }
+
   /**
    * @brief Expiry for the retain data.
    *
@@ -220,34 +248,58 @@ struct Mapping {
    * be kept before giving up and erasing it from the persistent cache. A value <= 0 means the
    * persistent cache never expires, and is the default.
    */
-  std::optional<int64_t> expiry_;
+  [[nodiscard]] auto expiry() const -> std::optional<int64_t> { return expiry_; }
+
   /**
    * @brief Expiry for the retain data.
    *
    * Useful only with datastream. Defines whether data should expire from the database after a
    * given interval. Valid values are: `no_ttl` and `use_ttl`.
    */
-  std::optional<DatabaseRetentionPolicy> database_retention_policy_;
+  [[nodiscard]] auto database_retention_policy() const -> std::optional<DatabaseRetentionPolicy> {
+    return database_retention_policy_;
+  }
+
   /**
    * @brief Seconds to keep the data in the database.
    *
    * Useful when `database_retention_policy` is "`use_ttl`". Defines how many seconds a specific
    * data entry should be kept before erasing it from the database.
    */
-  std::optional<int64_t> database_retention_ttl_;
+  [[nodiscard]] auto database_retention_ttl() const -> std::optional<int64_t> {
+    return database_retention_ttl_;
+  }
+
   /**
    * @brief Allow the property to be unset.
    *
    * Used only with properties.
    */
-  std::optional<bool> allow_unset_;
+  [[nodiscard]] auto allow_unset() const -> std::optional<bool> { return allow_unset_; }
+
   /**
    * @brief An optional description of the mapping.
    */
-  std::optional<std::string> description_;
+  [[nodiscard]] auto description() const -> const std::optional<std::string>& {
+    return description_;
+  }
+
   /**
    * @brief A string containing documentation that will be injected in the generated client code.
    */
+  [[nodiscard]] auto doc() const -> const std::optional<std::string>& { return doc_; }
+
+ private:
+  std::string endpoint_;
+  AstarteType type_;
+  std::optional<bool> explicit_timestamp_;
+  std::optional<Reliability> reliability_;
+  std::optional<Retention> retention_;
+  std::optional<int64_t> expiry_;
+  std::optional<DatabaseRetentionPolicy> database_retention_policy_;
+  std::optional<int64_t> database_retention_ttl_;
+  std::optional<bool> allow_unset_;
+  std::optional<std::string> description_;
   std::optional<std::string> doc_;
 };
 
@@ -298,54 +350,71 @@ class Interface {
    * @param other The Interface object to move from.
    * @return A reference to this Interface object.
    */
-  Interface& operator=(Interface&& other) noexcept = default;
+  auto operator=(Interface&& other) noexcept -> Interface& = default;
+
+  /**
+   * @brief Deleted copy constructor.
+   */
+  Interface(const Interface&) = delete;
+
+  /**
+   * @brief Deleted copy assignment operator.
+   */
+  auto operator=(const Interface&) -> Interface& = delete;
+
+  /**
+   * @brief Destructor.
+   */
+  ~Interface() = default;
 
   /**
    * @return The name of the interface.
    */
-  [[nodiscard]] const std::string& interface_name() const { return interface_name_; }
+  [[nodiscard]] auto interface_name() const -> const std::string& { return interface_name_; }
 
   /**
    * @return The Major version qualifier.
    */
-  [[nodiscard]] uint32_t version_major() const { return version_major_; }
+  [[nodiscard]] auto version_major() const -> uint32_t { return version_major_; }
 
   /**
    * @return The Minor version qualifier.
    */
-  [[nodiscard]] uint32_t version_minor() const { return version_minor_; }
+  [[nodiscard]] auto version_minor() const -> uint32_t { return version_minor_; }
 
   /**
    * @return The type of this Interface (Datastream or Property).
    */
-  [[nodiscard]] InterfaceType interface_type() const { return interface_type_; }
+  [[nodiscard]] auto interface_type() const -> InterfaceType { return interface_type_; }
 
   /**
    * @return The quality of the interface.
    */
-  [[nodiscard]] AstarteOwnership ownership() const { return ownership_; }
+  [[nodiscard]] auto ownership() const -> AstarteOwnership { return ownership_; }
 
   /**
    * @return The aggregation of the mappings (Individual or Object), if present.
    */
-  [[nodiscard]] const std::optional<InterfaceAggregation>& aggregation() const {
+  [[nodiscard]] auto aggregation() const -> const std::optional<InterfaceAggregation>& {
     return aggregation_;
   }
 
   /**
    * @return The optional description.
    */
-  [[nodiscard]] const std::optional<std::string>& description() const { return description_; }
+  [[nodiscard]] auto description() const -> const std::optional<std::string>& {
+    return description_;
+  }
 
   /**
    * @return The documentation string.
    */
-  [[nodiscard]] const std::optional<std::string>& doc() const { return doc_; }
+  [[nodiscard]] auto doc() const -> const std::optional<std::string>& { return doc_; }
 
   /**
    * @return The vector of mappings defined for this interface.
    */
-  [[nodiscard]] const std::vector<Mapping>& mappings() const { return mappings_; }
+  [[nodiscard]] auto mappings() const -> const std::vector<Mapping>& { return mappings_; }
 
   /**
    * @brief Retrieve the mapping associated to a given path if it exists.
@@ -386,7 +455,8 @@ class Interface {
    * @param path the Astarte interface path.
    * @return the QoS value, an error otherwise.
    */
-  auto get_qos(std::string_view path) const -> astarte_tl::expected<uint8_t, AstarteError>;
+  [[nodiscard]] auto get_qos(std::string_view path) const
+      -> astarte_tl::expected<uint8_t, AstarteError>;
 
  private:
   Interface(std::string interface_name, uint32_t version_major, uint32_t version_minor,
@@ -398,7 +468,7 @@ class Interface {
         version_minor_(version_minor),
         interface_type_(interface_type),
         ownership_(ownership),
-        aggregation_(std::move(aggregation)),
+        aggregation_(aggregation),
         description_(std::move(description)),
         doc_(std::move(doc)),
         mappings_(std::move(mappings)) {}
@@ -441,7 +511,7 @@ class Introspection {
    *
    * @return a view over the introspection interfaces.
    */
-  auto values() const { return std::views::values(interfaces_); }
+  [[nodiscard]] auto values() const { return std::views::values(interfaces_); }
 
   /**
    * @brief get an interface reference if the interface is contained in the device introspection.

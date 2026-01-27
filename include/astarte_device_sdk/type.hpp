@@ -10,9 +10,10 @@
  * @brief Types definitions for communication with Astarte.
  */
 
-#include <astarte_device_sdk/errors.hpp>
 #include <cstdint>
 #include <string>
+
+#include "astarte_device_sdk/errors.hpp"
 
 namespace AstarteDeviceSdk {
 

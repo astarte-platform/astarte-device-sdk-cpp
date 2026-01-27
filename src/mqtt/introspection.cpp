@@ -85,7 +85,7 @@ auto get_field(const json& interface, std::string_view key, json::value_t expect
 // helper to map C++ types to JSON types
 template <typename T>
 constexpr auto get_json_type() -> json::value_t {
-  if constexpr (std::is_same_v<T, std::string>) {
+  if constexpr (std::is_same_v<T, std::string> || std::is_enum_v<T>) {
     return json::value_t::string;
   }
   if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>) {
@@ -155,7 +155,7 @@ auto interface_type_from_str(std::string typ) -> astarte_tl::expected<InterfaceT
       AstarteInvalidInterfaceTypeError(astarte_fmt::format("interface type not valid: {}", typ)));
 }
 
-inline auto aggregation_from_str(std::string aggr)
+auto aggregation_from_str(std::string aggr)
     -> astarte_tl::expected<InterfaceAggregation, AstarteError> {
   if (aggr == "individual") {
     return InterfaceAggregation::kIndividual;
@@ -222,17 +222,9 @@ auto mappings_from_interface_json(const json& interface)
     auto description = optional_value_from_json_interface<std::string>(mapping, "description");
     auto doc = optional_value_from_json_interface<std::string>(mapping, "doc");
 
-    mappings.emplace_back(Mapping{.endpoint_ = std::move(endpoint),
-                                  .type_ = type,
-                                  .explicit_timestamp_ = explicit_timestamp,
-                                  .reliability_ = reliability,
-                                  .retention_ = retention,
-                                  .expiry_ = expiry,
-                                  .database_retention_policy_ = database_retention_policy,
-                                  .database_retention_ttl_ = database_retention_ttl,
-                                  .allow_unset_ = allow_unset,
-                                  .description_ = description,
-                                  .doc_ = doc});
+    mappings.emplace_back(std::move(endpoint), type, explicit_timestamp, reliability, retention,
+                          expiry, database_retention_policy, database_retention_ttl, allow_unset,
+                          description, doc);
   }
 
   return mappings;
@@ -252,6 +244,61 @@ auto convert_version(std::string_view version_type, int64_t version)
 
   return static_cast<uint32_t>(version);
 }
+
+// Helpers for Interface::try_from_json to reduce function size/complexity
+namespace {
+
+constexpr std::string_view kType = "type";
+constexpr std::string_view kOwnership = "ownership";
+constexpr std::string_view kAggregation = "aggregation";
+
+auto parse_version_field(const json& interface, std::string_view key, std::string_view name)
+    -> astarte_tl::expected<uint32_t, AstarteError> {
+  auto field_json = get_field(interface, key, json::value_t::number_integer);
+  if (!field_json) {
+    return astarte_tl::unexpected(field_json.error());
+  }
+  return convert_version(name, field_json.value().get<int64_t>());
+}
+
+auto parse_interface_type(const json& interface)
+    -> astarte_tl::expected<InterfaceType, AstarteError> {
+  auto type_json = get_field(interface, kType, json::value_t::string);
+  if (!type_json) {
+    return astarte_tl::unexpected(type_json.error());
+  }
+  return interface_type_from_str(type_json.value().get<std::string>());
+}
+
+auto parse_ownership(const json& interface)
+    -> astarte_tl::expected<AstarteOwnership, AstarteError> {
+  auto own_json = get_field(interface, kOwnership, json::value_t::string);
+  if (!own_json) {
+    return astarte_tl::unexpected(own_json.error());
+  }
+  return ownership_from_str(own_json.value().get<std::string>());
+}
+
+auto parse_aggregation(const json& interface)
+    -> astarte_tl::expected<std::optional<InterfaceAggregation>, AstarteError> {
+  if (!interface.contains(kAggregation)) {
+    return std::nullopt;
+  }
+
+  const auto& agg_val = interface.at(kAggregation);
+  if (!agg_val.is_string()) {
+    return astarte_tl::unexpected(AstarteInterfaceValidationError("aggregation must be a string"));
+  }
+
+  auto res = aggregation_from_str(agg_val.get<std::string>());
+  if (!res) {
+    return astarte_tl::unexpected(res.error());
+  }
+
+  return std::optional<InterfaceAggregation>(res.value());
+}
+
+}  // namespace
 
 auto Mapping::match_path(std::string_view path) const -> bool {
   // copy the endpoint
@@ -313,62 +360,35 @@ auto Mapping::check_data_type(const AstarteData& data) const
 
 auto Interface::try_from_json(const json& interface)
     -> astarte_tl::expected<Interface, AstarteError> {
-  // retrieve interface fields
   auto name_json = get_field(interface, "interface_name", json::value_t::string);
   if (!name_json) {
     return astarte_tl::unexpected(name_json.error());
   }
   const auto interface_name = name_json.value().get<std::string>();
 
-  auto maj_json = get_field(interface, "version_major", json::value_t::number_integer);
-  if (!maj_json) {
-    return astarte_tl::unexpected(maj_json.error());
-  }
-  auto version_major = convert_version("major", maj_json.value().get<int64_t>());
-  if (!version_major) {
-    return astarte_tl::unexpected(version_major.error());
+  auto maj_res = parse_version_field(interface, "version_major", "major");
+  if (!maj_res) {
+    return astarte_tl::unexpected(maj_res.error());
   }
 
-  auto min_json = get_field(interface, "version_minor", json::value_t::number_integer);
-  if (!min_json) {
-    return astarte_tl::unexpected(min_json.error());
-  }
-  auto version_minor = convert_version("minor", min_json.value().get<int64_t>());
-  if (!version_minor) {
-    return astarte_tl::unexpected(version_minor.error());
+  auto min_res = parse_version_field(interface, "version_minor", "minor");
+  if (!min_res) {
+    return astarte_tl::unexpected(min_res.error());
   }
 
-  auto type_json = get_field(interface, "type", json::value_t::string);
-  if (!type_json) {
-    return astarte_tl::unexpected(type_json.error());
-  }
-  auto interface_type = interface_type_from_str(type_json.value().get<std::string>());
-  if (!interface_type) {
-    return astarte_tl::unexpected(interface_type.error());
+  auto type_res = parse_interface_type(interface);
+  if (!type_res) {
+    return astarte_tl::unexpected(type_res.error());
   }
 
-  auto own_json = get_field(interface, "ownership", json::value_t::string);
-  if (!own_json) {
-    return astarte_tl::unexpected(own_json.error());
-  }
-  auto ownership = ownership_from_str(own_json.value().get<std::string>());
-  if (!ownership) {
-    return astarte_tl::unexpected(ownership.error());
+  auto own_res = parse_ownership(interface);
+  if (!own_res) {
+    return astarte_tl::unexpected(own_res.error());
   }
 
-  std::optional<InterfaceAggregation> aggregation = std::nullopt;
-  if (interface.contains("aggregation")) {
-    const auto& agg_val = interface.at("aggregation");
-    if (agg_val.is_string()) {
-      auto res = aggregation_from_str(agg_val.get<std::string>());
-      if (!res) {
-        return astarte_tl::unexpected(res.error());
-      }
-      aggregation = res.value();
-    } else {
-      return astarte_tl::unexpected(
-          AstarteInterfaceValidationError("aggregation must be a string"));
-    }
+  auto agg_res = parse_aggregation(interface);
+  if (!agg_res) {
+    return astarte_tl::unexpected(agg_res.error());
   }
 
   auto description = optional_value_from_json_interface<std::string>(interface, "description");
@@ -385,9 +405,8 @@ auto Interface::try_from_json(const json& interface)
         AstarteInterfaceValidationError("There must be at least one mapping"));
   }
 
-  return Interface(interface_name, version_major.value(), version_minor.value(),
-                   interface_type.value(), ownership.value(), aggregation, description, doc,
-                   mappings);
+  return Interface(interface_name, maj_res.value(), min_res.value(), type_res.value(),
+                   own_res.value(), agg_res.value(), description, doc, mappings);
 }
 
 auto Interface::get_mapping(std::string_view path) const
@@ -416,15 +435,14 @@ auto Interface::validate_individual(std::string_view path, const AstarteData& da
     return astarte_tl::unexpected(res.error());
   }
 
-  if ((mapping->explicit_timestamp_.has_value() && mapping->explicit_timestamp_.value()) &&
-      timestamp == nullptr) {
+  auto explicit_ts = mapping->explicit_timestamp();
+  if ((explicit_ts.has_value() && explicit_ts.value()) && timestamp == nullptr) {
     spdlog::error("Explicit timestamp required for interface {}, path {}", interface_name_, path);
     return astarte_tl::unexpected(AstarteInterfaceValidationError(astarte_fmt::format(
         "Explicit timestamp required for interface {}, path {}", interface_name_, path)));
   }
 
-  if ((mapping->explicit_timestamp_.has_value() && !mapping->explicit_timestamp_.value()) &&
-      timestamp != nullptr) {
+  if ((explicit_ts.has_value() && !explicit_ts.value()) && timestamp != nullptr) {
     spdlog::error("Explicit timestamp not supported for interface {}, path {}", interface_name_,
                   path);
     return astarte_tl::unexpected(AstarteInterfaceValidationError(astarte_fmt::format(
@@ -451,7 +469,7 @@ auto Interface::validate_object(std::string_view common_path, const AstarteDatas
 auto Interface::get_qos(std::string_view path) const
     -> astarte_tl::expected<uint8_t, AstarteError> {
   auto mapping_exp = [&]() -> astarte_tl::expected<const Mapping*, AstarteError> {
-    if (aggregation_.has_value() && (aggregation_.value() == InterfaceAggregation::kIndividual)) {
+    if (!aggregation_.has_value() || (aggregation_.value() == InterfaceAggregation::kIndividual)) {
       auto mapping_res = get_mapping(path);
       if (!mapping_res) {
         return astarte_tl::unexpected(mapping_res.error());
@@ -472,12 +490,13 @@ auto Interface::get_qos(std::string_view path) const
 
   const Mapping* map_ptr = mapping_exp.value();
 
-  if (!map_ptr->reliability_) {
+  auto reliability = map_ptr->reliability();
+  if (!reliability) {
     return astarte_tl::unexpected(
         AstarteMqttError("the interface mapping doesn't contain the qos value"));
   }
 
-  return static_cast<int8_t>(map_ptr->reliability_.value());
+  return static_cast<int8_t>(*reliability);
 }
 
 auto Introspection::checked_insert(Interface interface)

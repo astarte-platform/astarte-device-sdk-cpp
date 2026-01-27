@@ -17,7 +17,8 @@ template <typename T>
 concept ProtobufMessage = std::is_base_of_v<google::protobuf::Message, T>;
 
 template <ProtobufMessage T>
-struct astarte_fmt::formatter<T> {  // NOLINT
+// NOLINTNEXTLINE(cert-dcl58-cpp)
+struct astarte_fmt::formatter<T> {
   template <typename ParseContext>
   constexpr auto parse(ParseContext& ctx) {
     return ctx.begin();
