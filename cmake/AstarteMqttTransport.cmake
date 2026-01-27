@@ -114,6 +114,7 @@ function(
         "src/mqtt/errors.cpp"
         "src/mqtt/interface.cpp"
         "src/mqtt/introspection.cpp"
+        "src/mqtt/mapping.cpp"
         "src/mqtt/persistence.cpp"
         "src/mqtt/pairing.cpp"
         "src/mqtt/serialize.cpp"
@@ -129,6 +130,7 @@ function(
         "private/mqtt/device_mqtt_impl.hpp"
         "private/mqtt/interface.hpp"
         "private/mqtt/introspection.hpp"
+        "private/mqtt/mapping.hpp"
         "private/mqtt/persistence.hpp"
         "private/mqtt/serialize.hpp"
     )
