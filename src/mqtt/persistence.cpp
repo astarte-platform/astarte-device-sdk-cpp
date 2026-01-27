@@ -11,7 +11,8 @@
 #include <system_error>
 #include <vector>
 
-#include "astarte_device_sdk/mqtt/formatter.hpp"
+#include "astarte_device_sdk/formatter.hpp"
+#include "astarte_device_sdk/mqtt/errors.hpp"
 
 namespace AstarteDeviceSdk {
 

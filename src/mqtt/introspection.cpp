@@ -7,7 +7,6 @@
 #include <spdlog/spdlog.h>
 
 #include <astarte_device_sdk/errors.hpp>
-#include <astarte_device_sdk/mqtt/formatter.hpp>
 #include <astarte_device_sdk/ownership.hpp>
 #include <astarte_device_sdk/type.hpp>
 #include <cstdint>

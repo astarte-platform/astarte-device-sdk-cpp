@@ -11,8 +11,8 @@
 #include <memory>
 #include <string>
 
+#include "astarte_device_sdk/formatter.hpp"
 #include "astarte_device_sdk/mqtt/errors.hpp"
-#include "astarte_device_sdk/mqtt/formatter.hpp"
 #include "mqtt/connection/listener.hpp"
 #include "mqtt/iaction_listener.h"
 #include "mqtt/iasync_client.h"
