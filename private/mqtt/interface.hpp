@@ -31,52 +31,77 @@ namespace AstarteDeviceSdk {
  */
 using json = nlohmann::json;
 
-/**
- * @brief Define the type of an Astarte interface.
- */
-enum InterfaceType : uint8_t {
-  /**
-   * @brief A datastream interface, used for time-series data.
-   */
-  kDatastream,
-  /**
-   * @brief A properties interface, used for device state properties.
-   */
-  kProperty,
+class InterfaceType {
+ public:
+  enum class Value : uint8_t { kDatastream, kProperty };
+
+  explicit InterfaceType(Value val) : value_(val) {}
+
+  constexpr auto operator==(const InterfaceType& other) const -> bool = default;
+  constexpr auto operator==(Value val) const -> bool { return value_ == val; }
+
+  [[nodiscard]] constexpr auto to_string() const -> std::string_view {
+    switch (value_) {
+      case Value::kDatastream:
+        return "datastream";
+      case Value::kProperty:
+        return "property";
+    }
+    return "unreachable";
+  }
+
+  static auto try_from_str(std::string_view str)
+      -> astarte_tl::expected<InterfaceType, AstarteError> {
+    if (str == "datastream") {
+      return InterfaceType(Value::kDatastream);
+    }
+    if (str == "properties") {
+      return InterfaceType(Value::kProperty);
+    }
+    return astarte_tl::unexpected(
+        AstarteInvalidInterfaceTypeError(astarte_fmt::format("interface type not valid: {}", str)));
+  }
+
+ private:
+  Value value_;
 };
 
-/**
- * @brief Convert a string to an InterfaceType enum.
- *
- * @param typ The string representation of the interface type.
- * @return The corresponding InterfaceType enum value, an error if the string is not a valid
- * interface type.
- */
-auto interface_type_from_str(std::string typ) -> astarte_tl::expected<InterfaceType, AstarteError>;
+class InterfaceAggregation {
+ public:
+  enum class Value : uint8_t { kIndividual, kObject };
 
-/**
- * @brief Define the aggregation type for interface mappings.
- */
-enum InterfaceAggregation : uint8_t {
-  /**
-   * @brief Data is collected as individual, distinct values.
-   */
-  kIndividual,
-  /**
-   * @brief Data is collected as a single object or document.
-   */
-  kObject,
+  explicit InterfaceAggregation(Value val) : value_(val) {}
+
+  constexpr auto operator==(const InterfaceAggregation& other) const -> bool = default;
+  constexpr auto operator==(Value val) const -> bool { return value_ == val; }
+
+  [[nodiscard]] constexpr auto to_string() const -> std::string_view {
+    switch (value_) {
+      case Value::kIndividual:
+        return "individual";
+      case Value::kObject:
+        return "object";
+    }
+    return "unreachable";
+  }
+
+  static auto try_from_str(std::string_view str)
+      -> astarte_tl::expected<InterfaceAggregation, AstarteError> {
+    if (str == "individual") {
+      return InterfaceAggregation(Value::kIndividual);
+    }
+    if (str == "object") {
+      return InterfaceAggregation(Value::kObject);
+    }
+    return astarte_tl::unexpected(AstarteInvalidInterfaceAggregationError(
+        astarte_fmt::format("interface aggregation not valid: {}", str)));
+  }
+
+  [[nodiscard]] auto is_individual() const -> bool { return value_ == Value::kIndividual; }
+
+ private:
+  Value value_;
 };
-
-/**
- * @brief Convert a string to an InterfaceAggregation enum.
- *
- * @param aggr The string representation of the aggregation (e.g., "individual", "object").
- * @return The corresponding InterfaceAggregation enum value, an error if the string is not a valid
- * aggregation type.
- */
-auto aggregation_from_str(std::string aggr)
-    -> astarte_tl::expected<InterfaceAggregation, AstarteError>;
 
 /**
  * @brief Converts and validates an interface version number.
@@ -280,19 +305,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::InterfaceType> {
    */
   template <typename FormatContext>
   auto format(const AstarteDeviceSdk::InterfaceType& typ, FormatContext& ctx) const {
-    auto out = ctx.out();
-
-    switch (typ) {
-      case AstarteDeviceSdk::InterfaceType::kDatastream:
-        astarte_fmt::format_to(out, "datastream");
-        break;
-
-      case AstarteDeviceSdk::InterfaceType::kProperty:
-        astarte_fmt::format_to(out, "property");
-        break;
-    }
-
-    return out;
+    return astarte_fmt::format_to(ctx.out(), "{}", typ.to_string());
   }
 };
 
@@ -325,19 +338,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::InterfaceAggregation> {
    */
   template <typename FormatContext>
   auto format(const AstarteDeviceSdk::InterfaceAggregation& aggr, FormatContext& ctx) const {
-    auto out = ctx.out();
-
-    switch (aggr) {
-      case AstarteDeviceSdk::InterfaceAggregation::kIndividual:
-        astarte_fmt::format_to(out, "individual");
-        break;
-
-      case AstarteDeviceSdk::InterfaceAggregation::kObject:
-        astarte_fmt::format_to(out, "object");
-        break;
-    }
-
-    return out;
+    return astarte_fmt::format_to(ctx.out(), "{}", aggr.to_string());
   }
 };
 
