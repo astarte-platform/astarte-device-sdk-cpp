@@ -4,6 +4,7 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <spdlog/spdlog.h>
 
 #if !defined(ASTARTE_TRANSPORT_GRPC)
 #include <cmath>
@@ -14,14 +15,12 @@
 
 #include "mqtt/introspection.hpp"
 
-using AstarteDeviceSdk::aggregation_from_str;
 using AstarteDeviceSdk::astarte_type_from_str;
 using AstarteDeviceSdk::AstarteData;
 using AstarteDeviceSdk::AstarteDatastreamObject;
 using AstarteDeviceSdk::AstarteType;
 using AstarteDeviceSdk::DatabaseRetentionPolicy;
 using AstarteDeviceSdk::Interface;
-using AstarteDeviceSdk::interface_type_from_str;
 using AstarteDeviceSdk::InterfaceAggregation;
 using AstarteDeviceSdk::InterfaceType;
 using AstarteDeviceSdk::Introspection;
@@ -45,15 +44,20 @@ MATCHER_P(IsUnexpected, error_msg, "") {
 }
 
 TEST(AstarteTestInterfaceType, ConvertFromString) {
-  ASSERT_THAT(interface_type_from_str("datastream"), IsExpected(InterfaceType::kDatastream));
-  ASSERT_THAT(interface_type_from_str("properties"), IsExpected(InterfaceType::kProperty));
-  ASSERT_THAT(interface_type_from_str("test"), IsUnexpected("interface type not valid"));
+  ASSERT_THAT(InterfaceType::try_from_str("datastream"),
+              IsExpected(InterfaceType::Value::kDatastream));
+  ASSERT_THAT(InterfaceType::try_from_str("properties"),
+              IsExpected(InterfaceType::Value::kProperty));
+  ASSERT_THAT(InterfaceType::try_from_str("test"), IsUnexpected("interface type not valid"));
 }
 
 TEST(AstarteTestInterfaceAggregate, ConvertFromString) {
-  ASSERT_THAT(aggregation_from_str("individual"), IsExpected(InterfaceAggregation::kIndividual));
-  ASSERT_THAT(aggregation_from_str("object"), IsExpected(InterfaceAggregation::kObject));
-  ASSERT_THAT(aggregation_from_str("test"), IsUnexpected("interface aggregation not valid"));
+  ASSERT_THAT(InterfaceAggregation::try_from_str("individual"),
+              IsExpected(InterfaceAggregation::Value::kIndividual));
+  ASSERT_THAT(InterfaceAggregation::try_from_str("object"),
+              IsExpected(InterfaceAggregation::Value::kObject));
+  ASSERT_THAT(InterfaceAggregation::try_from_str("test"),
+              IsUnexpected("interface aggregation not valid"));
 }
 
 TEST(AstarteTestInterface, ConvertFromJsonMappings) {
@@ -87,8 +91,9 @@ TEST(AstarteTestInterface, ConvertFromJsonMappings) {
 
   // Verify parsed values for the complex mapping
   const auto& mapping = res.value().mappings()[0];
-  ASSERT_THAT(mapping.reliability(), testing::Optional(Reliability::kGuaranteed));
-  ASSERT_THAT(mapping.retention(), testing::Optional(Retention::kStored));
+  ASSERT_THAT(mapping.reliability(),
+              testing::Optional(Reliability(Reliability::Value::kGuaranteed)));
+  ASSERT_THAT(mapping.retention(), testing::Optional(Retention(Retention::Value::kStored)));
   ASSERT_THAT(mapping.expiry(), testing::Optional(3600));
 
   // mapping missing required endpoint

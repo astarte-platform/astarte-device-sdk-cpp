@@ -234,7 +234,7 @@ auto Interface::get_qos(std::string_view path) const
         AstarteMqttError("the interface mapping doesn't contain the qos value"));
   }
 
-  return static_cast<int8_t>(*reliability);
+  return reliability->get_qos();
 }
 
 }  // namespace AstarteDeviceSdk

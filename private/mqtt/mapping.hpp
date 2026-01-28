@@ -31,94 +31,170 @@
 
 namespace AstarteDeviceSdk {
 
-/**
- * @brief alias for nlohmann json
- */
 using json = nlohmann::json;
 
-/**
- * @brief Reliability of a datastream.
- *
- * Defines whether the sent data should be considered delivered. Properties have always a unique
- * reliability. See
- * [Reliability](https://docs.astarte-platform.org/astarte/latest/040-interface_schema.html#astarte-mapping-schema-reliability)
- * for more information.
- */
-enum Reliability : uint8_t {
-  /**
-   * @brief If the transport sends the data. Default.
-   */
-  kUnreliable,
-  /**
-   * @brief When we know the data has been received at least once.
-   */
-  kGuaranteed,
-  /**
-   * @brief When we know the data has been received exactly once.
-   */
-  kUnique,
+class Reliability {
+ public:
+  enum Value : uint8_t {
+    kUnreliable,
+    kGuaranteed,
+    kUnique,
+  };
+
+  Reliability() : value_(kUnreliable) {}
+  explicit Reliability(Value val) : value_(val) {}
+
+  constexpr auto operator==(const Reliability& other) const -> bool = default;
+  constexpr auto operator==(Value val) const -> bool { return value_ == val; }
+
+  [[nodiscard]] constexpr auto to_string() const -> std::string_view {
+    switch (value_) {
+      case kUnreliable:
+        return "unreliable";
+      case kGuaranteed:
+        return "guaranteed";
+      case kUnique:
+        return "unique";
+    }
+    return "unreachable";
+  }
+
+  static auto try_from_str(std::string_view str)
+      -> astarte_tl::expected<Reliability, AstarteError> {
+    if (str == "unreliable") {
+      return Reliability(kUnreliable);
+    }
+    if (str == "guaranteed") {
+      return Reliability(kGuaranteed);
+    }
+    if (str == "unique") {
+      return Reliability(kUnique);
+    }
+    return astarte_tl::unexpected(
+        AstarteInvalidReliabilityError(astarte_fmt::format("reliability not valid: {}", str)));
+  }
+
+  [[nodiscard]] auto get_qos() const -> int8_t { return static_cast<int8_t>(value_); }
+
+  friend void from_json(const nlohmann::json& json, Reliability& rel) {
+    if (json.is_string()) {
+      auto res = try_from_str(json.get<std::string>());
+      if (res) {
+        rel = res.value();
+        return;
+      }
+    }
+    rel.value_ = kUnreliable;
+  }
+
+ private:
+  Value value_;
 };
 
-NLOHMANN_JSON_SERIALIZE_ENUM(Reliability, {
-                                              {kUnreliable, "unreliable"},
-                                              {kGuaranteed, "guaranteed"},
-                                              {kUnique, "unique"},
-                                          })
+class Retention {
+ public:
+  enum Value : uint8_t {
+    kDiscard,
+    kVolatile,
+    kStored,
+  };
 
-/**
- * @brief Define the retention of a datastream.
- *
- * Describes what to do with the sent data if the transport is incapable of delivering it.
- * See
- * [Retention](https://docs.astarte-platform.org/astarte/latest/040-interface_schema.html#astarte-mapping-schema-retention)
- * for more information.
- */
-enum Retention : uint8_t {
-  /**
-   * @brief Data is discarded. Default.
-   */
-  kDiscard,
-  /**
-   * @brief Data is kept in a cache in memory.
-   */
-  kVolatile,
-  /**
-   * @brief Data is kept on non-volatile storage.
-   */
-  kStored,
+  Retention() : value_(kDiscard) {}
+  explicit Retention(Value val) : value_(val) {}
+
+  constexpr auto operator==(const Retention& other) const -> bool = default;
+  constexpr auto operator==(Value val) const -> bool { return value_ == val; }
+
+  [[nodiscard]] constexpr auto to_string() const -> std::string_view {
+    switch (value_) {
+      case kDiscard:
+        return "discard";
+      case kVolatile:
+        return "volatile";
+      case kStored:
+        return "stored";
+    }
+    return "unreachable";
+  }
+
+  static auto try_from_str(std::string_view str) -> astarte_tl::expected<Retention, AstarteError> {
+    if (str == "discard") {
+      return Retention(kDiscard);
+    }
+    if (str == "volatile") {
+      return Retention(kVolatile);
+    }
+    if (str == "stored") {
+      return Retention(kStored);
+    }
+    return astarte_tl::unexpected(
+        AstarteInvalidRetentionError(astarte_fmt::format("retention not valid: {}", str)));
+  }
+
+  friend void from_json(const nlohmann::json& json, Retention& ret) {
+    if (json.is_string()) {
+      auto res = try_from_str(json.get<std::string>());
+      if (res) {
+        ret = res.value();
+        return;
+      }
+    }
+    ret.value_ = kDiscard;
+  }
+
+ private:
+  Value value_;
 };
 
-NLOHMANN_JSON_SERIALIZE_ENUM(Retention, {
-                                            {kDiscard, "discard"},
-                                            {kVolatile, "volatile"},
-                                            {kStored, "stored"},
-                                        })
+class DatabaseRetentionPolicy {
+ public:
+  enum Value : uint8_t {
+    kNoTtl,
+    kUseTtl,
+  };
 
-/**
- * @brief Define whether data should expire from the database after a given interval.
- *
- * See [Database Retention
- * Policy](https://docs.astarte-platform.org/astarte/latest/040-interface_schema.html#astarte-mapping-schema-database_retention_policy)
- * for more information.
- */
-enum DatabaseRetentionPolicy : uint8_t {
-  /**
-   * @brief The data will never expiry. Default.
-   */
-  kNoTtl,
-  /**
-   * @brief The data will expire after the ttl.
-   *
-   * The field `database_retention_ttl` will be used to determine how many seconds the data is kept
-   * in the database.
-   */
-  kUseTtl,
+  DatabaseRetentionPolicy() : value_(kNoTtl) {}
+  explicit DatabaseRetentionPolicy(Value val) : value_(val) {}
+
+  constexpr auto operator==(const DatabaseRetentionPolicy& other) const -> bool = default;
+  constexpr auto operator==(Value val) const -> bool { return value_ == val; }
+
+  [[nodiscard]] constexpr auto to_string() const -> std::string_view {
+    switch (value_) {
+      case kNoTtl:
+        return "no_ttl";
+      case kUseTtl:
+        return "use_ttl";
+    }
+    return "unreachable";
+  }
+
+  static auto try_from_str(std::string_view str)
+      -> astarte_tl::expected<DatabaseRetentionPolicy, AstarteError> {
+    if (str == "no_ttl") {
+      return DatabaseRetentionPolicy(kNoTtl);
+    }
+    if (str == "use_ttl") {
+      return DatabaseRetentionPolicy(kUseTtl);
+    }
+    return astarte_tl::unexpected(AstarteInvalidDatabaseRetentionPolicyError(
+        astarte_fmt::format("database retention policy not valid: {}", str)));
+  }
+
+  friend void from_json(const nlohmann::json& json, DatabaseRetentionPolicy& pol) {
+    if (json.is_string()) {
+      auto res = try_from_str(json.get<std::string>());
+      if (res) {
+        pol = res.value();
+        return;
+      }
+    }
+    pol.value_ = kNoTtl;
+  }
+
+ private:
+  Value value_;
 };
-
-NLOHMANN_JSON_SERIALIZE_ENUM(DatabaseRetentionPolicy, {
-                                                          {kNoTtl, "no_ttl"},
-                                                          {kUseTtl, "use_ttl"},
-                                                      })
 
 class Mapping {
  public:
@@ -267,7 +343,8 @@ auto get_field(const json& interface, std::string_view key, json::value_t expect
 // helper to map C++ types to JSON types
 template <typename T>
 constexpr auto get_json_type() -> json::value_t {
-  if constexpr (std::is_same_v<T, std::string> || std::is_enum_v<T>) {
+  if constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, Reliability> ||
+                std::is_same_v<T, Retention> || std::is_same_v<T, DatabaseRetentionPolicy>) {
     return json::value_t::string;
   }
   if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>) {
@@ -361,23 +438,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Reliability> {
    */
   template <typename FormatContext>
   auto format(const AstarteDeviceSdk::Reliability& rel, FormatContext& ctx) const {
-    auto out = ctx.out();
-
-    switch (rel) {
-      case AstarteDeviceSdk::Reliability::kUnreliable:
-        astarte_fmt::format_to(out, "unreliable");
-        break;
-
-      case AstarteDeviceSdk::Reliability::kGuaranteed:
-        astarte_fmt::format_to(out, "guaranteed");
-        break;
-
-      case AstarteDeviceSdk::Reliability::kUnique:
-        astarte_fmt::format_to(out, "unique");
-        break;
-    }
-
-    return out;
+    return astarte_fmt::format_to(ctx.out(), "{}", rel.to_string());
   }
 };
 
@@ -410,23 +471,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Retention> {
    */
   template <typename FormatContext>
   auto format(const AstarteDeviceSdk::Retention& ret, FormatContext& ctx) const {
-    auto out = ctx.out();
-
-    switch (ret) {
-      case AstarteDeviceSdk::Retention::kDiscard:
-        astarte_fmt::format_to(out, "discard");
-        break;
-
-      case AstarteDeviceSdk::Retention::kVolatile:
-        astarte_fmt::format_to(out, "volatile");
-        break;
-
-      case AstarteDeviceSdk::Retention::kStored:
-        astarte_fmt::format_to(out, "stored");
-        break;
-    }
-
-    return out;
+    return astarte_fmt::format_to(ctx.out(), "{}", ret.to_string());
   }
 };
 
@@ -458,19 +503,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::DatabaseRetentionPolicy> {
    */
   template <typename FormatContext>
   auto format(const AstarteDeviceSdk::DatabaseRetentionPolicy& ret_pol, FormatContext& ctx) const {
-    auto out = ctx.out();
-
-    switch (ret_pol) {
-      case AstarteDeviceSdk::DatabaseRetentionPolicy::kNoTtl:
-        astarte_fmt::format_to(out, "no_ttl");
-        break;
-
-      case AstarteDeviceSdk::DatabaseRetentionPolicy::kUseTtl:
-        astarte_fmt::format_to(out, "use_ttl");
-        break;
-    }
-
-    return out;
+    return astarte_fmt::format_to(ctx.out(), "{}", ret_pol.to_string());
   }
 };
 

@@ -180,7 +180,7 @@ auto mappings_from_interface_json(const json& interface)
     // extract optional fields
     auto explicit_timestamp = optional_value_from_json<bool>(mapping, "explicit_timestamp");
     auto reliability_opt = optional_value_from_json<Reliability>(mapping, "reliability");
-    auto reliability = std::optional(reliability_opt.value_or(Reliability::kUnreliable));
+    auto reliability = reliability_opt.value_or(Reliability());
     auto retention = optional_value_from_json<Retention>(mapping, "retention");
     auto expiry = optional_value_from_json<int64_t>(mapping, "expiry");
     auto database_retention_policy =
