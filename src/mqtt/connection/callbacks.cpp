@@ -61,11 +61,11 @@ auto Callback::setup_subscriptions() -> astarte_tl::expected<void, AstarteError>
 
   for (const auto& interface : introspection_->values()) {
     // consider only server-owned properties
-    if (interface.ownership() == AstarteOwnership::kDevice) {
+    if (interface->ownership() == AstarteOwnership::kDevice) {
       continue;
     }
 
-    auto topic = astarte_fmt::format("{}/{}/{}/#", realm_, device_id_, interface.interface_name());
+    auto topic = astarte_fmt::format("{}/{}/{}/#", realm_, device_id_, interface->interface_name());
     spdlog::debug("Subscribing to topic {}", topic);
     topics.push_back(std::move(topic));
     qoss.push_back(2);
@@ -90,8 +90,9 @@ auto Callback::send_introspection() -> astarte_tl::expected<void, AstarteError> 
   // Create the stringified representation of the introspection to send to Astarte
   auto introspection_str = std::string();
   for (const auto& interface : introspection_->values()) {
-    introspection_str += astarte_fmt::format("{}:{}:{};", interface.interface_name(),
-                                             interface.version_major(), interface.version_minor());
+    introspection_str +=
+        astarte_fmt::format("{}:{}:{};", interface->interface_name(), interface->version_major(),
+                            interface->version_minor());
   }
   // Remove last unnecessary ";"
   if (!introspection_str.empty()) {

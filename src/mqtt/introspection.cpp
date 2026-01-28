@@ -4,18 +4,28 @@
 
 #include "mqtt/introspection.hpp"
 
+#include <spdlog/spdlog.h>
+
+#include "astarte_device_sdk/formatter.hpp"
+
 namespace AstarteDeviceSdk {
 
 auto Introspection::checked_insert(Interface interface)
     -> astarte_tl::expected<void, AstarteError> {
-  if (!interfaces_.contains(interface.interface_name())) {
+  const std::unique_lock lock(lock_);
+
+  auto iter = interfaces_.find(interface.interface_name());
+  if (iter == interfaces_.end()) {
     spdlog::debug("Adding new interface {}", interface.interface_name());
-    interfaces_.insert_or_assign(interface.interface_name(), std::move(interface));
+    // Move the interface into a shared_ptr<const Interface>
+    const std::string name = interface.interface_name();
+    interfaces_.emplace(name, std::make_shared<const Interface>(std::move(interface)));
     return {};
   }
 
-  // if the interface is already present in the introspection, do some checks before updating it
-  const auto& stored = interfaces_.at(interface.interface_name());
+  // Dereference the shared_ptr to get the stored const Interface&
+  const auto& stored = *(iter->second);
+
   if (stored.ownership() != interface.ownership()) {
     spdlog::error("the new interface has a different ownership");
     return astarte_tl::unexpected(AstarteInvalidInterfaceOwnershipeError(
@@ -49,18 +59,34 @@ auto Introspection::checked_insert(Interface interface)
   }
 
   spdlog::debug("overwriting the old interface with the new one");
-  interfaces_.insert_or_assign(interface.interface_name(), std::move(interface));
+  const std::string name = interface.interface_name();
+  interfaces_.insert_or_assign(name, std::make_shared<const Interface>(std::move(interface)));
   return {};
 }
 
-auto Introspection::get(const std::string& interface_name)
-    -> astarte_tl::expected<Interface*, AstarteError> {
-  if (!interfaces_.contains(interface_name)) {
+auto Introspection::values() const -> std::vector<std::shared_ptr<const Interface>> {
+  const std::shared_lock lock(lock_);
+
+  std::vector<std::shared_ptr<const Interface>> result;
+  result.reserve(interfaces_.size());
+  for (const auto& key_value : interfaces_) {
+    result.push_back(key_value.second);
+  }
+
+  return result;
+}
+
+auto Introspection::get(std::string_view interface_name) const
+    -> astarte_tl::expected<std::shared_ptr<const Interface>, AstarteError> {
+  const std::shared_lock lock(lock_);
+
+  auto iter = interfaces_.find(interface_name);
+  if (iter == interfaces_.end()) {
     return astarte_tl::unexpected(AstarteMqttError(
         astarte_fmt::format("couldn't find interface {} in the introspection", interface_name)));
   }
 
-  return &interfaces_.at(interface_name);
+  return iter->second;
 }
 
 }  // namespace AstarteDeviceSdk

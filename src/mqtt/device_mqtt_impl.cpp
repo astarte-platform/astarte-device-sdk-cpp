@@ -154,7 +154,7 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::send_individual(
     return astarte_tl::unexpected(AstarteMqttError(msg));
   }
 
-  auto* interface = interface_res.value();
+  auto interface = interface_res.value();
 
   // validate data
   auto res = interface->validate_individual(path, data, timestamp);
@@ -206,7 +206,7 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::send_object(
     spdlog::error(msg);
     return astarte_tl::unexpected(AstarteMqttError(msg));
   }
-  auto* interface = interface_res.value();
+  auto interface = interface_res.value();
 
   if (interface->mappings().size() != object.size()) {
     spdlog::error("incomplete aggregated datastream");
