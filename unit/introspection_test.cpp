@@ -555,7 +555,7 @@ TEST_F(AstarteTestIntrospection, CheckGetInterface) {
 
 TEST_F(AstarteTestIntrospection, ValidateObject) {
   // Test the validate_object method on the interface loaded in SetUp (test.Test, aggregated object)
-  auto* iface = introspection_.get("test.Test").value();
+  auto iface = introspection_.get("test.Test").value();
 
   AstarteDatastreamObject obj_data = {{"double_endpoint", AstarteData(1.5)},
                                       {"integer_endpoint", AstarteData(42)}};
