@@ -10,12 +10,16 @@
 #include <format>
 #include <limits>
 #include <map>
+#include <nlohmann/json.hpp>
 #include <optional>
 #include <string>
 #include <utility>
 #include <vector>
 
+#include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/errors.hpp"
+#include "astarte_device_sdk/formatter.hpp"
+#include "astarte_device_sdk/object.hpp"
 #include "astarte_device_sdk/ownership.hpp"
 #include "astarte_device_sdk/type.hpp"
 #include "mqtt/mapping.hpp"

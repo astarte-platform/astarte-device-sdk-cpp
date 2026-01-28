@@ -7,18 +7,14 @@
 
 #include <spdlog/spdlog.h>
 
-#include <algorithm>
-#include <cmath>
+#include <chrono>
 #include <cstdint>
-#include <format>
-#include <functional>
-#include <map>
 #include <nlohmann/json.hpp>
 #include <optional>
-#include <ranges>
+#include <ostream>
 #include <string>
 #include <string_view>
-#include <utility>
+#include <vector>
 
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/errors.hpp"
