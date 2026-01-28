@@ -15,9 +15,11 @@
 #include <map>
 #include <nlohmann/json.hpp>
 #include <optional>
+#include <ostream>
 #include <ranges>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 
 #include "astarte_device_sdk/data.hpp"
