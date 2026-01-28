@@ -5,17 +5,20 @@
 #ifndef ASTARTE_DEVICE_SDK_ERRORS_H
 #define ASTARTE_DEVICE_SDK_ERRORS_H
 
+#if defined(ASTARTE_USE_TL_EXPECTED)
+#include <tl/expected.hpp>
+#else
+#include <expected>
+#endif
+
 #include <cstdint>
 #include <memory>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <variant>
 
-#if defined(ASTARTE_USE_TL_EXPECTED)
-#include "tl/expected.hpp"
-#else
-#include <expected>
-#endif
+#include "astarte_device_sdk/formatter.hpp"
 
 namespace AstarteDeviceSdk {
 
@@ -437,5 +440,75 @@ class AstarteInvalidAstarteTypeError : public AstarteErrorBase {
 // NOLINTNEXTLINE(misc-header-include-cycle)
 #include "astarte_device_sdk/mqtt/errors.hpp"
 #endif
+
+/**
+ * @brief Formatter specialization for AstarteDeviceSdk::AstarteError.
+ */
+template <>
+// NOLINTNEXTLINE(cert-dcl58-cpp)
+struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteError> {
+  /**
+   * @brief Parse the format string. Default implementation.
+   * @param ctx The parse context.
+   * @return An iterator to the end of the parsed range.
+   */
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx) const {
+    return ctx.begin();
+  }
+
+  /**
+   * @brief Format the AstarteError object.
+   * @param err_variant The AstarteError to format.
+   * @param ctx The format context.
+   * @return An iterator to the end of the output.
+   */
+  template <typename FormatContext>
+  auto format(const AstarteDeviceSdk::AstarteError& err_variant, FormatContext& ctx) const {
+    return std::visit(
+        [&ctx](const auto& err) {
+          const auto& base_err = static_cast<const AstarteDeviceSdk::AstarteErrorBase&>(err);
+          return astarte_fmt::format_to(ctx.out(), "{}", base_err);
+        },
+        err_variant);
+  }
+};
+
+/**
+ * @brief Formatter specialization for AstarteDeviceSdk::AstarteErrorBase.
+ */
+template <>
+struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteErrorBase> {
+  /**
+   * @brief Parse the format string. Default implementation.
+   * @param ctx The parse context.
+   * @return An iterator to the end of the parsed range.
+   */
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx) const {
+    return ctx.begin();
+  }
+
+  /**
+   * @brief Format the AstarteErrorBase object.
+   * @param err The AstarteErrorBase to format.
+   * @param ctx The format context.
+   * @return An iterator to the end of the output.
+   */
+  template <typename FormatContext>
+  auto format(const AstarteDeviceSdk::AstarteErrorBase& err, FormatContext& ctx) const {
+    auto out = astarte_fmt::format_to(ctx.out(), "{}: {}", err.type(), err.message());
+
+    std::string indent;
+    const AstarteDeviceSdk::AstarteErrorBase* current = &err;
+    while (const auto& nested = current->nested_error()) {
+      indent += "  ";
+      out = astarte_fmt::format_to(out, "\n{}-> {}: {}", indent, nested->type(), nested->message());
+      current = nested.get();
+    }
+
+    return out;
+  }
+};
 
 #endif  // ASTARTE_DEVICE_SDK_ERRORS_H

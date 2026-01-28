@@ -11,9 +11,12 @@
  */
 
 #include <cstdint>
+#include <ostream>
 #include <string>
+#include <string_view>
 
 #include "astarte_device_sdk/errors.hpp"
+#include "astarte_device_sdk/formatter.hpp"
 
 namespace AstarteDeviceSdk {
 
@@ -105,5 +108,91 @@ inline auto astarte_type_from_str(const std::string& type)
 }
 
 }  // namespace AstarteDeviceSdk
+
+/**
+ * @brief astarte_fmt::formatter specialization for AstarteDeviceSdk::AstarteType.
+ */
+template <>
+struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteType> {
+  /**
+   * @brief Parse the format string. Default implementation.
+   * @param ctx The parse context.
+   * @return An iterator to the end of the parsed range.
+   */
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx) const {
+    return ctx.begin();
+  }
+
+  /**
+   * @brief Format the AstarteType enum to its string representation.
+   * @param typ The AstarteType to format.
+   * @param ctx The format context.
+   * @return An iterator to the end of the output.
+   */
+  template <typename FormatContext>
+  auto format(const AstarteDeviceSdk::AstarteType& typ, FormatContext& ctx) const {
+    std::string_view name = "Unknown Type";
+
+    switch (typ) {
+      case AstarteDeviceSdk::AstarteType::kBinaryBlob:
+        name = "BinaryBlob";
+        break;
+      case AstarteDeviceSdk::AstarteType::kBoolean:
+        name = "Boolean";
+        break;
+      case AstarteDeviceSdk::AstarteType::kDatetime:
+        name = "Datetime";
+        break;
+      case AstarteDeviceSdk::AstarteType::kDouble:
+        name = "Double";
+        break;
+      case AstarteDeviceSdk::AstarteType::kInteger:
+        name = "Integer";
+        break;
+      case AstarteDeviceSdk::AstarteType::kLongInteger:
+        name = "LongInteger";
+        break;
+      case AstarteDeviceSdk::AstarteType::kString:
+        name = "String";
+        break;
+      case AstarteDeviceSdk::AstarteType::kBinaryBlobArray:
+        name = "BinaryBlobArray";
+        break;
+      case AstarteDeviceSdk::AstarteType::kBooleanArray:
+        name = "BooleanArray";
+        break;
+      case AstarteDeviceSdk::AstarteType::kDatetimeArray:
+        name = "DatetimeArray";
+        break;
+      case AstarteDeviceSdk::AstarteType::kDoubleArray:
+        name = "DoubleArray";
+        break;
+      case AstarteDeviceSdk::AstarteType::kIntegerArray:
+        name = "IntegerArray";
+        break;
+      case AstarteDeviceSdk::AstarteType::kLongIntegerArray:
+        name = "LongIntegerArray";
+        break;
+      case AstarteDeviceSdk::AstarteType::kStringArray:
+        name = "StringArray";
+        break;
+    }
+
+    return astarte_fmt::format_to(ctx.out(), "{}", name);
+  }
+};
+
+/**
+ * @brief Stream insertion operator for AstarteType.
+ * @param out The output stream.
+ * @param typ The AstarteType enum to output.
+ * @return Reference to the output stream.
+ */
+inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::AstarteType typ)
+    -> std::ostream& {
+  out << astarte_fmt::format("{}", typ);
+  return out;
+}
 
 #endif  // ASTARTE_DEVICE_SDK_TYPE_H
