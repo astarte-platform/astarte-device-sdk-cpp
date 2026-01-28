@@ -133,4 +133,12 @@ AstarteInvalidAstarteTypeError::AstarteInvalidAstarteTypeError(std::string_view 
           k_type_, message,
           std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
 
+AstarteInvalidReliabilityError::AstarteInvalidReliabilityError(std::string_view message)
+    : AstarteErrorBase(k_type_, message) {}
+AstarteInvalidReliabilityError::AstarteInvalidReliabilityError(std::string_view message,
+                                                               const AstarteError& other)
+    : AstarteErrorBase(
+          k_type_, message,
+          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+
 }  // namespace AstarteDeviceSdk

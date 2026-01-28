@@ -37,6 +37,7 @@ class AstarteInvalidInterfaceVersionError;
 class AstarteInvalidInterfaceTypeError;
 class AstarteInvalidInterfaceOwnershipeError;
 class AstarteInvalidInterfaceAggregationError;
+class AstarteInvalidReliabilityError;
 class AstarteInvalidAstarteTypeError;
 #if !defined(ASTARTE_TRANSPORT_GRPC)
 class AstarteJsonParsingError;
@@ -59,19 +60,21 @@ class AstarteMqttConnectionError;
  *
  * This type is intended to be used as the error type 'E' in std::expected<T, E>.
  */
-using AstarteError = std::variant<
-    AstarteDataSerializationError, AstarteInternalError, AstarteFileOpenError,
-    AstarteInvalidInputError, AstarteInterfaceValidationError, AstarteInvalidInterfaceVersionError,
-    AstarteInvalidInterfaceTypeError, AstarteInvalidInterfaceOwnershipeError,
-    AstarteInvalidInterfaceAggregationError, AstarteInvalidAstarteTypeError,
+using AstarteError =
+    std::variant<AstarteDataSerializationError, AstarteInternalError, AstarteFileOpenError,
+                 AstarteInvalidInputError, AstarteInterfaceValidationError,
+                 AstarteInvalidInterfaceVersionError, AstarteInvalidInterfaceTypeError,
+                 AstarteInvalidInterfaceOwnershipeError, AstarteInvalidInterfaceAggregationError,
+                 AstarteInvalidAstarteTypeError, AstarteInvalidReliabilityError,
 #if !defined(ASTARTE_TRANSPORT_GRPC)
-    AstarteOperationRefusedError, AstarteGrpcLibError, AstarteMsgHubError, AstarteJsonParsingError,
-    AstarteDeviceRegistrationError, AstartePairingApiError, AstarteMqttError,
-    AstarteInvalidUrlError, AstarteRetrieveBrokerUrlError, AstarteReadCredentialError,
-    AstarteWriteCredentialError, AstartePairingConfigError, AstarteCryptoError, AstarteUuidError,
-    AstarteHttpError, AstarteMqttConnectionError>;
+                 AstarteOperationRefusedError, AstarteGrpcLibError, AstarteMsgHubError,
+                 AstarteJsonParsingError, AstarteDeviceRegistrationError, AstartePairingApiError,
+                 AstarteMqttError, AstarteInvalidUrlError, AstarteRetrieveBrokerUrlError,
+                 AstarteReadCredentialError, AstarteWriteCredentialError, AstartePairingConfigError,
+                 AstarteCryptoError, AstarteUuidError, AstarteHttpError,
+                 AstarteMqttConnectionError>;
 #else
-    AstarteOperationRefusedError, AstarteGrpcLibError, AstarteMsgHubError>;
+                 AstarteOperationRefusedError, AstarteGrpcLibError, AstarteMsgHubError>;
 #endif
 
 /**
@@ -427,6 +430,27 @@ class AstarteInvalidAstarteTypeError : public AstarteErrorBase {
 
  private:
   static constexpr std::string_view k_type_ = "AstarteInvalidAstarteTypeError";
+};
+
+/**
+ * @brief The provided Astarte reliability is incorrect.
+ */
+class AstarteInvalidReliabilityError : public AstarteErrorBase {
+ public:
+  /**
+   * @brief Standard error constructor.
+   * @param message The error message.
+   */
+  explicit AstarteInvalidReliabilityError(std::string_view message);
+  /**
+   * @brief Nested error constructor.
+   * @param message The error message.
+   * @param other The error to nest.
+   */
+  explicit AstarteInvalidReliabilityError(std::string_view message, const AstarteError& other);
+
+ private:
+  static constexpr std::string_view k_type_ = "AstarteInvalidReliabilityError";
 };
 
 }  // namespace AstarteDeviceSdk

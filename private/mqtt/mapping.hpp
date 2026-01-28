@@ -31,39 +31,55 @@
 
 namespace AstarteDeviceSdk {
 
-/**
- * @brief alias for nlohmann json
- */
 using json = nlohmann::json;
 
-/**
- * @brief Reliability of a datastream.
- *
- * Defines whether the sent data should be considered delivered. Properties have always a unique
- * reliability. See
- * [Reliability](https://docs.astarte-platform.org/astarte/latest/040-interface_schema.html#astarte-mapping-schema-reliability)
- * for more information.
- */
-enum Reliability : uint8_t {
-  /**
-   * @brief If the transport sends the data. Default.
-   */
-  kUnreliable,
-  /**
-   * @brief When we know the data has been received at least once.
-   */
-  kGuaranteed,
-  /**
-   * @brief When we know the data has been received exactly once.
-   */
-  kUnique,
-};
+class Reliability {
+ public:
+  enum Value : uint8_t {
+    kUnreliable,
+    kGuaranteed,
+    kUnique,
+  };
 
-NLOHMANN_JSON_SERIALIZE_ENUM(Reliability, {
-                                              {kUnreliable, "unreliable"},
-                                              {kGuaranteed, "guaranteed"},
-                                              {kUnique, "unique"},
-                                          })
+  explicit Reliability(Value val) : value_(val) {}
+
+  constexpr auto operator==(const Reliability& other) const -> bool = default;
+  constexpr auto operator==(Value val) const -> bool { return value_ == val; }
+
+  [[nodiscard]] constexpr auto to_string() const -> std::string_view {
+    switch (value_) {
+      case kUnreliable:
+        return "unreliable";
+      case kGuaranteed:
+        return "guaranteed";
+      case kUnique:
+        return "unique";
+    }
+    return "unreachable";
+  }
+
+  static auto try_from_str(std::string_view str)
+      -> astarte_tl::expected<Reliability, AstarteError> {
+    if (str == "unreliable") {
+      return Reliability(kUnreliable);
+    }
+    if (str == "guaranteed") {
+      return Reliability(kGuaranteed);
+    }
+    if (str == "unique") {
+      return Reliability(kUnique);
+    }
+    return astarte_tl::unexpected(
+        AstarteInvalidReliabilityError(astarte_fmt::format("reliability not valid: {}", str)));
+  }
+
+  static auto unreliable() -> Reliability { return Reliability(kUnreliable); }
+
+  [[nodiscard]] auto get_qos() const -> int8_t { return static_cast<int8_t>(value_); }
+
+ private:
+  Value value_;
+};
 
 /**
  * @brief Define the retention of a datastream.
@@ -361,23 +377,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Reliability> {
    */
   template <typename FormatContext>
   auto format(const AstarteDeviceSdk::Reliability& rel, FormatContext& ctx) const {
-    auto out = ctx.out();
-
-    switch (rel) {
-      case AstarteDeviceSdk::Reliability::kUnreliable:
-        astarte_fmt::format_to(out, "unreliable");
-        break;
-
-      case AstarteDeviceSdk::Reliability::kGuaranteed:
-        astarte_fmt::format_to(out, "guaranteed");
-        break;
-
-      case AstarteDeviceSdk::Reliability::kUnique:
-        astarte_fmt::format_to(out, "unique");
-        break;
-    }
-
-    return out;
+    return astarte_fmt::format_to(ctx.out(), "{}", rel.to_string());
   }
 };
 
