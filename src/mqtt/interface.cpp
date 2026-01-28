@@ -26,31 +26,6 @@
 
 namespace AstarteDeviceSdk {
 
-auto interface_type_from_str(std::string typ) -> astarte_tl::expected<InterfaceType, AstarteError> {
-  if (typ == "datastream") {
-    return InterfaceType::kDatastream;
-  }
-  if (typ == "properties") {
-    return InterfaceType::kProperty;
-  }
-
-  return astarte_tl::unexpected(
-      AstarteInvalidInterfaceTypeError(astarte_fmt::format("interface type not valid: {}", typ)));
-}
-
-auto aggregation_from_str(std::string aggr)
-    -> astarte_tl::expected<InterfaceAggregation, AstarteError> {
-  if (aggr == "individual") {
-    return InterfaceAggregation::kIndividual;
-  }
-  if (aggr == "object") {
-    return InterfaceAggregation::kObject;
-  }
-
-  return astarte_tl::unexpected(AstarteInvalidInterfaceAggregationError(
-      astarte_fmt::format("interface aggregation not valid: {}", aggr)));
-}
-
 auto convert_version(std::string_view version_type, int64_t version)
     -> astarte_tl::expected<uint32_t, AstarteError> {
   if (std::cmp_less(version, 0)) {
@@ -88,7 +63,7 @@ auto parse_interface_type(const json& interface)
   if (!type_json) {
     return astarte_tl::unexpected(type_json.error());
   }
-  return interface_type_from_str(type_json.value().get<std::string>());
+  return InterfaceType::try_from_str(type_json.value().get<std::string>());
 }
 
 auto parse_ownership(const json& interface)
@@ -111,7 +86,7 @@ auto parse_aggregation(const json& interface)
     return astarte_tl::unexpected(AstarteInterfaceValidationError("aggregation must be a string"));
   }
 
-  auto res = aggregation_from_str(agg_val.get<std::string>());
+  auto res = InterfaceAggregation::try_from_str(agg_val.get<std::string>());
   if (!res) {
     return astarte_tl::unexpected(res.error());
   }
@@ -232,7 +207,7 @@ auto Interface::validate_object(std::string_view common_path, const AstarteDatas
 auto Interface::get_qos(std::string_view path) const
     -> astarte_tl::expected<uint8_t, AstarteError> {
   auto mapping_exp = [&]() -> astarte_tl::expected<const Mapping*, AstarteError> {
-    if (!aggregation_.has_value() || (aggregation_.value() == InterfaceAggregation::kIndividual)) {
+    if (!aggregation_.has_value() || aggregation_.value().is_individual()) {
       auto mapping_res = get_mapping(path);
       if (!mapping_res) {
         return astarte_tl::unexpected(mapping_res.error());
