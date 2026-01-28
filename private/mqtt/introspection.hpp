@@ -882,7 +882,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Interface> {
       astarte_fmt::format_to(out, "  doc: {}\n", *doc);
     }
     astarte_fmt::format_to(out, "  mappings: ");
-    utils::format_vector(out, interface.mappings());
+    AstarteDeviceSdk::utils::format_vector(out, interface.mappings());
     astarte_fmt::format_to(out, "\n");
 
     astarte_fmt::format_to(out, "}}\n");
