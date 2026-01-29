@@ -22,9 +22,7 @@ namespace AstarteDeviceSdk {
  */
 class Introspection {
  public:
-  /**
-   * @brief Construct an empty Introspection.
-   */
+  /// @brief Construct an empty Introspection.
   Introspection() = default;
 
   /**
@@ -52,9 +50,7 @@ class Introspection {
       -> astarte_tl::expected<Interface*, AstarteError>;
 
  private:
-  /**
-   * @brief A map containing the interfaces in the Device Introspection synced with Astarte.
-   */
+  /// @brief A map containing the interfaces in the Device Introspection synced with Astarte.
   std::map<std::string, Interface> interfaces_;
 };
 

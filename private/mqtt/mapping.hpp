@@ -33,20 +33,37 @@ namespace AstarteDeviceSdk {
 
 using json = nlohmann::json;
 
+/// @brief Represents the reliability of an Astarte datastream.
 class Reliability {
  public:
+  /// @brief Underlying values for the reliability.
   enum Value : uint8_t {
+    /// @brief If the transport sends the data.
     kUnreliable,
+    /// @brief When we know the data has been received at least once.
     kGuaranteed,
+    /// @brief When we know the data has been received exactly once.
     kUnique,
   };
 
+  /// @brief Construct a Reliability object with default value (unreliable).
   Reliability() : value_(kUnreliable) {}
+
+  /**
+   * @brief Construct a Reliability from a specific Value.
+   * @param val The reliability value.
+   */
   explicit Reliability(Value val) : value_(val) {}
 
+  /// @brief Default equality operator for comparing two Reliability objects.
   constexpr auto operator==(const Reliability& other) const -> bool = default;
+  /// @brief Equality operator for comparing with a raw Value.
   constexpr auto operator==(Value val) const -> bool { return value_ == val; }
 
+  /**
+   * @brief Convert the reliability to its string representation.
+   * @return A string_view containing "unreliable", "guaranteed", or "unique".
+   */
   [[nodiscard]] constexpr auto to_string() const -> std::string_view {
     switch (value_) {
       case kUnreliable:
@@ -59,6 +76,11 @@ class Reliability {
     return "unreachable";
   }
 
+  /**
+   * @brief Attempt to create a Reliability from a string.
+   * @param str The string representation to parse.
+   * @return An expected containing the Reliability on success, or an AstarteError on failure.
+   */
   static auto try_from_str(std::string_view str)
       -> astarte_tl::expected<Reliability, AstarteError> {
     if (str == "unreliable") {
@@ -74,8 +96,17 @@ class Reliability {
         AstarteInvalidReliabilityError(astarte_fmt::format("reliability not valid: {}", str)));
   }
 
+  /**
+   * @brief Get the Quality of Service level associated with the reliability.
+   * @return The QoS value as an 8-bit integer.
+   */
   [[nodiscard]] auto get_qos() const -> int8_t { return static_cast<int8_t>(value_); }
 
+  /**
+   * @brief Deserialize Reliability from a JSON object.
+   * @param json The JSON object to deserialize from.
+   * @param rel The Reliability object to fill.
+   */
   friend void from_json(const nlohmann::json& json, Reliability& rel) {
     if (json.is_string()) {
       auto res = try_from_str(json.get<std::string>());
@@ -91,20 +122,37 @@ class Reliability {
   Value value_;
 };
 
+/// @brief Represents the retention policy of an Astarte datastream.
 class Retention {
  public:
+  /// @brief Underlying values for the retention.
   enum Value : uint8_t {
+    /// @brief Data is discarded if the transport is incapable of delivery.
     kDiscard,
+    /// @brief Data is kept in a cache in memory.
     kVolatile,
+    /// @brief Data is kept on non-volatile storage.
     kStored,
   };
 
+  /// @brief Construct a Retention object with default value (discard).
   Retention() : value_(kDiscard) {}
+
+  /**
+   * @brief Construct a Retention from a specific Value.
+   * @param val The retention value.
+   */
   explicit Retention(Value val) : value_(val) {}
 
+  /// @brief Default equality operator for comparing two Retention objects.
   constexpr auto operator==(const Retention& other) const -> bool = default;
+  /// @brief Equality operator for comparing with a raw Value.
   constexpr auto operator==(Value val) const -> bool { return value_ == val; }
 
+  /**
+   * @brief Convert the retention to its string representation.
+   * @return A string_view containing "discard", "volatile", or "stored".
+   */
   [[nodiscard]] constexpr auto to_string() const -> std::string_view {
     switch (value_) {
       case kDiscard:
@@ -117,6 +165,11 @@ class Retention {
     return "unreachable";
   }
 
+  /**
+   * @brief Attempt to create a Retention from a string.
+   * @param str The string representation to parse.
+   * @return An expected containing the Retention on success, or an AstarteError on failure.
+   */
   static auto try_from_str(std::string_view str) -> astarte_tl::expected<Retention, AstarteError> {
     if (str == "discard") {
       return Retention(kDiscard);
@@ -131,6 +184,11 @@ class Retention {
         AstarteInvalidRetentionError(astarte_fmt::format("retention not valid: {}", str)));
   }
 
+  /**
+   * @brief Deserialize Retention from a JSON object.
+   * @param json The JSON object to deserialize from.
+   * @param ret The Retention object to fill.
+   */
   friend void from_json(const nlohmann::json& json, Retention& ret) {
     if (json.is_string()) {
       auto res = try_from_str(json.get<std::string>());
@@ -146,19 +204,35 @@ class Retention {
   Value value_;
 };
 
+/// @brief Represents the database retention policy of an Astarte mapping.
 class DatabaseRetentionPolicy {
  public:
+  /// @brief Underlying values for the database retention policy.
   enum Value : uint8_t {
+    /// @brief The data will never expire.
     kNoTtl,
+    /// @brief The data will expire after a given Time To Live.
     kUseTtl,
   };
 
+  /// @brief Construct a DatabaseRetentionPolicy object with default value (no_ttl).
   DatabaseRetentionPolicy() : value_(kNoTtl) {}
+
+  /**
+   * @brief Construct a DatabaseRetentionPolicy from a specific Value.
+   * @param val The policy value.
+   */
   explicit DatabaseRetentionPolicy(Value val) : value_(val) {}
 
+  /// @brief Default equality operator for comparing two policy objects.
   constexpr auto operator==(const DatabaseRetentionPolicy& other) const -> bool = default;
+  /// @brief Equality operator for comparing with a raw Value.
   constexpr auto operator==(Value val) const -> bool { return value_ == val; }
 
+  /**
+   * @brief Convert the policy to its string representation.
+   * @return A string_view containing "no_ttl" or "use_ttl".
+   */
   [[nodiscard]] constexpr auto to_string() const -> std::string_view {
     switch (value_) {
       case kNoTtl:
@@ -169,6 +243,11 @@ class DatabaseRetentionPolicy {
     return "unreachable";
   }
 
+  /**
+   * @brief Attempt to create a DatabaseRetentionPolicy from a string.
+   * @param str The string representation to parse.
+   * @return An expected containing the policy on success, or an AstarteError on failure.
+   */
   static auto try_from_str(std::string_view str)
       -> astarte_tl::expected<DatabaseRetentionPolicy, AstarteError> {
     if (str == "no_ttl") {
@@ -181,6 +260,11 @@ class DatabaseRetentionPolicy {
         astarte_fmt::format("database retention policy not valid: {}", str)));
   }
 
+  /**
+   * @brief Deserialize DatabaseRetentionPolicy from a JSON object.
+   * @param json The JSON object to deserialize from.
+   * @param pol The DatabaseRetentionPolicy object to fill.
+   */
   friend void from_json(const nlohmann::json& json, DatabaseRetentionPolicy& pol) {
     if (json.is_string()) {
       auto res = try_from_str(json.get<std::string>());
@@ -336,11 +420,26 @@ class Mapping {
   std::optional<std::string> doc_;
 };
 
-// Function to safely get a reference to a JSON field
+/**
+ * @brief Safely get a reference to a JSON field with type validation.
+ * @param interface The JSON object to search within.
+ * @param key The key of the field to retrieve.
+ * @param expected_type The expected JSON type for validation.
+ * @return An expected containing the JSON field reference on success, or an AstarteError
+ * if the field is missing or has the wrong type.
+ */
 auto get_field(const json& interface, std::string_view key, json::value_t expected_type)
     -> astarte_tl::expected<json, AstarteError>;
 
-// helper to map C++ types to JSON types
+/**
+ * @brief Helper to map C++ types to their corresponding Astarte JSON types.
+ *
+ * This compile-time helper ensures that the type validation in optional_value_from_json
+ * correctly identifies strings, integers, booleans, and floats.
+ *
+ * @tparam T The C++ type to map.
+ * @return The corresponding nlohmann::json::value_t.
+ */
 template <typename T>
 constexpr auto get_json_type() -> json::value_t {
   if constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, Reliability> ||
@@ -415,9 +514,7 @@ auto mappings_from_interface_json(const json& interface)
 // FORAMATTING
 // ------------------------------------------------------------------------------------------------
 
-/**
- * @brief astarte_fmt::formatter specialization for Reliability.
- */
+/// @brief astarte_fmt::formatter specialization for Reliability.
 template <>
 struct astarte_fmt::formatter<AstarteDeviceSdk::Reliability> {
   /**
@@ -448,9 +545,7 @@ inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::Reliability re
   return out;
 }
 
-/**
- * @brief astarte_fmt::formatter specialization for Retention.
- */
+/// @brief astarte_fmt::formatter specialization for Retention.
 template <>
 struct astarte_fmt::formatter<AstarteDeviceSdk::Retention> {
   /**
@@ -480,9 +575,7 @@ inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::Retention ret)
   return out;
 }
 
-/**
- * @brief astarte_fmt::formatter specialization for DatabaseRetentionPolicy.
- */
+/// @brief astarte_fmt::formatter specialization for DatabaseRetentionPolicy.
 template <>
 struct astarte_fmt::formatter<AstarteDeviceSdk::DatabaseRetentionPolicy> {
   /**
@@ -513,9 +606,7 @@ inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::DatabaseRetent
   return out;
 }
 
-/**
- * @brief astarte_fmt::formatter specialization for Mapping.
- */
+/// @brief astarte_fmt::formatter specialization for Mapping.
 template <>
 struct astarte_fmt::formatter<AstarteDeviceSdk::Mapping> {
   /**

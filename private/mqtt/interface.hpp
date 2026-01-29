@@ -31,15 +31,32 @@ namespace AstarteDeviceSdk {
  */
 using json = nlohmann::json;
 
+/// @brief Represents the type of an Astarte Interface.
 class InterfaceType {
  public:
-  enum class Value : uint8_t { kDatastream, kProperty };
+  /// @brief Underlying values for the interface type.
+  enum class Value : uint8_t {
+    /// @brief A datastream interface, used for time-series data.
+    kDatastream,
+    /// @brief A properties interface, used for state tracking.
+    kProperty
+  };
 
+  /**
+   * @brief Construct an InterfaceType from a specific Value.
+   * @param val The interface type value.
+   */
   explicit InterfaceType(Value val) : value_(val) {}
 
+  /// @brief Default equality operator for comparing two InterfaceType objects.
   constexpr auto operator==(const InterfaceType& other) const -> bool = default;
+  /// @brief Equality operator for comparing with a raw Value.
   constexpr auto operator==(Value val) const -> bool { return value_ == val; }
 
+  /**
+   * @brief Convert the interface type to its string representation.
+   * @return A string_view containing "datastream", "property".
+   */
   [[nodiscard]] constexpr auto to_string() const -> std::string_view {
     switch (value_) {
       case Value::kDatastream:
@@ -50,6 +67,11 @@ class InterfaceType {
     return "unreachable";
   }
 
+  /**
+   * @brief Attempt to create an InterfaceType from a string.
+   * @param str The string representation to parse.
+   * @return An expected containing the InterfaceType on success, or an AstarteError on failure.
+   */
   static auto try_from_str(std::string_view str)
       -> astarte_tl::expected<InterfaceType, AstarteError> {
     if (str == "datastream") {
@@ -66,15 +88,32 @@ class InterfaceType {
   Value value_;
 };
 
+/// @brief Represents the aggregation of an Astarte Interface.
 class InterfaceAggregation {
  public:
-  enum class Value : uint8_t { kIndividual, kObject };
+  /// @brief Underlying values for the interface aggregation.
+  enum class Value : uint8_t {
+    /// @brief Data is collected as individual, distinct values.
+    kIndividual,
+    /// @brief Data is collected as a single object or document.
+    kObject
+  };
 
+  /**
+   * @brief Construct an InterfaceAggregation from a specific Value.
+   * @param val The interface aggregation value.
+   */
   explicit InterfaceAggregation(Value val) : value_(val) {}
 
+  /// @brief Default equality operator for comparing two InterfaceAggregation objects.
   constexpr auto operator==(const InterfaceAggregation& other) const -> bool = default;
+  /// @brief Equality operator for comparing with a raw Value.
   constexpr auto operator==(Value val) const -> bool { return value_ == val; }
 
+  /**
+   * @brief Convert the interface aggregation to its string representation.
+   * @return A string_view containing "individual" or "object".
+   */
   [[nodiscard]] constexpr auto to_string() const -> std::string_view {
     switch (value_) {
       case Value::kIndividual:
@@ -85,6 +124,12 @@ class InterfaceAggregation {
     return "unreachable";
   }
 
+  /**
+   * @brief Attempt to create an InterfaceAggregation from a string.
+   * @param str The string representation to parse.
+   * @return An expected containing the InterfaceAggregation on success, or an AstarteError on
+   * failure.
+   */
   static auto try_from_str(std::string_view str)
       -> astarte_tl::expected<InterfaceAggregation, AstarteError> {
     if (str == "individual") {
@@ -97,6 +142,10 @@ class InterfaceAggregation {
         astarte_fmt::format("interface aggregation not valid: {}", str)));
   }
 
+  /**
+   * @brief Check if the aggregation is of type Individual.
+   * @return true if the aggregation is individual, false otherwise.
+   */
   [[nodiscard]] auto is_individual() const -> bool { return value_ == Value::kIndividual; }
 
  private:
@@ -116,9 +165,7 @@ class InterfaceAggregation {
 auto convert_version(std::string_view version_type, int64_t version)
     -> astarte_tl::expected<uint32_t, AstarteError>;
 
-/**
- * @brief Represents a parsed Astarte interface.
- */
+/// @brief Represents a parsed Astarte interface.
 class Interface {
  public:
   /**
@@ -143,68 +190,44 @@ class Interface {
    */
   auto operator=(Interface&& other) noexcept -> Interface& = default;
 
-  /**
-   * @brief Deleted copy constructor.
-   */
+  /// @brief Deleted copy constructor.
   Interface(const Interface&) = delete;
 
-  /**
-   * @brief Deleted copy assignment operator.
-   */
+  /// @brief Deleted copy assignment operator.
   auto operator=(const Interface&) -> Interface& = delete;
 
-  /**
-   * @brief Destructor.
-   */
+  /// @brief Destructor.
   ~Interface() = default;
 
-  /**
-   * @return The name of the interface.
-   */
+  /// @return The name of the interface.
   [[nodiscard]] auto interface_name() const -> const std::string& { return interface_name_; }
 
-  /**
-   * @return The Major version qualifier.
-   */
+  /// @return The Major version qualifier.
   [[nodiscard]] auto version_major() const -> uint32_t { return version_major_; }
 
-  /**
-   * @return The Minor version qualifier.
-   */
+  /// @return The Minor version qualifier.
   [[nodiscard]] auto version_minor() const -> uint32_t { return version_minor_; }
 
-  /**
-   * @return The type of this Interface (Datastream or Property).
-   */
+  /// @return The type of this Interface (Datastream or Property).
   [[nodiscard]] auto interface_type() const -> InterfaceType { return interface_type_; }
 
-  /**
-   * @return The quality of the interface.
-   */
+  /// @return The quality of the interface.
   [[nodiscard]] auto ownership() const -> AstarteOwnership { return ownership_; }
 
-  /**
-   * @return The aggregation of the mappings (Individual or Object), if present.
-   */
+  /// @return The aggregation of the mappings (Individual or Object), if present.
   [[nodiscard]] auto aggregation() const -> const std::optional<InterfaceAggregation>& {
     return aggregation_;
   }
 
-  /**
-   * @return The optional description.
-   */
+  /// @return The optional description.
   [[nodiscard]] auto description() const -> const std::optional<std::string>& {
     return description_;
   }
 
-  /**
-   * @return The documentation string.
-   */
+  /// @return  The documentation string.
   [[nodiscard]] auto doc() const -> const std::optional<std::string>& { return doc_; }
 
-  /**
-   * @return The vector of mappings defined for this interface.
-   */
+  /// @return The vector of mappings defined for this interface.
   [[nodiscard]] auto mappings() const -> const std::vector<Mapping>& { return mappings_; }
 
   /**
@@ -281,10 +304,7 @@ class Interface {
 // FORAMATTING
 // ------------------------------------------------------------------------------------------------
 
-/**
- * @brief astarte_fmt::formatter specialization for InterfaceType.
- */
-
+/// @brief astarte_fmt::formatter specialization for InterfaceType.
 template <>
 struct astarte_fmt::formatter<AstarteDeviceSdk::InterfaceType> {
   /**
@@ -315,9 +335,7 @@ inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::InterfaceType 
   return out;
 }
 
-/**
- * @brief astarte_fmt::formatter specialization for InterfaceAggregation.
- */
+/// @brief astarte_fmt::formatter specialization for InterfaceAggregation.
 template <>
 struct astarte_fmt::formatter<AstarteDeviceSdk::InterfaceAggregation> {
   /**
@@ -348,9 +366,7 @@ inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::InterfaceAggre
   return out;
 }
 
-/**
- * @brief astarte_fmt::formatter specialization for Interface.
- */
+/// @brief astarte_fmt::formatter specialization for Interface.
 template <>
 struct astarte_fmt::formatter<AstarteDeviceSdk::Interface> {
   /**
