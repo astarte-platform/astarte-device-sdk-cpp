@@ -280,6 +280,85 @@ class DatabaseRetentionPolicy {
   Value value_;
 };
 
+/**
+ * @brief Safely get a reference to a JSON field with type validation.
+ * @param interface The JSON object to search within.
+ * @param key The key of the field to retrieve.
+ * @param expected_type The expected JSON type for validation.
+ * @return An expected containing the JSON field reference on success, or an AstarteError
+ * if the field is missing or has the wrong type.
+ */
+auto get_field(const json& interface, std::string_view key, json::value_t expected_type)
+    -> astarte_tl::expected<json, AstarteError>;
+
+/**
+ * @brief Helper to map C++ types to their corresponding Astarte JSON types.
+ *
+ * This compile-time helper ensures that the type validation in optional_value_from_json
+ * correctly identifies strings, integers, booleans, and floats.
+ *
+ * @tparam T The C++ type to map.
+ * @return The corresponding nlohmann::json::value_t.
+ */
+template <typename T>
+constexpr auto get_json_type() -> json::value_t {
+  if constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, Reliability> ||
+                std::is_same_v<T, Retention> || std::is_same_v<T, DatabaseRetentionPolicy>) {
+    return json::value_t::string;
+  }
+  if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>) {
+    return json::value_t::number_integer;
+  }
+  if constexpr (std::is_same_v<T, bool>) {
+    return json::value_t::boolean;
+  }
+  if constexpr (std::is_floating_point_v<T>) {
+    return json::value_t::number_float;
+  }
+  // default fallback
+  return json::value_t::discarded;
+}
+
+/**
+ * @brief Extract an optional value from a JSON object.
+ *
+ * @tparam T The type of the value to extract.
+ * @param interface The JSON object to parse.
+ * @param key The key of the value to extract.
+ * @return An std::optional<T> containing the value if the key exists, or std::nullopt otherwise.
+ */
+template <typename T>
+auto optional_value_from_json(const nlohmann::json& interface, std::string_view key)
+    -> std::optional<T> {
+  auto field = interface.find(key);
+
+  // check existsence
+  if (field == interface.end() || field->is_null()) {
+    return std::nullopt;
+  }
+
+  // validate type
+  auto expected = get_json_type<T>();
+  bool type_match = (field->type() == expected);
+
+  // handle the signed/unsigned integer case (same as get_field)
+  if (expected == json::value_t::number_integer &&
+      field->type() == json::value_t::number_unsigned) {
+    type_match = true;
+  }
+
+  // if type is wrong, we return nullopt
+  if (!type_match) {
+    return std::nullopt;
+  }
+
+  try {
+    return std::optional<T>(field->get<T>());
+  } catch (const nlohmann::json::exception&) {
+    return std::nullopt;
+  }
+}
+
 class Mapping {
  public:
   Mapping(std::string endpoint, AstarteType type, std::optional<bool> explicit_timestamp,
@@ -406,6 +485,49 @@ class Mapping {
    */
   [[nodiscard]] auto doc() const -> const std::optional<std::string>& { return doc_; }
 
+  static auto try_from_json(const json& json) -> astarte_tl::expected<Mapping, AstarteError> {
+    // ensure each element in the array is actually an object
+    if (!json.is_object()) {
+      return astarte_tl::unexpected(
+          AstarteInterfaceValidationError("Each element in 'mappings' must be an object"));
+    }
+
+    // extract required endpoint (string)
+    auto endpoint_json = get_field(json, "endpoint", json::value_t::string);
+    if (!endpoint_json) {
+      return astarte_tl::unexpected(endpoint_json.error());
+    }
+    auto endpoint = endpoint_json.value().get<std::string>();
+
+    // extract required type (string)
+    auto type_json = get_field(json, "type", json::value_t::string);
+    if (!type_json) {
+      return astarte_tl::unexpected(type_json.error());
+    }
+    auto type_res = astarte_type_from_str(type_json.value().get<std::string>());
+    if (!type_res) {
+      return astarte_tl::unexpected(type_res.error());
+    }
+    auto type = type_res.value();
+
+    // extract optional fields
+    auto explicit_timestamp = optional_value_from_json<bool>(json, "explicit_timestamp");
+    auto reliability_opt = optional_value_from_json<Reliability>(json, "reliability");
+    auto reliability = reliability_opt.value_or(Reliability());
+    auto retention = optional_value_from_json<Retention>(json, "retention");
+    auto expiry = optional_value_from_json<int64_t>(json, "expiry");
+    auto database_retention_policy =
+        optional_value_from_json<DatabaseRetentionPolicy>(json, "database_retention_policy");
+    auto database_retention_ttl = optional_value_from_json<int64_t>(json, "database_retention_ttl");
+    auto allow_unset = optional_value_from_json<bool>(json, "allow_unset");
+    auto description = optional_value_from_json<std::string>(json, "description");
+    auto doc = optional_value_from_json<std::string>(json, "doc");
+
+    return Mapping(std::move(endpoint), type, explicit_timestamp, reliability, retention, expiry,
+                   database_retention_policy, database_retention_ttl, allow_unset, description,
+                   doc);
+  }
+
  private:
   std::string endpoint_;
   AstarteType type_;
@@ -419,94 +541,6 @@ class Mapping {
   std::optional<std::string> description_;
   std::optional<std::string> doc_;
 };
-
-/**
- * @brief Safely get a reference to a JSON field with type validation.
- * @param interface The JSON object to search within.
- * @param key The key of the field to retrieve.
- * @param expected_type The expected JSON type for validation.
- * @return An expected containing the JSON field reference on success, or an AstarteError
- * if the field is missing or has the wrong type.
- */
-auto get_field(const json& interface, std::string_view key, json::value_t expected_type)
-    -> astarte_tl::expected<json, AstarteError>;
-
-/**
- * @brief Helper to map C++ types to their corresponding Astarte JSON types.
- *
- * This compile-time helper ensures that the type validation in optional_value_from_json
- * correctly identifies strings, integers, booleans, and floats.
- *
- * @tparam T The C++ type to map.
- * @return The corresponding nlohmann::json::value_t.
- */
-template <typename T>
-constexpr auto get_json_type() -> json::value_t {
-  if constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, Reliability> ||
-                std::is_same_v<T, Retention> || std::is_same_v<T, DatabaseRetentionPolicy>) {
-    return json::value_t::string;
-  }
-  if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>) {
-    return json::value_t::number_integer;
-  }
-  if constexpr (std::is_same_v<T, bool>) {
-    return json::value_t::boolean;
-  }
-  if constexpr (std::is_floating_point_v<T>) {
-    return json::value_t::number_float;
-  }
-  // default fallback
-  return json::value_t::discarded;
-}
-
-/**
- * @brief Extract an optional value from a JSON object.
- *
- * @tparam T The type of the value to extract.
- * @param interface The JSON object to parse.
- * @param key The key of the value to extract.
- * @return An std::optional<T> containing the value if the key exists, or std::nullopt otherwise.
- */
-template <typename T>
-auto optional_value_from_json(const nlohmann::json& interface, std::string_view key)
-    -> std::optional<T> {
-  auto field = interface.find(key);
-
-  // check existsence
-  if (field == interface.end() || field->is_null()) {
-    return std::nullopt;
-  }
-
-  // validate type
-  auto expected = get_json_type<T>();
-  bool type_match = (field->type() == expected);
-
-  // handle the signed/unsigned integer case (same as get_field)
-  if (expected == json::value_t::number_integer &&
-      field->type() == json::value_t::number_unsigned) {
-    type_match = true;
-  }
-
-  // if type is wrong, we return nullopt
-  if (!type_match) {
-    return std::nullopt;
-  }
-
-  try {
-    return std::optional<T>(field->get<T>());
-  } catch (const nlohmann::json::exception&) {
-    return std::nullopt;
-  }
-}
-
-/**
- * @brief Parses the "mappings" array from an interface JSON object.
- *
- * @param interface The JSON object representing an Astarte interface.
- * @return A vector of Mapping objects parsed from the interface, an error otherwise.
- */
-auto mappings_from_interface_json(const json& interface)
-    -> astarte_tl::expected<std::vector<Mapping>, AstarteError>;
 
 }  // namespace AstarteDeviceSdk
 

@@ -26,6 +26,16 @@
 
 namespace AstarteDeviceSdk {
 
+namespace {
+/**
+ * @brief Converts and validates an interface version number.
+ *
+ * Checks if the version is non-negative and fits within a uint32_t.
+ *
+ * @param version_type A string literal ("major" or "minor") used for error messages.
+ * @param version The version number as int64_t (from JSON parsing).
+ * @return The version number as uint32_t, an error if the version is negative or too large.
+ */
 auto convert_version(std::string_view version_type, int64_t version)
     -> astarte_tl::expected<uint32_t, AstarteError> {
   if (std::cmp_less(version, 0)) {
@@ -41,13 +51,6 @@ auto convert_version(std::string_view version_type, int64_t version)
   return static_cast<uint32_t>(version);
 }
 
-// Helpers for Interface::try_from_json to reduce function size/complexity
-namespace {
-
-constexpr std::string_view kType = "type";
-constexpr std::string_view kOwnership = "ownership";
-constexpr std::string_view kAggregation = "aggregation";
-
 auto parse_version_field(const json& interface, std::string_view key, std::string_view name)
     -> astarte_tl::expected<uint32_t, AstarteError> {
   auto field_json = get_field(interface, key, json::value_t::number_integer);
@@ -59,6 +62,7 @@ auto parse_version_field(const json& interface, std::string_view key, std::strin
 
 auto parse_interface_type(const json& interface)
     -> astarte_tl::expected<InterfaceType, AstarteError> {
+  constexpr std::string_view kType = "type";
   auto type_json = get_field(interface, kType, json::value_t::string);
   if (!type_json) {
     return astarte_tl::unexpected(type_json.error());
@@ -68,6 +72,7 @@ auto parse_interface_type(const json& interface)
 
 auto parse_ownership(const json& interface)
     -> astarte_tl::expected<AstarteOwnership, AstarteError> {
+  constexpr std::string_view kOwnership = "ownership";
   auto own_json = get_field(interface, kOwnership, json::value_t::string);
   if (!own_json) {
     return astarte_tl::unexpected(own_json.error());
@@ -77,6 +82,7 @@ auto parse_ownership(const json& interface)
 
 auto parse_aggregation(const json& interface)
     -> astarte_tl::expected<std::optional<InterfaceAggregation>, AstarteError> {
+  constexpr std::string_view kAggregation = "aggregation";
   if (!interface.contains(kAggregation)) {
     return std::nullopt;
   }
@@ -92,6 +98,35 @@ auto parse_aggregation(const json& interface)
   }
 
   return std::optional<InterfaceAggregation>(res.value());
+}
+
+/**
+ * @brief Parses the "mappings" array from an interface JSON object.
+ *
+ * @param interface The JSON object representing an Astarte interface.
+ * @return A vector of Mapping objects parsed from the interface, an error otherwise.
+ */
+auto mappings_from_interface_json(const json& interface)
+    -> astarte_tl::expected<std::vector<Mapping>, AstarteError> {
+  auto mappings_field = get_field(interface, "mappings", json::value_t::array);
+  if (!mappings_field) {
+    return astarte_tl::unexpected(mappings_field.error());
+  }
+
+  const auto& mappings_json = mappings_field.value();
+  std::vector<Mapping> mappings;
+  // reserve memory to avoid reallocations
+  mappings.reserve(mappings_json.size());
+
+  for (const auto& mapping : mappings_json) {
+    auto res = Mapping::try_from_json(mapping);
+    if (!res) {
+      return astarte_tl::unexpected(res.error());
+    }
+    mappings.emplace_back(res.value());
+  }
+
+  return mappings;
 }
 
 }  // namespace

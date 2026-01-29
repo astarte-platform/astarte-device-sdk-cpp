@@ -26,9 +26,7 @@
 
 namespace AstarteDeviceSdk {
 
-/**
- * @brief alias for nlohmann json
- */
+/// @brief alias for nlohmann json
 using json = nlohmann::json;
 
 /// @brief Represents the type of an Astarte Interface.
@@ -151,19 +149,6 @@ class InterfaceAggregation {
  private:
   Value value_;
 };
-
-/**
- * @brief Converts and validates an interface version number.
- *
- * Checks if the version is non-negative and fits within a uint32_t.
- *
- * @param version_type A string literal ("major" or "minor") used for error messages.
- * @param version The version number as int64_t (from JSON parsing).
- * @return The version number as uint32_t, an error if the version is negative or too large.
- */
-
-auto convert_version(std::string_view version_type, int64_t version)
-    -> astarte_tl::expected<uint32_t, AstarteError>;
 
 /// @brief Represents a parsed Astarte interface.
 class Interface {
