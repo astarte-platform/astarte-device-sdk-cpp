@@ -21,6 +21,7 @@
 #include "astarte_device_sdk/formatter.hpp"
 #include "astarte_device_sdk/ownership.hpp"
 #include "astarte_device_sdk/type.hpp"
+#include "mqtt/helpers.hpp"
 
 namespace {
 // helper function to pop the next segment off the front of the view and advances the view.
@@ -58,6 +59,49 @@ auto is_segment_match(std::string_view pattern, std::string_view path_seg) -> bo
 }  // namespace
 
 namespace AstarteDeviceSdk {
+
+auto Mapping::try_from_json(const json& json) -> astarte_tl::expected<Mapping, AstarteError> {
+  // ensure each element in the array is actually an object
+  if (!json.is_object()) {
+    return astarte_tl::unexpected(
+        AstarteInterfaceValidationError("Each element in 'mappings' must be an object"));
+  }
+
+  // extract required endpoint (string)
+  auto endpoint_json = json_helper::get_field(json, "endpoint", json::value_t::string);
+  if (!endpoint_json) {
+    return astarte_tl::unexpected(endpoint_json.error());
+  }
+  auto endpoint = endpoint_json.value().get<std::string>();
+
+  // extract required type (string)
+  auto type_json = json_helper::get_field(json, "type", json::value_t::string);
+  if (!type_json) {
+    return astarte_tl::unexpected(type_json.error());
+  }
+  auto type_res = astarte_type_from_str(type_json.value().get<std::string>());
+  if (!type_res) {
+    return astarte_tl::unexpected(type_res.error());
+  }
+  auto type = type_res.value();
+
+  // extract optional fields
+  auto explicit_timestamp = json_helper::optional_value_from_json<bool>(json, "explicit_timestamp");
+  auto reliability_opt = json_helper::optional_value_from_json<Reliability>(json, "reliability");
+  auto reliability = reliability_opt.value_or(Reliability());
+  auto retention = json_helper::optional_value_from_json<Retention>(json, "retention");
+  auto expiry = json_helper::optional_value_from_json<int64_t>(json, "expiry");
+  auto database_retention_policy = json_helper::optional_value_from_json<DatabaseRetentionPolicy>(
+      json, "database_retention_policy");
+  auto database_retention_ttl =
+      json_helper::optional_value_from_json<int64_t>(json, "database_retention_ttl");
+  auto allow_unset = json_helper::optional_value_from_json<bool>(json, "allow_unset");
+  auto description = json_helper::optional_value_from_json<std::string>(json, "description");
+  auto doc = json_helper::optional_value_from_json<std::string>(json, "doc");
+
+  return Mapping(std::move(endpoint), type, explicit_timestamp, reliability, retention, expiry,
+                 database_retention_policy, database_retention_ttl, allow_unset, description, doc);
+}
 
 auto Mapping::match_path(std::string_view path) const -> bool {
   // copy the endpoint
@@ -116,28 +160,5 @@ auto Mapping::check_data_type(const AstarteData& data) const
 
   return {};
 }
-
-auto get_field(const json& interface, std::string_view key, json::value_t expected_type)
-    -> astarte_tl::expected<json, AstarteError> {
-  auto field = interface.find(key);
-  if (field == interface.end()) {
-    return astarte_tl::unexpected(
-        AstarteInterfaceValidationError(astarte_fmt::format("Missing required field: {}", key)));
-  }
-
-  // if we expect a signed integer, also accept an unsigned one (since the json library we use may
-  // automatically convert in a wrond interger type).
-  bool type_match = (field->type() == expected_type);
-  if (expected_type == json::value_t::number_integer &&
-      field->type() == json::value_t::number_unsigned) {
-    type_match = true;
-  }
-
-  if (!type_match) {
-    return astarte_tl::unexpected(
-        AstarteInterfaceValidationError(astarte_fmt::format("Field {} has invalid type", key)));
-  }
-  return *field;
-};
 
 }  // namespace AstarteDeviceSdk

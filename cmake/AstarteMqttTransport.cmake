@@ -128,6 +128,7 @@ function(
         "private/mqtt/credentials.hpp"
         "private/mqtt/crypto.hpp"
         "private/mqtt/device_mqtt_impl.hpp"
+        "private/mqtt/helpers.hpp"
         "private/mqtt/interface.hpp"
         "private/mqtt/introspection.hpp"
         "private/mqtt/mapping.hpp"

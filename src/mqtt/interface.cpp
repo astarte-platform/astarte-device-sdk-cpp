@@ -22,6 +22,7 @@
 #include "astarte_device_sdk/object.hpp"
 #include "astarte_device_sdk/ownership.hpp"
 #include "astarte_device_sdk/type.hpp"
+#include "mqtt/helpers.hpp"
 #include "mqtt/mapping.hpp"
 
 namespace AstarteDeviceSdk {
@@ -53,7 +54,7 @@ auto convert_version(std::string_view version_type, int64_t version)
 
 auto parse_version_field(const json& interface, std::string_view key, std::string_view name)
     -> astarte_tl::expected<uint32_t, AstarteError> {
-  auto field_json = get_field(interface, key, json::value_t::number_integer);
+  auto field_json = json_helper::get_field(interface, key, json::value_t::number_integer);
   if (!field_json) {
     return astarte_tl::unexpected(field_json.error());
   }
@@ -63,7 +64,7 @@ auto parse_version_field(const json& interface, std::string_view key, std::strin
 auto parse_interface_type(const json& interface)
     -> astarte_tl::expected<InterfaceType, AstarteError> {
   constexpr std::string_view kType = "type";
-  auto type_json = get_field(interface, kType, json::value_t::string);
+  auto type_json = json_helper::get_field(interface, kType, json::value_t::string);
   if (!type_json) {
     return astarte_tl::unexpected(type_json.error());
   }
@@ -73,7 +74,7 @@ auto parse_interface_type(const json& interface)
 auto parse_ownership(const json& interface)
     -> astarte_tl::expected<AstarteOwnership, AstarteError> {
   constexpr std::string_view kOwnership = "ownership";
-  auto own_json = get_field(interface, kOwnership, json::value_t::string);
+  auto own_json = json_helper::get_field(interface, kOwnership, json::value_t::string);
   if (!own_json) {
     return astarte_tl::unexpected(own_json.error());
   }
@@ -108,7 +109,7 @@ auto parse_aggregation(const json& interface)
  */
 auto mappings_from_interface_json(const json& interface)
     -> astarte_tl::expected<std::vector<Mapping>, AstarteError> {
-  auto mappings_field = get_field(interface, "mappings", json::value_t::array);
+  auto mappings_field = json_helper::get_field(interface, "mappings", json::value_t::array);
   if (!mappings_field) {
     return astarte_tl::unexpected(mappings_field.error());
   }
@@ -133,7 +134,7 @@ auto mappings_from_interface_json(const json& interface)
 
 auto Interface::try_from_json(const json& interface)
     -> astarte_tl::expected<Interface, AstarteError> {
-  auto name_json = get_field(interface, "interface_name", json::value_t::string);
+  auto name_json = json_helper::get_field(interface, "interface_name", json::value_t::string);
   if (!name_json) {
     return astarte_tl::unexpected(name_json.error());
   }
@@ -164,8 +165,8 @@ auto Interface::try_from_json(const json& interface)
     return astarte_tl::unexpected(agg_res.error());
   }
 
-  auto description = optional_value_from_json<std::string>(interface, "description");
-  auto doc = optional_value_from_json<std::string>(interface, "doc");
+  auto description = json_helper::optional_value_from_json<std::string>(interface, "description");
+  auto doc = json_helper::optional_value_from_json<std::string>(interface, "doc");
 
   auto mappings_res = mappings_from_interface_json(interface);
   if (!mappings_res) {
