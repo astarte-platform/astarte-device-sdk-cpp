@@ -54,7 +54,6 @@ class Pkg(ConanFile):
     def package_info(self):
         self.cpp_info.libs = ["astarte_device_sdk"]
         if self.options.transport == "grpc":
-            self.cpp_info.libs.append("astarte_msghub_proto")
             self.cpp_info.defines.append("ASTARTE_TRANSPORT_GRPC")
         if not valid_min_cppstd(self, "23"):
             self.cpp_info.defines.append("ASTARTE_USE_TL_EXPECTED")

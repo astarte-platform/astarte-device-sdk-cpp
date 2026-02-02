@@ -25,7 +25,7 @@ function(astarte_sdk_configure_grpc_dependencies)
         set(MSGHUB_PROTO_GITHUB_URL
             https://github.com/astarte-platform/astarte-message-hub-proto.git
         )
-        set(MSGHUB_PROTO_GIT_TAG release-0.9)
+        set(MSGHUB_PROTO_GIT_TAG release-0.10)
         FetchContent_Declare(
             astarte_msghub_proto
             GIT_REPOSITORY ${MSGHUB_PROTO_GITHUB_URL}
@@ -35,6 +35,26 @@ function(astarte_sdk_configure_grpc_dependencies)
         )
         FetchContent_MakeAvailable(astarte_msghub_proto)
     endif()
+
+    # Setups grpc
+    astarte_setup_grpc(
+            _ASTARTE_INTERNAL_PROTOC      # Output: Path to the protoc executable
+            _ASTARTE_INTERNAL_GRPC_PLUGIN # Output: Path to the grpc_cpp_plugin executable
+            _ASTARTE_INTERNAL_PROTO_INC   # Output: Path to standard include directory
+    )
+
+    # Persist them so other functions can see them
+    set(_ASTARTE_INTERNAL_PROTOC "${_ASTARTE_INTERNAL_PROTOC}" CACHE INTERNAL "Path to protoc")
+    set(_ASTARTE_INTERNAL_GRPC_PLUGIN
+        "${_ASTARTE_INTERNAL_GRPC_PLUGIN}"
+        CACHE INTERNAL
+        "Path to grpc_cpp_plugin"
+    )
+    set(_ASTARTE_INTERNAL_PROTO_INC
+        "${_ASTARTE_INTERNAL_PROTO_INC}"
+        CACHE INTERNAL
+        "Path to standard proto include dir"
+    )
 endfunction()
 
 # Adds gRPC sources and private headers to the provided lists.
@@ -72,25 +92,26 @@ endfunction()
 
 # Adds gRPC source files and links required libraries to the main target.
 function(astarte_sdk_add_grpc_transport)
-    # Link with gRPC, Protobuf, and the message hub proto library
-    target_link_libraries(
-        astarte_device_sdk
-        PRIVATE ${_GRPC_CPP} ${_REFLECTION} ${_PROTOBUF_LIBPROTOBUF}
-    )
-
-    if(ASTARTE_PUBLIC_PROTO_DEP)
-        target_link_libraries(astarte_device_sdk PUBLIC astarte_msghub_proto)
-    else()
-        target_link_libraries(astarte_device_sdk PRIVATE astarte_msghub_proto)
+    # Set a temporary variable for the visibility flag
+    set(_ASTARTE_PROTO_VISIBILITY_FLAG "")
+    if(NOT ASTARTE_PUBLIC_PROTO_DEP)
+        set(_ASTARTE_PROTO_VISIBILITY_FLAG PRIVATE_VISIBILITY)
     endif()
+
+    # Generate the proto files and attach them to the target
+    astarte_proto_attach_to_target(astarte_device_sdk
+        ${_ASTARTE_PROTO_VISIBILITY_FLAG}
+        PROTOBUF_PROTOC                "${_ASTARTE_INTERNAL_PROTOC}"
+        GRPC_CPP_PLUGIN_EXECUTABLE     "${_ASTARTE_INTERNAL_GRPC_PLUGIN}"
+        PROTOBUF_STANDARD_INCLUDE_DIR  "${_ASTARTE_INTERNAL_PROTO_INC}"
+    )
 
     target_compile_definitions(astarte_device_sdk PUBLIC ASTARTE_TRANSPORT_GRPC)
 endfunction()
 
 # Adds gRPC-specific targets to the installation list.
 function(astarte_sdk_add_grpc_install_targets TARGET_LIST_VAR)
-    list(APPEND ${TARGET_LIST_VAR} astarte_msghub_proto)
-    set(${TARGET_LIST_VAR} ${${TARGET_LIST_VAR}} PARENT_SCOPE)
+    # No specific targets to add for gRPC transport
 endfunction()
 
 # Creates and installs the pkg-config file for the gRPC-enabled SDK.
@@ -98,8 +119,14 @@ function(astarte_sdk_install_grpc_pkgconfig)
     set(PC_NAME "astarte_device_sdk")
     set(PC_DESCRIPTION "Astarte Device SDK Cpp (gRPC transport)")
     set(PC_VERSION ${PROJECT_VERSION})
-    set(PC_REQUIRES "spdlog astarte_msghub_proto grpc++ protobuf")
-    set(PC_REQUIRES_PRIVATE "")
+    # Configure PkgConfig dependencies based on visibility
+    if(ASTARTE_PUBLIC_PROTO_DEP)
+        set(PC_REQUIRES "spdlog grpc++ protobuf")
+        set(PC_REQUIRES_PRIVATE "")
+    else()
+        set(PC_REQUIRES "spdlog")
+        set(PC_REQUIRES_PRIVATE "grpc++ protobuf")
+    endif()
     set(PC_LIB "-lastarte_device_sdk -lgrpc++_reflection -laddress_sorting -lre2 -lupb --as-needed")
     set(PC_LIBS_PRIVATE "")
     configure_file(

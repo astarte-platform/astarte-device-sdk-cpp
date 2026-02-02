@@ -11,7 +11,7 @@
 .EXAMPLE
     .\build_sample.ps1 grpc/native
 .EXAMPLE
-    .\build_sample.ps1 grpc/qt -transport mqtt -fresh
+    .\build_sample.ps1 mqtt/native -transport mqtt -fresh
 .EXAMPLE
     .\build_sample.ps1 grpc/qt -deps-mgmt fetch -qt_version 6
 #>
