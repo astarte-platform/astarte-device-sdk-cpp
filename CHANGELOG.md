@@ -27,6 +27,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Bug preventing build with the Microsoft compiler [#113](https://github.com/astarte-platform/astarte-device-sdk-cpp/pull/131).
 
+### Fixed
+- Bug preventing build with the Microsoft compiler [#113](https://github.com/astarte-platform/astarte-device-sdk-cpp/pull/131).
+
 ## [0.7.0] - 2025-08-13
 ### Added
 - API calls to fetch stored device properties in the gRPC Astarte device.
