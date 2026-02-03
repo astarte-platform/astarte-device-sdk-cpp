@@ -55,7 +55,7 @@ class TestCase {
     }
 
     // 2. Create the RX Queue for this specific run
-    auto rx_queue = std::make_shared<SharedQueue<AstarteMessage>>();
+    auto rx_queue = std::make_shared<SharedQueue<Message>>();
 
     // 3. Start the background reception thread (if device is present)
     std::unique_ptr<std::jthread> rx_thread;
@@ -65,7 +65,7 @@ class TestCase {
         while (!token.stop_requested()) {
           auto incoming = dev->poll_incoming(std::chrono::milliseconds(100));
           if (incoming.has_value()) {
-            AstarteMessage msg(incoming.value());
+            Message msg(incoming.value());
             spdlog::debug("Handler received message: {}", msg.get_path());
             rx_queue->push(msg);
           }

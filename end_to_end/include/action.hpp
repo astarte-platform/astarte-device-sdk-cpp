@@ -31,7 +31,6 @@
 using json = nlohmann::json;
 
 using astarte::device::AstarteDatastreamObject;
-using astarte::device::AstarteMessage;
 using astarte::device::AstarteOwnership;
 using astarte::device::AstartePropertyIndividual;
 using astarte::device::AstarteStoredProperty;
@@ -39,6 +38,7 @@ using astarte::device::Data;
 using astarte::device::DatastreamIndividual;
 using astarte::device::Device;
 using astarte::device::Error;
+using astarte::device::Message;
 
 // -----------------------------------------------------------------------------
 // Context & Types
@@ -53,7 +53,7 @@ struct TestHttpConfig {
 struct TestCaseContext {
   std::string device_id;
   std::shared_ptr<Device> device;
-  std::shared_ptr<SharedQueue<AstarteMessage>> rx_queue;
+  std::shared_ptr<SharedQueue<Message>> rx_queue;
   TestHttpConfig http;
 };
 
@@ -72,7 +72,7 @@ inline std::string build_url(const TestCaseContext& ctx, const std::string& path
 }
 
 // Logic for validating Datastream Individual responses
-inline void check_datastream_individual(const json& response_json, const AstarteMessage& msg) {
+inline void check_datastream_individual(const json& response_json, const Message& msg) {
   if (!response_json.contains(msg.get_path())) {
     spdlog::error("Missing entry '{}' in REST data.", msg.get_path());
     spdlog::info("Fetched data: {}", response_json.dump());
@@ -105,7 +105,7 @@ inline void check_datastream_individual(const json& response_json, const Astarte
 }
 
 // Logic for validating Datastream Object responses
-inline void check_datastream_aggregate(const json& response_json, const AstarteMessage& msg) {
+inline void check_datastream_aggregate(const json& response_json, const Message& msg) {
   if (!response_json.contains(msg.get_path())) {
     spdlog::error("Missing entry '{}' in REST data.", msg.get_path());
     spdlog::info("Fetched data: {}", response_json.dump());
@@ -134,7 +134,7 @@ inline void check_datastream_aggregate(const json& response_json, const AstarteM
 }
 
 // Logic for validating Property responses
-inline void check_individual_property(const json& response_json, const AstarteMessage& msg,
+inline void check_individual_property(const json& response_json, const Message& msg,
                                       const AstartePropertyIndividual& expected_data) {
   if (!response_json.contains(msg.get_path())) {
     spdlog::error("Missing entry '{}' in REST data.", msg.get_path());
@@ -152,7 +152,7 @@ inline void check_individual_property(const json& response_json, const AstarteMe
   }
 }
 
-inline void check_property_unset(const json& response_json, const AstarteMessage& msg) {
+inline void check_property_unset(const json& response_json, const Message& msg) {
   if (response_json.contains(msg.get_path())) {
     spdlog::error("Found entry '{}' in REST data.", msg.get_path());
     throw EndToEndMismatchException("Fetched REST API data differs from expected data.");
@@ -266,7 +266,7 @@ inline Action RemoveInterface(std::string interface_name) {
 // -----------------------------------------------------------------------------
 
 inline Action TransmitDeviceData(
-    AstarteMessage message,
+    Message message,
     std::optional<std::chrono::system_clock::time_point> timestamp = std::nullopt) {
   return [msg = std::move(message), ts = timestamp](const TestCaseContext& ctx) {
     spdlog::info("Transmitting MQTT data...");
@@ -298,7 +298,7 @@ inline Action TransmitDeviceData(
   };
 }
 
-inline Action ReadReceivedDeviceData(AstarteMessage expected_message) {
+inline Action ReadReceivedDeviceData(Message expected_message) {
   return [expected = std::move(expected_message)](const TestCaseContext& ctx) {
     spdlog::info("Reading received MQTT data...");
     auto start = std::chrono::high_resolution_clock::now();
@@ -312,7 +312,7 @@ inline Action ReadReceivedDeviceData(AstarteMessage expected_message) {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
-    AstarteMessage received = ctx.rx_queue->pop().value();
+    Message received = ctx.rx_queue->pop().value();
     if (received != expected) {
       spdlog::error("Received message differs from expected.");
       spdlog::error("Received: {}", received);
@@ -417,7 +417,7 @@ inline Action CheckDeviceStatus(
   };
 }
 
-inline Action TransmitRESTData(AstarteMessage message) {
+inline Action TransmitRESTData(Message message) {
   return [msg = std::move(message)](const TestCaseContext& ctx) {
     spdlog::info("Transmitting REST data...");
     std::string url =
@@ -465,7 +465,7 @@ inline Action TransmitRESTData(AstarteMessage message) {
 }
 
 inline Action FetchRESTData(
-    AstarteMessage message,
+    Message message,
     std::optional<std::chrono::system_clock::time_point> timestamp = std::nullopt) {
   return [msg = std::move(message), ts = timestamp](const TestCaseContext& ctx) {
     spdlog::info("Fetching REST data...");

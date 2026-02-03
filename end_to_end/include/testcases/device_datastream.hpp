@@ -23,7 +23,7 @@ TestCase device_datastream(std::string device_id) {
 
          // Transmit actions
          actions::TransmitDeviceData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::Integer::ENDPOINT_FULL,
                  DatastreamIndividual(constants::data_sets::Integer::DATA)
@@ -32,7 +32,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::TransmitDeviceData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::LongInteger::ENDPOINT_FULL,
                  DatastreamIndividual(constants::data_sets::LongInteger::DATA)
@@ -41,7 +41,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::TransmitDeviceData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::Double::ENDPOINT_FULL,
                  DatastreamIndividual(constants::data_sets::Double::DATA)
@@ -50,7 +50,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::TransmitDeviceData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::Boolean::ENDPOINT_FULL,
                  DatastreamIndividual(constants::data_sets::Boolean::DATA)
@@ -59,7 +59,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::TransmitDeviceData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::String::ENDPOINT_FULL,
                  DatastreamIndividual(constants::data_sets::String::DATA)
@@ -68,7 +68,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::TransmitDeviceData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::Datetime::ENDPOINT_FULL,
                  DatastreamIndividual(constants::data_sets::Datetime::DATA)
@@ -77,7 +77,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::TransmitDeviceData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::BinaryBlob::ENDPOINT_FULL,
                  DatastreamIndividual(constants::data_sets::BinaryBlob::DATA)
@@ -86,7 +86,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::TransmitDeviceData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::IntegerArray::ENDPOINT_FULL,
                  DatastreamIndividual(constants::data_sets::IntegerArray::DATA)
@@ -95,7 +95,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::TransmitDeviceData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::LongIntegerArray::ENDPOINT_FULL,
                  DatastreamIndividual(constants::data_sets::LongIntegerArray::DATA)
@@ -104,7 +104,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::TransmitDeviceData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::DoubleArray::ENDPOINT_FULL,
                  DatastreamIndividual(constants::data_sets::DoubleArray::DATA)
@@ -113,7 +113,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::TransmitDeviceData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::BooleanArray::ENDPOINT_FULL,
                  DatastreamIndividual(constants::data_sets::BooleanArray::DATA)
@@ -122,7 +122,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::TransmitDeviceData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::StringArray::ENDPOINT_FULL,
                  DatastreamIndividual(constants::data_sets::StringArray::DATA)
@@ -131,7 +131,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::TransmitDeviceData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::DatetimeArray::ENDPOINT_FULL,
                  DatastreamIndividual(constants::data_sets::DatetimeArray::DATA)
@@ -140,7 +140,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::TransmitDeviceData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::BinaryBlobArray::ENDPOINT_FULL,
                  DatastreamIndividual(constants::data_sets::BinaryBlobArray::DATA)
@@ -152,7 +152,7 @@ TestCase device_datastream(std::string device_id) {
 
          // Fetch actions
          actions::FetchRESTData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::Integer::ENDPOINT_PARTIAL,
                  DatastreamIndividual(constants::data_sets::Integer::DATA)
@@ -161,7 +161,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::FetchRESTData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::LongInteger::ENDPOINT_PARTIAL,
                  DatastreamIndividual(constants::data_sets::LongInteger::DATA)
@@ -170,7 +170,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::FetchRESTData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::Double::ENDPOINT_PARTIAL,
                  DatastreamIndividual(constants::data_sets::Double::DATA)
@@ -179,7 +179,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::FetchRESTData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::Boolean::ENDPOINT_PARTIAL,
                  DatastreamIndividual(constants::data_sets::Boolean::DATA)
@@ -188,7 +188,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::FetchRESTData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::String::ENDPOINT_PARTIAL,
                  DatastreamIndividual(constants::data_sets::String::DATA)
@@ -197,7 +197,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::FetchRESTData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::Datetime::ENDPOINT_PARTIAL,
                  DatastreamIndividual(constants::data_sets::Datetime::DATA)
@@ -206,7 +206,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::FetchRESTData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::BinaryBlob::ENDPOINT_PARTIAL,
                  DatastreamIndividual(constants::data_sets::BinaryBlob::DATA)
@@ -215,7 +215,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::FetchRESTData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::IntegerArray::ENDPOINT_PARTIAL,
                  DatastreamIndividual(constants::data_sets::IntegerArray::DATA)
@@ -224,7 +224,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::FetchRESTData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::LongIntegerArray::ENDPOINT_PARTIAL,
                  DatastreamIndividual(constants::data_sets::LongIntegerArray::DATA)
@@ -233,7 +233,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::FetchRESTData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::DoubleArray::ENDPOINT_PARTIAL,
                  DatastreamIndividual(constants::data_sets::DoubleArray::DATA)
@@ -242,7 +242,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::FetchRESTData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::BooleanArray::ENDPOINT_PARTIAL,
                  DatastreamIndividual(constants::data_sets::BooleanArray::DATA)
@@ -251,7 +251,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::FetchRESTData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::StringArray::ENDPOINT_PARTIAL,
                  DatastreamIndividual(constants::data_sets::StringArray::DATA)
@@ -260,7 +260,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::FetchRESTData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::DatetimeArray::ENDPOINT_PARTIAL,
                  DatastreamIndividual(constants::data_sets::DatetimeArray::DATA)
@@ -269,7 +269,7 @@ TestCase device_datastream(std::string device_id) {
          ),
 
          actions::FetchRESTData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::BinaryBlobArray::ENDPOINT_PARTIAL,
                  DatastreamIndividual(constants::data_sets::BinaryBlobArray::DATA)

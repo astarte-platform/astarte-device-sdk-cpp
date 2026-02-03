@@ -94,7 +94,7 @@ auto AstarteDeviceMqtt::unset_property(std::string_view interface_name, std::str
 }
 
 auto AstarteDeviceMqtt::poll_incoming(const std::chrono::milliseconds& timeout)
-    -> std::optional<AstarteMessage> {
+    -> std::optional<Message> {
   return astarte_device_impl_->poll_incoming(timeout);
 }
 

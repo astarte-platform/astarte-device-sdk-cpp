@@ -144,8 +144,7 @@ class AstarteDeviceMqtt : public Device {
    * @param timeout Will block for this timeout if no message is present.
    * @return The received message when present, std::nullopt otherwise.
    */
-  auto poll_incoming(const std::chrono::milliseconds& timeout)
-      -> std::optional<AstarteMessage> override;
+  auto poll_incoming(const std::chrono::milliseconds& timeout) -> std::optional<Message> override;
   /**
    * @brief Get all stored properties matching the input filter.
    * @param ownership Optional ownership filter.

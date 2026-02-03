@@ -16,13 +16,13 @@
 
 using astarte::device::AstarteDatastreamObject;
 using astarte::device::AstarteDeviceGrpc;
-using astarte::device::AstarteMessage;
 using astarte::device::AstartePropertyIndividual;
 using astarte::device::Data;
 using astarte::device::DatastreamIndividual;
 using astarte::device::Device;
 using astarte::device::FileOpenError;
 using astarte::device::InvalidInputError;
+using astarte::device::Message;
 
 using namespace std::chrono_literals;
 
@@ -30,7 +30,7 @@ void reception_handler(std::stop_token token, std::shared_ptr<Device> device) {
   while (!token.stop_requested()) {
     auto incoming = device->poll_incoming(100ms);
     if (incoming.has_value()) {
-      AstarteMessage msg(incoming.value());
+      Message msg(incoming.value());
       spdlog::info("Received message.");
       spdlog::info("Interface name: {}", msg.get_interface());
       spdlog::info("Path: {}", msg.get_path());

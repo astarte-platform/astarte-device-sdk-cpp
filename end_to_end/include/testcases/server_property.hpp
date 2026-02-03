@@ -22,72 +22,72 @@ TestCase server_property(std::string device_id) {
          actions::Sleep(1s),
 
          // set server properties
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::Integer::ENDPOINT_SENSOR,
              AstartePropertyIndividual(Data(43))
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::LongInteger::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::LongInteger::DATA)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::Double::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::Double::DATA)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::Boolean::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::Boolean::DATA)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::String::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::String::DATA)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::Datetime::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::Datetime::DATA)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::BinaryBlob::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::BinaryBlob::DATA)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::IntegerArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::IntegerArray::DATA)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::LongIntegerArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::LongIntegerArray::DATA)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::DoubleArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::DoubleArray::DATA)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::BooleanArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::BooleanArray::DATA)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::StringArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::StringArray::DATA)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::DatetimeArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::DatetimeArray::DATA)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::BinaryBlobArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::BinaryBlobArray::DATA)
@@ -96,72 +96,72 @@ TestCase server_property(std::string device_id) {
          actions::Sleep(1s),
 
          // check if server property have been set
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::Integer::ENDPOINT_SENSOR,
              AstartePropertyIndividual(Data(43))
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::LongInteger::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::LongInteger::DATA)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::Double::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::Double::DATA)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::Boolean::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::Boolean::DATA)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::String::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::String::DATA)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::Datetime::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::Datetime::DATA)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::BinaryBlob::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::BinaryBlob::DATA)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::IntegerArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::IntegerArray::DATA)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::LongIntegerArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::LongIntegerArray::DATA)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::DoubleArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::DoubleArray::DATA)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::BooleanArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::BooleanArray::DATA)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::StringArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::StringArray::DATA)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::DatetimeArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::DatetimeArray::DATA)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::BinaryBlobArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::BinaryBlobArray::DATA)
@@ -170,72 +170,72 @@ TestCase server_property(std::string device_id) {
          actions::Sleep(1s),
 
          // unset server properties
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::Integer::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::LongInteger::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::Double::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::Boolean::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::String::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::Datetime::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::BinaryBlob::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::IntegerArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::LongIntegerArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::DoubleArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::BooleanArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::StringArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::DatetimeArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::BinaryBlobArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
@@ -244,72 +244,72 @@ TestCase server_property(std::string device_id) {
          actions::Sleep(1s),
 
          // check unset server property
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::Integer::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::LongInteger::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::Double::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::Boolean::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::String::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::Datetime::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::BinaryBlob::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::IntegerArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::LongIntegerArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::DoubleArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::BooleanArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::StringArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::DatetimeArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::BinaryBlobArray::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
@@ -330,12 +330,12 @@ TestCase server_property_on_new_device(std::string device_id) {
          actions::Sleep(1s),
 
          // set server properties
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::Integer::ENDPOINT_SENSOR,
              AstartePropertyIndividual(Data(43))
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::LongInteger::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::LongInteger::DATA)
@@ -349,12 +349,12 @@ TestCase server_property_on_new_device(std::string device_id) {
          actions::Sleep(1s),
 
          // check if server property have been received
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::Integer::ENDPOINT_SENSOR,
              AstartePropertyIndividual(Data(43))
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::LongInteger::ENDPOINT_SENSOR,
              AstartePropertyIndividual(constants::data_sets::LongInteger::DATA)
@@ -363,12 +363,12 @@ TestCase server_property_on_new_device(std::string device_id) {
          actions::Sleep(1s),
 
          // unset the properties
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::Integer::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::LongInteger::ENDPOINT_SENSOR,
              AstartePropertyIndividual(std::nullopt)

@@ -395,13 +395,13 @@ auto GrpcConverterFrom::operator()(const gRPCAstartePropertyIndividual& value)
 }
 
 auto GrpcConverterFrom::operator()(const gRPCAstarteMessage& value)
-    -> astarte_tl::expected<AstarteMessage, Error> {
+    -> astarte_tl::expected<Message, Error> {
   spdlog::trace("Converting Astarte message from gRPC, message: \n{}", value);
 
   auto make_message = [&](auto&& val) {
     const std::variant<DatastreamIndividual, AstarteDatastreamObject, AstartePropertyIndividual>
         parsed_data(std::forward<decltype(val)>(val));
-    return AstarteMessage{value.interface_name(), value.path(), parsed_data};
+    return Message{value.interface_name(), value.path(), parsed_data};
   };
 
   if (value.has_datastream_individual()) {

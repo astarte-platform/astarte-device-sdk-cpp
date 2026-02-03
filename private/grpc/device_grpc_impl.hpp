@@ -130,10 +130,10 @@ struct AstarteDeviceGrpc::AstarteDeviceGrpcImpl {
    * @brief Poll for a new message received from the message hub.
    * @details This method checks an internal queue for parsed messages from the server.
    * @param timeout Will block for this timeout if no message is present.
-   * @return An std::optional containing an AstarteMessage if one was available, otherwise
+   * @return An std::optional containing an Message if one was available, otherwise
    * std::nullopt.
    */
-  auto poll_incoming(const std::chrono::milliseconds& timeout) -> std::optional<AstarteMessage>;
+  auto poll_incoming(const std::chrono::milliseconds& timeout) -> std::optional<Message>;
   /**
    * @brief Get all stored properties matching the input filter.
    * @param ownership Optional ownership filter.
@@ -170,7 +170,7 @@ struct AstarteDeviceGrpc::AstarteDeviceGrpcImpl {
                      std::unique_ptr<grpc::ClientReader<gRPCMessageHubEvent>> reader)
       -> astarte_tl::expected<void, Error>;
   static auto parse_message_hub_event(const gRPCMessageHubEvent& event)
-      -> astarte_tl::expected<AstarteMessage, Error>;
+      -> astarte_tl::expected<Message, Error>;
   auto connection_loop(const std::stop_token& token) -> astarte_tl::expected<void, Error>;
 
   std::string server_addr_;
@@ -181,7 +181,7 @@ struct AstarteDeviceGrpc::AstarteDeviceGrpcImpl {
   std::atomic_bool connected_{false};
   std::stop_source ssource_;
   std::atomic_bool grpc_stream_error_{false};
-  SharedQueue<AstarteMessage> rcv_queue_;
+  SharedQueue<Message> rcv_queue_;
 };
 
 }  // namespace astarte::device

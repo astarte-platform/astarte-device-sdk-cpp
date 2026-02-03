@@ -343,7 +343,7 @@ auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::unset_property(std::string_view i
 }
 
 auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::poll_incoming(
-    const std::chrono::milliseconds& timeout) -> std::optional<AstarteMessage> {
+    const std::chrono::milliseconds& timeout) -> std::optional<Message> {
   return rcv_queue_.pop(timeout);
 }
 
@@ -532,7 +532,7 @@ auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::handle_events(
 }
 
 auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::parse_message_hub_event(
-    const gRPCMessageHubEvent& event) -> astarte_tl::expected<AstarteMessage, Error> {
+    const gRPCMessageHubEvent& event) -> astarte_tl::expected<Message, Error> {
   spdlog::trace("Parsing message hub event.");
   if (event.has_message()) {
     const gRPCAstarteMessage& astarteMessage = event.message();

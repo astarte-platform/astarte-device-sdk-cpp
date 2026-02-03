@@ -44,13 +44,13 @@ TestCase device_aggregate(std::string device_id) {
         "Send Astarte Aggregate",
         {actions::Connect(),
          actions::Sleep(1s),
-         actions::TransmitDeviceData(AstarteMessage(
-             constants::interfaces::DeviceAggregate::INTERFACE, "/sensor1", astarte_obj
-         )),
+         actions::TransmitDeviceData(
+             Message(constants::interfaces::DeviceAggregate::INTERFACE, "/sensor1", astarte_obj)
+         ),
          actions::Sleep(1s),
-         actions::FetchRESTData(AstarteMessage(
-             constants::interfaces::DeviceAggregate::INTERFACE, "sensor1", astarte_obj
-         )),
+         actions::FetchRESTData(
+             Message(constants::interfaces::DeviceAggregate::INTERFACE, "sensor1", astarte_obj)
+         ),
          actions::Sleep(1s),
          actions::Disconnect(),
          actions::Sleep(1s)},

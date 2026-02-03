@@ -123,10 +123,10 @@ struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
    * @brief Poll for a new message received from Astarte.
    * @details This method checks an internal queue for parsed messages from the server.
    * @param timeout Will block for this timeout if no message is present.
-   * @return An std::optional containing an AstarteMessage if one was available, otherwise
+   * @return An std::optional containing an Message if one was available, otherwise
    * std::nullopt.
    */
-  auto poll_incoming(const std::chrono::milliseconds& timeout) -> std::optional<AstarteMessage>;
+  auto poll_incoming(const std::chrono::milliseconds& timeout) -> std::optional<Message>;
   /**
    * @brief Get all stored properties matching the input filter.
    * @param ownership Optional ownership filter.

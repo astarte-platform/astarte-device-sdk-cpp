@@ -25,16 +25,16 @@
 namespace astarte::device {
 
 /** @brief Astarte message class, represents a full message for/from Astarte. */
-class AstarteMessage {
+class Message {
  public:
   /**
-   * @brief Constructor for the AstarteMessage class.
+   * @brief Constructor for the Message class.
    * @param interface The interface for the message.
    * @param path The path for the message.
    * @param data The data for the message.
    */
   template <typename T>
-  AstarteMessage(std::string_view interface, std::string_view path, T data)
+  Message(std::string_view interface, std::string_view path, T data)
       : interface_(interface), path_(path), data_(std::move(data)) {}
 
   /**
@@ -88,13 +88,13 @@ class AstarteMessage {
    * @param other The object to compare to.
    * @return True when equal, false otherwise.
    */
-  [[nodiscard]] auto operator==(const AstarteMessage& other) const -> bool;
+  [[nodiscard]] auto operator==(const Message& other) const -> bool;
   /**
    * @brief Overloader for the comparison operator !=.
    * @param other The object to compare to.
    * @return True when different, false otherwise.
    */
-  [[nodiscard]] auto operator!=(const AstarteMessage& other) const -> bool;
+  [[nodiscard]] auto operator!=(const Message& other) const -> bool;
 
  private:
   std::string interface_;
@@ -105,10 +105,10 @@ class AstarteMessage {
 }  // namespace astarte::device
 
 /**
- * @brief astarte_fmt::formatter specialization for astarte::device::AstarteMessage.
+ * @brief astarte_fmt::formatter specialization for astarte::device::Message.
  */
 template <>
-struct astarte_fmt::formatter<astarte::device::AstarteMessage> {
+struct astarte_fmt::formatter<astarte::device::Message> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -120,13 +120,13 @@ struct astarte_fmt::formatter<astarte::device::AstarteMessage> {
   }
 
   /**
-   * @brief Format the AstarteMessage object.
-   * @param msg The AstarteMessage to format.
+   * @brief Format the Message object.
+   * @param msg The Message to format.
    * @param ctx The format context.
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const astarte::device::AstarteMessage& msg, FormatContext& ctx) const {
+  auto format(const astarte::device::Message& msg, FormatContext& ctx) const {
     auto out = ctx.out();
 
     out = astarte_fmt::format_to(out, "{{interface: {}, path: {}", msg.get_interface(),
@@ -150,13 +150,12 @@ struct astarte_fmt::formatter<astarte::device::AstarteMessage> {
 };
 
 /**
- * @brief Stream insertion operator for AstarteMessage.
+ * @brief Stream insertion operator for Message.
  * @param out The output stream.
- * @param msg The AstarteMessage object to output.
+ * @param msg The Message object to output.
  * @return Reference to the output stream.
  */
-inline auto operator<<(std::ostream& out, const astarte::device::AstarteMessage& msg)
-    -> std::ostream& {
+inline auto operator<<(std::ostream& out, const astarte::device::Message& msg) -> std::ostream& {
   out << astarte_fmt::format("{}", msg);
   return out;
 }

@@ -45,7 +45,7 @@ class AstarteWorker : public QObject {
   void pollMessages() {
     auto incoming = device->poll_incoming(std::chrono::milliseconds(0));
     if (incoming.has_value()) {
-      AstarteMessage msg(incoming.value());
+      Message msg(incoming.value());
       qInfo() << "Received:" << QString::fromStdString(astarte_fmt::format("{}", msg));
     }
   }

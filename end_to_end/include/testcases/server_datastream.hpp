@@ -19,74 +19,74 @@ TestCase server_datastream(std::string device_id) {
         {actions::Connect(),
          actions::Sleep(1s),
 
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::Integer::ENDPOINT_FULL,
              DatastreamIndividual(Data((int32_t)43))
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::LongInteger::ENDPOINT_FULL,
              DatastreamIndividual(constants::data_sets::LongInteger::DATA)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::Double::ENDPOINT_FULL,
              DatastreamIndividual(Data(4245.23))
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::Boolean::ENDPOINT_FULL,
              DatastreamIndividual(Data(false))
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::String::ENDPOINT_FULL,
              DatastreamIndividual(Data(std::string("Hello world")))
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::Datetime::ENDPOINT_FULL,
              DatastreamIndividual(constants::data_sets::Datetime::DATA)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::BinaryBlob::ENDPOINT_FULL,
              DatastreamIndividual(constants::data_sets::BinaryBlob::DATA)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::IntegerArray::ENDPOINT_FULL,
              DatastreamIndividual(Data(std::vector<int32_t>{32, 43, 0, 3332}))
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::LongIntegerArray::ENDPOINT_FULL,
              DatastreamIndividual(Data(std::vector<int64_t>{17179869184, 0, 6486}))
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::DoubleArray::ENDPOINT_FULL,
              DatastreamIndividual(Data(std::vector<double>{0.0, 23.2}))
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::BooleanArray::ENDPOINT_FULL,
              DatastreamIndividual(Data(std::vector<bool>{false, true, true}))
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::StringArray::ENDPOINT_FULL,
              DatastreamIndividual(
                  Data(std::vector<std::string>{"Hello ", "world ", "from ", "C++"})
              )
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::DatetimeArray::ENDPOINT_FULL,
              DatastreamIndividual(constants::data_sets::DatetimeArray::DATA)
          )),
-         actions::TransmitRESTData(AstarteMessage(
+         actions::TransmitRESTData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::BinaryBlobArray::ENDPOINT_FULL,
              DatastreamIndividual(constants::data_sets::BinaryBlobArray::DATA)
@@ -94,74 +94,74 @@ TestCase server_datastream(std::string device_id) {
 
          actions::Sleep(1s),
 
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::Integer::ENDPOINT_FULL,
              DatastreamIndividual(Data((int32_t)43))
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::LongInteger::ENDPOINT_FULL,
              DatastreamIndividual(constants::data_sets::LongInteger::DATA)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::Double::ENDPOINT_FULL,
              DatastreamIndividual(Data(4245.23))
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::Boolean::ENDPOINT_FULL,
              DatastreamIndividual(Data(false))
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::String::ENDPOINT_FULL,
              DatastreamIndividual(Data(std::string("Hello world")))
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::Datetime::ENDPOINT_FULL,
              DatastreamIndividual(constants::data_sets::Datetime::DATA)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::BinaryBlob::ENDPOINT_FULL,
              DatastreamIndividual(constants::data_sets::BinaryBlob::DATA)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::IntegerArray::ENDPOINT_FULL,
              DatastreamIndividual(Data(std::vector<int32_t>{32, 43, 0, 3332}))
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::LongIntegerArray::ENDPOINT_FULL,
              DatastreamIndividual(Data(std::vector<int64_t>{17179869184, 0, 6486}))
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::DoubleArray::ENDPOINT_FULL,
              DatastreamIndividual(Data(std::vector<double>{0.0, 23.2}))
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::BooleanArray::ENDPOINT_FULL,
              DatastreamIndividual(Data(std::vector<bool>{false, true, true}))
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::StringArray::ENDPOINT_FULL,
              DatastreamIndividual(
                  Data(std::vector<std::string>{"Hello ", "world ", "from ", "C++"})
              )
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::DatetimeArray::ENDPOINT_FULL,
              DatastreamIndividual(constants::data_sets::DatetimeArray::DATA)
          )),
-         actions::ReadReceivedDeviceData(AstarteMessage(
+         actions::ReadReceivedDeviceData(Message(
              constants::interfaces::ServerDatastream::INTERFACE,
              constants::data_sets::BinaryBlobArray::ENDPOINT_FULL,
              DatastreamIndividual(constants::data_sets::BinaryBlobArray::DATA)

@@ -8,16 +8,16 @@
 #include <gtest/gtest.h>
 
 using astarte::device::AstarteDatastreamObject;
-using astarte::device::AstarteMessage;
 using astarte::device::AstartePropertyIndividual;
 using astarte::device::Data;
 using astarte::device::DatastreamIndividual;
+using astarte::device::Message;
 
 TEST(AstarteTestMessage, InstantiationDatastreamIndividual) {
   std::string interface("some.interface.Name");
   std::string endpoint("/some_endpoint");
   auto data = DatastreamIndividual(Data((int32_t)43));
-  auto msg = AstarteMessage(interface, endpoint, data);
+  auto msg = Message(interface, endpoint, data);
 
   EXPECT_EQ(msg.get_interface(), interface);
   EXPECT_EQ(msg.get_path(), endpoint);
@@ -35,7 +35,7 @@ TEST(AstarteTestMessage, InstantiationDatastreamObject) {
   std::string endpoint1("/some_endpoint");
   std::string endpoint2("/some_other_endpoint");
   AstarteDatastreamObject data = {{endpoint1, Data(43)}, {endpoint2, Data(43.5)}};
-  auto msg = AstarteMessage(interface, endpoint_common, data);
+  auto msg = Message(interface, endpoint_common, data);
 
   EXPECT_EQ(msg.get_interface(), interface);
   EXPECT_EQ(msg.get_path(), endpoint_common);
@@ -51,7 +51,7 @@ TEST(AstarteTestMessage, InstantiationPropertyIndividual) {
   std::string interface("some.interface.Name");
   std::string endpoint("/some_endpoint");
   auto data = AstartePropertyIndividual(Data((int32_t)43));
-  auto msg = AstarteMessage(interface, endpoint, data);
+  auto msg = Message(interface, endpoint, data);
 
   EXPECT_EQ(msg.get_interface(), interface);
   EXPECT_EQ(msg.get_path(), endpoint);

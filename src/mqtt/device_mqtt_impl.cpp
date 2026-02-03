@@ -258,7 +258,7 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::unset_property(std::string_view /
 }
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::poll_incoming(
-    const std::chrono::milliseconds& /* timeout */) -> std::optional<AstarteMessage> {
+    const std::chrono::milliseconds& /* timeout */) -> std::optional<Message> {
   // TODO(rgallor): change which correct implementation. the actual one is used only to make e2e
   // tests work.
   return std::nullopt;

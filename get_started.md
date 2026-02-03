@@ -202,7 +202,7 @@ using astarte::device::Data;
 using astarte::device::DatastreamIndividual;
 using astarte::device::AstarteDatastreamObject;
 using astarte::device::AstarteDeviceGrpc;
-using astarte::device::AstarteMessage;
+using astarte::device::Message;
 using astarte::device::AstartePropertyIndividual;
 
 using namespace std::chrono_literals;
@@ -211,7 +211,7 @@ void reception_handler(std::stop_token token, std::shared_ptr<AstarteDeviceGrpc>
   while (!token.stop_requested()) {
     auto incoming = device->poll_incoming(std::chrono::milliseconds(100));
     if (incoming.has_value()) {
-      AstarteMessage msg(incoming.value());
+      Message msg(incoming.value());
       std::cout << "Received message." << std::endl;
       std::cout << "Interface name: {}" << msg.get_interface() << std::endl;
       std::cout << "Path: {}" << msg.get_path() << std::endl;

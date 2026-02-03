@@ -135,11 +135,11 @@ class Device {
   /**
    * @brief Poll for incoming messages from Astarte.
    * @param timeout The maximum time to block waiting for a message.
-   * @return An std::optional containing the received AstarteMessage if one was available,
+   * @return An std::optional containing the received Message if one was available,
    * or std::nullopt if the timeout was reached.
    */
   virtual auto poll_incoming(const std::chrono::milliseconds& timeout)
-      -> std::optional<AstarteMessage> = 0;
+      -> std::optional<Message> = 0;
   /**
    * @brief Get the current value for all properties matching the input filter.
    * @param ownership Optional ownership filter.
