@@ -81,7 +81,7 @@ class TestMqttDeviceFactory : public TestDeviceFactory {
         Config::with_credential_secret(config_.realm, config_.device_id, config_.credential_secret,
                                        config_.pairing_url, config_.store_dir);
 
-    auto result = astarte::device::DeviceMqtt::create(std::move(mqtt_config));
+    auto result = DeviceMqtt::create(std::move(mqtt_config));
     if (!result) {
       throw EndToEndAstarteDeviceException(
           astarte_fmt::format("Failed to create MQTT device: {}", result.error()));

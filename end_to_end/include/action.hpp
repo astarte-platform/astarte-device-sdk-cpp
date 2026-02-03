@@ -30,14 +30,14 @@
 
 using json = nlohmann::json;
 
-using astarte::device::AstarteOwnership;
 using astarte::device::Data;
 using astarte::device::DatastreamIndividual;
 using astarte::device::DatastreamObject;
 using astarte::device::Device;
 using astarte::device::Error;
 using astarte::device::Message;
-using astarte::device::Ownershipndividual;
+using astarte::device::Ownership;
+using astarte::device::PropertyIndividual;
 using astarte::device::StoredProperty;
 
 // -----------------------------------------------------------------------------

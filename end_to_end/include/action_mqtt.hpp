@@ -10,7 +10,7 @@
 namespace actions {
 
 using astarte::device::Error;
-using astarte::device::PairingApi;
+using astarte::device::mqtt::PairingApi;
 
 constexpr size_t CREDENTIAL_SECRET_LEN = 44;
 
