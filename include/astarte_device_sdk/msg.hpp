@@ -82,7 +82,7 @@ class Message {
    * @return The raw data contained in this class instance.
    */
   [[nodiscard]] auto get_raw_data() const
-      -> const std::variant<DatastreamIndividual, DatastreamObject, AstartePropertyIndividual>&;
+      -> const std::variant<DatastreamIndividual, DatastreamObject, PropertyIndividual>&;
   /**
    * @brief Overloader for the comparison operator ==.
    * @param other The object to compare to.
@@ -99,7 +99,7 @@ class Message {
  private:
   std::string interface_;
   std::string path_;
-  std::variant<DatastreamIndividual, DatastreamObject, AstartePropertyIndividual> data_;
+  std::variant<DatastreamIndividual, DatastreamObject, PropertyIndividual> data_;
 };
 
 }  // namespace astarte::device
@@ -134,7 +134,7 @@ struct astarte_fmt::formatter<astarte::device::Message> {
 
     // check if the payload is an unset property, which is the only "empty" case
     bool is_unset_prop = false;
-    const auto* prop = std::get_if<astarte::device::AstartePropertyIndividual>(&msg.get_raw_data());
+    const auto* prop = std::get_if<astarte::device::PropertyIndividual>(&msg.get_raw_data());
     if (prop && !prop->get_value().has_value()) {
       is_unset_prop = true;
     }

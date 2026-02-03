@@ -23,72 +23,72 @@ std::vector<Action> set_all_properties() {
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::Integer::ENDPOINT_FULL,
-            AstartePropertyIndividual(constants::data_sets::Integer::DATA)
+            PropertyIndividual(constants::data_sets::Integer::DATA)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::LongInteger::ENDPOINT_FULL,
-            AstartePropertyIndividual(constants::data_sets::LongInteger::DATA)
+            PropertyIndividual(constants::data_sets::LongInteger::DATA)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::Double::ENDPOINT_FULL,
-            AstartePropertyIndividual(constants::data_sets::Double::DATA)
+            PropertyIndividual(constants::data_sets::Double::DATA)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::Boolean::ENDPOINT_FULL,
-            AstartePropertyIndividual(constants::data_sets::Boolean::DATA)
+            PropertyIndividual(constants::data_sets::Boolean::DATA)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::String::ENDPOINT_FULL,
-            AstartePropertyIndividual(constants::data_sets::String::DATA)
+            PropertyIndividual(constants::data_sets::String::DATA)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::Datetime::ENDPOINT_FULL,
-            AstartePropertyIndividual(constants::data_sets::Datetime::DATA)
+            PropertyIndividual(constants::data_sets::Datetime::DATA)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::BinaryBlob::ENDPOINT_FULL,
-            AstartePropertyIndividual(constants::data_sets::BinaryBlob::DATA)
+            PropertyIndividual(constants::data_sets::BinaryBlob::DATA)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::IntegerArray::ENDPOINT_FULL,
-            AstartePropertyIndividual(constants::data_sets::IntegerArray::DATA)
+            PropertyIndividual(constants::data_sets::IntegerArray::DATA)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::LongIntegerArray::ENDPOINT_FULL,
-            AstartePropertyIndividual(constants::data_sets::LongIntegerArray::DATA)
+            PropertyIndividual(constants::data_sets::LongIntegerArray::DATA)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::DoubleArray::ENDPOINT_FULL,
-            AstartePropertyIndividual(constants::data_sets::DoubleArray::DATA)
+            PropertyIndividual(constants::data_sets::DoubleArray::DATA)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::BooleanArray::ENDPOINT_FULL,
-            AstartePropertyIndividual(constants::data_sets::BooleanArray::DATA)
+            PropertyIndividual(constants::data_sets::BooleanArray::DATA)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::StringArray::ENDPOINT_FULL,
-            AstartePropertyIndividual(constants::data_sets::StringArray::DATA)
+            PropertyIndividual(constants::data_sets::StringArray::DATA)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::DatetimeArray::ENDPOINT_FULL,
-            AstartePropertyIndividual(constants::data_sets::DatetimeArray::DATA)
+            PropertyIndividual(constants::data_sets::DatetimeArray::DATA)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::BinaryBlobArray::ENDPOINT_FULL,
-            AstartePropertyIndividual(constants::data_sets::BinaryBlobArray::DATA)
+            PropertyIndividual(constants::data_sets::BinaryBlobArray::DATA)
         )),
     };
 }
@@ -98,72 +98,72 @@ std::vector<Action> check_all_properties_have_value() {
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::Integer::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(constants::data_sets::Integer::DATA)
+            PropertyIndividual(constants::data_sets::Integer::DATA)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::LongInteger::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(constants::data_sets::LongInteger::DATA)
+            PropertyIndividual(constants::data_sets::LongInteger::DATA)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::Double::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(constants::data_sets::Double::DATA)
+            PropertyIndividual(constants::data_sets::Double::DATA)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::Boolean::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(constants::data_sets::Boolean::DATA)
+            PropertyIndividual(constants::data_sets::Boolean::DATA)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::String::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(constants::data_sets::String::DATA)
+            PropertyIndividual(constants::data_sets::String::DATA)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::Datetime::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(constants::data_sets::Datetime::DATA)
+            PropertyIndividual(constants::data_sets::Datetime::DATA)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::BinaryBlob::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(constants::data_sets::BinaryBlob::DATA)
+            PropertyIndividual(constants::data_sets::BinaryBlob::DATA)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::IntegerArray::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(constants::data_sets::IntegerArray::DATA)
+            PropertyIndividual(constants::data_sets::IntegerArray::DATA)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::LongIntegerArray::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(constants::data_sets::LongIntegerArray::DATA)
+            PropertyIndividual(constants::data_sets::LongIntegerArray::DATA)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::DoubleArray::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(constants::data_sets::DoubleArray::DATA)
+            PropertyIndividual(constants::data_sets::DoubleArray::DATA)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::BooleanArray::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(constants::data_sets::BooleanArray::DATA)
+            PropertyIndividual(constants::data_sets::BooleanArray::DATA)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::StringArray::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(constants::data_sets::StringArray::DATA)
+            PropertyIndividual(constants::data_sets::StringArray::DATA)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::DatetimeArray::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(constants::data_sets::DatetimeArray::DATA)
+            PropertyIndividual(constants::data_sets::DatetimeArray::DATA)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::BinaryBlobArray::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(constants::data_sets::BinaryBlobArray::DATA)
+            PropertyIndividual(constants::data_sets::BinaryBlobArray::DATA)
         )),
     };
 }
@@ -173,72 +173,72 @@ std::vector<Action> unset_all_properties() {
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::Integer::ENDPOINT_FULL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::LongInteger::ENDPOINT_FULL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::Double::ENDPOINT_FULL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::Boolean::ENDPOINT_FULL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::String::ENDPOINT_FULL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::Datetime::ENDPOINT_FULL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::BinaryBlob::ENDPOINT_FULL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::IntegerArray::ENDPOINT_FULL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::LongIntegerArray::ENDPOINT_FULL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::DoubleArray::ENDPOINT_FULL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::BooleanArray::ENDPOINT_FULL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::StringArray::ENDPOINT_FULL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::DatetimeArray::ENDPOINT_FULL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::TransmitDeviceData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::BinaryBlobArray::ENDPOINT_FULL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
     };
 }
@@ -248,72 +248,72 @@ std::vector<Action> check_all_properties_no_value() {
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::Integer::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::LongInteger::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::Double::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::Boolean::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::String::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::Datetime::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::BinaryBlob::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::IntegerArray::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::LongIntegerArray::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::DoubleArray::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::BooleanArray::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::StringArray::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::DatetimeArray::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
         actions::FetchRESTData(Message(
             constants::interfaces::DeviceProperty::INTERFACE,
             constants::data_sets::BinaryBlobArray::ENDPOINT_PARTIAL,
-            AstartePropertyIndividual(std::nullopt)
+            PropertyIndividual(std::nullopt)
         )),
     };
 }
@@ -323,27 +323,27 @@ std::vector<Action> get_properties() {
         actions::GetDeviceProperty(
             std::string(constants::interfaces::DeviceProperty::INTERFACE),
             std::string(constants::data_sets::Integer::ENDPOINT_FULL),
-            AstartePropertyIndividual(constants::data_sets::Integer::DATA)
+            PropertyIndividual(constants::data_sets::Integer::DATA)
         ),
         actions::GetDeviceProperty(
             std::string(constants::interfaces::DeviceProperty::INTERFACE),
             std::string(constants::data_sets::Double::ENDPOINT_FULL),
-            AstartePropertyIndividual(constants::data_sets::Double::DATA)
+            PropertyIndividual(constants::data_sets::Double::DATA)
         ),
         actions::GetDeviceProperty(
             std::string(constants::interfaces::DeviceProperty::INTERFACE),
             std::string(constants::data_sets::Boolean::ENDPOINT_FULL),
-            AstartePropertyIndividual(constants::data_sets::Boolean::DATA)
+            PropertyIndividual(constants::data_sets::Boolean::DATA)
         ),
         actions::GetDeviceProperty(
             std::string(constants::interfaces::DeviceProperty::INTERFACE),
             std::string(constants::data_sets::IntegerArray::ENDPOINT_FULL),
-            AstartePropertyIndividual(constants::data_sets::IntegerArray::DATA)
+            PropertyIndividual(constants::data_sets::IntegerArray::DATA)
         ),
         actions::GetDeviceProperty(
             std::string(constants::interfaces::DeviceProperty::INTERFACE),
             std::string(constants::data_sets::DoubleArray::ENDPOINT_FULL),
-            AstartePropertyIndividual(constants::data_sets::DoubleArray::DATA)
+            PropertyIndividual(constants::data_sets::DoubleArray::DATA)
         ),
         actions::GetDeviceProperties(
             std::string(constants::interfaces::DeviceProperty::INTERFACE),

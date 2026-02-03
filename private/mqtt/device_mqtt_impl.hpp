@@ -148,7 +148,7 @@ struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
    * @return The stored property, as returned by Astarte.
    */
   auto get_property(std::string_view interface_name, std::string_view path)
-      -> astarte_tl::expected<AstartePropertyIndividual, Error>;
+      -> astarte_tl::expected<PropertyIndividual, Error>;
 
  private:
   /**

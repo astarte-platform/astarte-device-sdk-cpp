@@ -203,7 +203,7 @@ using astarte::device::DatastreamIndividual;
 using astarte::device::DatastreamObject;
 using astarte::device::AstarteDeviceGrpc;
 using astarte::device::Message;
-using astarte::device::AstartePropertyIndividual;
+using astarte::device::PropertyIndividual;
 
 using namespace std::chrono_literals;
 
@@ -224,7 +224,7 @@ void reception_handler(std::stop_token token, std::shared_ptr<AstarteDeviceGrpc>
           std::cout << "Value: {}" << data << std::endl;
         }
       } else {
-        const auto &data(msg.into<AstartePropertyIndividual>());
+        const auto &data(msg.into<PropertyIndividual>());
           std::cout << "Value: {}" << data << std::endl;
       }
     }

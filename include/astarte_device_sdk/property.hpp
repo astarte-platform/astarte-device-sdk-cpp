@@ -19,13 +19,13 @@
 namespace astarte::device {
 
 /** @brief Representing the Astarte individual datastream data. */
-class AstartePropertyIndividual {
+class PropertyIndividual {
  public:
   /**
    * @brief Constructor for the DatastreamIndividual class.
    * @param data The wrapped Astarte data type.
    */
-  explicit AstartePropertyIndividual(const std::optional<Data>& data);
+  explicit PropertyIndividual(const std::optional<Data>& data);
   /**
    * @brief Get the value contained within the object.
    * @return A constant reference to the data, if any.
@@ -36,13 +36,13 @@ class AstartePropertyIndividual {
    * @param other The object to compare to.
    * @return True when equal, false otherwise.
    */
-  [[nodiscard]] auto operator==(const AstartePropertyIndividual& other) const -> bool;
+  [[nodiscard]] auto operator==(const PropertyIndividual& other) const -> bool;
   /**
    * @brief Overloader for the comparison operator !=.
    * @param other The object to compare to.
    * @return True when different, false otherwise.
    */
-  [[nodiscard]] auto operator!=(const AstartePropertyIndividual& other) const -> bool;
+  [[nodiscard]] auto operator!=(const PropertyIndividual& other) const -> bool;
 
  private:
   std::optional<Data> data_;
@@ -52,10 +52,10 @@ class AstartePropertyIndividual {
 
 /**
  * @brief astarte_fmt::formatter specialization for
- * astarte::device::AstartePropertyIndividual.
+ * astarte::device::PropertyIndividual.
  */
 template <>
-struct astarte_fmt::formatter<astarte::device::AstartePropertyIndividual> {
+struct astarte_fmt::formatter<astarte::device::PropertyIndividual> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -67,13 +67,13 @@ struct astarte_fmt::formatter<astarte::device::AstartePropertyIndividual> {
   }
 
   /**
-   * @brief Format the AstartePropertyIndividual object.
-   * @param data The AstartePropertyIndividual to format.
+   * @brief Format the PropertyIndividual object.
+   * @param data The PropertyIndividual to format.
    * @param ctx The format context.
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const astarte::device::AstartePropertyIndividual& data, FormatContext& ctx) const {
+  auto format(const astarte::device::PropertyIndividual& data, FormatContext& ctx) const {
     const auto& opt_data = data.get_value();
     if (opt_data.has_value()) {
       return astarte_fmt::format_to(ctx.out(), "{}", opt_data.value());
@@ -84,12 +84,12 @@ struct astarte_fmt::formatter<astarte::device::AstartePropertyIndividual> {
 };
 
 /**
- * @brief Stream insertion operator for AstartePropertyIndividual.
+ * @brief Stream insertion operator for PropertyIndividual.
  * @param out The output stream.
- * @param data The AstartePropertyIndividual object to output.
+ * @param data The PropertyIndividual object to output.
  * @return Reference to the output stream.
  */
-inline auto operator<<(std::ostream& out, const astarte::device::AstartePropertyIndividual& data)
+inline auto operator<<(std::ostream& out, const astarte::device::PropertyIndividual& data)
     -> std::ostream& {
   out << astarte_fmt::format("{}", data);
   return out;

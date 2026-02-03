@@ -135,7 +135,7 @@ inline void check_datastream_aggregate(const json& response_json, const Message&
 
 // Logic for validating Property responses
 inline void check_individual_property(const json& response_json, const Message& msg,
-                                      const AstartePropertyIndividual& expected_data) {
+                                      const PropertyIndividual& expected_data) {
   if (!response_json.contains(msg.get_path())) {
     spdlog::error("Missing entry '{}' in REST data.", msg.get_path());
     spdlog::info("Fetched data: {}", response_json.dump());
@@ -285,7 +285,7 @@ inline Action TransmitDeviceData(
         res = ctx.device->send_object(msg.get_interface(), msg.get_path(), data, ts_ptr);
       }
     } else {
-      const auto& data(msg.into<AstartePropertyIndividual>());
+      const auto& data(msg.into<PropertyIndividual>());
       if (data.get_value().has_value()) {
         res =
             ctx.device->set_property(msg.get_interface(), msg.get_path(), data.get_value().value());
@@ -323,7 +323,7 @@ inline Action ReadReceivedDeviceData(Message expected_message) {
 }
 
 inline Action GetDeviceProperty(std::string interface_name, std::string path,
-                                AstartePropertyIndividual expected) {
+                                PropertyIndividual expected) {
   return [iface = std::move(interface_name), pth = std::move(path),
           expected_prop = std::move(expected)](const TestCaseContext& ctx) {
     spdlog::info("Getting property from device...");
@@ -443,7 +443,7 @@ inline Action TransmitRESTData(Message message) {
         throw EndToEndHTTPException("Transmission of data through REST API failed.");
       }
     } else {
-      const auto data(msg.into<AstartePropertyIndividual>());
+      const auto data(msg.into<PropertyIndividual>());
       if (data.get_value().has_value()) {
         std::string payload = make_payload(data);
         auto res = cpr::Post(cpr::Url{url}, cpr::Body{payload},
@@ -488,7 +488,7 @@ inline Action FetchRESTData(
         actions_helpers::check_datastream_aggregate(response_json, msg);
       }
     } else {
-      const auto expected_data(msg.into<AstartePropertyIndividual>());
+      const auto expected_data(msg.into<PropertyIndividual>());
       if (expected_data.get_value().has_value()) {
         actions_helpers::check_individual_property(response_json, msg, expected_data);
       } else {

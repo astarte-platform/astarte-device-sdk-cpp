@@ -15,7 +15,6 @@
 #include "astarte_device_sdk/msg.hpp"
 
 using astarte::device::AstarteDeviceGrpc;
-using astarte::device::AstartePropertyIndividual;
 using astarte::device::Data;
 using astarte::device::DatastreamIndividual;
 using astarte::device::DatastreamObject;
@@ -23,6 +22,7 @@ using astarte::device::Device;
 using astarte::device::FileOpenError;
 using astarte::device::InvalidInputError;
 using astarte::device::Message;
+using astarte::device::PropertyIndividual;
 
 using namespace std::chrono_literals;
 
@@ -46,7 +46,7 @@ void reception_handler(std::stop_token token, std::shared_ptr<Device> device) {
         }
       } else {
         spdlog::info("Type: individual property");
-        const auto& data(msg.into<AstartePropertyIndividual>());
+        const auto& data(msg.into<PropertyIndividual>());
         spdlog::info("Value: {}", data);
       }
     }

@@ -101,7 +101,7 @@ auto AstarteDeviceGrpc::get_properties(std::string_view interface_name)
 }
 
 auto AstarteDeviceGrpc::get_property(std::string_view interface_name, std::string_view path)
-    -> astarte_tl::expected<AstartePropertyIndividual, Error> {
+    -> astarte_tl::expected<PropertyIndividual, Error> {
   return astarte_device_impl_->get_property(interface_name, path);
 }
 

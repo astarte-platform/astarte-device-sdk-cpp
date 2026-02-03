@@ -155,7 +155,7 @@ struct AstarteDeviceGrpc::AstarteDeviceGrpcImpl {
    * @return The stored property, as returned by the message hub.
    */
   auto get_property(std::string_view interface_name, std::string_view path)
-      -> astarte_tl::expected<AstartePropertyIndividual, Error>;
+      -> astarte_tl::expected<PropertyIndividual, Error>;
 
  private:
   // Helper struct to hold the results of the Attach RPC call

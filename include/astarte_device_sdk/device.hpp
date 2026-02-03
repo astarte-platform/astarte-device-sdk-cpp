@@ -161,7 +161,7 @@ class Device {
    * @return The property value.
    */
   virtual auto get_property(std::string_view interface_name, std::string_view path)
-      -> astarte_tl::expected<AstartePropertyIndividual, Error> = 0;
+      -> astarte_tl::expected<PropertyIndividual, Error> = 0;
 
  protected:
   /**

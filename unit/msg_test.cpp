@@ -7,11 +7,11 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-using astarte::device::AstartePropertyIndividual;
 using astarte::device::Data;
 using astarte::device::DatastreamIndividual;
 using astarte::device::DatastreamObject;
 using astarte::device::Message;
+using astarte::device::PropertyIndividual;
 
 TEST(AstarteTestMessage, InstantiationDatastreamIndividual) {
   std::string interface("some.interface.Name");
@@ -26,7 +26,7 @@ TEST(AstarteTestMessage, InstantiationDatastreamIndividual) {
   EXPECT_EQ(msg.into<DatastreamIndividual>(), data);
   EXPECT_EQ(msg.try_into<DatastreamIndividual>(), std::optional<DatastreamIndividual>{data});
   EXPECT_EQ(msg.try_into<DatastreamObject>(), std::nullopt);
-  EXPECT_EQ(msg.try_into<AstartePropertyIndividual>(), std::nullopt);
+  EXPECT_EQ(msg.try_into<PropertyIndividual>(), std::nullopt);
 }
 
 TEST(AstarteTestMessage, InstantiationDatastreamObject) {
@@ -44,22 +44,21 @@ TEST(AstarteTestMessage, InstantiationDatastreamObject) {
   EXPECT_EQ(msg.into<DatastreamObject>(), data);
   EXPECT_EQ(msg.try_into<DatastreamIndividual>(), std::nullopt);
   EXPECT_EQ(msg.try_into<DatastreamObject>(), std::optional<DatastreamObject>{data});
-  EXPECT_EQ(msg.try_into<AstartePropertyIndividual>(), std::nullopt);
+  EXPECT_EQ(msg.try_into<PropertyIndividual>(), std::nullopt);
 }
 
 TEST(AstarteTestMessage, InstantiationPropertyIndividual) {
   std::string interface("some.interface.Name");
   std::string endpoint("/some_endpoint");
-  auto data = AstartePropertyIndividual(Data((int32_t)43));
+  auto data = PropertyIndividual(Data((int32_t)43));
   auto msg = Message(interface, endpoint, data);
 
   EXPECT_EQ(msg.get_interface(), interface);
   EXPECT_EQ(msg.get_path(), endpoint);
   EXPECT_FALSE(msg.is_datastream());
   EXPECT_TRUE(msg.is_individual());
-  EXPECT_EQ(msg.into<AstartePropertyIndividual>(), data);
+  EXPECT_EQ(msg.into<PropertyIndividual>(), data);
   EXPECT_EQ(msg.try_into<DatastreamIndividual>(), std::nullopt);
   EXPECT_EQ(msg.try_into<DatastreamObject>(), std::nullopt);
-  EXPECT_EQ(msg.try_into<AstartePropertyIndividual>(),
-            std::optional<AstartePropertyIndividual>{data});
+  EXPECT_EQ(msg.try_into<PropertyIndividual>(), std::optional<PropertyIndividual>{data});
 }

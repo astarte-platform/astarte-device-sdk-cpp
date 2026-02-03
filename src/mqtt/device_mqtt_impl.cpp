@@ -277,7 +277,7 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::get_properties(std::string_view /
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::get_property(std::string_view /* interface_name */,
                                                             std::string_view /* path */)
-    -> astarte_tl::expected<AstartePropertyIndividual, Error> {
+    -> astarte_tl::expected<PropertyIndividual, Error> {
   TODO("not yet implemented");
 }
 

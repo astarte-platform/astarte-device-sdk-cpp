@@ -28,7 +28,7 @@ TestCase device_add_remove_interface(std::string device_id) {
          actions::TransmitDeviceData(Message(
              constants::interfaces::DeviceProperty::INTERFACE,
              "/integer_endpoint",
-             AstartePropertyIndividual(Data(12))
+             PropertyIndividual(Data(12))
          )),
          actions::Sleep(1s),
          actions::RemoveInterface(std::string(constants::interfaces::DeviceDatastream::INTERFACE)),
@@ -46,7 +46,7 @@ TestCase device_add_remove_interface(std::string device_id) {
          actions::TransmitDeviceData(Message(
              constants::interfaces::DeviceProperty::INTERFACE,
              "/integer_endpoint",
-             AstartePropertyIndividual(Data(12))
+             PropertyIndividual(Data(12))
          )),
          actions::Sleep(1s),
          actions::AddInterfaceFile(std::string(constants::interfaces::DeviceDatastream::FILE)),
@@ -62,7 +62,7 @@ TestCase device_add_remove_interface(std::string device_id) {
          actions::TransmitDeviceData(Message(
              constants::interfaces::DeviceProperty::INTERFACE,
              "/integer_endpoint",
-             AstartePropertyIndividual(Data(12))
+             PropertyIndividual(Data(12))
          )),
 
          actions::Sleep(1s),

@@ -24,11 +24,11 @@ auto Message::is_datastream() const -> bool {
 
 auto Message::is_individual() const -> bool {
   return std::holds_alternative<DatastreamIndividual>(data_) ||
-         std::holds_alternative<AstartePropertyIndividual>(data_);
+         std::holds_alternative<PropertyIndividual>(data_);
 }
 
 auto Message::get_raw_data() const
-    -> const std::variant<DatastreamIndividual, DatastreamObject, AstartePropertyIndividual>& {
+    -> const std::variant<DatastreamIndividual, DatastreamObject, PropertyIndividual>& {
   return this->data_;
 }
 

@@ -155,7 +155,7 @@ class AstarteDeviceGrpc : public Device {
    * @return The stored property, as returned by the message hub, or an error upon failure.
    */
   auto get_property(std::string_view interface_name, std::string_view path)
-      -> astarte_tl::expected<AstartePropertyIndividual, Error> override;
+      -> astarte_tl::expected<PropertyIndividual, Error> override;
 
  private:
   struct AstarteDeviceGrpcImpl;

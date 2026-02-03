@@ -406,7 +406,7 @@ auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::get_properties(std::string_view i
 
 auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::get_property(std::string_view interface_name,
                                                             std::string_view path)
-    -> astarte_tl::expected<AstartePropertyIndividual, Error> {
+    -> astarte_tl::expected<PropertyIndividual, Error> {
   spdlog::debug("Getting stored property for interface '{}' and path '{}'", interface_name, path);
   if (!connected_.load()) {
     const std::string_view msg("Device disconnected, operation aborted.");
