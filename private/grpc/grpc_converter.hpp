@@ -69,7 +69,7 @@ class GrpcConverterFrom {
  public:
   auto operator()(const gRPCAstarteData& value) -> astarte_tl::expected<Data, Error>;
   auto operator()(const gRPCAstarteDatastreamIndividual& value)
-      -> astarte_tl::expected<AstarteDatastreamIndividual, Error>;
+      -> astarte_tl::expected<DatastreamIndividual, Error>;
   auto operator()(const gRPCAstarteDatastreamObject& value)
       -> astarte_tl::expected<AstarteDatastreamObject, Error>;
   auto operator()(const gRPCAstartePropertyIndividual& value)

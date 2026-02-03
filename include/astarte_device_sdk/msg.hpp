@@ -81,9 +81,8 @@ class AstarteMessage {
    * @brief Return the raw data contained in this class instance.
    * @return The raw data contained in this class instance.
    */
-  [[nodiscard]] auto get_raw_data() const
-      -> const std::variant<AstarteDatastreamIndividual, AstarteDatastreamObject,
-                            AstartePropertyIndividual>&;
+  [[nodiscard]] auto get_raw_data() const -> const
+      std::variant<DatastreamIndividual, AstarteDatastreamObject, AstartePropertyIndividual>&;
   /**
    * @brief Overloader for the comparison operator ==.
    * @param other The object to compare to.
@@ -100,8 +99,7 @@ class AstarteMessage {
  private:
   std::string interface_;
   std::string path_;
-  std::variant<AstarteDatastreamIndividual, AstarteDatastreamObject, AstartePropertyIndividual>
-      data_;
+  std::variant<DatastreamIndividual, AstarteDatastreamObject, AstartePropertyIndividual> data_;
 };
 
 }  // namespace astarte::device

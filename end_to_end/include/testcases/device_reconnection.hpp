@@ -26,7 +26,7 @@ TestCase device_reconnection(std::string device_id) {
                  AstarteMessage(
                      constants::interfaces::DeviceDatastream::INTERFACE,
                      constants::data_sets::Integer::ENDPOINT_FULL,
-                     AstarteDatastreamIndividual(constants::data_sets::Integer::DATA)
+                     DatastreamIndividual(constants::data_sets::Integer::DATA)
                  ),
                  constants::time::TIMESTAMP
              )
@@ -38,7 +38,7 @@ TestCase device_reconnection(std::string device_id) {
              AstarteMessage(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::Integer::ENDPOINT_FULL,
-                 AstarteDatastreamIndividual(constants::data_sets::Integer::DATA)
+                 DatastreamIndividual(constants::data_sets::Integer::DATA)
              ),
              constants::time::TIMESTAMP
          ),
@@ -47,7 +47,7 @@ TestCase device_reconnection(std::string device_id) {
              AstarteMessage(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::Integer::ENDPOINT_PARTIAL,
-                 AstarteDatastreamIndividual(constants::data_sets::Integer::DATA)
+                 DatastreamIndividual(constants::data_sets::Integer::DATA)
              ),
              constants::time::TIMESTAMP
          ),

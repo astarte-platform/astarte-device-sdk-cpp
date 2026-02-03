@@ -30,13 +30,13 @@
 
 using json = nlohmann::json;
 
-using astarte::device::AstarteDatastreamIndividual;
 using astarte::device::AstarteDatastreamObject;
 using astarte::device::AstarteMessage;
 using astarte::device::AstarteOwnership;
 using astarte::device::AstartePropertyIndividual;
 using astarte::device::AstarteStoredProperty;
 using astarte::device::Data;
+using astarte::device::DatastreamIndividual;
 using astarte::device::Device;
 using astarte::device::Error;
 
@@ -79,7 +79,7 @@ inline void check_datastream_individual(const json& response_json, const Astarte
     throw EndToEndHTTPException("Fetching of data through REST API failed.");
   }
 
-  const auto& expected_data(msg.into<AstarteDatastreamIndividual>());
+  const auto& expected_data(msg.into<DatastreamIndividual>());
   json expected_data_json = json::parse(astarte_fmt::format("{}", expected_data));
   json fetched_data = response_json[msg.get_path()]["value"];
 
@@ -277,7 +277,7 @@ inline Action TransmitDeviceData(
 
     if (msg.is_datastream()) {
       if (msg.is_individual()) {
-        const auto& data(msg.into<AstarteDatastreamIndividual>());
+        const auto& data(msg.into<DatastreamIndividual>());
         res = ctx.device->send_individual(msg.get_interface(), msg.get_path(), data.get_value(),
                                           ts_ptr);
       } else {
@@ -431,7 +431,7 @@ inline Action TransmitRESTData(AstarteMessage message) {
     if (msg.is_datastream()) {
       std::string payload;
       if (msg.is_individual()) {
-        payload = make_payload(msg.into<AstarteDatastreamIndividual>());
+        payload = make_payload(msg.into<DatastreamIndividual>());
       } else {
         payload = make_payload(msg.into<AstarteDatastreamObject>());
       }

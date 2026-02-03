@@ -18,17 +18,17 @@ auto AstarteMessage::get_interface() const -> const std::string& { return interf
 auto AstarteMessage::get_path() const -> const std::string& { return path_; }
 
 auto AstarteMessage::is_datastream() const -> bool {
-  return std::holds_alternative<AstarteDatastreamIndividual>(data_) ||
+  return std::holds_alternative<DatastreamIndividual>(data_) ||
          std::holds_alternative<AstarteDatastreamObject>(data_);
 }
 
 auto AstarteMessage::is_individual() const -> bool {
-  return std::holds_alternative<AstarteDatastreamIndividual>(data_) ||
+  return std::holds_alternative<DatastreamIndividual>(data_) ||
          std::holds_alternative<AstartePropertyIndividual>(data_);
 }
 
 auto AstarteMessage::get_raw_data() const -> const
-    std::variant<AstarteDatastreamIndividual, AstarteDatastreamObject, AstartePropertyIndividual>& {
+    std::variant<DatastreamIndividual, AstarteDatastreamObject, AstartePropertyIndividual>& {
   return this->data_;
 }
 

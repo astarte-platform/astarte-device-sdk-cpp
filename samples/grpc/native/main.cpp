@@ -14,12 +14,12 @@
 #include "astarte_device_sdk/grpc/device_grpc.hpp"
 #include "astarte_device_sdk/msg.hpp"
 
-using astarte::device::AstarteDatastreamIndividual;
 using astarte::device::AstarteDatastreamObject;
 using astarte::device::AstarteDeviceGrpc;
 using astarte::device::AstarteMessage;
 using astarte::device::AstartePropertyIndividual;
 using astarte::device::Data;
+using astarte::device::DatastreamIndividual;
 using astarte::device::Device;
 using astarte::device::FileOpenError;
 using astarte::device::InvalidInputError;
@@ -37,7 +37,7 @@ void reception_handler(std::stop_token token, std::shared_ptr<Device> device) {
       if (msg.is_datastream()) {
         if (msg.is_individual()) {
           spdlog::info("Type: individual datastream");
-          const auto& data(msg.into<AstarteDatastreamIndividual>());
+          const auto& data(msg.into<DatastreamIndividual>());
           spdlog::info("Value: {}", data);
         } else {
           spdlog::info("Type: object datastream");

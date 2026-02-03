@@ -21,7 +21,7 @@ TestCase device_add_remove_interface(std::string device_id) {
              AstarteMessage(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  "/integer_endpoint",
-                 AstarteDatastreamIndividual(Data(12))
+                 DatastreamIndividual(Data(12))
              ),
              constants::time::TIMESTAMP
          ),
@@ -38,7 +38,7 @@ TestCase device_add_remove_interface(std::string device_id) {
                  AstarteMessage(
                      constants::interfaces::DeviceDatastream::INTERFACE,
                      "/integer_endpoint",
-                     AstarteDatastreamIndividual(Data(12))
+                     DatastreamIndividual(Data(12))
                  ),
                  constants::time::TIMESTAMP
              )
@@ -55,7 +55,7 @@ TestCase device_add_remove_interface(std::string device_id) {
              AstarteMessage(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  "/integer_endpoint",
-                 AstarteDatastreamIndividual(Data(12))
+                 DatastreamIndividual(Data(12))
              ),
              constants::time::TIMESTAMP
          ),

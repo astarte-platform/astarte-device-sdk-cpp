@@ -199,7 +199,7 @@ A couple of assumptions have been made:
 #include "astarte_device_sdk/formatter.hpp"
 
 using astarte::device::Data;
-using astarte::device::AstarteDatastreamIndividual;
+using astarte::device::DatastreamIndividual;
 using astarte::device::AstarteDatastreamObject;
 using astarte::device::AstarteDeviceGrpc;
 using astarte::device::AstarteMessage;
@@ -217,7 +217,7 @@ void reception_handler(std::stop_token token, std::shared_ptr<AstarteDeviceGrpc>
       std::cout << "Path: {}" << msg.get_path() << std::endl;
       if (msg.is_datastream()) {
         if (msg.is_individual()) {
-          const auto &data(msg.into<AstarteDatastreamIndividual>());
+          const auto &data(msg.into<DatastreamIndividual>());
           std::cout << "Value: {}" << data << std::endl;
         } else {
           const auto &data(msg.into<AstarteDatastreamObject>());

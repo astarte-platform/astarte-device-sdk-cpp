@@ -362,11 +362,10 @@ auto GrpcConverterFrom::operator()(const gRPCAstarteData& value)
 // NOLINTEND(readability-function-size)
 
 auto GrpcConverterFrom::operator()(const gRPCAstarteDatastreamIndividual& value)
-    -> astarte_tl::expected<AstarteDatastreamIndividual, Error> {
+    -> astarte_tl::expected<DatastreamIndividual, Error> {
   spdlog::trace("Converting Astarte datastream individual from gRPC, message: \n{}", value);
   const gRPCAstarteData& grpc_data(value.data());
-  return (*this)(grpc_data).transform(
-      [](const Data& data) { return AstarteDatastreamIndividual(data); });
+  return (*this)(grpc_data).transform([](const Data& data) { return DatastreamIndividual(data); });
 }
 
 auto GrpcConverterFrom::operator()(const gRPCAstarteDatastreamObject& value)
@@ -400,8 +399,7 @@ auto GrpcConverterFrom::operator()(const gRPCAstarteMessage& value)
   spdlog::trace("Converting Astarte message from gRPC, message: \n{}", value);
 
   auto make_message = [&](auto&& val) {
-    const std::variant<AstarteDatastreamIndividual, AstarteDatastreamObject,
-                       AstartePropertyIndividual>
+    const std::variant<DatastreamIndividual, AstarteDatastreamObject, AstartePropertyIndividual>
         parsed_data(std::forward<decltype(val)>(val));
     return AstarteMessage{value.interface_name(), value.path(), parsed_data};
   };

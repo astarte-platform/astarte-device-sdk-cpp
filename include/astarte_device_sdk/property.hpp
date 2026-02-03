@@ -22,7 +22,7 @@ namespace astarte::device {
 class AstartePropertyIndividual {
  public:
   /**
-   * @brief Constructor for the AstarteDatastreamIndividual class.
+   * @brief Constructor for the DatastreamIndividual class.
    * @param data The wrapped Astarte data type.
    */
   explicit AstartePropertyIndividual(const std::optional<Data>& data);
