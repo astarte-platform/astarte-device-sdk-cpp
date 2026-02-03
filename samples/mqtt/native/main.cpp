@@ -67,7 +67,7 @@ int main() {
 
     auto mqtt_cfg = [&] {
       if (in_db) {
-        return astarte::device::mqtt::MqttConfig::with_credential_secret(
+        return astarte::device::mqtt::Config::with_credential_secret(
             cfg.realm, cfg.device_id, *cred_opt,
             astarte_fmt::format("{}/pairing", cfg.astarte_base_url), cfg.store_dir);
       } else {
@@ -76,7 +76,7 @@ int main() {
         // first, store the cred secret in the db for future usage
         store_cred_secret(db, cfg.device_id, cfg.credential_secret.value());
 
-        return astarte::device::mqtt::MqttConfig::with_credential_secret(
+        return astarte::device::mqtt::Config::with_credential_secret(
             cfg.realm, cfg.device_id, cfg.credential_secret.value(),
             astarte_fmt::format("{}/pairing", cfg.astarte_base_url), cfg.store_dir);
       }

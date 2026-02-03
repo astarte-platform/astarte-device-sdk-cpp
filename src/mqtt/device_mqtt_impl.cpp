@@ -47,7 +47,7 @@ using namespace std::chrono_literals;
 
 using json = nlohmann::json;
 
-auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::create(mqtt::MqttConfig& cfg)
+auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::create(mqtt::Config& cfg)
     -> astarte_tl::expected<std::shared_ptr<AstarteDeviceMqttImpl>, Error> {
   auto conn = mqtt_connection::Connection::create(cfg);
   if (!conn) {
@@ -60,7 +60,7 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::create(mqtt::MqttConfig& cfg)
 }
 
 AstarteDeviceMqtt::AstarteDeviceMqttImpl::AstarteDeviceMqttImpl(
-    mqtt::MqttConfig cfg, mqtt_connection::Connection connection)
+    mqtt::Config cfg, mqtt_connection::Connection connection)
     : cfg_(std::move(cfg)), connection_(std::move(connection)) {}
 
 AstarteDeviceMqtt::AstarteDeviceMqttImpl::~AstarteDeviceMqttImpl() = default;

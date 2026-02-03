@@ -27,7 +27,7 @@ using astarte::device::Device;
 using astarte::device::grpc::DeviceGrpc;
 #else   // ASTARTE_TRANSPORT_GRPC
 using astarte::device::AstarteDeviceMqtt;
-using astarte::device::mqtt::MqttConfig;
+using astarte::device::mqtt::Config;
 #endif  // ASTARTE_TRANSPORT_GRPC
 
 class TestDeviceFactory {
@@ -77,9 +77,9 @@ class TestMqttDeviceFactory : public TestDeviceFactory {
   explicit TestMqttDeviceFactory(TestMqttDeviceConfig config) : config_(std::move(config)) {}
 
   std::shared_ptr<Device> create_device() const override {
-    auto mqtt_config = MqttConfig::with_credential_secret(config_.realm, config_.device_id,
-                                                          config_.credential_secret,
-                                                          config_.pairing_url, config_.store_dir);
+    auto mqtt_config =
+        Config::with_credential_secret(config_.realm, config_.device_id, config_.credential_secret,
+                                       config_.pairing_url, config_.store_dir);
 
     auto result = astarte::device::AstarteDeviceMqtt::create(std::move(mqtt_config));
     if (!result) {

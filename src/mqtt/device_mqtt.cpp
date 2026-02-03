@@ -25,8 +25,7 @@
 
 namespace astarte::device::mqtt {
 
-auto AstarteDeviceMqtt::create(mqtt::MqttConfig cfg)
-    -> astarte_tl::expected<AstarteDeviceMqtt, Error> {
+auto AstarteDeviceMqtt::create(mqtt::Config cfg) -> astarte_tl::expected<AstarteDeviceMqtt, Error> {
   auto impl_result = AstarteDeviceMqttImpl::create(cfg);
   if (!impl_result) {
     return astarte_tl::unexpected(impl_result.error());

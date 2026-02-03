@@ -13,13 +13,13 @@
 
 namespace astarte::device::mqtt {
 
-MqttConfig::~MqttConfig() = default;
-MqttConfig::MqttConfig(MqttConfig&&) noexcept = default;
-auto MqttConfig::operator=(MqttConfig&&) noexcept -> MqttConfig& = default;
+Config::~Config() = default;
+Config::Config(Config&&) noexcept = default;
+auto Config::operator=(Config&&) noexcept -> Config& = default;
 
-MqttConfig::MqttConfig(std::string_view realm, std::string_view device_id,
-                       std::unique_ptr<Credential> credential, std::string_view pairing_url,
-                       std::string_view store_dir)
+Config::Config(std::string_view realm, std::string_view device_id,
+               std::unique_ptr<Credential> credential, std::string_view pairing_url,
+               std::string_view store_dir)
     : realm_(realm),
       device_id_(device_id),
       credential_(std::move(credential)),
@@ -29,16 +29,16 @@ MqttConfig::MqttConfig(std::string_view realm, std::string_view device_id,
       conn_timeout_(DEFAULT_CONNECTION_TIMEOUT),
       disconn_timeout_(DEFAULT_DISCONNECTION_TIMEOUT) {}
 
-auto MqttConfig::with_credential_secret(std::string_view realm, std::string_view device_id,
-                                        std::string_view credential, std::string_view pairing_url,
-                                        std::string_view store_dir) -> MqttConfig {
+auto Config::with_credential_secret(std::string_view realm, std::string_view device_id,
+                                    std::string_view credential, std::string_view pairing_url,
+                                    std::string_view store_dir) -> Config {
   auto cred_ptr = std::make_unique<Credential>(Credential::secret(credential, store_dir));
   return {realm, device_id, std::move(cred_ptr), pairing_url, store_dir};
 }
 
-auto MqttConfig::cred_is_credential_secret() -> bool { return credential_->is_credential_secret(); }
+auto Config::cred_is_credential_secret() -> bool { return credential_->is_credential_secret(); }
 
-auto MqttConfig::credential_secret() -> std::optional<std::string> {
+auto Config::credential_secret() -> std::optional<std::string> {
   return credential_->is_credential_secret() ? std::optional(credential_->value()) : std::nullopt;
 }
 
