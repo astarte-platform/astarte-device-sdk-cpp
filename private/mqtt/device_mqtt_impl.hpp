@@ -156,10 +156,10 @@ struct DeviceMqtt::DeviceMqttImpl {
    * @param cfg set of MQTT configuration options used to connect a device to Astarte.
    * @param connection connection object.
    */
-  DeviceMqttImpl(mqtt::Config cfg, mqtt_connection::Connection connection);
+  DeviceMqttImpl(mqtt::Config cfg, connection::Connection connection);
 
   mqtt::Config cfg_;
-  mqtt_connection::Connection connection_;
+  connection::Connection connection_;
   std::shared_ptr<Introspection> introspection_ = std::make_shared<Introspection>();
 };
 

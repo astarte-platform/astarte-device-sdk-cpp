@@ -19,7 +19,7 @@
 #include "mqtt/introspection.hpp"
 #include "mqtt/thread_queue.h"
 
-namespace astarte::device::mqtt::mqtt_connection {
+namespace astarte::device::mqtt::connection {
 
 namespace paho_mqtt = ::mqtt;
 
@@ -122,6 +122,6 @@ class Callback : public virtual paho_mqtt::callback {
   std::shared_ptr<DisconnectionListener> disconnection_listener_;
 };
 
-}  // namespace astarte::device::mqtt::mqtt_connection
+}  // namespace astarte::device::mqtt::connection
 
 #endif  // ASTARTE_MQTT_CONNECTION_CALLBACKS_H

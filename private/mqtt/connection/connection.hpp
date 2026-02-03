@@ -25,7 +25,7 @@
 #include "mqtt/iasync_client.h"
 #include "mqtt/introspection.hpp"
 
-namespace astarte::device::mqtt::mqtt_connection {
+namespace astarte::device::mqtt::connection {
 
 namespace paho_mqtt = ::mqtt;
 
@@ -109,6 +109,6 @@ class Connection {
   std::shared_ptr<paho_mqtt::thread_queue<paho_mqtt::token_ptr>> session_setup_tokens_;
 };
 
-}  // namespace astarte::device::mqtt::mqtt_connection
+}  // namespace astarte::device::mqtt::connection
 
 #endif  // ASTARTE_MQTT_CONNECTION_H

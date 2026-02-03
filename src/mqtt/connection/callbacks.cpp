@@ -4,7 +4,7 @@
 
 #include "mqtt/connection/callbacks.hpp"
 
-namespace astarte::device::mqtt::mqtt_connection {
+namespace astarte::device::mqtt::connection {
 
 Callback::Callback(
     paho_mqtt::iasync_client* client, std::string realm, std::string device_id,
@@ -157,4 +157,4 @@ void Callback::delivery_complete(paho_mqtt::delivery_token_ptr token) {
   spdlog::debug("Delivery completed. Payload: {}, Topic: {}, Qos: {},", payload, topic, qos);
 }
 
-}  // namespace astarte::device::mqtt::mqtt_connection
+}  // namespace astarte::device::mqtt::connection

@@ -49,7 +49,7 @@ using json = nlohmann::json;
 
 auto DeviceMqtt::DeviceMqttImpl::create(mqtt::Config& cfg)
     -> astarte_tl::expected<std::shared_ptr<DeviceMqttImpl>, Error> {
-  auto conn = mqtt_connection::Connection::create(cfg);
+  auto conn = connection::Connection::create(cfg);
   if (!conn) {
     spdlog::error("failed to create a MQTT connection. Error: {}", conn.error());
     return astarte_tl::unexpected(conn.error());
@@ -59,7 +59,7 @@ auto DeviceMqtt::DeviceMqttImpl::create(mqtt::Config& cfg)
       new DeviceMqttImpl(std::move(cfg), std::move(conn.value())));
 }
 
-DeviceMqtt::DeviceMqttImpl::DeviceMqttImpl(mqtt::Config cfg, mqtt_connection::Connection connection)
+DeviceMqtt::DeviceMqttImpl::DeviceMqttImpl(mqtt::Config cfg, connection::Connection connection)
     : cfg_(std::move(cfg)), connection_(std::move(connection)) {}
 
 DeviceMqtt::DeviceMqttImpl::~DeviceMqttImpl() = default;

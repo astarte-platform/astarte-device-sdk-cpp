@@ -14,7 +14,7 @@
 #include "mqtt/thread_queue.h"
 #include "mqtt/token.h"
 
-namespace astarte::device::mqtt::mqtt_connection {
+namespace astarte::device::mqtt::connection {
 
 namespace paho_mqtt = ::mqtt;
 
@@ -88,6 +88,6 @@ class DisconnectionListener : public virtual paho_mqtt::iaction_listener {
   std::shared_ptr<std::atomic<bool>> connected_;
 };
 
-}  // namespace astarte::device::mqtt::mqtt_connection
+}  // namespace astarte::device::mqtt::connection
 
 #endif  // ASTARTE_MQTT_CONNECTION_H

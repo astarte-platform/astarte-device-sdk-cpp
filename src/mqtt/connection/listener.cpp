@@ -6,7 +6,7 @@
 
 #include <utility>
 
-namespace astarte::device::mqtt::mqtt_connection {
+namespace astarte::device::mqtt::connection {
 
 SessionSetupListener::SessionSetupListener(
     std::shared_ptr<paho_mqtt::thread_queue<paho_mqtt::token_ptr>> session_setup_tokens,
@@ -38,4 +38,4 @@ void DisconnectionListener::on_success(const paho_mqtt::token& /*tok*/) {
   connected_->store(false);
 }
 
-}  // namespace astarte::device::mqtt::mqtt_connection
+}  // namespace astarte::device::mqtt::connection

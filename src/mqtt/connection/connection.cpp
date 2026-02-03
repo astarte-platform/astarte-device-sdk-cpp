@@ -30,7 +30,7 @@
 #include "mqtt/introspection.hpp"
 #include "mqtt/persistence.hpp"
 
-namespace astarte::device::mqtt::mqtt_connection {
+namespace astarte::device::mqtt::connection {
 
 using mqtt::Credential;
 
@@ -246,4 +246,4 @@ auto Connection::disconnect() -> astarte_tl::expected<void, Error> {
   return {};
 }
 
-}  // namespace astarte::device::mqtt::mqtt_connection
+}  // namespace astarte::device::mqtt::connection
