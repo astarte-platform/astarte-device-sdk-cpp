@@ -12,8 +12,8 @@
 
 #include "astarte_device_sdk/formatter.hpp"
 
-using astarte::device::AstarteType;
 using astarte::device::Data;
+using astarte::device::Type;
 
 using testing::ContainerEq;
 

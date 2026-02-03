@@ -281,7 +281,7 @@ class DatabaseRetentionPolicy {
 
 class Mapping {
  public:
-  Mapping(std::string endpoint, AstarteType type, std::optional<bool> explicit_timestamp,
+  Mapping(std::string endpoint, Type type, std::optional<bool> explicit_timestamp,
           std::optional<Reliability> reliability, std::optional<Retention> retention,
           std::optional<int64_t> expiry,
           std::optional<DatabaseRetentionPolicy> database_retention_policy,
@@ -327,7 +327,7 @@ class Mapping {
    *
    * This represent the data that will be published on the mapping.
    */
-  [[nodiscard]] auto type() const -> AstarteType { return type_; }
+  [[nodiscard]] auto type() const -> Type { return type_; }
 
   /**
    * @brief Allow to set a custom timestamp.
@@ -413,7 +413,7 @@ class Mapping {
 
  private:
   std::string endpoint_;
-  AstarteType type_;
+  Type type_;
   std::optional<bool> explicit_timestamp_;
   std::optional<Reliability> reliability_;
   std::optional<Retention> retention_;

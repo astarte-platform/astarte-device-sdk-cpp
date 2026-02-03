@@ -16,7 +16,6 @@
 #include "mqtt/introspection.hpp"
 
 using astarte::device::astarte_type_from_str;
-using astarte::device::AstarteType;
 using astarte::device::Data;
 using astarte::device::DatabaseRetentionPolicy;
 using astarte::device::DatastreamObject;
@@ -27,6 +26,7 @@ using astarte::device::Introspection;
 using astarte::device::Mapping;
 using astarte::device::Reliability;
 using astarte::device::Retention;
+using astarte::device::Type;
 
 using nlohmann::json;
 

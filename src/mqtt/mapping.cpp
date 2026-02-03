@@ -141,12 +141,12 @@ auto Mapping::check_data_type(const Data& data) const -> astarte_tl::expected<vo
         InterfaceValidationError("Astarte data type and mapping type do not match"));
   }
 
-  if ((type_ == AstarteType::kDouble) && (!std::isfinite(data.into<double>()))) {
+  if ((type_ == Type::kDouble) && (!std::isfinite(data.into<double>()))) {
     spdlog::error("Astarte data double is not a number");
     return astarte_tl::unexpected(InterfaceValidationError("Astarte data double is not a number"));
   }
 
-  if (type_ == AstarteType::kDoubleArray) {
+  if (type_ == Type::kDoubleArray) {
     for (const double value : data.into<std::vector<double>>()) {
       if (!std::isfinite(value)) {
         spdlog::error("Astarte data double is not a number");

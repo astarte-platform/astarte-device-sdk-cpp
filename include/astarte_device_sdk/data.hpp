@@ -94,7 +94,7 @@ class Data {
    * @brief Get the type of the data contained in this class instance.
    * @return The type of the content of this class instance.
    */
-  [[nodiscard]] auto get_type() const -> AstarteType;
+  [[nodiscard]] auto get_type() const -> Type;
   /**
    * @brief Return the raw data contained in this class instance.
    * @return The raw data contained in this class instance. This is a variant containing one of the
