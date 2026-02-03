@@ -146,14 +146,14 @@ class Device {
    * @return A list of properties matching the filter.
    */
   virtual auto get_all_properties(const std::optional<Ownership>& ownership)
-      -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error> = 0;
+      -> astarte_tl::expected<std::list<StoredProperty>, Error> = 0;
   /**
    * @brief Get the current value for properties matching the interface.
    * @param interface_name The name of the interface for the properties.
    * @return A list of properties matching the interface.
    */
   virtual auto get_properties(std::string_view interface_name)
-      -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error> = 0;
+      -> astarte_tl::expected<std::list<StoredProperty>, Error> = 0;
   /**
    * @brief Get a single property matching the interface name and path.
    * @param interface_name The name of the interface for the property.

@@ -266,12 +266,12 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::poll_incoming(
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::get_all_properties(
     const std::optional<Ownership>& /* ownership */)
-    -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error> {
+    -> astarte_tl::expected<std::list<StoredProperty>, Error> {
   TODO("not yet implemented");
 }
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::get_properties(std::string_view /* interface_name */)
-    -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error> {
+    -> astarte_tl::expected<std::list<StoredProperty>, Error> {
   TODO("not yet implemented");
 }
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)

@@ -422,9 +422,9 @@ auto GrpcConverterFrom::operator()(const gRPCOwnership& value) -> Ownership {
 }
 
 auto GrpcConverterFrom::operator()(const gRPCStoredProperties& value)
-    -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error> {
+    -> astarte_tl::expected<std::list<StoredProperty>, Error> {
   spdlog::trace("Converting Astarte stored property from gRPC.");
-  std::list<AstarteStoredProperty> stored_properties;
+  std::list<StoredProperty> stored_properties;
   for (const gRPCProperty& stored_property : value.properties()) {
     auto converted_data = (*this)(stored_property.data());
     if (!converted_data) {

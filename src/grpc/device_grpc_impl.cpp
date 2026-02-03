@@ -349,7 +349,7 @@ auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::poll_incoming(
 
 auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::get_all_properties(
     const std::optional<Ownership>& ownership)
-    -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error> {
+    -> astarte_tl::expected<std::list<StoredProperty>, Error> {
   if (ownership.has_value()) {
     spdlog::debug("Getting all stored properties {} owned.", ownership.value());
   } else {
@@ -381,7 +381,7 @@ auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::get_all_properties(
 }
 
 auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::get_properties(std::string_view interface_name)
-    -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error> {
+    -> astarte_tl::expected<std::list<StoredProperty>, Error> {
   spdlog::debug("Getting stored properties for interface: {}", interface_name);
   if (!connected_.load()) {
     const std::string_view msg("Device disconnected, operation aborted.");

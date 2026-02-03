@@ -347,98 +347,98 @@ std::vector<Action> get_properties() {
         ),
         actions::GetDeviceProperties(
             std::string(constants::interfaces::DeviceProperty::INTERFACE),
-            {AstarteStoredProperty(
+            {StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::Integer::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::Integer::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::LongInteger::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::LongInteger::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::Double::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::Double::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::Boolean::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::Boolean::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::String::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::String::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::Datetime::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::Datetime::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::BinaryBlob::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::BinaryBlob::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::IntegerArray::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::IntegerArray::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::LongIntegerArray::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::LongIntegerArray::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::DoubleArray::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::DoubleArray::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::BooleanArray::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::BooleanArray::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::StringArray::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::StringArray::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::DatetimeArray::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::DatetimeArray::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::BinaryBlobArray::ENDPOINT_FULL),
                  0,
@@ -448,98 +448,98 @@ std::vector<Action> get_properties() {
         ),
         actions::GetAllFilteredProperties(
             std::nullopt,
-            {AstarteStoredProperty(
+            {StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::Integer::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::Integer::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::LongInteger::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::LongInteger::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::Double::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::Double::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::Boolean::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::Boolean::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::String::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::String::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::Datetime::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::Datetime::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::BinaryBlob::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::BinaryBlob::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::IntegerArray::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::IntegerArray::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::LongIntegerArray::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::LongIntegerArray::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::DoubleArray::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::DoubleArray::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::BooleanArray::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::BooleanArray::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::StringArray::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::StringArray::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::DatetimeArray::ENDPOINT_FULL),
                  0,
                  Ownership::kDevice,
                  constants::data_sets::DatetimeArray::DATA
              ),
-             AstarteStoredProperty(
+             StoredProperty(
                  constants::interfaces::DeviceProperty::INTERFACE,
                  std::string(constants::data_sets::BinaryBlobArray::ENDPOINT_FULL),
                  0,

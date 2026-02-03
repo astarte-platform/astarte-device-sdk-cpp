@@ -140,14 +140,14 @@ class AstarteDeviceGrpc : public Device {
    * @return A list of stored properties, as returned by the message hub, or an error upon failure.
    */
   auto get_all_properties(const std::optional<Ownership>& ownership)
-      -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error> override;
+      -> astarte_tl::expected<std::list<StoredProperty>, Error> override;
   /**
    * @brief Get stored properties matching the interface.
    * @param interface_name The name of the interface for the properties.
    * @return A list of stored properties, as returned by the message hub, or an error upon failure.
    */
   auto get_properties(std::string_view interface_name)
-      -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error> override;
+      -> astarte_tl::expected<std::list<StoredProperty>, Error> override;
   /**
    * @brief Get a single stored property matching the interface name and path.
    * @param interface_name The name of the interface for the property.

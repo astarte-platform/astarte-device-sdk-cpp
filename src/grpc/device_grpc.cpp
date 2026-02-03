@@ -91,12 +91,12 @@ auto AstarteDeviceGrpc::poll_incoming(const std::chrono::milliseconds& timeout)
 }
 
 auto AstarteDeviceGrpc::get_all_properties(const std::optional<Ownership>& ownership)
-    -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error> {
+    -> astarte_tl::expected<std::list<StoredProperty>, Error> {
   return astarte_device_impl_->get_all_properties(ownership);
 }
 
 auto AstarteDeviceGrpc::get_properties(std::string_view interface_name)
-    -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error> {
+    -> astarte_tl::expected<std::list<StoredProperty>, Error> {
   return astarte_device_impl_->get_properties(interface_name);
 }
 

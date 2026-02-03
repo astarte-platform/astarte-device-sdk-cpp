@@ -77,7 +77,7 @@ class GrpcConverterFrom {
   auto operator()(const gRPCAstarteMessage& value) -> astarte_tl::expected<Message, Error>;
   auto operator()(const gRPCOwnership& value) -> Ownership;
   auto operator()(const gRPCStoredProperties& value)
-      -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error>;
+      -> astarte_tl::expected<std::list<StoredProperty>, Error>;
 };
 
 }  // namespace astarte::device

@@ -140,14 +140,14 @@ struct AstarteDeviceGrpc::AstarteDeviceGrpcImpl {
    * @return A list of stored properties, as returned by the message hub.
    */
   auto get_all_properties(const std::optional<Ownership>& ownership)
-      -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error>;
+      -> astarte_tl::expected<std::list<StoredProperty>, Error>;
   /**
    * @brief Get stored propertied matching the interface.
    * @param interface_name The name of the interface for the property.
    * @return A list of stored properties, as returned by the message hub.
    */
   auto get_properties(std::string_view interface_name)
-      -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error>;
+      -> astarte_tl::expected<std::list<StoredProperty>, Error>;
   /**
    * @brief Get a single stored property matching the interface name and path.
    * @param interface_name The name of the interface for the property.

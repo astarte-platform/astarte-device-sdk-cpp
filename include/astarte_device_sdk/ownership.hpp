@@ -49,7 +49,7 @@ inline auto ownership_from_str(const std::string& ownership)
 }  // namespace astarte::device
 
 /**
- * @brief astarte_fmt::formatter specialization for astarte::device::AstarteStoredProperty.
+ * @brief astarte_fmt::formatter specialization for astarte::device::StoredProperty.
  */
 template <>
 struct astarte_fmt::formatter<astarte::device::Ownership> {

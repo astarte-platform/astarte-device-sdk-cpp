@@ -31,7 +31,6 @@
 using json = nlohmann::json;
 
 using astarte::device::AstarteOwnership;
-using astarte::device::AstarteStoredProperty;
 using astarte::device::Data;
 using astarte::device::DatastreamIndividual;
 using astarte::device::DatastreamObject;
@@ -39,6 +38,7 @@ using astarte::device::Device;
 using astarte::device::Error;
 using astarte::device::Message;
 using astarte::device::Ownershipndividual;
+using astarte::device::StoredProperty;
 
 // -----------------------------------------------------------------------------
 // Context & Types
@@ -341,7 +341,7 @@ inline Action GetDeviceProperty(std::string interface_name, std::string path,
 }
 
 inline Action GetDeviceProperties(std::string interface_name,
-                                  std::list<AstarteStoredProperty> expected_list) {
+                                  std::list<StoredProperty> expected_list) {
   return [iface = std::move(interface_name),
           expected = std::move(expected_list)](const TestCaseContext& ctx) {
     spdlog::info("Getting properties from device...");
@@ -359,7 +359,7 @@ inline Action GetDeviceProperties(std::string interface_name,
 }
 
 inline Action GetAllFilteredProperties(std::optional<Ownership> ownership,
-                                       std::list<AstarteStoredProperty> expected_list) {
+                                       std::list<StoredProperty> expected_list) {
   return [own = ownership, expected = std::move(expected_list)](const TestCaseContext& ctx) {
     spdlog::info("Getting all properties from device...");
     auto res = ctx.device->get_all_properties(own);

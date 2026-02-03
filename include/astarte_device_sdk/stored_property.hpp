@@ -22,18 +22,18 @@
 namespace astarte::device {
 
 /** @brief Representing data for a stored property. */
-class AstarteStoredProperty {
+class StoredProperty {
  public:
   /**
-   * @brief Constructor for the AstarteStoredProperty class.
+   * @brief Constructor for the StoredProperty class.
    * @param interface_name The name of the interface of the property.
    * @param path The path for the property.
    * @param version_major The major version for the interface of the property.
    * @param ownership The ownership for the interface of the property.
    * @param data The Astarte data for the property.
    */
-  explicit AstarteStoredProperty(std::string_view interface_name, std::string_view path,
-                                 int32_t version_major, Ownership ownership, Data data);
+  explicit StoredProperty(std::string_view interface_name, std::string_view path,
+                          int32_t version_major, Ownership ownership, Data data);
   /**
    * @brief Get the interface name contained within the object.
    * @return A constant reference to the interface name string.
@@ -66,13 +66,13 @@ class AstarteStoredProperty {
    * @param other The object to compare to.
    * @return True when equal, false otherwise.
    */
-  [[nodiscard]] auto operator==(const AstarteStoredProperty& other) const -> bool;
+  [[nodiscard]] auto operator==(const StoredProperty& other) const -> bool;
   /**
    * @brief Overloader for the comparison operator !=.
    * @param other The object to compare to.
    * @return True when different, false otherwise.
    */
-  [[nodiscard]] auto operator!=(const AstarteStoredProperty& other) const -> bool;
+  [[nodiscard]] auto operator!=(const StoredProperty& other) const -> bool;
 
  private:
   std::string interface_name_;
@@ -85,10 +85,10 @@ class AstarteStoredProperty {
 }  // namespace astarte::device
 
 /**
- * @brief astarte_fmt::formatter specialization for astarte::device::AstarteStoredProperty.
+ * @brief astarte_fmt::formatter specialization for astarte::device::StoredProperty.
  */
 template <>
-struct astarte_fmt::formatter<astarte::device::AstarteStoredProperty> {
+struct astarte_fmt::formatter<astarte::device::StoredProperty> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -100,13 +100,13 @@ struct astarte_fmt::formatter<astarte::device::AstarteStoredProperty> {
   }
 
   /**
-   * @brief Format the AstarteStoredProperty object.
-   * @param prop The AstarteStoredProperty to format.
+   * @brief Format the StoredProperty object.
+   * @param prop The StoredProperty to format.
    * @param ctx The format context.
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const astarte::device::AstarteStoredProperty& prop, FormatContext& ctx) const {
+  auto format(const astarte::device::StoredProperty& prop, FormatContext& ctx) const {
     return astarte_fmt::format_to(ctx.out(),
                                   "Interface: {} v{}, Path: {}, Ownership: {}, Value: {}",
                                   prop.get_interface_name(), prop.get_version_major(),
@@ -115,12 +115,12 @@ struct astarte_fmt::formatter<astarte::device::AstarteStoredProperty> {
 };
 
 /**
- * @brief Stream insertion operator for AstarteStoredProperty.
+ * @brief Stream insertion operator for StoredProperty.
  * @param out The output stream.
- * @param prop The AstarteStoredProperty object to output.
+ * @param prop The StoredProperty object to output.
  * @return Reference to the output stream.
  */
-inline auto operator<<(std::ostream& out, const astarte::device::AstarteStoredProperty& prop)
+inline auto operator<<(std::ostream& out, const astarte::device::StoredProperty& prop)
     -> std::ostream& {
   out << astarte_fmt::format("{}", prop);
   return out;
