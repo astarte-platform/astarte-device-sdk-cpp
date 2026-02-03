@@ -16,17 +16,17 @@
 
 using astarte::device::AstarteDatastreamIndividual;
 using astarte::device::AstarteDatastreamObject;
-using astarte::device::AstarteDevice;
 using astarte::device::AstarteDeviceGrpc;
 using astarte::device::AstarteFileOpenError;
 using astarte::device::AstarteInvalidInputError;
 using astarte::device::AstarteMessage;
 using astarte::device::AstartePropertyIndividual;
 using astarte::device::Data;
+using astarte::device::Device;
 
 using namespace std::chrono_literals;
 
-void reception_handler(std::stop_token token, std::shared_ptr<AstarteDevice> device) {
+void reception_handler(std::stop_token token, std::shared_ptr<Device> device) {
   while (!token.stop_requested()) {
     auto incoming = device->poll_incoming(100ms);
     if (incoming.has_value()) {

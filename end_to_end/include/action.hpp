@@ -32,13 +32,13 @@ using json = nlohmann::json;
 
 using astarte::device::AstarteDatastreamIndividual;
 using astarte::device::AstarteDatastreamObject;
-using astarte::device::AstarteDevice;
 using astarte::device::AstarteError;
 using astarte::device::AstarteMessage;
 using astarte::device::AstarteOwnership;
 using astarte::device::AstartePropertyIndividual;
 using astarte::device::AstarteStoredProperty;
 using astarte::device::Data;
+using astarte::device::Device;
 
 // -----------------------------------------------------------------------------
 // Context & Types
@@ -52,7 +52,7 @@ struct TestHttpConfig {
 
 struct TestCaseContext {
   std::string device_id;
-  std::shared_ptr<AstarteDevice> device;
+  std::shared_ptr<Device> device;
   std::shared_ptr<SharedQueue<AstarteMessage>> rx_queue;
   TestHttpConfig http;
 };

@@ -32,7 +32,7 @@ namespace astarte::device {
  * @brief Class for the Astarte devices.
  * @details This class should be instantiated once and then used to communicate with Astarte.
  */
-class AstarteDeviceGrpc : public AstarteDevice {
+class AstarteDeviceGrpc : public Device {
  public:
   /**
    * @brief Constructor for the Astarte device class.

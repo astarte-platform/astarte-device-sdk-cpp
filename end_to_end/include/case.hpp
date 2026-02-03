@@ -16,7 +16,7 @@
 #include "astarte_device_sdk/device.hpp"
 #include "device_factory.hpp"
 
-using astarte::device::AstarteDevice;
+using astarte::device::Device;
 
 // End to end test case
 class TestCase {
@@ -45,7 +45,7 @@ class TestCase {
     spdlog::info("Starting Test Case: {}", name_);
 
     // 1. Create a fresh device instance for each test case
-    std::shared_ptr<AstarteDevice> device = nullptr;
+    std::shared_ptr<Device> device = nullptr;
     if (generate_device_) {
       if (!device_factory_) {
         spdlog::error("Couldn't execute test case since no device factory has been defined.");

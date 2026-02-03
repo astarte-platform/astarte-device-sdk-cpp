@@ -288,8 +288,7 @@ auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::send_object(
 }
 
 auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::set_property(std::string_view interface_name,
-                                                            std::string_view path,
-                                                            const Data& data)
+                                                            std::string_view path, const Data& data)
     -> astarte_tl::expected<void, AstarteError> {
   spdlog::debug("Setting property: {} {}", interface_name, path);
   if (!connected_.load()) {

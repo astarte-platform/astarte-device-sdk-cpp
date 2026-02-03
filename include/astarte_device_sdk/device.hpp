@@ -31,28 +31,28 @@ namespace astarte::device {
  * @details This class defines a transport independent abstract class to be used by derived
  * classes to implement transport dependent device classes.
  */
-class AstarteDevice {
+class Device {
  public:
   /**
    * @brief Virtual destructor.
    * @details Ensures proper cleanup of derived classes through a base pointer.
    */
-  virtual ~AstarteDevice() = default;
+  virtual ~Device() = default;
   /** @brief Copy constructor for the Astarte device class. */
-  AstarteDevice(const AstarteDevice& other) = delete;
+  Device(const Device& other) = delete;
   /**
    * @brief Move constructor for the Astarte device class.
    * @param other Object to move.
    */
-  AstarteDevice(AstarteDevice&& other) = default;
+  Device(Device&& other) = default;
   /** @brief Copy assignment operator for the Astarte device class. */
-  auto operator=(const AstarteDevice& other) -> AstarteDevice& = delete;
+  auto operator=(const Device& other) -> Device& = delete;
   /**
    * @brief Move assignment operator for the Astarte device class.
    * @param other Object to move.
    * @return Moved object.
    */
-  auto operator=(AstarteDevice&& other) -> AstarteDevice& = default;
+  auto operator=(Device&& other) -> Device& = default;
   /**
    * @brief Add an interface for the device from a JSON file.
    * @param json_file The path to the .json interface file.
@@ -168,7 +168,7 @@ class AstarteDevice {
    * @brief Protected default constructor.
    * @details Prevents direct instantiation of the interface.
    */
-  AstarteDevice() = default;
+  Device() = default;
 };
 
 }  // namespace astarte::device

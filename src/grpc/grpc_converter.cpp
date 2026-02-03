@@ -303,8 +303,7 @@ auto GrpcConverterFrom::operator()(const gRPCAstarteData& value)
       return Data(value.string());
     case gRPCAstarteData::kBinaryBlob:
       spdlog::trace("Case kBinaryBlob");
-      return Data(
-          std::vector<uint8_t>(value.binary_blob().begin(), value.binary_blob().end()));
+      return Data(std::vector<uint8_t>(value.binary_blob().begin(), value.binary_blob().end()));
     case gRPCAstarteData::kDateTime: {
       spdlog::trace("Case kDateTime");
       const google::protobuf::Timestamp& timestamp = value.date_time();
@@ -317,23 +316,23 @@ auto GrpcConverterFrom::operator()(const gRPCAstarteData& value)
     case gRPCAstarteData::kDoubleArray:
       spdlog::trace("Case kDoubleArray");
       return Data(std::vector<double>(value.double_array().values().begin(),
-                                             value.double_array().values().end()));
+                                      value.double_array().values().end()));
     case gRPCAstarteData::kIntegerArray:
       spdlog::trace("Case kIntegerArray");
       return Data(std::vector<int32_t>(value.integer_array().values().begin(),
-                                              value.integer_array().values().end()));
+                                       value.integer_array().values().end()));
     case gRPCAstarteData::kBooleanArray:
       spdlog::trace("Case kBooleanArray");
       return Data(std::vector<bool>(value.boolean_array().values().begin(),
-                                           value.boolean_array().values().end()));
+                                    value.boolean_array().values().end()));
     case gRPCAstarteData::kLongIntegerArray:
       spdlog::trace("Case kLongIntegerArray");
       return Data(std::vector<int64_t>(value.long_integer_array().values().begin(),
-                                              value.long_integer_array().values().end()));
+                                       value.long_integer_array().values().end()));
     case gRPCAstarteData::kStringArray:
       spdlog::trace("Case kStringArray");
       return Data(std::vector<std::string>(value.string_array().values().begin(),
-                                                  value.string_array().values().end()));
+                                           value.string_array().values().end()));
     case gRPCAstarteData::kBinaryBlobArray: {
       spdlog::trace("Case kBinaryBlobArray");
       std::vector<std::vector<uint8_t>> binblob_vect;

@@ -35,7 +35,7 @@ namespace astarte::device {
  * @brief Class for the Astarte devices.
  * @details This class should be instantiated once and then used to communicate with Astarte.
  */
-class AstarteDeviceMqtt : public AstarteDevice {
+class AstarteDeviceMqtt : public Device {
  public:
   /**
    * @brief Fallible constructor method.
