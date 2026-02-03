@@ -57,7 +57,7 @@ class Connection {
    * @param cfg The MQTT configuration object containing connection details.
    * @return The MQTT connection object, an error otherwise.
    */
-  static auto create(mqtt::Config& cfg) -> astarte_tl::expected<Connection, Error>;
+  static auto create(Config& cfg) -> astarte_tl::expected<Connection, Error>;
 
   /**
    * @brief Connects the client to the Astarte MQTT broker.
@@ -90,13 +90,13 @@ class Connection {
   auto disconnect() -> astarte_tl::expected<void, Error>;
 
  private:
-  Connection(mqtt::Config cfg, paho_mqtt::connect_options options,
+  Connection(Config cfg, paho_mqtt::connect_options options,
              std::unique_ptr<paho_mqtt::async_client> client, PairingApi pairing_api);
 
   /// @brief Pairing API object.
   PairingApi pairing_api_;
   /// @brief The MQTT configuration object.
-  mqtt::Config cfg_;
+  Config cfg_;
   /// @brief The Paho MQTT connection options.
   paho_mqtt::connect_options connect_options_;
   /// @brief The underlying Paho MQTT async client.

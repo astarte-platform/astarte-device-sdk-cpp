@@ -26,8 +26,8 @@ using astarte::device::Device;
 #ifdef ASTARTE_TRANSPORT_GRPC
 using astarte::device::grpc::DeviceGrpc;
 #else   // ASTARTE_TRANSPORT_GRPC
-using astarte::device::DeviceMqtt;
 using astarte::device::mqtt::Config;
+using astarte::device::mqtt::DeviceMqtt;
 #endif  // ASTARTE_TRANSPORT_GRPC
 
 class TestDeviceFactory {

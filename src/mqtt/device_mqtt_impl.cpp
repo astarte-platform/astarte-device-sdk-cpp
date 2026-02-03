@@ -47,7 +47,7 @@ using namespace std::chrono_literals;
 
 using json = nlohmann::json;
 
-auto DeviceMqtt::DeviceMqttImpl::create(mqtt::Config& cfg)
+auto DeviceMqtt::DeviceMqttImpl::create(Config& cfg)
     -> astarte_tl::expected<std::shared_ptr<DeviceMqttImpl>, Error> {
   auto conn = connection::Connection::create(cfg);
   if (!conn) {
@@ -59,7 +59,7 @@ auto DeviceMqtt::DeviceMqttImpl::create(mqtt::Config& cfg)
       new DeviceMqttImpl(std::move(cfg), std::move(conn.value())));
 }
 
-DeviceMqtt::DeviceMqttImpl::DeviceMqttImpl(mqtt::Config cfg, connection::Connection connection)
+DeviceMqtt::DeviceMqttImpl::DeviceMqttImpl(Config cfg, connection::Connection connection)
     : cfg_(std::move(cfg)), connection_(std::move(connection)) {}
 
 DeviceMqtt::DeviceMqttImpl::~DeviceMqttImpl() = default;

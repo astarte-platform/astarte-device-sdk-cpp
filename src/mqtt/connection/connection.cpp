@@ -32,12 +32,9 @@
 
 namespace astarte::device::mqtt::connection {
 
-using mqtt::Credential;
-
 namespace {
 
-auto build_mqtt_options(mqtt::Config& cfg)
-    -> astarte_tl::expected<paho_mqtt::connect_options, Error> {
+auto build_mqtt_options(Config& cfg) -> astarte_tl::expected<paho_mqtt::connect_options, Error> {
   auto conn_opts = paho_mqtt::connect_options_builder::v3();
   auto conn_timeout = cfg.connection_timeout();
   auto keepalive = cfg.keepalive();
@@ -76,7 +73,7 @@ auto build_mqtt_options(mqtt::Config& cfg)
 // Connection Implementation
 // ============================================================================
 
-auto Connection::create(mqtt::Config& cfg) -> astarte_tl::expected<Connection, Error> {
+auto Connection::create(Config& cfg) -> astarte_tl::expected<Connection, Error> {
   auto realm = cfg.realm();
   auto device_id = cfg.device_id();
   auto pairing_url = cfg.pairing_url();
@@ -126,7 +123,7 @@ auto Connection::create(mqtt::Config& cfg) -> astarte_tl::expected<Connection, E
   return Connection(std::move(cfg), std::move(options.value()), std::move(client), std::move(api));
 }
 
-Connection::Connection(mqtt::Config cfg, paho_mqtt::connect_options options,
+Connection::Connection(Config cfg, paho_mqtt::connect_options options,
                        std::unique_ptr<paho_mqtt::async_client> client, PairingApi pairing_api)
     : cfg_(std::move(cfg)),
       connect_options_(std::move(options)),
