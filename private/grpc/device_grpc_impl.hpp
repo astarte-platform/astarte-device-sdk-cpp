@@ -32,7 +32,10 @@
 #include "astarte_device_sdk/stored_property.hpp"
 #include "shared_queue.hpp"
 
-namespace astarte::device {
+namespace astarte::device::grpc {
+
+using ::grpc::ClientContext;
+using ::grpc::ClientReader;
 
 using gRPCMessageHub = astarteplatform::msghub::MessageHub;
 using gRPCMessageHubEvent = astarteplatform::msghub::MessageHubEvent;
@@ -160,14 +163,14 @@ struct DeviceGrpc::AstarteDeviceGrpcImpl {
  private:
   // Helper struct to hold the results of the Attach RPC call
   struct AttachResult {
-    std::unique_ptr<grpc::ClientContext> context;
-    std::unique_ptr<grpc::ClientReader<gRPCMessageHubEvent>> reader;
+    std::unique_ptr<ClientContext> context;
+    std::unique_ptr<ClientReader<gRPCMessageHubEvent>> reader;
   };
   void setup_grpc_channel();
   auto perform_attach() -> astarte_tl::expected<AttachResult, Error>;
   auto connection_attempt(const std::stop_token& token) -> astarte_tl::expected<void, Error>;
-  auto handle_events(const std::stop_token& token, std::unique_ptr<grpc::ClientContext> context,
-                     std::unique_ptr<grpc::ClientReader<gRPCMessageHubEvent>> reader)
+  auto handle_events(const std::stop_token& token, std::unique_ptr<ClientContext> context,
+                     std::unique_ptr<ClientReader<gRPCMessageHubEvent>> reader)
       -> astarte_tl::expected<void, Error>;
   static auto parse_message_hub_event(const gRPCMessageHubEvent& event)
       -> astarte_tl::expected<Message, Error>;
@@ -184,6 +187,6 @@ struct DeviceGrpc::AstarteDeviceGrpcImpl {
   SharedQueue<Message> rcv_queue_;
 };
 
-}  // namespace astarte::device
+}  // namespace astarte::device::grpc
 
 #endif  // DEVICE_GRPC_IMPL_H

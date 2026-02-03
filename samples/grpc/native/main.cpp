@@ -18,11 +18,11 @@ using astarte::device::Data;
 using astarte::device::DatastreamIndividual;
 using astarte::device::DatastreamObject;
 using astarte::device::Device;
-using astarte::device::DeviceGrpc;
 using astarte::device::FileOpenError;
 using astarte::device::InvalidInputError;
 using astarte::device::Message;
 using astarte::device::PropertyIndividual;
+using astarte::device::grpc::DeviceGrpc;
 
 using namespace std::chrono_literals;
 

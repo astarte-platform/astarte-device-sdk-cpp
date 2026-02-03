@@ -27,7 +27,7 @@
 #include "astarte_device_sdk/stored_property.hpp"
 #include "grpc/device_grpc_impl.hpp"
 
-namespace astarte::device {
+namespace astarte::device::grpc {
 
 DeviceGrpc::DeviceGrpc(const std::string& server_addr, const std::string& node_uuid)
     : astarte_device_impl_{std::make_shared<AstarteDeviceGrpcImpl>(server_addr, node_uuid)} {}
@@ -102,4 +102,4 @@ auto DeviceGrpc::get_property(std::string_view interface_name, std::string_view 
   return astarte_device_impl_->get_property(interface_name, path);
 }
 
-}  // namespace astarte::device
+}  // namespace astarte::device::grpc

@@ -201,7 +201,7 @@ A couple of assumptions have been made:
 using astarte::device::Data;
 using astarte::device::DatastreamIndividual;
 using astarte::device::DatastreamObject;
-using astarte::device::DeviceGrpc;
+using astarte::device::grpc::DeviceGrpc;
 using astarte::device::Message;
 using astarte::device::PropertyIndividual;
 

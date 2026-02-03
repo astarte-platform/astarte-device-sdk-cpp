@@ -10,12 +10,12 @@
 
 #include <string>
 
-namespace astarte::device {
+namespace astarte::device::grpc {
 
-using grpc::experimental::ClientInterceptorFactoryInterface;
-using grpc::experimental::ClientRpcInfo;
-using grpc::experimental::Interceptor;
-using grpc::experimental::InterceptorBatchMethods;
+using ::grpc::experimental::ClientInterceptorFactoryInterface;
+using ::grpc::experimental::ClientRpcInfo;
+using ::grpc::experimental::Interceptor;
+using ::grpc::experimental::InterceptorBatchMethods;
 
 class NodeIdInterceptor : public Interceptor {
  public:
@@ -35,6 +35,6 @@ class NodeIdInterceptorFactory : public ClientInterceptorFactoryInterface {
   std::string node_id_;
 };
 
-}  // namespace astarte::device
+}  // namespace astarte::device::grpc
 
 #endif  // GRPC_INTERCEPTOR_H

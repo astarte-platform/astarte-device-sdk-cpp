@@ -26,7 +26,7 @@
 #include "astarte_device_sdk/property.hpp"
 
 /** @brief Umbrella namespace for the Astarte device SDK */
-namespace astarte::device {
+namespace astarte::device::grpc {
 
 /**
  * @brief Class for the Astarte devices.
@@ -162,6 +162,6 @@ class DeviceGrpc : public Device {
   std::shared_ptr<AstarteDeviceGrpcImpl> astarte_device_impl_;
 };
 
-}  // namespace astarte::device
+}  // namespace astarte::device::grpc
 
 #endif  // ASTARTE_DEVICE_SDK_DEVICE_GRPC_H

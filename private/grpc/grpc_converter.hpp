@@ -27,7 +27,7 @@
 #include "astarte_device_sdk/property.hpp"
 #include "astarte_device_sdk/stored_property.hpp"
 
-namespace astarte::device {
+namespace astarte::device::grpc {
 
 using gRPCAstarteData = astarteplatform::msghub::AstarteData;
 using gRPCAstarteDatastreamIndividual = astarteplatform::msghub::AstarteDatastreamIndividual;
@@ -80,6 +80,6 @@ class GrpcConverterFrom {
       -> astarte_tl::expected<std::list<StoredProperty>, Error>;
 };
 
-}  // namespace astarte::device
+}  // namespace astarte::device::grpc
 
 #endif  // GRPC_CONVERTER_H

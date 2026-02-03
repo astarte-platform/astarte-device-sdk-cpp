@@ -58,14 +58,16 @@
 #include "grpc/grpc_interceptors.hpp"
 #include "shared_queue.hpp"
 
-namespace astarte::device {
+namespace astarte::device::grpc {
 
-using grpc::Channel;
-using grpc::ClientContext;
-using grpc::ClientReader;
-using grpc::Status;
+using ::grpc::Channel;
+using ::grpc::ChannelArguments;
+using ::grpc::ClientContext;
+using ::grpc::ClientReader;
+using ::grpc::InsecureChannelCredentials;
+using ::grpc::Status;
 
-using grpc::experimental::ClientInterceptorFactoryInterface;
+using ::grpc::experimental::ClientInterceptorFactoryInterface;
 
 using gRPCAstarteData = astarteplatform::msghub::AstarteData;
 using gRPCAstarteDatastreamObject = astarteplatform::msghub::AstarteDatastreamObject;
@@ -430,12 +432,12 @@ auto DeviceGrpc::AstarteDeviceGrpcImpl::get_property(std::string_view interface_
 
 // Private helper to set up the gRPC channel and stub
 void DeviceGrpc::AstarteDeviceGrpcImpl::setup_grpc_channel() {
-  const grpc::ChannelArguments args;
+  const ChannelArguments args;
   std::vector<std::unique_ptr<ClientInterceptorFactoryInterface>> interceptor_creators;
   interceptor_creators.push_back(std::make_unique<NodeIdInterceptorFactory>(node_uuid_));
 
   const std::shared_ptr<Channel> channel = CreateCustomChannelWithInterceptors(
-      server_addr_, grpc::InsecureChannelCredentials(), args, std::move(interceptor_creators));
+      server_addr_, InsecureChannelCredentials(), args, std::move(interceptor_creators));
 
   stub_ = gRPCMessageHub::NewStub(channel);
 }
@@ -498,7 +500,7 @@ auto DeviceGrpc::AstarteDeviceGrpcImpl::connection_attempt(const std::stop_token
 }
 
 auto DeviceGrpc::AstarteDeviceGrpcImpl::handle_events(
-    const std::stop_token& token, std::unique_ptr<grpc::ClientContext> context,
+    const std::stop_token& token, std::unique_ptr<ClientContext> context,
     std::unique_ptr<ClientReader<gRPCMessageHubEvent>> reader)
     -> astarte_tl::expected<void, Error> {
   (void)context;
@@ -578,4 +580,4 @@ auto DeviceGrpc::AstarteDeviceGrpcImpl::connection_loop(const std::stop_token& t
       });
 }
 
-}  // namespace astarte::device
+}  // namespace astarte::device::grpc

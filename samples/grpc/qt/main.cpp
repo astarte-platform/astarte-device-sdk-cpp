@@ -15,6 +15,8 @@
 #include "astarte_device_sdk/grpc/device_grpc.hpp"
 #include "astarte_device_sdk/msg.hpp"
 
+using astarte::device::grpc::DeviceGrpc;
+
 using namespace astarte::device;
 using namespace std::chrono_literals;
 

@@ -35,7 +35,7 @@
 #include "astarte_device_sdk/stored_property.hpp"
 #include "grpc/grpc_formatter.hpp"
 
-namespace astarte::device {
+namespace astarte::device::grpc {
 
 using std::chrono::duration_cast;
 using std::chrono::nanoseconds;
@@ -437,4 +437,4 @@ auto GrpcConverterFrom::operator()(const gRPCStoredProperties& value)
   return stored_properties;
 }
 
-}  // namespace astarte::device
+}  // namespace astarte::device::grpc
