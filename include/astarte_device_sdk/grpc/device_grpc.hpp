@@ -158,8 +158,8 @@ class DeviceGrpc : public Device {
       -> astarte_tl::expected<PropertyIndividual, Error> override;
 
  private:
-  struct AstarteDeviceGrpcImpl;
-  std::shared_ptr<AstarteDeviceGrpcImpl> astarte_device_impl_;
+  struct DeviceGrpcImpl;
+  std::shared_ptr<DeviceGrpcImpl> astarte_device_impl_;
 };
 
 }  // namespace astarte::device::grpc

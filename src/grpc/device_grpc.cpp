@@ -30,7 +30,7 @@
 namespace astarte::device::grpc {
 
 DeviceGrpc::DeviceGrpc(const std::string& server_addr, const std::string& node_uuid)
-    : astarte_device_impl_{std::make_shared<AstarteDeviceGrpcImpl>(server_addr, node_uuid)} {}
+    : astarte_device_impl_{std::make_shared<DeviceGrpcImpl>(server_addr, node_uuid)} {}
 
 DeviceGrpc::~DeviceGrpc() = default;
 
