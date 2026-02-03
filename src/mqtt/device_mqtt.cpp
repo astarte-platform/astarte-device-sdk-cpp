@@ -26,17 +26,17 @@
 namespace astarte::device::mqtt {
 
 auto DeviceMqtt::create(mqtt::Config cfg) -> astarte_tl::expected<DeviceMqtt, Error> {
-  auto impl_result = AstarteDeviceMqttImpl::create(cfg);
+  auto impl_result = DeviceMqttImpl::create(cfg);
   if (!impl_result) {
     return astarte_tl::unexpected(impl_result.error());
   }
 
-  std::shared_ptr<AstarteDeviceMqttImpl> impl_ptr = std::move(impl_result.value());
+  std::shared_ptr<DeviceMqttImpl> impl_ptr = std::move(impl_result.value());
 
   return DeviceMqtt(std::move(impl_ptr));
 }
 
-DeviceMqtt::DeviceMqtt(std::shared_ptr<AstarteDeviceMqttImpl> impl)
+DeviceMqtt::DeviceMqtt(std::shared_ptr<DeviceMqttImpl> impl)
     : astarte_device_impl_{std::move(impl)} {}
 
 DeviceMqtt::~DeviceMqtt() = default;

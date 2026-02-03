@@ -28,26 +28,26 @@
 
 namespace astarte::device::mqtt {
 
-struct DeviceMqtt::AstarteDeviceMqttImpl {
+struct DeviceMqtt::DeviceMqttImpl {
  public:
   /**
-   * @brief Construct an AstarteDeviceMqttImpl instance.
+   * @brief Construct an DeviceMqttImpl instance.
    * @param cfg set of MQTT configuration options used to connect a device to Astarte.
-   * @return a shared pointer to the AstarteDeviceMqttImpl object, an error otherwise.
+   * @return a shared pointer to the DeviceMqttImpl object, an error otherwise.
    */
   static auto create(mqtt::Config& cfg)
-      -> astarte_tl::expected<std::shared_ptr<AstarteDeviceMqttImpl>, Error>;
+      -> astarte_tl::expected<std::shared_ptr<DeviceMqttImpl>, Error>;
 
   /** @brief Destructor for the Astarte device class. */
-  ~AstarteDeviceMqttImpl();
+  ~DeviceMqttImpl();
   /** @brief Copy constructor for the Astarte device class. */
-  AstarteDeviceMqttImpl(AstarteDeviceMqttImpl& other) = delete;
+  DeviceMqttImpl(DeviceMqttImpl& other) = delete;
   /** @brief Move constructor for the Astarte device class. */
-  AstarteDeviceMqttImpl(AstarteDeviceMqttImpl&& other) = delete;
+  DeviceMqttImpl(DeviceMqttImpl&& other) = delete;
   /** @brief Copy assignment operator for the Astarte device class. */
-  auto operator=(AstarteDeviceMqttImpl& other) -> AstarteDeviceMqttImpl& = delete;
+  auto operator=(DeviceMqttImpl& other) -> DeviceMqttImpl& = delete;
   /** @brief Move assignment operator for the Astarte device class. */
-  auto operator=(AstarteDeviceMqttImpl&& other) -> AstarteDeviceMqttImpl& = delete;
+  auto operator=(DeviceMqttImpl&& other) -> DeviceMqttImpl& = delete;
 
   /**
    * @brief Parse an interface definition from a JSON file and adds it to the device.
@@ -152,11 +152,11 @@ struct DeviceMqtt::AstarteDeviceMqttImpl {
 
  private:
   /**
-   * @brief Private constructor for an AstarteDeviceMqttImpl instance.
+   * @brief Private constructor for an DeviceMqttImpl instance.
    * @param cfg set of MQTT configuration options used to connect a device to Astarte.
    * @param connection connection object.
    */
-  AstarteDeviceMqttImpl(mqtt::Config cfg, mqtt_connection::Connection connection);
+  DeviceMqttImpl(mqtt::Config cfg, mqtt_connection::Connection connection);
 
   mqtt::Config cfg_;
   mqtt_connection::Connection connection_;

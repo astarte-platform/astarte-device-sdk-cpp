@@ -168,14 +168,14 @@ class DeviceMqtt : public Device {
       -> astarte_tl::expected<PropertyIndividual, Error> override;
 
  private:
-  struct AstarteDeviceMqttImpl;
-  std::shared_ptr<AstarteDeviceMqttImpl> astarte_device_impl_;
+  struct DeviceMqttImpl;
+  std::shared_ptr<DeviceMqttImpl> astarte_device_impl_;
 
   /**
-   * @brief Construct an AstarteDeviceMqttImpl instance.
-   * @param impl a shared pointer to the AstarteDeviceMqttImpl object.
+   * @brief Construct an DeviceMqttImpl instance.
+   * @param impl a shared pointer to the DeviceMqttImpl object.
    */
-  explicit DeviceMqtt(std::shared_ptr<AstarteDeviceMqttImpl> impl);
+  explicit DeviceMqtt(std::shared_ptr<DeviceMqttImpl> impl);
 };
 
 }  // namespace astarte::device::mqtt
