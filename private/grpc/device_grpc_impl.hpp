@@ -37,7 +37,7 @@ namespace astarte::device {
 using gRPCMessageHub = astarteplatform::msghub::MessageHub;
 using gRPCMessageHubEvent = astarteplatform::msghub::MessageHubEvent;
 
-struct AstarteDeviceGrpc::AstarteDeviceGrpcImpl {
+struct DeviceGrpc::AstarteDeviceGrpcImpl {
  public:
   /**
    * @brief Construct an AstarteDeviceGrpcImpl instance.

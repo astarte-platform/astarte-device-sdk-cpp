@@ -24,7 +24,7 @@
 using astarte::device::Device;
 
 #ifdef ASTARTE_TRANSPORT_GRPC
-using astarte::device::AstarteDeviceGrpc;
+using astarte::device::DeviceGrpc;
 #else   // ASTARTE_TRANSPORT_GRPC
 using astarte::device::AstarteDeviceMqtt;
 using astarte::device::config::MqttConfig;
@@ -48,7 +48,7 @@ class TestGrpcDeviceFactory : public TestDeviceFactory {
  public:
   explicit TestGrpcDeviceFactory(TestGrpcDeviceConfig config) : config_(std::move(config)) {}
   std::shared_ptr<Device> create_device() const override {
-    auto device = std::make_shared<AstarteDeviceGrpc>(config_.server_addr, config_.node_id);
+    auto device = std::make_shared<DeviceGrpc>(config_.server_addr, config_.node_id);
     for (const auto& interface_path : config_.interfaces) {
       auto res = device->add_interface_from_file(interface_path);
       if (!res) {

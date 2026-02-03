@@ -25,7 +25,7 @@ class AstarteWorker : public QObject {
   AstarteWorker(QObject* parent = nullptr) : QObject(parent) {
     QString server_addr = "localhost:50051";
     QString node_id = "aa04dade-9401-4c37-8c6a-d8da15b083ae";
-    device = std::make_shared<AstarteDeviceGrpc>(server_addr.toStdString(), node_id.toStdString());
+    device = std::make_shared<DeviceGrpc>(server_addr.toStdString(), node_id.toStdString());
 
     addInterfaces();
     qInfo() << "Connecting the device";
@@ -185,7 +185,7 @@ class AstarteWorker : public QObject {
   }
 
  private:
-  std::shared_ptr<AstarteDeviceGrpc> device;
+  std::shared_ptr<DeviceGrpc> device;
   QTimer* pollingTimer;
 
   void addInterfaces() {

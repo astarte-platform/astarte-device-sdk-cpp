@@ -32,24 +32,24 @@ namespace astarte::device {
  * @brief Class for the Astarte devices.
  * @details This class should be instantiated once and then used to communicate with Astarte.
  */
-class AstarteDeviceGrpc : public Device {
+class DeviceGrpc : public Device {
  public:
   /**
    * @brief Constructor for the Astarte device class.
    * @param server_addr The gRPC server address of the Astarte message hub.
    * @param node_uuid The UUID identifier for this device with the Astarte message hub.
    */
-  AstarteDeviceGrpc(const std::string& server_addr, const std::string& node_uuid);
+  DeviceGrpc(const std::string& server_addr, const std::string& node_uuid);
   /** @brief Destructor for the Astarte device class. */
-  ~AstarteDeviceGrpc() override;
+  ~DeviceGrpc() override;
   /** @brief Copy constructor for the Astarte device class. */
-  AstarteDeviceGrpc(AstarteDeviceGrpc& other) = delete;
+  DeviceGrpc(DeviceGrpc& other) = delete;
   /** @brief Move constructor for the Astarte device class. */
-  AstarteDeviceGrpc(AstarteDeviceGrpc&& other) = delete;
+  DeviceGrpc(DeviceGrpc&& other) = delete;
   /** @brief Copy assignment operator for the Astarte device class. */
-  auto operator=(AstarteDeviceGrpc& other) -> AstarteDeviceGrpc& = delete;
+  auto operator=(DeviceGrpc& other) -> DeviceGrpc& = delete;
   /** @brief Move assignment operator for the Astarte device class. */
-  auto operator=(AstarteDeviceGrpc&& other) -> AstarteDeviceGrpc& = delete;
+  auto operator=(DeviceGrpc&& other) -> DeviceGrpc& = delete;
 
   /**
    * @brief Add an interface for the device from a JSON file.
