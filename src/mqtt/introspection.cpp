@@ -10,8 +10,7 @@
 
 namespace astarte::device {
 
-auto Introspection::checked_insert(Interface interface)
-    -> astarte_tl::expected<void, AstarteError> {
+auto Introspection::checked_insert(Interface interface) -> astarte_tl::expected<void, Error> {
   const std::unique_lock lock(lock_);
 
   auto iter = interfaces_.find(interface.interface_name());
@@ -28,14 +27,14 @@ auto Introspection::checked_insert(Interface interface)
 
   if (stored.ownership() != interface.ownership()) {
     spdlog::error("the new interface has a different ownership");
-    return astarte_tl::unexpected(AstarteInvalidInterfaceOwnershipeError(
+    return astarte_tl::unexpected(InvalidInterfaceOwnershipeError(
         astarte_fmt::format("the new interface has a different ownership. Expected {}, got {}",
                             stored.ownership(), interface.ownership())));
   }
 
   if (stored.interface_type() != interface.interface_type()) {
     spdlog::error("the new interface has a different type");
-    return astarte_tl::unexpected(AstarteInvalidAstarteTypeError(
+    return astarte_tl::unexpected(InvalidAstarteTypeError(
         astarte_fmt::format("the new interface has a different type. Expected {}, got {}",
                             stored.interface_type(), interface.interface_type())));
   }
@@ -43,7 +42,7 @@ auto Introspection::checked_insert(Interface interface)
   if (interface.version_major() < stored.version_major()) {
     spdlog::error("the new interface must have a major version greater or equal than {}",
                   stored.version_major());
-    return astarte_tl::unexpected(AstarteInvalidInterfaceVersionError(
+    return astarte_tl::unexpected(InvalidInterfaceVersionError(
         astarte_fmt::format("the new major version is lower than the actual one. Expected value "
                             "greater than {}, got {}",
                             stored.version_major(), interface.version_major())));
@@ -53,7 +52,7 @@ auto Introspection::checked_insert(Interface interface)
       (interface.version_minor() < stored.version_minor())) {
     spdlog::error("the new interface must have a minor version greater or equal than {}",
                   stored.version_minor());
-    return astarte_tl::unexpected(AstarteInvalidInterfaceVersionError(astarte_fmt::format(
+    return astarte_tl::unexpected(InvalidInterfaceVersionError(astarte_fmt::format(
         "the new minor version is lower than the actual one Expected value greater than {}, got {}",
         stored.version_minor(), interface.version_minor())));
   }
@@ -77,12 +76,12 @@ auto Introspection::values() const -> std::vector<std::shared_ptr<const Interfac
 }
 
 auto Introspection::get(std::string_view interface_name) const
-    -> astarte_tl::expected<std::shared_ptr<const Interface>, AstarteError> {
+    -> astarte_tl::expected<std::shared_ptr<const Interface>, Error> {
   const std::shared_lock lock(lock_);
 
   auto iter = interfaces_.find(interface_name);
   if (iter == interfaces_.end()) {
-    return astarte_tl::unexpected(AstarteMqttError(
+    return astarte_tl::unexpected(MqttError(
         astarte_fmt::format("couldn't find interface {} in the introspection", interface_name)));
   }
 

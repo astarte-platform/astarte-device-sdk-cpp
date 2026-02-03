@@ -23,8 +23,7 @@ Callback::Callback(mqtt::iasync_client* client, std::string realm, std::string d
 // TODO(rgallor): Perform additional checks. The "handshake" with astarte should have been completed
 // in a previous connection and the device introspection should not have changed since the last
 // connection.
-auto Callback::perform_session_setup(bool session_present)
-    -> astarte_tl::expected<void, AstarteError> {
+auto Callback::perform_session_setup(bool session_present) -> astarte_tl::expected<void, Error> {
   if (!session_present) {
     auto res = setup_subscriptions();
     if (!res) {
@@ -50,7 +49,7 @@ auto Callback::perform_session_setup(bool session_present)
   return {};
 }
 
-auto Callback::setup_subscriptions() -> astarte_tl::expected<void, AstarteError> {
+auto Callback::setup_subscriptions() -> astarte_tl::expected<void, Error> {
   // Define a collection of topics to subscribe to
   auto topics = mqtt::string_collection();
   auto qoss = mqtt::iasync_client::qos_collection();
@@ -79,14 +78,14 @@ auto Callback::setup_subscriptions() -> astarte_tl::expected<void, AstarteError>
       session_setup_tokens_->put(sub_token);
     } catch (...) {
       spdlog::error("failed to setup subscriptions");
-      return astarte_tl::unexpected(AstarteMqttConnectionError("failed to setup subscriptions"));
+      return astarte_tl::unexpected(MqttConnectionError("failed to setup subscriptions"));
     }
   }
 
   return {};
 }
 
-auto Callback::send_introspection() -> astarte_tl::expected<void, AstarteError> {
+auto Callback::send_introspection() -> astarte_tl::expected<void, Error> {
   // Create the stringified representation of the introspection to send to Astarte
   auto introspection_str = std::string();
   for (const auto& interface : introspection_->values()) {
@@ -108,11 +107,11 @@ auto Callback::send_introspection() -> astarte_tl::expected<void, AstarteError> 
     return {};
   } catch (...) {
     spdlog::error("failed to publish introspection");
-    return astarte_tl::unexpected(AstarteMqttConnectionError("failed to publish introspection"));
+    return astarte_tl::unexpected(MqttConnectionError("failed to publish introspection"));
   }
 }
 
-auto Callback::send_emptycache() -> astarte_tl::expected<void, AstarteError> {
+auto Callback::send_emptycache() -> astarte_tl::expected<void, Error> {
   auto emptycache_topic = astarte_fmt::format("{}/{}/control/emptyCache", realm_, device_id_);
   try {
     const mqtt::const_message_ptr message = mqtt::message::create(emptycache_topic, "1", 2, false);
@@ -121,7 +120,7 @@ auto Callback::send_emptycache() -> astarte_tl::expected<void, AstarteError> {
     return {};
   } catch (...) {
     spdlog::error("failed to perform empty cache");
-    return astarte_tl::unexpected(AstarteMqttConnectionError("failed to perform empty cache"));
+    return astarte_tl::unexpected(MqttConnectionError("failed to perform empty cache"));
   }
 }
 

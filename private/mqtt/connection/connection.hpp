@@ -55,15 +55,14 @@ class Connection {
    * @param cfg The MQTT configuration object containing connection details.
    * @return The MQTT connection object, an error otherwise.
    */
-  static auto create(config::MqttConfig& cfg) -> astarte_tl::expected<Connection, AstarteError>;
+  static auto create(config::MqttConfig& cfg) -> astarte_tl::expected<Connection, Error>;
 
   /**
    * @brief Connects the client to the Astarte MQTT broker.
    * @param introspection A collection of interfaces defining the device.
    * @return an error if the connection operation fails.
    */
-  auto connect(std::shared_ptr<Introspection> introspection)
-      -> astarte_tl::expected<void, AstarteError>;
+  auto connect(std::shared_ptr<Introspection> introspection) -> astarte_tl::expected<void, Error>;
 
   /**
    * @brief Check if the device is connected.
@@ -80,13 +79,13 @@ class Connection {
    * @return an error if sending failed, nothing otherwise.
    */
   auto send(std::string_view interface_name, std::string_view path, uint8_t qos,
-            std::span<uint8_t> data) -> astarte_tl::expected<void, AstarteError>;
+            std::span<uint8_t> data) -> astarte_tl::expected<void, Error>;
 
   /**
    * @brief Disconnect the client from the Astarte MQTT broker.
    * @return an error if the disconnection operation fails.
    */
-  auto disconnect() -> astarte_tl::expected<void, AstarteError>;
+  auto disconnect() -> astarte_tl::expected<void, Error>;
 
  private:
   Connection(config::MqttConfig cfg, mqtt::connect_options options,

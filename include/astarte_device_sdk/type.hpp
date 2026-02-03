@@ -61,7 +61,7 @@ enum AstarteType : int8_t {
  */
 // NOLINTNEXTLINE(readability-function-size)
 inline auto astarte_type_from_str(const std::string& type)
-    -> astarte_tl::expected<AstarteType, AstarteError> {
+    -> astarte_tl::expected<AstarteType, Error> {
   if (type == "binaryblob") {
     return AstarteType::kBinaryBlob;
   }
@@ -104,7 +104,7 @@ inline auto astarte_type_from_str(const std::string& type)
   if (type == "stringarray") {
     return AstarteType::kStringArray;
   }
-  return astarte_tl::unexpected(AstarteInvalidAstarteTypeError("data type not valid: " + type));
+  return astarte_tl::unexpected(InvalidAstarteTypeError("data type not valid: " + type));
 }
 
 }  // namespace astarte::device

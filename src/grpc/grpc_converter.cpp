@@ -283,7 +283,7 @@ auto GrpcConverterTo::operator()(const std::optional<Data>& value)
 
 // NOLINTBEGIN(readability-function-size)
 auto GrpcConverterFrom::operator()(const gRPCAstarteData& value)
-    -> astarte_tl::expected<Data, AstarteError> {
+    -> astarte_tl::expected<Data, Error> {
   spdlog::trace("Converting Astarte data from gRPC, message: \n{}", value);
   switch (value.astarte_data_case()) {
     case gRPCAstarteData::kDouble:
@@ -357,13 +357,12 @@ auto GrpcConverterFrom::operator()(const gRPCAstarteData& value)
       spdlog::trace("Case for gRPCAstarteData goes to default statement: ASTARTE_DATA_NOT_SET");
       break;
   }
-  return astarte_tl::unexpected(
-      AstarteInternalError{"Found an unrecognized gRPC gRPCAstarteData."});
+  return astarte_tl::unexpected(InternalError{"Found an unrecognized gRPC gRPCAstarteData."});
 }
 // NOLINTEND(readability-function-size)
 
 auto GrpcConverterFrom::operator()(const gRPCAstarteDatastreamIndividual& value)
-    -> astarte_tl::expected<AstarteDatastreamIndividual, AstarteError> {
+    -> astarte_tl::expected<AstarteDatastreamIndividual, Error> {
   spdlog::trace("Converting Astarte datastream individual from gRPC, message: \n{}", value);
   const gRPCAstarteData& grpc_data(value.data());
   return (*this)(grpc_data).transform(
@@ -371,7 +370,7 @@ auto GrpcConverterFrom::operator()(const gRPCAstarteDatastreamIndividual& value)
 }
 
 auto GrpcConverterFrom::operator()(const gRPCAstarteDatastreamObject& value)
-    -> astarte_tl::expected<AstarteDatastreamObject, AstarteError> {
+    -> astarte_tl::expected<AstarteDatastreamObject, Error> {
   spdlog::trace("Converting Astarte datastream object from gRPC, message: \n{}", value);
   AstarteDatastreamObject object;
   const google::protobuf::Map<std::string, gRPCAstarteData>& grpc_data = value.data();
@@ -386,7 +385,7 @@ auto GrpcConverterFrom::operator()(const gRPCAstarteDatastreamObject& value)
 }
 
 auto GrpcConverterFrom::operator()(const gRPCAstartePropertyIndividual& value)
-    -> astarte_tl::expected<AstartePropertyIndividual, AstarteError> {
+    -> astarte_tl::expected<AstartePropertyIndividual, Error> {
   spdlog::trace("Converting Astarte property individual from gRPC, message: \n{}", value);
   if (value.has_data()) {
     const gRPCAstarteData& grpc_data(value.data());
@@ -397,7 +396,7 @@ auto GrpcConverterFrom::operator()(const gRPCAstartePropertyIndividual& value)
 }
 
 auto GrpcConverterFrom::operator()(const gRPCAstarteMessage& value)
-    -> astarte_tl::expected<AstarteMessage, AstarteError> {
+    -> astarte_tl::expected<AstarteMessage, Error> {
   spdlog::trace("Converting Astarte message from gRPC, message: \n{}", value);
 
   auto make_message = [&](auto&& val) {
@@ -417,8 +416,7 @@ auto GrpcConverterFrom::operator()(const gRPCAstarteMessage& value)
     return (*this)(value.property_individual()).transform(make_message);
   }
 
-  return astarte_tl::unexpected(
-      AstarteInternalError{"Found an unrecognized gRPC gRPCAstarteDataType."});
+  return astarte_tl::unexpected(InternalError{"Found an unrecognized gRPC gRPCAstarteDataType."});
 }
 
 auto GrpcConverterFrom::operator()(const gRPCOwnership& value) -> AstarteOwnership {
@@ -427,7 +425,7 @@ auto GrpcConverterFrom::operator()(const gRPCOwnership& value) -> AstarteOwnersh
 }
 
 auto GrpcConverterFrom::operator()(const gRPCStoredProperties& value)
-    -> astarte_tl::expected<std::list<AstarteStoredProperty>, AstarteError> {
+    -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error> {
   spdlog::trace("Converting Astarte stored property from gRPC.");
   std::list<AstarteStoredProperty> stored_properties;
   for (const gRPCProperty& stored_property : value.properties()) {

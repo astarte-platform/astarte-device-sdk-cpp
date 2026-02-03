@@ -67,18 +67,17 @@ class GrpcConverterTo {
 
 class GrpcConverterFrom {
  public:
-  auto operator()(const gRPCAstarteData& value) -> astarte_tl::expected<Data, AstarteError>;
+  auto operator()(const gRPCAstarteData& value) -> astarte_tl::expected<Data, Error>;
   auto operator()(const gRPCAstarteDatastreamIndividual& value)
-      -> astarte_tl::expected<AstarteDatastreamIndividual, AstarteError>;
+      -> astarte_tl::expected<AstarteDatastreamIndividual, Error>;
   auto operator()(const gRPCAstarteDatastreamObject& value)
-      -> astarte_tl::expected<AstarteDatastreamObject, AstarteError>;
+      -> astarte_tl::expected<AstarteDatastreamObject, Error>;
   auto operator()(const gRPCAstartePropertyIndividual& value)
-      -> astarte_tl::expected<AstartePropertyIndividual, AstarteError>;
-  auto operator()(const gRPCAstarteMessage& value)
-      -> astarte_tl::expected<AstarteMessage, AstarteError>;
+      -> astarte_tl::expected<AstartePropertyIndividual, Error>;
+  auto operator()(const gRPCAstarteMessage& value) -> astarte_tl::expected<AstarteMessage, Error>;
   auto operator()(const gRPCOwnership& value) -> AstarteOwnership;
   auto operator()(const gRPCStoredProperties& value)
-      -> astarte_tl::expected<std::list<AstarteStoredProperty>, AstarteError>;
+      -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error>;
 };
 
 }  // namespace astarte::device

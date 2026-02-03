@@ -32,13 +32,13 @@ using json = nlohmann::json;
 
 using astarte::device::AstarteDatastreamIndividual;
 using astarte::device::AstarteDatastreamObject;
-using astarte::device::AstarteError;
 using astarte::device::AstarteMessage;
 using astarte::device::AstarteOwnership;
 using astarte::device::AstartePropertyIndividual;
 using astarte::device::AstarteStoredProperty;
 using astarte::device::Data;
 using astarte::device::Device;
+using astarte::device::Error;
 
 // -----------------------------------------------------------------------------
 // Context & Types
@@ -270,7 +270,7 @@ inline Action TransmitDeviceData(
     std::optional<std::chrono::system_clock::time_point> timestamp = std::nullopt) {
   return [msg = std::move(message), ts = timestamp](const TestCaseContext& ctx) {
     spdlog::info("Transmitting MQTT data...");
-    astarte::device::astarte_tl::expected<void, AstarteError> res;
+    astarte::device::astarte_tl::expected<void, Error> res;
 
     // Use current time if timestamp not provided, or specific time if provided
     auto ts_ptr = ts.has_value() ? &ts.value() : nullptr;

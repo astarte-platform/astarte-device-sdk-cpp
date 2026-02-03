@@ -79,10 +79,9 @@ class Reliability {
   /**
    * @brief Attempt to create a Reliability from a string.
    * @param str The string representation to parse.
-   * @return An expected containing the Reliability on success, or an AstarteError on failure.
+   * @return An expected containing the Reliability on success, or an Error on failure.
    */
-  static auto try_from_str(std::string_view str)
-      -> astarte_tl::expected<Reliability, AstarteError> {
+  static auto try_from_str(std::string_view str) -> astarte_tl::expected<Reliability, Error> {
     if (str == "unreliable") {
       return Reliability(kUnreliable);
     }
@@ -93,7 +92,7 @@ class Reliability {
       return Reliability(kUnique);
     }
     return astarte_tl::unexpected(
-        AstarteInvalidReliabilityError(astarte_fmt::format("reliability not valid: {}", str)));
+        InvalidReliabilityError(astarte_fmt::format("reliability not valid: {}", str)));
   }
 
   /**
@@ -168,9 +167,9 @@ class Retention {
   /**
    * @brief Attempt to create a Retention from a string.
    * @param str The string representation to parse.
-   * @return An expected containing the Retention on success, or an AstarteError on failure.
+   * @return An expected containing the Retention on success, or an Error on failure.
    */
-  static auto try_from_str(std::string_view str) -> astarte_tl::expected<Retention, AstarteError> {
+  static auto try_from_str(std::string_view str) -> astarte_tl::expected<Retention, Error> {
     if (str == "discard") {
       return Retention(kDiscard);
     }
@@ -181,7 +180,7 @@ class Retention {
       return Retention(kStored);
     }
     return astarte_tl::unexpected(
-        AstarteInvalidRetentionError(astarte_fmt::format("retention not valid: {}", str)));
+        InvalidRetentionError(astarte_fmt::format("retention not valid: {}", str)));
   }
 
   /**
@@ -246,17 +245,17 @@ class DatabaseRetentionPolicy {
   /**
    * @brief Attempt to create a DatabaseRetentionPolicy from a string.
    * @param str The string representation to parse.
-   * @return An expected containing the policy on success, or an AstarteError on failure.
+   * @return An expected containing the policy on success, or an Error on failure.
    */
   static auto try_from_str(std::string_view str)
-      -> astarte_tl::expected<DatabaseRetentionPolicy, AstarteError> {
+      -> astarte_tl::expected<DatabaseRetentionPolicy, Error> {
     if (str == "no_ttl") {
       return DatabaseRetentionPolicy(kNoTtl);
     }
     if (str == "use_ttl") {
       return DatabaseRetentionPolicy(kUseTtl);
     }
-    return astarte_tl::unexpected(AstarteInvalidDatabaseRetentionPolicyError(
+    return astarte_tl::unexpected(InvalidDatabaseRetentionPolicyError(
         astarte_fmt::format("database retention policy not valid: {}", str)));
   }
 
@@ -314,8 +313,7 @@ class Mapping {
    * @param data The Data to check.
    * @return an error if the check fails.
    */
-  [[nodiscard]] auto check_data_type(const Data& data) const
-      -> astarte_tl::expected<void, AstarteError>;
+  [[nodiscard]] auto check_data_type(const Data& data) const -> astarte_tl::expected<void, Error>;
 
   /**
    * @brief Path of the mapping.
@@ -411,7 +409,7 @@ class Mapping {
    * @param json The json structure to parse
    * @return A Mapping object representation of the json data, an error otherwise.
    */
-  static auto try_from_json(const json& json) -> astarte_tl::expected<Mapping, AstarteError>;
+  static auto try_from_json(const json& json) -> astarte_tl::expected<Mapping, Error>;
 
  private:
   std::string endpoint_;

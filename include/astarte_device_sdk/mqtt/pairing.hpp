@@ -32,8 +32,7 @@ class PairingApi {
    * @return The generate class instance, or an error on failure.
    */
   static auto create(std::string_view realm, std::string_view device_id,
-                     std::string_view astarte_base_url)
-      -> astarte_tl::expected<PairingApi, AstarteError>;
+                     std::string_view astarte_base_url) -> astarte_tl::expected<PairingApi, Error>;
 
   /**
    * @brief Register a device.
@@ -43,7 +42,7 @@ class PairingApi {
    */
   [[nodiscard]] auto register_device(std::string_view pairing_token,
                                      std::chrono::milliseconds timeout_ms = 0ms) const
-      -> astarte_tl::expected<std::string, AstarteError>;
+      -> astarte_tl::expected<std::string, Error>;
 
   /**
    * @brief Retrieve the URL of the Astarte MQTT broker.
@@ -52,7 +51,7 @@ class PairingApi {
    * @return The broker URL on success, an error otherwise.
    */
   [[nodiscard]] auto get_broker_url(std::string_view credential_secret, int timeout_ms = 0) const
-      -> astarte_tl::expected<std::string, AstarteError>;
+      -> astarte_tl::expected<std::string, Error>;
 
   /**
    * @brief Retrieve the Astarte device certificate and relative private key.
@@ -62,7 +61,7 @@ class PairingApi {
    */
   [[nodiscard]] auto get_device_key_and_certificate(std::string_view credential_secret,
                                                     int timeout_ms = 0) const
-      -> astarte_tl::expected<std::tuple<std::string, std::string>, AstarteError>;
+      -> astarte_tl::expected<std::tuple<std::string, std::string>, Error>;
 
   /**
    * @brief Check if the Astarte device certificate is valid.
@@ -74,7 +73,7 @@ class PairingApi {
    */
   [[nodiscard]] auto device_cert_valid(std::string_view certificate,
                                        std::string_view credential_secret, int timeout_ms = 0) const
-      -> astarte_tl::expected<bool, AstarteError>;
+      -> astarte_tl::expected<bool, Error>;
 
  private:
   /**
@@ -114,7 +113,7 @@ auto create_random_device_id() -> std::string;
  * @return A string containing the device id, or an error on failure.
  */
 auto create_deterministic_device_id(std::string_view namespc, std::string_view unique_data)
-    -> astarte_tl::expected<std::string, AstarteError>;
+    -> astarte_tl::expected<std::string, Error>;
 
 }  // namespace astarte::device
 

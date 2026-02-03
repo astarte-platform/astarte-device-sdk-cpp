@@ -35,7 +35,7 @@ enum AstarteOwnership : int8_t {
  * ownership.
  */
 inline auto ownership_from_str(const std::string& ownership)
-    -> astarte_tl::expected<AstarteOwnership, AstarteError> {
+    -> astarte_tl::expected<AstarteOwnership, Error> {
   if (ownership == "device") {
     return AstarteOwnership::kDevice;
   }
@@ -43,7 +43,7 @@ inline auto ownership_from_str(const std::string& ownership)
     return AstarteOwnership::kServer;
   }
   return astarte_tl::unexpected(
-      AstarteInvalidInterfaceOwnershipeError("interface ownershipe not valid: " + ownership));
+      InvalidInterfaceOwnershipeError("interface ownershipe not valid: " + ownership));
 }
 
 }  // namespace astarte::device

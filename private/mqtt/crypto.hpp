@@ -31,7 +31,7 @@ class PsaKey {
   /**
    @brief Constructs an empty PsaKey, holding no key.
    */
-  static auto create() -> astarte_tl::expected<PsaKey, AstarteError>;
+  static auto create() -> astarte_tl::expected<PsaKey, Error>;
   /**
    * @brief Destroys the PsaKey, releasing the managed PSA key (if any).
    */
@@ -62,12 +62,12 @@ class PsaKey {
    * @brief Get the PEM representation of the underlying key ID
    * @return The PEM representation of the underlying key ID, an error otherwise.
    */
-  [[nodiscard]] auto to_pem() const -> astarte_tl::expected<const std::string, AstarteError>;
+  [[nodiscard]] auto to_pem() const -> astarte_tl::expected<const std::string, Error>;
   /**
    * @brief Creates a new ECDSA (secp256r1) private key.
    * @return An error on failure.
    */
-  auto generate() -> astarte_tl::expected<void, AstarteError>;
+  auto generate() -> astarte_tl::expected<void, Error>;
 
  private:
   /**
@@ -92,7 +92,7 @@ class Crypto {
    * @param priv_key A reference to the PsaKey holding the private key.
    * @return A string containing the CSR in PEM format on success, an error otherwise.
    */
-  static auto create_csr(const PsaKey& priv_key) -> astarte_tl::expected<std::string, AstarteError>;
+  static auto create_csr(const PsaKey& priv_key) -> astarte_tl::expected<std::string, Error>;
 };
 
 }  // namespace astarte::device

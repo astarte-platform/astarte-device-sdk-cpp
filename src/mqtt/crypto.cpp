@@ -43,12 +43,12 @@ constexpr size_t PSA_CSR_LEN = 2048;
 namespace {
 
 auto mbedtls_ret_to_astarte_errors(int ret, const std::string& function_name)
-    -> astarte_tl::expected<void, AstarteError> {
+    -> astarte_tl::expected<void, Error> {
   if (ret != 0) {
     constexpr std::size_t error_buf_size = 100;
     std::array<char, error_buf_size> error_buf{};
     mbedtls_strerror(ret, error_buf.data(), error_buf.size());
-    return astarte_tl::unexpected(AstarteCryptoError(
+    return astarte_tl::unexpected(CryptoError(
         astarte_fmt::format("{} failed: {:#x} {}", function_name, ret, error_buf.data())));
   }
   return {};
@@ -56,7 +56,7 @@ auto mbedtls_ret_to_astarte_errors(int ret, const std::string& function_name)
 
 class MbedPk {
  public:
-  static auto create(const PsaKey& psa_key) -> astarte_tl::expected<MbedPk, AstarteError> {
+  static auto create(const PsaKey& psa_key) -> astarte_tl::expected<MbedPk, Error> {
     MbedPk key;
     auto res = mbedtls_ret_to_astarte_errors(mbedtls_pk_copy_from_psa(psa_key.get(), &key.ctx()),
                                              "mbedtls_pk_copy_from_psa");
@@ -123,7 +123,7 @@ class MbedX509WriteCsr {
   MbedX509WriteCsr(MbedX509WriteCsr&& other) = delete;
   auto operator=(MbedX509WriteCsr&& other) -> MbedX509WriteCsr& = delete;
   auto ctx() -> mbedtls_x509write_csr& { return ctx_; }
-  auto generate(MbedPk& key) -> astarte_tl::expected<std::vector<unsigned char>, AstarteError> {
+  auto generate(MbedPk& key) -> astarte_tl::expected<std::vector<unsigned char>, Error> {
     // configure the CSR
     mbedtls_x509write_csr_set_key(&ctx_, &key.ctx());
     mbedtls_x509write_csr_set_md_alg(&ctx_, MBEDTLS_MD_SHA256);
@@ -173,7 +173,7 @@ class MbedX509WriteCsr {
 };
 }  // namespace
 
-auto PsaKey::create() -> astarte_tl::expected<PsaKey, AstarteError> {
+auto PsaKey::create() -> astarte_tl::expected<PsaKey, Error> {
   auto res = mbedtls_ret_to_astarte_errors(psa_crypto_init(), "psa_crypto_init");
   if (!res) {
     return astarte_tl::unexpected(res.error());
@@ -200,7 +200,7 @@ PsaKey::PsaKey(PsaKey&& other) noexcept : key_id_(other.key_id_) {
 
 auto PsaKey::get() const -> const mbedtls_svc_key_id_t& { return key_id_; }
 
-auto PsaKey::to_pem() const -> astarte_tl::expected<const std::string, AstarteError> {
+auto PsaKey::to_pem() const -> astarte_tl::expected<const std::string, Error> {
   auto key = MbedPk::create(*this);
   if (!key) {
     spdlog::error("Failed to create MBedPk key from PsaKey. Error: {}", key.error());
@@ -219,7 +219,7 @@ auto PsaKey::to_pem() const -> astarte_tl::expected<const std::string, AstarteEr
   return std::string(buf.begin(), buf.end());
 }
 
-auto PsaKey::generate() -> astarte_tl::expected<void, AstarteError> {
+auto PsaKey::generate() -> astarte_tl::expected<void, Error> {
   // generate the PSA EC key
   psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
   psa_set_key_algorithm(&attributes, PSA_ECC_FAMILY_SECP_R1);
@@ -230,7 +230,7 @@ auto PsaKey::generate() -> astarte_tl::expected<void, AstarteError> {
   return mbedtls_ret_to_astarte_errors(psa_generate_key(&attributes, &key_id_), "psa_generate_key");
 }
 
-auto Crypto::create_csr(const PsaKey& priv_key) -> astarte_tl::expected<std::string, AstarteError> {
+auto Crypto::create_csr(const PsaKey& priv_key) -> astarte_tl::expected<std::string, Error> {
   return MbedPk::create(priv_key)
       .and_then([&](auto&& key_value) {
         auto csr = MbedX509WriteCsr();

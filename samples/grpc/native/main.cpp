@@ -17,12 +17,12 @@
 using astarte::device::AstarteDatastreamIndividual;
 using astarte::device::AstarteDatastreamObject;
 using astarte::device::AstarteDeviceGrpc;
-using astarte::device::AstarteFileOpenError;
-using astarte::device::AstarteInvalidInputError;
 using astarte::device::AstarteMessage;
 using astarte::device::AstartePropertyIndividual;
 using astarte::device::Data;
 using astarte::device::Device;
+using astarte::device::FileOpenError;
+using astarte::device::InvalidInputError;
 
 using namespace std::chrono_literals;
 
@@ -75,7 +75,7 @@ int main(int argc, char** argv) {
     std::filesystem::path full_path = base_path / file_name;
     auto res = device->add_interface_from_file(full_path);
     if (!res) {
-      spdlog::critical(std::get<AstarteFileOpenError>(res.error()).message());
+      spdlog::critical(std::get<FileOpenError>(res.error()).message());
       return EXIT_FAILURE;
     }
     spdlog::debug("Successfully added interface: {}", full_path.string());
@@ -104,7 +104,7 @@ int main(int argc, char** argv) {
     Data integer_value = Data(43);
     auto res = device->send_individual(interface_name, integer_path, integer_value, &now);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -112,7 +112,7 @@ int main(int argc, char** argv) {
     Data longinteger_value = Data(8589934592);
     res = device->send_individual(interface_name, longinteger_path, longinteger_value, &now);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -120,7 +120,7 @@ int main(int argc, char** argv) {
     Data double_value = Data(43.5);
     res = device->send_individual(interface_name, double_path, double_value, &now);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -128,7 +128,7 @@ int main(int argc, char** argv) {
     Data boolean_value = Data(true);
     res = device->send_individual(interface_name, boolean_path, boolean_value, &now);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -137,7 +137,7 @@ int main(int argc, char** argv) {
     Data string_value = Data(hello_string);
     res = device->send_individual(interface_name, string_path, string_value, &now);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -146,7 +146,7 @@ int main(int argc, char** argv) {
     Data binaryblob_value = Data(binaryblob);
     res = device->send_individual(interface_name, binaryblob_path, binaryblob_value, &now);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -154,7 +154,7 @@ int main(int argc, char** argv) {
     Data datetime_value = Data(std::chrono::system_clock::now());
     res = device->send_individual(interface_name, datetime_path, datetime_value, &now);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -163,7 +163,7 @@ int main(int argc, char** argv) {
     Data integerarray_value = Data(integerarray);
     res = device->send_individual(interface_name, integerarray_path, integerarray_value, &now);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -173,7 +173,7 @@ int main(int argc, char** argv) {
     res = device->send_individual(interface_name, longintegerarray_path, longintegerarray_value,
                                   &now);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -182,7 +182,7 @@ int main(int argc, char** argv) {
     Data doublearray_value = Data(doublearray);
     res = device->send_individual(interface_name, doubleararray_path, doublearray_value, &now);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -191,7 +191,7 @@ int main(int argc, char** argv) {
     Data booleanarray_value = Data(booleanarray);
     res = device->send_individual(interface_name, booleanarray_path, booleanarray_value, &now);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -200,7 +200,7 @@ int main(int argc, char** argv) {
     Data stringarray_value = Data(stringarray);
     res = device->send_individual(interface_name, stringarray_path, stringarray_value, &now);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -210,7 +210,7 @@ int main(int argc, char** argv) {
     res =
         device->send_individual(interface_name, binaryblobarray_path, binaryblobarray_value, &now);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -220,7 +220,7 @@ int main(int argc, char** argv) {
     Data datetimearray_value = Data(datetimearray);
     res = device->send_individual(interface_name, datetimearray_path, datetimearray_value, &now);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -253,7 +253,7 @@ int main(int argc, char** argv) {
              std::chrono::system_clock::now(), std::chrono::system_clock::now()})}};
     auto res = device->send_object(interface_name, common_path, data, NULL);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -267,7 +267,7 @@ int main(int argc, char** argv) {
     Data integer_value = Data(43);
     auto res = device->set_property(interface_name, integer_path, integer_value);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -275,7 +275,7 @@ int main(int argc, char** argv) {
     Data longinteger_value = Data(8589934592);
     res = device->set_property(interface_name, longinteger_path, longinteger_value);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -283,7 +283,7 @@ int main(int argc, char** argv) {
     Data double_value = Data(43.5);
     res = device->set_property(interface_name, double_path, double_value);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -291,7 +291,7 @@ int main(int argc, char** argv) {
     Data boolean_value = Data(true);
     res = device->set_property(interface_name, boolean_path, boolean_value);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -299,7 +299,7 @@ int main(int argc, char** argv) {
     Data string_value = Data(std::string("Hello from cpp!"));
     res = device->set_property(interface_name, string_path, string_value);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -308,7 +308,7 @@ int main(int argc, char** argv) {
     Data binaryblob_value = Data(binaryblob);
     res = device->set_property(interface_name, binaryblob_path, binaryblob_value);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -316,7 +316,7 @@ int main(int argc, char** argv) {
     Data datetime_value = Data(std::chrono::system_clock::now());
     res = device->set_property(interface_name, datetime_path, datetime_value);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -325,7 +325,7 @@ int main(int argc, char** argv) {
     Data integerarray_value = Data(integerarray);
     res = device->set_property(interface_name, integerarray_path, integerarray_value);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -334,7 +334,7 @@ int main(int argc, char** argv) {
     Data longintegerarray_value = Data(longintegerarray);
     res = device->set_property(interface_name, longintegerarray_path, longintegerarray_value);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -343,7 +343,7 @@ int main(int argc, char** argv) {
     Data doublearray_value = Data(doublearray);
     res = device->set_property(interface_name, doubleararray_path, doublearray_value);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -352,7 +352,7 @@ int main(int argc, char** argv) {
     Data booleanarray_value = Data(booleanarray);
     res = device->set_property(interface_name, booleanarray_path, booleanarray_value);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -361,7 +361,7 @@ int main(int argc, char** argv) {
     Data stringarray_value = Data(stringarray);
     res = device->set_property(interface_name, stringarray_path, stringarray_value);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -370,7 +370,7 @@ int main(int argc, char** argv) {
     Data binaryblobarray_value = Data(binaryblobarray);
     res = device->set_property(interface_name, binaryblobarray_path, binaryblobarray_value);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -380,7 +380,7 @@ int main(int argc, char** argv) {
     Data datetimearray_value = Data(datetimearray);
     res = device->set_property(interface_name, datetimearray_path, datetimearray_value);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
@@ -393,98 +393,98 @@ int main(int argc, char** argv) {
     std::string integer_path("/integer_endpoint");
     auto res = device->unset_property(interface_name, integer_path);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
     std::string longinteger_path("/longinteger_endpoint");
     res = device->unset_property(interface_name, longinteger_path);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
     std::string double_path("/double_endpoint");
     res = device->unset_property(interface_name, double_path);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
     std::string boolean_path("/boolean_endpoint");
     res = res = device->unset_property(interface_name, boolean_path);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
     std::string string_path("/string_endpoint");
     res = device->unset_property(interface_name, string_path);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
     std::string binaryblob_path("/binaryblob_endpoint");
     res = device->unset_property(interface_name, binaryblob_path);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
     std::string datetime_path("/datetime_endpoint");
     res = device->unset_property(interface_name, datetime_path);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
     std::string integerarray_path("/integerarray_endpoint");
     res = device->unset_property(interface_name, integerarray_path);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
     std::string longintegerarray_path("/longintegerarray_endpoint");
     res = device->unset_property(interface_name, longintegerarray_path);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
     std::string doubleararray_path("/doublearray_endpoint");
     res = device->unset_property(interface_name, doubleararray_path);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
     std::string booleanarray_path("/booleanarray_endpoint");
     res = device->unset_property(interface_name, booleanarray_path);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
     std::string stringarray_path("/stringarray_endpoint");
     res = device->unset_property(interface_name, stringarray_path);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
     std::string binaryblobarray_path("/binaryblobarray_endpoint");
     res = device->unset_property(interface_name, binaryblobarray_path);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 
     std::string datetimearray_path("/datetimearray_endpoint");
     res = device->unset_property(interface_name, datetimearray_path);
     if (!res) {
-      spdlog::critical(std::get<AstarteInvalidInputError>(res.error()).message());
+      spdlog::critical(std::get<InvalidInputError>(res.error()).message());
       return EXIT_FAILURE;
     }
 

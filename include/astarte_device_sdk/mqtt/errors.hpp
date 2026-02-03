@@ -20,283 +20,283 @@ namespace astarte::device {
 /**
  * @brief Specific error for when an operation failed due to an internal error.
  */
-class AstarteMqttError : public AstarteErrorBase {
+class MqttError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteMqttError(std::string_view message);
+  explicit MqttError(std::string_view message);
   /**
    * @brief Error constructor with no message.
    */
-  explicit AstarteMqttError();
+  explicit MqttError();
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteMqttError(std::string_view message, const AstarteError& other);
+  explicit MqttError(std::string_view message, const Error& other);
   /**
    * @brief Nested error constructor with no message.
    * @param other The error to nest.
    */
-  explicit AstarteMqttError(const AstarteError& other);
+  explicit MqttError(const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteMqttError";
+  static constexpr std::string_view k_type_ = "MqttError";
 };
 
 /**
  * @brief Specific error for when an operation failed due to an internal error.
  */
-class AstartePairingApiError : public AstarteErrorBase {
+class PairingApiError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstartePairingApiError(std::string_view message);
+  explicit PairingApiError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstartePairingApiError(std::string_view message, const AstarteError& other);
+  explicit PairingApiError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstartePairingApiError";
+  static constexpr std::string_view k_type_ = "PairingApiError";
 };
 
 /**
  * @brief Specific error for when an operation failed due to an internal error.
  */
-class AstarteInvalidUrlError : public AstarteErrorBase {
+class InvalidUrlError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteInvalidUrlError(std::string_view message);
+  explicit InvalidUrlError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteInvalidUrlError(std::string_view message, const AstarteError& other);
+  explicit InvalidUrlError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteInvalidUrlError";
+  static constexpr std::string_view k_type_ = "InvalidUrlError";
 };
 
 /**
  * @brief Specific error for when an operation failed due to an internal error.
  */
-class AstarteDeviceRegistrationError : public AstarteErrorBase {
+class DeviceRegistrationError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteDeviceRegistrationError(std::string_view message);
+  explicit DeviceRegistrationError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteDeviceRegistrationError(std::string_view message, const AstarteError& other);
+  explicit DeviceRegistrationError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteDeviceRegistrationError";
+  static constexpr std::string_view k_type_ = "DeviceRegistrationError";
 };
 
 /**
  * @brief Specific error for when an operation failed due to an internal error.
  */
-class AstarteJsonParsingError : public AstarteErrorBase {
+class JsonParsingError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteJsonParsingError(std::string_view message);
+  explicit JsonParsingError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteJsonParsingError(std::string_view message, const AstarteError& other);
+  explicit JsonParsingError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteJsonParsingError";
+  static constexpr std::string_view k_type_ = "JsonParsingError";
 };
 
 /**
  * @brief Specific error for when an operation failed due to an internal error.
  */
-class AstarteRetrieveBrokerUrlError : public AstarteErrorBase {
+class RetrieveBrokerUrlError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteRetrieveBrokerUrlError(std::string_view message);
+  explicit RetrieveBrokerUrlError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteRetrieveBrokerUrlError(std::string_view message, const AstarteError& other);
+  explicit RetrieveBrokerUrlError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteRetrieveBrokerUrlError";
+  static constexpr std::string_view k_type_ = "RetrieveBrokerUrlError";
 };
 
 /**
  * @brief Specific error for when reading from a file.
  */
-class AstarteReadCredentialError : public AstarteErrorBase {
+class ReadCredentialError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteReadCredentialError(std::string_view message);
+  explicit ReadCredentialError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteReadCredentialError(std::string_view message, const AstarteError& other);
+  explicit ReadCredentialError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteReadCredentialError";
+  static constexpr std::string_view k_type_ = "ReadCredentialError";
 };
 
 /**
  * @brief Specific error for when writing to a file.
  */
-class AstarteWriteCredentialError : public AstarteErrorBase {
+class WriteCredentialError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteWriteCredentialError(std::string_view message);
+  explicit WriteCredentialError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteWriteCredentialError(std::string_view message, const AstarteError& other);
+  explicit WriteCredentialError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteWriteCredentialError";
+  static constexpr std::string_view k_type_ = "WriteCredentialError";
 };
 
 /**
  * @brief Specific error for when the configuration to connect the devite to Astarte is invalid.
  */
-class AstartePairingConfigError : public AstarteErrorBase {
+class PairingConfigError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstartePairingConfigError(std::string_view message);
+  explicit PairingConfigError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstartePairingConfigError(std::string_view message, const AstarteError& other);
+  explicit PairingConfigError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstartePairingConfigError";
+  static constexpr std::string_view k_type_ = "PairingConfigError";
 };
 
 /**
  * @brief Specific error for when an operation failed due to an internal error.
  */
-class AstarteCryptoError : public AstarteErrorBase {
+class CryptoError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteCryptoError(std::string_view message);
+  explicit CryptoError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteCryptoError(std::string_view message, const AstarteError& other);
+  explicit CryptoError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteCryptoError";
+  static constexpr std::string_view k_type_ = "CryptoError";
 };
 
 /**
  * @brief Specific error for when a UUID operation failed.
  */
-class AstarteUuidError : public AstarteErrorBase {
+class UuidError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteUuidError(std::string_view message);
+  explicit UuidError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteUuidError(std::string_view message, const AstarteError& other);
+  explicit UuidError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteUuidError";
+  static constexpr std::string_view k_type_ = "UuidError";
 };
 
 /**
  * @brief Specific error for when an operation failed due to an internal error.
  */
-class AstarteHttpError : public AstarteErrorBase {
+class HttpError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteHttpError(std::string_view message);
+  explicit HttpError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteHttpError(std::string_view message, const AstarteError& other);
+  explicit HttpError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteHttpError";
+  static constexpr std::string_view k_type_ = "HttpError";
 };
 
 /**
  * @brief Specific mqtt conncetion error.
  */
-class AstarteMqttConnectionError : public AstarteErrorBase {
+class MqttConnectionError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteMqttConnectionError(std::string_view message);
+  explicit MqttConnectionError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteMqttConnectionError(std::string_view message, const AstarteError& other);
+  explicit MqttConnectionError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteMqttConnectionError";
+  static constexpr std::string_view k_type_ = "MqttConnectionError";
 };
 
 }  // namespace astarte::device

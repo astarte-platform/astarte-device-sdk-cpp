@@ -28,36 +28,36 @@ namespace astarte_tl = ::tl;
 namespace astarte_tl = ::std;
 #endif
 
-class AstarteDataSerializationError;
-class AstarteFileOpenError;
-class AstarteInvalidInputError;
-class AstarteInternalError;
-class AstarteOperationRefusedError;
-class AstarteGrpcLibError;
-class AstarteMsgHubError;
-class AstarteInterfaceValidationError;
-class AstarteInvalidInterfaceVersionError;
-class AstarteInvalidInterfaceTypeError;
-class AstarteInvalidInterfaceOwnershipeError;
-class AstarteInvalidInterfaceAggregationError;
-class AstarteInvalidReliabilityError;
-class AstarteInvalidAstarteTypeError;
-class AstarteInvalidRetentionError;
-class AstarteInvalidDatabaseRetentionPolicyError;
+class DataSerializationError;
+class FileOpenError;
+class InvalidInputError;
+class InternalError;
+class OperationRefusedError;
+class GrpcLibError;
+class MsgHubError;
+class InterfaceValidationError;
+class InvalidInterfaceVersionError;
+class InvalidInterfaceTypeError;
+class InvalidInterfaceOwnershipeError;
+class InvalidInterfaceAggregationError;
+class InvalidReliabilityError;
+class InvalidAstarteTypeError;
+class InvalidRetentionError;
+class InvalidDatabaseRetentionPolicyError;
 #if !defined(ASTARTE_TRANSPORT_GRPC)
-class AstarteJsonParsingError;
-class AstarteDeviceRegistrationError;
-class AstartePairingApiError;
-class AstarteMqttError;
-class AstarteInvalidUrlError;
-class AstarteRetrieveBrokerUrlError;
-class AstarteReadCredentialError;
-class AstarteWriteCredentialError;
-class AstartePairingConfigError;
-class AstarteCryptoError;
-class AstarteUuidError;
-class AstarteHttpError;
-class AstarteMqttConnectionError;
+class JsonParsingError;
+class DeviceRegistrationError;
+class PairingApiError;
+class MqttError;
+class InvalidUrlError;
+class RetrieveBrokerUrlError;
+class ReadCredentialError;
+class WriteCredentialError;
+class PairingConfigError;
+class CryptoError;
+class UuidError;
+class HttpError;
+class MqttConnectionError;
 #endif
 
 /**
@@ -65,22 +65,19 @@ class AstarteMqttConnectionError;
  *
  * This type is intended to be used as the error type 'E' in std::expected<T, E>.
  */
-using AstarteError =
-    std::variant<AstarteDataSerializationError, AstarteInternalError, AstarteFileOpenError,
-                 AstarteInvalidInputError, AstarteInterfaceValidationError,
-                 AstarteInvalidInterfaceVersionError, AstarteInvalidInterfaceTypeError,
-                 AstarteInvalidInterfaceOwnershipeError, AstarteInvalidInterfaceAggregationError,
-                 AstarteInvalidAstarteTypeError, AstarteInvalidReliabilityError,
-                 AstarteInvalidRetentionError, AstarteInvalidDatabaseRetentionPolicyError,
+using Error =
+    std::variant<DataSerializationError, InternalError, FileOpenError, InvalidInputError,
+                 InterfaceValidationError, InvalidInterfaceVersionError, InvalidInterfaceTypeError,
+                 InvalidInterfaceOwnershipeError, InvalidInterfaceAggregationError,
+                 InvalidAstarteTypeError, InvalidReliabilityError, InvalidRetentionError,
+                 InvalidDatabaseRetentionPolicyError,
 #if !defined(ASTARTE_TRANSPORT_GRPC)
-                 AstarteOperationRefusedError, AstarteGrpcLibError, AstarteMsgHubError,
-                 AstarteJsonParsingError, AstarteDeviceRegistrationError, AstartePairingApiError,
-                 AstarteMqttError, AstarteInvalidUrlError, AstarteRetrieveBrokerUrlError,
-                 AstarteReadCredentialError, AstarteWriteCredentialError, AstartePairingConfigError,
-                 AstarteCryptoError, AstarteUuidError, AstarteHttpError,
-                 AstarteMqttConnectionError>;
+                 OperationRefusedError, GrpcLibError, MsgHubError, JsonParsingError,
+                 DeviceRegistrationError, PairingApiError, MqttError, InvalidUrlError,
+                 RetrieveBrokerUrlError, ReadCredentialError, WriteCredentialError,
+                 PairingConfigError, CryptoError, UuidError, HttpError, MqttConnectionError>;
 #else
-                 AstarteOperationRefusedError, AstarteGrpcLibError, AstarteMsgHubError>;
+                 OperationRefusedError, GrpcLibError, MsgHubError>;
 #endif
 
 /**
@@ -88,24 +85,24 @@ using AstarteError =
  *
  * This type is intended to be used as the error type 'E' in std::expected<T, E>.
  */
-class AstarteErrorBase {
+class ErrorBase {
  public:
   /** @brief Destructor for the Astarte error. */
-  virtual ~AstarteErrorBase() = default;
+  virtual ~ErrorBase() = default;
   /** @brief Default copy constructor. */
-  AstarteErrorBase(const AstarteErrorBase&) = default;
+  ErrorBase(const ErrorBase&) = default;
   /**
    * @brief Default copy assignment operator.
    * @return The new class.
    */
-  auto operator=(const AstarteErrorBase&) -> AstarteErrorBase& = default;
+  auto operator=(const ErrorBase&) -> ErrorBase& = default;
   /** @brief Delete move constructor. */
-  AstarteErrorBase(AstarteErrorBase&&) = delete;
+  ErrorBase(ErrorBase&&) = delete;
   /**
    * @brief Default move assignment operator.
    * @return The new instance.
    */
-  auto operator=(AstarteErrorBase&&) -> AstarteErrorBase& = default;
+  auto operator=(ErrorBase&&) -> ErrorBase& = default;
 
   /**
    * @brief Return the message encapsulated in the error.
@@ -121,7 +118,7 @@ class AstarteErrorBase {
    * @brief Return the nested error.
    * @return The error.
    */
-  [[nodiscard]] auto nested_error() const -> const std::shared_ptr<AstarteErrorBase>&;
+  [[nodiscard]] auto nested_error() const -> const std::shared_ptr<ErrorBase>&;
 
  protected:
   /**
@@ -129,181 +126,179 @@ class AstarteErrorBase {
    * @param type The name of the error type.
    * @param message The error message.
    */
-  explicit AstarteErrorBase(std::string_view type, std::string_view message);
+  explicit ErrorBase(std::string_view type, std::string_view message);
   /**
    * @brief Wrapping constructor for the Astarte error.
    * @param type The name of the error type.
    * @param message The error message.
    * @param other An error to encapsulate within this base error.
    */
-  explicit AstarteErrorBase(std::string_view type, std::string_view message,
-                            const AstarteErrorBase& other);
+  explicit ErrorBase(std::string_view type, std::string_view message, const ErrorBase& other);
 
  private:
   std::string type_;
   std::string message_;
-  std::shared_ptr<AstarteErrorBase> other_;
+  std::shared_ptr<ErrorBase> other_;
 };
 
 /**
  * @brief Specific error for when a serializaion operation failed.
  */
-class AstarteDataSerializationError : public AstarteErrorBase {
+class DataSerializationError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteDataSerializationError(std::string_view message);
+  explicit DataSerializationError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteDataSerializationError(std::string_view message, const AstarteError& other);
+  explicit DataSerializationError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteDataSerializationError";
+  static constexpr std::string_view k_type_ = "DataSerializationError";
 };
 
 /**
  * @brief Specific error for when an operation failed due to an internal error.
  */
-class AstarteInternalError : public AstarteErrorBase {
+class InternalError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteInternalError(std::string_view message);
+  explicit InternalError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteInternalError(std::string_view message, const AstarteError& other);
+  explicit InternalError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteInternalError";
+  static constexpr std::string_view k_type_ = "InternalError";
 };
 
 /**
  * @brief Specific error for when a file cannot be opened.
  */
-class AstarteFileOpenError : public AstarteErrorBase {
+class FileOpenError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param filename The file which could not be opened.
    */
-  explicit AstarteFileOpenError(std::string_view filename);
+  explicit FileOpenError(std::string_view filename);
   /**
    * @brief Nested error constructor.
    * @param filename The file which could not be opened.
    * @param other The error to nest.
    */
-  explicit AstarteFileOpenError(std::string_view filename, const AstarteError& other);
+  explicit FileOpenError(std::string_view filename, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteFileOpenError";
+  static constexpr std::string_view k_type_ = "FileOpenError";
 };
 
 /**
  * @brief Specific error for when an operation failed due to incompatible user input.
  */
-class AstarteInvalidInputError : public AstarteErrorBase {
+class InvalidInputError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteInvalidInputError(std::string_view message);
+  explicit InvalidInputError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteInvalidInputError(std::string_view message, const AstarteError& other);
+  explicit InvalidInputError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteInvalidInputError";
+  static constexpr std::string_view k_type_ = "InvalidInputError";
 };
 
 /**
  * @brief Attempted an operation which is not permitted according to the current device status.
  */
-class AstarteOperationRefusedError : public AstarteErrorBase {
+class OperationRefusedError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteOperationRefusedError(std::string_view message);
+  explicit OperationRefusedError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteOperationRefusedError(std::string_view message, const AstarteError& other);
+  explicit OperationRefusedError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteOperationRefusedError";
+  static constexpr std::string_view k_type_ = "OperationRefusedError";
 };
 
 /**
  * @brief Error reported by the gRPC transport library.
  */
-class AstarteGrpcLibError : public AstarteErrorBase {
+class GrpcLibError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteGrpcLibError(std::string_view message);
+  explicit GrpcLibError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteGrpcLibError(std::string_view message, const AstarteError& other);
+  explicit GrpcLibError(std::string_view message, const Error& other);
   /**
    * @brief Error constructor including gRPC error codes.
    * @param code The error code returned by the gRPC library.
    * @param message The error message.
    */
-  explicit AstarteGrpcLibError(std::uint64_t code, std::string_view message);
+  explicit GrpcLibError(std::uint64_t code, std::string_view message);
   /**
    * @brief Nested error constructor including gRPC error codes.
    * @param code The error code returned by the gRPC library.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteGrpcLibError(std::uint64_t code, std::string_view message,
-                               const AstarteError& other);
+  explicit GrpcLibError(std::uint64_t code, std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteGrpcLibError";
+  static constexpr std::string_view k_type_ = "GrpcLibError";
 };
 
 /**
  * @brief Error reported by the Astarte message hub library.
  */
-class AstarteMsgHubError : public AstarteErrorBase {
+class MsgHubError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteMsgHubError(std::string_view message);
+  explicit MsgHubError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteMsgHubError(std::string_view message, const AstarteError& other);
+  explicit MsgHubError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteMsgHubError";
+  static constexpr std::string_view k_type_ = "MsgHubError";
 };
 
 /************************************************
@@ -313,193 +308,190 @@ class AstarteMsgHubError : public AstarteErrorBase {
 /**
  * @brief Error during the Interface validation.
  */
-class AstarteInterfaceValidationError : public AstarteErrorBase {
+class InterfaceValidationError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteInterfaceValidationError(std::string_view message);
+  explicit InterfaceValidationError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteInterfaceValidationError(std::string_view message, const AstarteError& other);
+  explicit InterfaceValidationError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteInterfaceValidationError";
+  static constexpr std::string_view k_type_ = "InterfaceValidationError";
 };
 
 /**
  * @brief Either the minor or the major version is incorrect.
  */
-class AstarteInvalidInterfaceVersionError : public AstarteErrorBase {
+class InvalidInterfaceVersionError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteInvalidInterfaceVersionError(std::string_view message);
+  explicit InvalidInterfaceVersionError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteInvalidInterfaceVersionError(std::string_view message, const AstarteError& other);
+  explicit InvalidInterfaceVersionError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteInvalidInterfaceVersionError";
+  static constexpr std::string_view k_type_ = "InvalidInterfaceVersionError";
 };
 
 /**
  * @brief The provided interface type is incorrect.
  */
-class AstarteInvalidInterfaceTypeError : public AstarteErrorBase {
+class InvalidInterfaceTypeError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteInvalidInterfaceTypeError(std::string_view message);
+  explicit InvalidInterfaceTypeError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteInvalidInterfaceTypeError(std::string_view message, const AstarteError& other);
+  explicit InvalidInterfaceTypeError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteInvalidInterfaceTypeError";
+  static constexpr std::string_view k_type_ = "InvalidInterfaceTypeError";
 };
 
 /**
  * @brief The provided interface ownership is incorrect.
  */
-class AstarteInvalidInterfaceOwnershipeError : public AstarteErrorBase {
+class InvalidInterfaceOwnershipeError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteInvalidInterfaceOwnershipeError(std::string_view message);
+  explicit InvalidInterfaceOwnershipeError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteInvalidInterfaceOwnershipeError(std::string_view message,
-                                                  const AstarteError& other);
+  explicit InvalidInterfaceOwnershipeError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteInvalidInterfaceOwnershipeError";
+  static constexpr std::string_view k_type_ = "InvalidInterfaceOwnershipeError";
 };
 
 /**
  * @brief The provided interface aggregation is incorrect.
  */
-class AstarteInvalidInterfaceAggregationError : public AstarteErrorBase {
+class InvalidInterfaceAggregationError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteInvalidInterfaceAggregationError(std::string_view message);
+  explicit InvalidInterfaceAggregationError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteInvalidInterfaceAggregationError(std::string_view message,
-                                                   const AstarteError& other);
+  explicit InvalidInterfaceAggregationError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteInvalidInterfaceAggregationError";
+  static constexpr std::string_view k_type_ = "InvalidInterfaceAggregationError";
 };
 
 /**
  * @brief The provided Astarte type is incorrect.
  */
-class AstarteInvalidAstarteTypeError : public AstarteErrorBase {
+class InvalidAstarteTypeError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteInvalidAstarteTypeError(std::string_view message);
+  explicit InvalidAstarteTypeError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteInvalidAstarteTypeError(std::string_view message, const AstarteError& other);
+  explicit InvalidAstarteTypeError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteInvalidAstarteTypeError";
+  static constexpr std::string_view k_type_ = "InvalidAstarteTypeError";
 };
 
 /**
  * @brief The provided Astarte reliability is incorrect.
  */
-class AstarteInvalidReliabilityError : public AstarteErrorBase {
+class InvalidReliabilityError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteInvalidReliabilityError(std::string_view message);
+  explicit InvalidReliabilityError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteInvalidReliabilityError(std::string_view message, const AstarteError& other);
+  explicit InvalidReliabilityError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteInvalidReliabilityError";
+  static constexpr std::string_view k_type_ = "InvalidReliabilityError";
 };
 
 /**
  * @brief The provided Astarte retention is incorrect.
  */
-class AstarteInvalidRetentionError : public AstarteErrorBase {
+class InvalidRetentionError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteInvalidRetentionError(std::string_view message);
+  explicit InvalidRetentionError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteInvalidRetentionError(std::string_view message, const AstarteError& other);
+  explicit InvalidRetentionError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteInvalidRetentionError";
+  static constexpr std::string_view k_type_ = "InvalidRetentionError";
 };
 
 /**
  * @brief The provided Astarte database retention policy is incorrect.
  */
-class AstarteInvalidDatabaseRetentionPolicyError : public AstarteErrorBase {
+class InvalidDatabaseRetentionPolicyError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
    * @param message The error message.
    */
-  explicit AstarteInvalidDatabaseRetentionPolicyError(std::string_view message);
+  explicit InvalidDatabaseRetentionPolicyError(std::string_view message);
   /**
    * @brief Nested error constructor.
    * @param message The error message.
    * @param other The error to nest.
    */
-  explicit AstarteInvalidDatabaseRetentionPolicyError(std::string_view message,
-                                                      const AstarteError& other);
+  explicit InvalidDatabaseRetentionPolicyError(std::string_view message, const Error& other);
 
  private:
-  static constexpr std::string_view k_type_ = "AstarteInvalidDatabaseRetentionPolicyError";
+  static constexpr std::string_view k_type_ = "InvalidDatabaseRetentionPolicyError";
 };
 
 }  // namespace astarte::device
@@ -512,11 +504,11 @@ class AstarteInvalidDatabaseRetentionPolicyError : public AstarteErrorBase {
 #endif
 
 /**
- * @brief Formatter specialization for astarte::device::AstarteError.
+ * @brief Formatter specialization for astarte::device::Error.
  */
 template <>
 // NOLINTNEXTLINE(cert-dcl58-cpp)
-struct astarte_fmt::formatter<astarte::device::AstarteError> {
+struct astarte_fmt::formatter<astarte::device::Error> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -528,16 +520,16 @@ struct astarte_fmt::formatter<astarte::device::AstarteError> {
   }
 
   /**
-   * @brief Format the AstarteError object.
-   * @param err_variant The AstarteError to format.
+   * @brief Format the Error object.
+   * @param err_variant The Error to format.
    * @param ctx The format context.
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const astarte::device::AstarteError& err_variant, FormatContext& ctx) const {
+  auto format(const astarte::device::Error& err_variant, FormatContext& ctx) const {
     return std::visit(
         [&ctx](const auto& err) {
-          const auto& base_err = static_cast<const astarte::device::AstarteErrorBase&>(err);
+          const auto& base_err = static_cast<const astarte::device::ErrorBase&>(err);
           return astarte_fmt::format_to(ctx.out(), "{}", base_err);
         },
         err_variant);
@@ -545,10 +537,10 @@ struct astarte_fmt::formatter<astarte::device::AstarteError> {
 };
 
 /**
- * @brief Formatter specialization for astarte::device::AstarteErrorBase.
+ * @brief Formatter specialization for astarte::device::ErrorBase.
  */
 template <>
-struct astarte_fmt::formatter<astarte::device::AstarteErrorBase> {
+struct astarte_fmt::formatter<astarte::device::ErrorBase> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -560,17 +552,17 @@ struct astarte_fmt::formatter<astarte::device::AstarteErrorBase> {
   }
 
   /**
-   * @brief Format the AstarteErrorBase object.
-   * @param err The AstarteErrorBase to format.
+   * @brief Format the ErrorBase object.
+   * @param err The ErrorBase to format.
    * @param ctx The format context.
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const astarte::device::AstarteErrorBase& err, FormatContext& ctx) const {
+  auto format(const astarte::device::ErrorBase& err, FormatContext& ctx) const {
     auto out = astarte_fmt::format_to(ctx.out(), "{}: {}", err.type(), err.message());
 
     std::string indent;
-    const astarte::device::AstarteErrorBase* current = &err;
+    const astarte::device::ErrorBase* current = &err;
     while (const auto& nested = current->nested_error()) {
       indent += "  ";
       out = astarte_fmt::format_to(out, "\n{}-> {}: {}", indent, nested->type(), nested->message());

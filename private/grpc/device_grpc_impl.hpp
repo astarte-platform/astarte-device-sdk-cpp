@@ -62,24 +62,23 @@ struct AstarteDeviceGrpc::AstarteDeviceGrpcImpl {
    * @param json_file The filesystem path to the .json interface file.
    */
   auto add_interface_from_file(const std::filesystem::path& json_file)
-      -> astarte_tl::expected<void, AstarteError>;
+      -> astarte_tl::expected<void, Error>;
   /**
    * @brief Parse an interface definition from a JSON string and adds it to the device.
    * @param json The interface to add.
    */
-  auto add_interface_from_str(std::string_view json) -> astarte_tl::expected<void, AstarteError>;
+  auto add_interface_from_str(std::string_view json) -> astarte_tl::expected<void, Error>;
   /**
    * @brief Remove an installed interface.
    * @param interface_name The interface name.
    */
-  auto remove_interface(const std::string& interface_name)
-      -> astarte_tl::expected<void, AstarteError>;
+  auto remove_interface(const std::string& interface_name) -> astarte_tl::expected<void, Error>;
   /**
    * @brief Connect the device to Astarte.
    * @details This is an asynchronous funciton. It will start a management thread that will
    * manage the device connectivity.
    */
-  auto connect() -> astarte_tl::expected<void, AstarteError>;
+  auto connect() -> astarte_tl::expected<void, Error>;
   /**
    * @brief Check if the device is connected.
    * @return True if the device is connected to the message hub, false otherwise.
@@ -89,7 +88,7 @@ struct AstarteDeviceGrpc::AstarteDeviceGrpcImpl {
    * @brief Disconnect from the Astarte message hub.
    * @details Gracefully terminates the connection by sending a Detach message.
    */
-  auto disconnect() -> astarte_tl::expected<void, AstarteError>;
+  auto disconnect() -> astarte_tl::expected<void, Error>;
   /**
    * @brief Send an individual datastream value to an interface.
    * @param interface_name The name of the interface to send data to.
@@ -99,7 +98,7 @@ struct AstarteDeviceGrpc::AstarteDeviceGrpcImpl {
    */
   auto send_individual(std::string_view interface_name, std::string_view path, const Data& data,
                        const std::chrono::system_clock::time_point* timestamp)
-      -> astarte_tl::expected<void, AstarteError>;
+      -> astarte_tl::expected<void, Error>;
   /**
    * @brief Send a datastream object to an interface.
    * @param interface_name The name of the interface to send data to.
@@ -110,7 +109,7 @@ struct AstarteDeviceGrpc::AstarteDeviceGrpcImpl {
   auto send_object(std::string_view interface_name, std::string_view path,
                    const AstarteDatastreamObject& object,
                    const std::chrono::system_clock::time_point* timestamp)
-      -> astarte_tl::expected<void, AstarteError>;
+      -> astarte_tl::expected<void, Error>;
   /**
    * @brief Set a device property on an interface.
    * @param interface_name The name of the interface where the property is defined.
@@ -118,7 +117,7 @@ struct AstarteDeviceGrpc::AstarteDeviceGrpcImpl {
    * @param data The value to set for the property.
    */
   auto set_property(std::string_view interface_name, std::string_view path, const Data& data)
-      -> astarte_tl::expected<void, AstarteError>;
+      -> astarte_tl::expected<void, Error>;
   /**
    * @brief Unset a device property on an interface.
    * @details This sends a message to the server to clear the value of a specific property.
@@ -126,7 +125,7 @@ struct AstarteDeviceGrpc::AstarteDeviceGrpcImpl {
    * @param path The path of the property to unset.
    */
   auto unset_property(std::string_view interface_name, std::string_view path)
-      -> astarte_tl::expected<void, AstarteError>;
+      -> astarte_tl::expected<void, Error>;
   /**
    * @brief Poll for a new message received from the message hub.
    * @details This method checks an internal queue for parsed messages from the server.
@@ -141,14 +140,14 @@ struct AstarteDeviceGrpc::AstarteDeviceGrpcImpl {
    * @return A list of stored properties, as returned by the message hub.
    */
   auto get_all_properties(const std::optional<AstarteOwnership>& ownership)
-      -> astarte_tl::expected<std::list<AstarteStoredProperty>, AstarteError>;
+      -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error>;
   /**
    * @brief Get stored propertied matching the interface.
    * @param interface_name The name of the interface for the property.
    * @return A list of stored properties, as returned by the message hub.
    */
   auto get_properties(std::string_view interface_name)
-      -> astarte_tl::expected<std::list<AstarteStoredProperty>, AstarteError>;
+      -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error>;
   /**
    * @brief Get a single stored property matching the interface name and path.
    * @param interface_name The name of the interface for the property.
@@ -156,7 +155,7 @@ struct AstarteDeviceGrpc::AstarteDeviceGrpcImpl {
    * @return The stored property, as returned by the message hub.
    */
   auto get_property(std::string_view interface_name, std::string_view path)
-      -> astarte_tl::expected<AstartePropertyIndividual, AstarteError>;
+      -> astarte_tl::expected<AstartePropertyIndividual, Error>;
 
  private:
   // Helper struct to hold the results of the Attach RPC call
@@ -165,14 +164,14 @@ struct AstarteDeviceGrpc::AstarteDeviceGrpcImpl {
     std::unique_ptr<grpc::ClientReader<gRPCMessageHubEvent>> reader;
   };
   void setup_grpc_channel();
-  auto perform_attach() -> astarte_tl::expected<AttachResult, AstarteError>;
-  auto connection_attempt(const std::stop_token& token) -> astarte_tl::expected<void, AstarteError>;
+  auto perform_attach() -> astarte_tl::expected<AttachResult, Error>;
+  auto connection_attempt(const std::stop_token& token) -> astarte_tl::expected<void, Error>;
   auto handle_events(const std::stop_token& token, std::unique_ptr<grpc::ClientContext> context,
                      std::unique_ptr<grpc::ClientReader<gRPCMessageHubEvent>> reader)
-      -> astarte_tl::expected<void, AstarteError>;
+      -> astarte_tl::expected<void, Error>;
   static auto parse_message_hub_event(const gRPCMessageHubEvent& event)
-      -> astarte_tl::expected<AstarteMessage, AstarteError>;
-  auto connection_loop(const std::stop_token& token) -> astarte_tl::expected<void, AstarteError>;
+      -> astarte_tl::expected<AstarteMessage, Error>;
+  auto connection_loop(const std::stop_token& token) -> astarte_tl::expected<void, Error>;
 
   std::string server_addr_;
   std::string node_uuid_;

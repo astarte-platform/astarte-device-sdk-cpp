@@ -68,10 +68,9 @@ class InterfaceType {
   /**
    * @brief Attempt to create an InterfaceType from a string.
    * @param str The string representation to parse.
-   * @return An expected containing the InterfaceType on success, or an AstarteError on failure.
+   * @return An expected containing the InterfaceType on success, or an Error on failure.
    */
-  static auto try_from_str(std::string_view str)
-      -> astarte_tl::expected<InterfaceType, AstarteError> {
+  static auto try_from_str(std::string_view str) -> astarte_tl::expected<InterfaceType, Error> {
     if (str == "datastream") {
       return InterfaceType(Value::kDatastream);
     }
@@ -79,7 +78,7 @@ class InterfaceType {
       return InterfaceType(Value::kProperty);
     }
     return astarte_tl::unexpected(
-        AstarteInvalidInterfaceTypeError(astarte_fmt::format("interface type not valid: {}", str)));
+        InvalidInterfaceTypeError(astarte_fmt::format("interface type not valid: {}", str)));
   }
 
  private:
@@ -125,18 +124,18 @@ class InterfaceAggregation {
   /**
    * @brief Attempt to create an InterfaceAggregation from a string.
    * @param str The string representation to parse.
-   * @return An expected containing the InterfaceAggregation on success, or an AstarteError on
+   * @return An expected containing the InterfaceAggregation on success, or an Error on
    * failure.
    */
   static auto try_from_str(std::string_view str)
-      -> astarte_tl::expected<InterfaceAggregation, AstarteError> {
+      -> astarte_tl::expected<InterfaceAggregation, Error> {
     if (str == "individual") {
       return InterfaceAggregation(Value::kIndividual);
     }
     if (str == "object") {
       return InterfaceAggregation(Value::kObject);
     }
-    return astarte_tl::unexpected(AstarteInvalidInterfaceAggregationError(
+    return astarte_tl::unexpected(InvalidInterfaceAggregationError(
         astarte_fmt::format("interface aggregation not valid: {}", str)));
   }
 
@@ -158,7 +157,7 @@ class Interface {
    * @param interface json representation of the Astarte interface.
    * @return An Interface object containg all the parsed Astarte interface information.
    */
-  static auto try_from_json(const json& interface) -> astarte_tl::expected<Interface, AstarteError>;
+  static auto try_from_json(const json& interface) -> astarte_tl::expected<Interface, Error>;
 
   /**
    * @brief Move constructor.
@@ -222,7 +221,7 @@ class Interface {
    * @return a pointer to the mapping associated with the path, an error otherwise.
    */
   [[nodiscard]] auto get_mapping(std::string_view path) const
-      -> astarte_tl::expected<const Mapping*, AstarteError>;
+      -> astarte_tl::expected<const Mapping*, Error>;
 
   /**
    * @brief Validate an Astarte individual.
@@ -234,7 +233,7 @@ class Interface {
    */
   auto validate_individual(std::string_view path, const Data& data,
                            const std::chrono::system_clock::time_point* timestamp) const
-      -> astarte_tl::expected<void, AstarteError>;
+      -> astarte_tl::expected<void, Error>;
 
   /**
    * @brief Validate an Astarte object.
@@ -246,7 +245,7 @@ class Interface {
    */
   auto validate_object(std::string_view common_path, const AstarteDatastreamObject& object,
                        const std::chrono::system_clock::time_point* timestamp) const
-      -> astarte_tl::expected<void, AstarteError>;
+      -> astarte_tl::expected<void, Error>;
 
   /**
    * @brief Get the MQTT QoS from a certain mapping endpoint.
@@ -254,8 +253,7 @@ class Interface {
    * @param path the Astarte interface path.
    * @return the QoS value, an error otherwise.
    */
-  [[nodiscard]] auto get_qos(std::string_view path) const
-      -> astarte_tl::expected<uint8_t, AstarteError>;
+  [[nodiscard]] auto get_qos(std::string_view path) const -> astarte_tl::expected<uint8_t, Error>;
 
  private:
   Interface(std::string interface_name, uint32_t version_major, uint32_t version_minor,

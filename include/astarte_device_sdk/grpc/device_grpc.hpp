@@ -57,28 +57,27 @@ class AstarteDeviceGrpc : public Device {
    * @return An error if generated.
    */
   auto add_interface_from_file(const std::filesystem::path& json_file)
-      -> astarte_tl::expected<void, AstarteError> override;
+      -> astarte_tl::expected<void, Error> override;
   /**
    * @brief Add an interface for the device from a JSON string view.
    * @param json The interface definition as a JSON string view.
    * @return An error if generated.
    */
-  auto add_interface_from_str(std::string_view json)
-      -> astarte_tl::expected<void, AstarteError> override;
+  auto add_interface_from_str(std::string_view json) -> astarte_tl::expected<void, Error> override;
   /**
    * @brief Remove an installed interface.
    * @param interface_name The interface name.
    * @return An error if generated.
    */
   auto remove_interface(const std::string& interface_name)
-      -> astarte_tl::expected<void, AstarteError> override;
+      -> astarte_tl::expected<void, Error> override;
   /**
    * @brief Connect the device to Astarte.
    * @details This is an asynchronous funciton. It will start a management thread that will
    * manage the device connectivity.
    * @return An error if generated.
    */
-  auto connect() -> astarte_tl::expected<void, AstarteError> override;
+  auto connect() -> astarte_tl::expected<void, Error> override;
   /**
    * @brief Check if the device is connected.
    * @return True if the device is connected to the message hub, false otherwise.
@@ -88,7 +87,7 @@ class AstarteDeviceGrpc : public Device {
    * @brief Disconnect from Astarte.
    * @return An error if generated.
    */
-  auto disconnect() -> astarte_tl::expected<void, AstarteError> override;
+  auto disconnect() -> astarte_tl::expected<void, Error> override;
   /**
    * @brief Send individual data to Astarte.
    * @param interface_name The name of the interface on which to send the data.
@@ -99,7 +98,7 @@ class AstarteDeviceGrpc : public Device {
    */
   auto send_individual(std::string_view interface_name, std::string_view path, const Data& data,
                        const std::chrono::system_clock::time_point* timestamp)
-      -> astarte_tl::expected<void, AstarteError> override;
+      -> astarte_tl::expected<void, Error> override;
   /**
    * @brief Send object data to Astarte.
    * @param interface_name The name of the interface on which to send the data.
@@ -111,7 +110,7 @@ class AstarteDeviceGrpc : public Device {
   auto send_object(std::string_view interface_name, std::string_view path,
                    const AstarteDatastreamObject& object,
                    const std::chrono::system_clock::time_point* timestamp)
-      -> astarte_tl::expected<void, AstarteError> override;
+      -> astarte_tl::expected<void, Error> override;
   /**
    * @brief Set a device property.
    * @param interface_name The name of the interface for the property.
@@ -120,7 +119,7 @@ class AstarteDeviceGrpc : public Device {
    * @return An error if generated.
    */
   auto set_property(std::string_view interface_name, std::string_view path, const Data& data)
-      -> astarte_tl::expected<void, AstarteError> override;
+      -> astarte_tl::expected<void, Error> override;
   /**
    * @brief Unset a device property.
    * @param interface_name The name of the interface for the property.
@@ -128,7 +127,7 @@ class AstarteDeviceGrpc : public Device {
    * @return An error if generated.
    */
   auto unset_property(std::string_view interface_name, std::string_view path)
-      -> astarte_tl::expected<void, AstarteError> override;
+      -> astarte_tl::expected<void, Error> override;
   /**
    * @brief Poll incoming messages.
    * @param timeout Will block for this timeout if no message is present.
@@ -142,14 +141,14 @@ class AstarteDeviceGrpc : public Device {
    * @return A list of stored properties, as returned by the message hub, or an error upon failure.
    */
   auto get_all_properties(const std::optional<AstarteOwnership>& ownership)
-      -> astarte_tl::expected<std::list<AstarteStoredProperty>, AstarteError> override;
+      -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error> override;
   /**
    * @brief Get stored properties matching the interface.
    * @param interface_name The name of the interface for the properties.
    * @return A list of stored properties, as returned by the message hub, or an error upon failure.
    */
   auto get_properties(std::string_view interface_name)
-      -> astarte_tl::expected<std::list<AstarteStoredProperty>, AstarteError> override;
+      -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error> override;
   /**
    * @brief Get a single stored property matching the interface name and path.
    * @param interface_name The name of the interface for the property.
@@ -157,7 +156,7 @@ class AstarteDeviceGrpc : public Device {
    * @return The stored property, as returned by the message hub, or an error upon failure.
    */
   auto get_property(std::string_view interface_name, std::string_view path)
-      -> astarte_tl::expected<AstartePropertyIndividual, AstarteError> override;
+      -> astarte_tl::expected<AstartePropertyIndividual, Error> override;
 
  private:
   struct AstarteDeviceGrpcImpl;

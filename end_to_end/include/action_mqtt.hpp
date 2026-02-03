@@ -9,7 +9,7 @@
 
 namespace actions {
 
-using astarte::device::AstarteError;
+using astarte::device::Error;
 using astarte::device::PairingApi;
 
 constexpr size_t CREDENTIAL_SECRET_LEN = 44;
@@ -20,12 +20,11 @@ inline Action RegisterDevice(std::string pairing_token) {
 
     // Pairing requires a clean environment, typically no connected device is needed yet.
     // We use the HTTP config from the context.
-    auto res =
-        PairingApi::create(ctx.http.realm, ctx.device_id, ctx.http.astarte_base_url)
-            .and_then([&](const PairingApi& pairing_api)
-                          -> astarte::device::astarte_tl::expected<std::string, AstarteError> {
-              return pairing_api.register_device(token);
-            });
+    auto res = PairingApi::create(ctx.http.realm, ctx.device_id, ctx.http.astarte_base_url)
+                   .and_then([&](const PairingApi& pairing_api)
+                                 -> astarte::device::astarte_tl::expected<std::string, Error> {
+                     return pairing_api.register_device(token);
+                   });
 
     if (!res) {
       spdlog::error("Pairing failed: {}", res.error());

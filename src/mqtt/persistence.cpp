@@ -18,9 +18,9 @@ namespace astarte::device {
 
 namespace {
 
-auto overwrite_file_zeros(FILE* file, int64_t size) -> astarte_tl::expected<void, AstarteError> {
+auto overwrite_file_zeros(FILE* file, int64_t size) -> astarte_tl::expected<void, Error> {
   if (std::fseek(file, 0, SEEK_SET) != 0) {
-    return astarte_tl::unexpected(AstarteWriteCredentialError(astarte_fmt::format(
+    return astarte_tl::unexpected(WriteCredentialError(astarte_fmt::format(
         "failed to rewind file, {}", std::error_code(errno, std::generic_category()).message())));
   }
 
@@ -36,7 +36,7 @@ auto overwrite_file_zeros(FILE* file, int64_t size) -> astarte_tl::expected<void
     const size_t write_count = std::fwrite(buf.data(), 1, to_write, file);
 
     if (write_count != to_write) {
-      return astarte_tl::unexpected(AstarteWriteCredentialError(
+      return astarte_tl::unexpected(WriteCredentialError(
           astarte_fmt::format("failed to write zeros to file, {}",
                               std::error_code(errno, std::generic_category()).message())));
     }
@@ -52,10 +52,10 @@ auto Persistence::exists(const std::filesystem::path& file_path) -> bool {
 }
 
 auto Persistence::read_from_file(const std::filesystem::path& file_path)
-    -> astarte_tl::expected<std::string, AstarteError> {
+    -> astarte_tl::expected<std::string, Error> {
   std::ifstream interface_file(file_path, std::ios::in);
   if (!interface_file.is_open()) {
-    return astarte_tl::unexpected(AstarteReadCredentialError(
+    return astarte_tl::unexpected(ReadCredentialError(
         astarte_fmt::format("Could not open the credential file: {}", file_path.string())));
   }
 
@@ -68,15 +68,15 @@ auto Persistence::read_from_file(const std::filesystem::path& file_path)
 }
 
 auto Persistence::write_to_file(const std::filesystem::path& file_path, std::string_view data)
-    -> astarte_tl::expected<void, AstarteError> {
+    -> astarte_tl::expected<void, Error> {
   // open an output file stream (ofstream) using the path object
   // the file is automatically closed when 'output_file' goes out of scope
   std::ofstream output_file(file_path);
 
   // error if the file was not opened successfully
   if (!output_file.is_open()) {
-    return astarte_tl::unexpected(AstarteWriteCredentialError(
-        astarte_fmt::format("couldn't open file {}", file_path.string())));
+    return astarte_tl::unexpected(
+        WriteCredentialError(astarte_fmt::format("couldn't open file {}", file_path.string())));
   }
 
   output_file << data;
@@ -84,18 +84,17 @@ auto Persistence::write_to_file(const std::filesystem::path& file_path, std::str
   return {};
 }
 
-auto Persistence::secure_shred_file(const std::string& path)
-    -> astarte_tl::expected<void, AstarteError> {
+auto Persistence::secure_shred_file(const std::string& path) -> astarte_tl::expected<void, Error> {
   FILE* file = std::fopen(path.c_str(), "rb+");
 
   if (file == nullptr) {
-    return astarte_tl::unexpected(AstarteWriteCredentialError(astarte_fmt::format(
+    return astarte_tl::unexpected(WriteCredentialError(astarte_fmt::format(
         "failed to open the file, {}", std::error_code(errno, std::generic_category()).message())));
   }
 
   if (std::fseek(file, 0, SEEK_END) != 0) {
     (void)std::fclose(file);
-    return astarte_tl::unexpected(AstarteWriteCredentialError(
+    return astarte_tl::unexpected(WriteCredentialError(
         astarte_fmt::format("failed to seek end of file, {}",
                             std::error_code(errno, std::generic_category()).message())));
   }
@@ -103,7 +102,7 @@ auto Persistence::secure_shred_file(const std::string& path)
   const int64_t size = std::ftell(file);
   if (size == -1) {
     (void)std::fclose(file);
-    return astarte_tl::unexpected(AstarteWriteCredentialError(
+    return astarte_tl::unexpected(WriteCredentialError(
         astarte_fmt::format("failed to tell file size, {}",
                             std::error_code(errno, std::generic_category()).message())));
   }
@@ -116,19 +115,19 @@ auto Persistence::secure_shred_file(const std::string& path)
 
   if (std::fflush(file) != 0) {
     (void)std::fclose(file);
-    return astarte_tl::unexpected(AstarteWriteCredentialError(astarte_fmt::format(
+    return astarte_tl::unexpected(WriteCredentialError(astarte_fmt::format(
         "failed to flush file, {}", std::error_code(errno, std::generic_category()).message())));
   }
 
   if (fsync(fileno(file)) != 0) {
     (void)std::fclose(file);
-    return astarte_tl::unexpected(AstarteWriteCredentialError(
+    return astarte_tl::unexpected(WriteCredentialError(
         astarte_fmt::format("failed to flush and sync modifications, {}",
                             std::error_code(errno, std::generic_category()).message())));
   }
 
   if (std::fclose(file) != 0) {
-    return astarte_tl::unexpected(AstarteWriteCredentialError(astarte_fmt::format(
+    return astarte_tl::unexpected(WriteCredentialError(astarte_fmt::format(
         "failed to close file, {}", std::error_code(errno, std::generic_category()).message())));
   }
 
@@ -136,7 +135,7 @@ auto Persistence::secure_shred_file(const std::string& path)
   std::error_code error_code;
   std::filesystem::remove(path, error_code);
   if (error_code) {
-    return astarte_tl::unexpected(AstarteWriteCredentialError(
+    return astarte_tl::unexpected(WriteCredentialError(
         astarte_fmt::format("failed to delete the file, {}", error_code.message())));
   }
 

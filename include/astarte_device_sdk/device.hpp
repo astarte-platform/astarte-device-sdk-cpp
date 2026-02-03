@@ -59,28 +59,28 @@ class Device {
    * @return An error if generated.
    */
   virtual auto add_interface_from_file(const std::filesystem::path& json_file)
-      -> astarte_tl::expected<void, AstarteError> = 0;
+      -> astarte_tl::expected<void, Error> = 0;
   /**
    * @brief Add an interface for the device from a JSON string view.
    * @param json The interface definition as a JSON string view.
    * @return An error if generated.
    */
   virtual auto add_interface_from_str(std::string_view json)
-      -> astarte_tl::expected<void, AstarteError> = 0;
+      -> astarte_tl::expected<void, Error> = 0;
   /**
    * @brief Remove an installed interface.
    * @param interface_name The interface name.
    * @return An error if generated.
    */
   virtual auto remove_interface(const std::string& interface_name)
-      -> astarte_tl::expected<void, AstarteError> = 0;
+      -> astarte_tl::expected<void, Error> = 0;
   /**
    * @brief Connect the device to Astarte.
    * @details This is an asynchronous function. It starts a management process that will handle
    * the device's connectivity in the background.
    * @return An error if generated.
    */
-  virtual auto connect() -> astarte_tl::expected<void, AstarteError> = 0;
+  virtual auto connect() -> astarte_tl::expected<void, Error> = 0;
   /**
    * @brief Check if the device is connected to the Astarte message hub.
    * @return True if the device is connected, false otherwise.
@@ -90,7 +90,7 @@ class Device {
    * @brief Disconnect the device from Astarte.
    * @return An error if generated.
    */
-  virtual auto disconnect() -> astarte_tl::expected<void, AstarteError> = 0;
+  virtual auto disconnect() -> astarte_tl::expected<void, Error> = 0;
   /**
    * @brief Send an individual data payload to Astarte.
    * @param interface_name The name of the target interface.
@@ -102,7 +102,7 @@ class Device {
   virtual auto send_individual(std::string_view interface_name, std::string_view path,
                                const Data& data,
                                const std::chrono::system_clock::time_point* timestamp)
-      -> astarte_tl::expected<void, AstarteError> = 0;
+      -> astarte_tl::expected<void, Error> = 0;
   /**
    * @brief Send an aggregate object data payload to Astarte.
    * @param interface_name The name of the target interface.
@@ -114,7 +114,7 @@ class Device {
   virtual auto send_object(std::string_view interface_name, std::string_view path,
                            const AstarteDatastreamObject& object,
                            const std::chrono::system_clock::time_point* timestamp)
-      -> astarte_tl::expected<void, AstarteError> = 0;
+      -> astarte_tl::expected<void, Error> = 0;
   /**
    * @brief Set a device property on Astarte.
    * @param interface_name The name of the interface containing the property.
@@ -123,7 +123,7 @@ class Device {
    * @return An error if generated.
    */
   virtual auto set_property(std::string_view interface_name, std::string_view path,
-                            const Data& data) -> astarte_tl::expected<void, AstarteError> = 0;
+                            const Data& data) -> astarte_tl::expected<void, Error> = 0;
   /**
    * @brief Unset a device property on Astarte.
    * @param interface_name The name of the interface containing the property.
@@ -131,7 +131,7 @@ class Device {
    * @return An error if generated.
    */
   virtual auto unset_property(std::string_view interface_name, std::string_view path)
-      -> astarte_tl::expected<void, AstarteError> = 0;
+      -> astarte_tl::expected<void, Error> = 0;
   /**
    * @brief Poll for incoming messages from Astarte.
    * @param timeout The maximum time to block waiting for a message.
@@ -146,14 +146,14 @@ class Device {
    * @return A list of properties matching the filter.
    */
   virtual auto get_all_properties(const std::optional<AstarteOwnership>& ownership)
-      -> astarte_tl::expected<std::list<AstarteStoredProperty>, AstarteError> = 0;
+      -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error> = 0;
   /**
    * @brief Get the current value for properties matching the interface.
    * @param interface_name The name of the interface for the properties.
    * @return A list of properties matching the interface.
    */
   virtual auto get_properties(std::string_view interface_name)
-      -> astarte_tl::expected<std::list<AstarteStoredProperty>, AstarteError> = 0;
+      -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error> = 0;
   /**
    * @brief Get a single property matching the interface name and path.
    * @param interface_name The name of the interface for the property.
@@ -161,7 +161,7 @@ class Device {
    * @return The property value.
    */
   virtual auto get_property(std::string_view interface_name, std::string_view path)
-      -> astarte_tl::expected<AstartePropertyIndividual, AstarteError> = 0;
+      -> astarte_tl::expected<AstartePropertyIndividual, Error> = 0;
 
  protected:
   /**

@@ -54,7 +54,7 @@ class Callback : public virtual mqtt::callback {
    * @param session_present Indicates if the broker resumed a previous session.
    * @return an error if the operation fails
    */
-  auto perform_session_setup(bool session_present) -> astarte_tl::expected<void, AstarteError>;
+  auto perform_session_setup(bool session_present) -> astarte_tl::expected<void, Error>;
 
  private:
   /**
@@ -63,19 +63,19 @@ class Callback : public virtual mqtt::callback {
    * Includes the control topic and all topics for server-owned interfaces.
    * @return an error if the operation fails
    */
-  auto setup_subscriptions() -> astarte_tl::expected<void, AstarteError>;
+  auto setup_subscriptions() -> astarte_tl::expected<void, Error>;
 
   /**
    * @brief Publishes the device's introspection to Astarte.
    * @return an error if the operation fails
    */
-  auto send_introspection() -> astarte_tl::expected<void, AstarteError>;
+  auto send_introspection() -> astarte_tl::expected<void, Error>;
 
   /**
    * @brief Sends an "emptyCache" message to Astarte.
    * @return an error if the operation fails
    */
-  auto send_emptycache() -> astarte_tl::expected<void, AstarteError>;
+  auto send_emptycache() -> astarte_tl::expected<void, Error>;
 
   /**
    * @brief Called by the client when the connection is established (e.g., after auto-reconnect).
