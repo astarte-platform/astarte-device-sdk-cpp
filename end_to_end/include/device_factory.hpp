@@ -21,13 +21,13 @@
 #include "astarte_device_sdk/mqtt/device_mqtt.hpp"
 #endif  // ASTARTE_TRANSPORT_GRPC
 
-using AstarteDeviceSdk::AstarteDevice;
+using astarte::device::AstarteDevice;
 
 #ifdef ASTARTE_TRANSPORT_GRPC
-using AstarteDeviceSdk::AstarteDeviceGrpc;
+using astarte::device::AstarteDeviceGrpc;
 #else   // ASTARTE_TRANSPORT_GRPC
-using AstarteDeviceSdk::AstarteDeviceMqtt;
-using AstarteDeviceSdk::config::MqttConfig;
+using astarte::device::AstarteDeviceMqtt;
+using astarte::device::config::MqttConfig;
 #endif  // ASTARTE_TRANSPORT_GRPC
 
 class TestDeviceFactory {
@@ -81,7 +81,7 @@ class TestMqttDeviceFactory : public TestDeviceFactory {
                                                           config_.credential_secret,
                                                           config_.pairing_url, config_.store_dir);
 
-    auto result = AstarteDeviceSdk::AstarteDeviceMqtt::create(std::move(mqtt_config));
+    auto result = astarte::device::AstarteDeviceMqtt::create(std::move(mqtt_config));
     if (!result) {
       throw EndToEndAstarteDeviceException(
           astarte_fmt::format("Failed to create MQTT device: {}", result.error()));

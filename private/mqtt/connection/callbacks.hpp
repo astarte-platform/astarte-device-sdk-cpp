@@ -19,7 +19,7 @@
 #include "mqtt/introspection.hpp"
 #include "mqtt/thread_queue.h"
 
-namespace AstarteDeviceSdk::mqtt_connection {
+namespace astarte::device::mqtt_connection {
 
 /**
  * @brief Implements `mqtt::callback` to handle connection life-cycle events and session setup.
@@ -119,6 +119,6 @@ class Callback : public virtual mqtt::callback {
   std::shared_ptr<DisconnectionListener> disconnection_listener_;
 };
 
-}  // namespace AstarteDeviceSdk::mqtt_connection
+}  // namespace astarte::device::mqtt_connection
 
 #endif  // ASTARTE_MQTT_CONNECTION_CALLBACKS_H

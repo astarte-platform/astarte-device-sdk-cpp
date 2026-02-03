@@ -13,7 +13,7 @@
 
 #include "astarte_device_sdk/errors.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 class ExponentialBackoff {
  public:
@@ -110,6 +110,6 @@ class ExponentialBackoff {
   ChronoMillisRep prev_delay_{0};
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device
 
 #endif  // EXPONENTIAL_BACKOFF_H

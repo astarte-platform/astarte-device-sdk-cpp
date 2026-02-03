@@ -14,7 +14,7 @@
 #include "mqtt/thread_queue.h"
 #include "mqtt/token.h"
 
-namespace AstarteDeviceSdk::mqtt_connection {
+namespace astarte::device::mqtt_connection {
 
 /**
  * @brief Listener for MQTT actions performed during the Astarte session setup.
@@ -86,6 +86,6 @@ class DisconnectionListener : public virtual mqtt::iaction_listener {
   std::shared_ptr<std::atomic<bool>> connected_;
 };
 
-}  // namespace AstarteDeviceSdk::mqtt_connection
+}  // namespace astarte::device::mqtt_connection
 
 #endif  // ASTARTE_MQTT_CONNECTION_H

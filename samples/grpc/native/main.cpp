@@ -14,15 +14,15 @@
 #include "astarte_device_sdk/grpc/device_grpc.hpp"
 #include "astarte_device_sdk/msg.hpp"
 
-using AstarteDeviceSdk::AstarteData;
-using AstarteDeviceSdk::AstarteDatastreamIndividual;
-using AstarteDeviceSdk::AstarteDatastreamObject;
-using AstarteDeviceSdk::AstarteDevice;
-using AstarteDeviceSdk::AstarteDeviceGrpc;
-using AstarteDeviceSdk::AstarteFileOpenError;
-using AstarteDeviceSdk::AstarteInvalidInputError;
-using AstarteDeviceSdk::AstarteMessage;
-using AstarteDeviceSdk::AstartePropertyIndividual;
+using astarte::device::AstarteData;
+using astarte::device::AstarteDatastreamIndividual;
+using astarte::device::AstarteDatastreamObject;
+using astarte::device::AstarteDevice;
+using astarte::device::AstarteDeviceGrpc;
+using astarte::device::AstarteFileOpenError;
+using astarte::device::AstarteInvalidInputError;
+using astarte::device::AstarteMessage;
+using astarte::device::AstartePropertyIndividual;
 
 using namespace std::chrono_literals;
 

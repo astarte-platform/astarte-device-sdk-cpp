@@ -41,7 +41,7 @@
 #include "mqtt/introspection.hpp"
 #include "mqtt/serialize.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 using namespace std::chrono_literals;
 
@@ -285,4 +285,4 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::get_property(std::string_view /* 
   TODO("not yet implemented");
 }
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device

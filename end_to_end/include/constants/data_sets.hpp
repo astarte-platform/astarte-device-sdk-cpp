@@ -13,7 +13,7 @@
 
 namespace constants::data_sets {
 
-using AstarteDeviceSdk::AstarteData;
+using astarte::device::AstarteData;
 using namespace std::chrono_literals;
 
 struct Integer {

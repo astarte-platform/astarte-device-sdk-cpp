@@ -26,7 +26,7 @@
 #include "mqtt/connection/connection.hpp"
 #include "mqtt/introspection.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
  public:
@@ -166,6 +166,6 @@ struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
   std::shared_ptr<Introspection> introspection_ = std::make_shared<Introspection>();
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device
 
 #endif  // DEVICE_MQTT_IMPL_H

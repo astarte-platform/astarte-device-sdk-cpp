@@ -15,18 +15,18 @@
 
 #include "mqtt/introspection.hpp"
 
-using AstarteDeviceSdk::astarte_type_from_str;
-using AstarteDeviceSdk::AstarteData;
-using AstarteDeviceSdk::AstarteDatastreamObject;
-using AstarteDeviceSdk::AstarteType;
-using AstarteDeviceSdk::DatabaseRetentionPolicy;
-using AstarteDeviceSdk::Interface;
-using AstarteDeviceSdk::InterfaceAggregation;
-using AstarteDeviceSdk::InterfaceType;
-using AstarteDeviceSdk::Introspection;
-using AstarteDeviceSdk::Mapping;
-using AstarteDeviceSdk::Reliability;
-using AstarteDeviceSdk::Retention;
+using astarte::device::astarte_type_from_str;
+using astarte::device::AstarteData;
+using astarte::device::AstarteDatastreamObject;
+using astarte::device::AstarteType;
+using astarte::device::DatabaseRetentionPolicy;
+using astarte::device::Interface;
+using astarte::device::InterfaceAggregation;
+using astarte::device::InterfaceType;
+using astarte::device::Introspection;
+using astarte::device::Mapping;
+using astarte::device::Reliability;
+using astarte::device::Retention;
 
 using nlohmann::json;
 

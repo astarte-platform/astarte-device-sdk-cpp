@@ -16,7 +16,7 @@
 #include "astarte_device_sdk/device.hpp"
 #include "device_factory.hpp"
 
-using AstarteDeviceSdk::AstarteDevice;
+using astarte::device::AstarteDevice;
 
 // End to end test case
 class TestCase {

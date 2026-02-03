@@ -58,7 +58,7 @@
 #include "grpc/grpc_interceptors.hpp"
 #include "shared_queue.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 using grpc::Channel;
 using grpc::ClientContext;
@@ -586,4 +586,4 @@ auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::connection_loop(const std::stop_t
       });
 }
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device

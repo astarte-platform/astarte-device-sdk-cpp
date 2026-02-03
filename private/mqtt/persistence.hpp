@@ -13,7 +13,7 @@
 
 #include "astarte_device_sdk/mqtt/errors.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 /**
  * @brief Utility class for file system persistence operations.
@@ -60,6 +60,6 @@ class Persistence {
       -> astarte_tl::expected<void, AstarteError>;
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device
 
 #endif  // ASTARTE_MQTT_PERSISTENCE_H

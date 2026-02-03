@@ -18,7 +18,7 @@
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/formatter.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 /** @brief Astarte object class, representing the Astarte object datastream data. */
 class AstarteDatastreamObject {
@@ -146,14 +146,14 @@ class AstarteDatastreamObject {
   MapType data_;
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device
 
 /**
  * @brief astarte_fmt::formatter specialization for
- * AstarteDeviceSdk::AstarteDatastreamObject.
+ * astarte::device::AstarteDatastreamObject.
  */
 template <>
-struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteDatastreamObject> {
+struct astarte_fmt::formatter<astarte::device::AstarteDatastreamObject> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -171,7 +171,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteDatastreamObject> {
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const AstarteDeviceSdk::AstarteDatastreamObject& data, FormatContext& ctx) const {
+  auto format(const astarte::device::AstarteDatastreamObject& data, FormatContext& ctx) const {
     auto out = ctx.out();
     out = astarte_fmt::format_to(out, "{{");
 
@@ -195,7 +195,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteDatastreamObject> {
  * @param data The AstarteDatastreamObject to output.
  * @return Reference to the output stream.
  */
-inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::AstarteDatastreamObject& data)
+inline auto operator<<(std::ostream& out, const astarte::device::AstarteDatastreamObject& data)
     -> std::ostream& {
   out << astarte_fmt::format("{}", data);
   return out;

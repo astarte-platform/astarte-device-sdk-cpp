@@ -198,12 +198,12 @@ A couple of assumptions have been made:
 #include "astarte_device_sdk/msg.hpp"
 #include "astarte_device_sdk/formatter.hpp"
 
-using AstarteDeviceSdk::AstarteData;
-using AstarteDeviceSdk::AstarteDatastreamIndividual;
-using AstarteDeviceSdk::AstarteDatastreamObject;
-using AstarteDeviceSdk::AstarteDeviceGrpc;
-using AstarteDeviceSdk::AstarteMessage;
-using AstarteDeviceSdk::AstartePropertyIndividual;
+using astarte::device::AstarteData;
+using astarte::device::AstarteDatastreamIndividual;
+using astarte::device::AstarteDatastreamObject;
+using astarte::device::AstarteDeviceGrpc;
+using astarte::device::AstarteMessage;
+using astarte::device::AstartePropertyIndividual;
 
 using namespace std::chrono_literals;
 

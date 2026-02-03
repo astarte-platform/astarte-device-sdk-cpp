@@ -10,10 +10,10 @@
 #if defined(ASTARTE_TRANSPORT_GRPC)
 #include "grpc/grpc_converter.hpp"
 
-using AstarteDeviceSdk::AstarteData;
-using AstarteDeviceSdk::gRPCAstarteData;
-using AstarteDeviceSdk::GrpcConverterFrom;
-using AstarteDeviceSdk::GrpcConverterTo;
+using astarte::device::AstarteData;
+using astarte::device::gRPCAstarteData;
+using astarte::device::GrpcConverterFrom;
+using astarte::device::GrpcConverterTo;
 
 TEST(AstarteTestConversion, DataToGrpc) {
   int32_t value = 199;

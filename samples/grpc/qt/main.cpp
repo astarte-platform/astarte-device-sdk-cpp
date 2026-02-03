@@ -15,7 +15,7 @@
 #include "astarte_device_sdk/grpc/device_grpc.hpp"
 #include "astarte_device_sdk/msg.hpp"
 
-using namespace AstarteDeviceSdk;
+using namespace astarte::device;
 using namespace std::chrono_literals;
 
 class AstarteWorker : public QObject {

@@ -23,7 +23,7 @@
 #include "astarte_device_sdk/formatter.hpp"
 #include "astarte_device_sdk/type.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 /** @brief Restricts the allowed types for instances of an Astarte data class. */
 template <typename T>
@@ -128,13 +128,13 @@ class AstarteData {
       data_;
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device
 
 /**
- * @brief astarte_fmt::formatter specialization for AstarteDeviceSdk::AstarteData.
+ * @brief astarte_fmt::formatter specialization for astarte::device::AstarteData.
  */
 template <>
-struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteData> {
+struct astarte_fmt::formatter<astarte::device::AstarteData> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -153,7 +153,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteData> {
    */
   template <typename FormatContext>
   // NOLINTNEXTLINE(readability-function-size)
-  auto format(const AstarteDeviceSdk::AstarteData& data, FormatContext& ctx) const {
+  auto format(const astarte::device::AstarteData& data, FormatContext& ctx) const {
     auto out = ctx.out();
 
     if (std::holds_alternative<int32_t>(data.get_raw_data())) {
@@ -168,31 +168,31 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteData> {
     } else if (std::holds_alternative<std::string>(data.get_raw_data())) {
       out = astarte_fmt::format_to(out, R"("{}")", std::get<std::string>(data.get_raw_data()));
     } else if (std::holds_alternative<std::vector<uint8_t>>(data.get_raw_data())) {
-      AstarteDeviceSdk::utils::format_base64(out,
-                                             std::get<std::vector<uint8_t>>(data.get_raw_data()));
+      astarte::device::utils::format_base64(out,
+                                            std::get<std::vector<uint8_t>>(data.get_raw_data()));
     } else if (std::holds_alternative<std::chrono::system_clock::time_point>(data.get_raw_data())) {
-      AstarteDeviceSdk::utils::format_timestamp(
+      astarte::device::utils::format_timestamp(
           out, std::get<std::chrono::system_clock::time_point>(data.get_raw_data()));
     } else if (std::holds_alternative<std::vector<int32_t>>(data.get_raw_data())) {
-      AstarteDeviceSdk::utils::format_vector(out,
-                                             std::get<std::vector<int32_t>>(data.get_raw_data()));
+      astarte::device::utils::format_vector(out,
+                                            std::get<std::vector<int32_t>>(data.get_raw_data()));
     } else if (std::holds_alternative<std::vector<int64_t>>(data.get_raw_data())) {
-      AstarteDeviceSdk::utils::format_vector(out,
-                                             std::get<std::vector<int64_t>>(data.get_raw_data()));
+      astarte::device::utils::format_vector(out,
+                                            std::get<std::vector<int64_t>>(data.get_raw_data()));
     } else if (std::holds_alternative<std::vector<double>>(data.get_raw_data())) {
-      AstarteDeviceSdk::utils::format_vector(out,
-                                             std::get<std::vector<double>>(data.get_raw_data()));
+      astarte::device::utils::format_vector(out,
+                                            std::get<std::vector<double>>(data.get_raw_data()));
     } else if (std::holds_alternative<std::vector<bool>>(data.get_raw_data())) {
-      AstarteDeviceSdk::utils::format_vector(out, std::get<std::vector<bool>>(data.get_raw_data()));
+      astarte::device::utils::format_vector(out, std::get<std::vector<bool>>(data.get_raw_data()));
     } else if (std::holds_alternative<std::vector<std::string>>(data.get_raw_data())) {
-      AstarteDeviceSdk::utils::format_vector(
+      astarte::device::utils::format_vector(
           out, std::get<std::vector<std::string>>(data.get_raw_data()));
     } else if (std::holds_alternative<std::vector<std::vector<uint8_t>>>(data.get_raw_data())) {
-      AstarteDeviceSdk::utils::format_vector(
+      astarte::device::utils::format_vector(
           out, std::get<std::vector<std::vector<uint8_t>>>(data.get_raw_data()));
     } else if (std::holds_alternative<std::vector<std::chrono::system_clock::time_point>>(
                    data.get_raw_data())) {
-      AstarteDeviceSdk::utils::format_vector(
+      astarte::device::utils::format_vector(
           out, std::get<std::vector<std::chrono::system_clock::time_point>>(data.get_raw_data()));
     }
 
@@ -206,7 +206,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteData> {
  * @param data The AstarteData object to output.
  * @return Reference to the output stream.
  */
-inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::AstarteData& data)
+inline auto operator<<(std::ostream& out, const astarte::device::AstarteData& data)
     -> std::ostream& {
   out << astarte_fmt::format("{}", data);
   return out;

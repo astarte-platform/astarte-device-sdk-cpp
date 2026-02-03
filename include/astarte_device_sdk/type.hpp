@@ -18,7 +18,7 @@
 #include "astarte_device_sdk/errors.hpp"
 #include "astarte_device_sdk/formatter.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 /** @brief Possible Astarte types. */
 enum AstarteType : int8_t {
@@ -107,13 +107,13 @@ inline auto astarte_type_from_str(const std::string& type)
   return astarte_tl::unexpected(AstarteInvalidAstarteTypeError("data type not valid: " + type));
 }
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device
 
 /**
- * @brief astarte_fmt::formatter specialization for AstarteDeviceSdk::AstarteType.
+ * @brief astarte_fmt::formatter specialization for astarte::device::AstarteType.
  */
 template <>
-struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteType> {
+struct astarte_fmt::formatter<astarte::device::AstarteType> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -131,50 +131,50 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteType> {
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const AstarteDeviceSdk::AstarteType& typ, FormatContext& ctx) const {
+  auto format(const astarte::device::AstarteType& typ, FormatContext& ctx) const {
     std::string_view name = "Unknown Type";
 
     switch (typ) {
-      case AstarteDeviceSdk::AstarteType::kBinaryBlob:
+      case astarte::device::AstarteType::kBinaryBlob:
         name = "BinaryBlob";
         break;
-      case AstarteDeviceSdk::AstarteType::kBoolean:
+      case astarte::device::AstarteType::kBoolean:
         name = "Boolean";
         break;
-      case AstarteDeviceSdk::AstarteType::kDatetime:
+      case astarte::device::AstarteType::kDatetime:
         name = "Datetime";
         break;
-      case AstarteDeviceSdk::AstarteType::kDouble:
+      case astarte::device::AstarteType::kDouble:
         name = "Double";
         break;
-      case AstarteDeviceSdk::AstarteType::kInteger:
+      case astarte::device::AstarteType::kInteger:
         name = "Integer";
         break;
-      case AstarteDeviceSdk::AstarteType::kLongInteger:
+      case astarte::device::AstarteType::kLongInteger:
         name = "LongInteger";
         break;
-      case AstarteDeviceSdk::AstarteType::kString:
+      case astarte::device::AstarteType::kString:
         name = "String";
         break;
-      case AstarteDeviceSdk::AstarteType::kBinaryBlobArray:
+      case astarte::device::AstarteType::kBinaryBlobArray:
         name = "BinaryBlobArray";
         break;
-      case AstarteDeviceSdk::AstarteType::kBooleanArray:
+      case astarte::device::AstarteType::kBooleanArray:
         name = "BooleanArray";
         break;
-      case AstarteDeviceSdk::AstarteType::kDatetimeArray:
+      case astarte::device::AstarteType::kDatetimeArray:
         name = "DatetimeArray";
         break;
-      case AstarteDeviceSdk::AstarteType::kDoubleArray:
+      case astarte::device::AstarteType::kDoubleArray:
         name = "DoubleArray";
         break;
-      case AstarteDeviceSdk::AstarteType::kIntegerArray:
+      case astarte::device::AstarteType::kIntegerArray:
         name = "IntegerArray";
         break;
-      case AstarteDeviceSdk::AstarteType::kLongIntegerArray:
+      case astarte::device::AstarteType::kLongIntegerArray:
         name = "LongIntegerArray";
         break;
-      case AstarteDeviceSdk::AstarteType::kStringArray:
+      case astarte::device::AstarteType::kStringArray:
         name = "StringArray";
         break;
     }
@@ -189,8 +189,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteType> {
  * @param typ The AstarteType enum to output.
  * @return Reference to the output stream.
  */
-inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::AstarteType typ)
-    -> std::ostream& {
+inline auto operator<<(std::ostream& out, const astarte::device::AstarteType typ) -> std::ostream& {
   out << astarte_fmt::format("{}", typ);
   return out;
 }

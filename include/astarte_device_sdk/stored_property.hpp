@@ -19,7 +19,7 @@
 #include "astarte_device_sdk/formatter.hpp"
 #include "astarte_device_sdk/ownership.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 /** @brief Representing data for a stored property. */
 class AstarteStoredProperty {
@@ -83,13 +83,13 @@ class AstarteStoredProperty {
   AstarteData data_;
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device
 
 /**
- * @brief astarte_fmt::formatter specialization for AstarteDeviceSdk::AstarteStoredProperty.
+ * @brief astarte_fmt::formatter specialization for astarte::device::AstarteStoredProperty.
  */
 template <>
-struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteStoredProperty> {
+struct astarte_fmt::formatter<astarte::device::AstarteStoredProperty> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -107,7 +107,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteStoredProperty> {
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const AstarteDeviceSdk::AstarteStoredProperty& prop, FormatContext& ctx) const {
+  auto format(const astarte::device::AstarteStoredProperty& prop, FormatContext& ctx) const {
     return astarte_fmt::format_to(ctx.out(),
                                   "Interface: {} v{}, Path: {}, Ownership: {}, Value: {}",
                                   prop.get_interface_name(), prop.get_version_major(),
@@ -121,7 +121,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteStoredProperty> {
  * @param prop The AstarteStoredProperty object to output.
  * @return Reference to the output stream.
  */
-inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::AstarteStoredProperty& prop)
+inline auto operator<<(std::ostream& out, const astarte::device::AstarteStoredProperty& prop)
     -> std::ostream& {
   out << astarte_fmt::format("{}", prop);
   return out;

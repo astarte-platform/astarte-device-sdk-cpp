@@ -21,7 +21,7 @@
 #include "astarte_device_sdk/mqtt/pairing.hpp"
 #include "mqtt/connect_options.h"
 
-namespace AstarteDeviceSdk::config {
+namespace astarte::device::config {
 
 /**
  * @brief A type-safe wrapper for Astarte credentials, distinguishing between a credential secret
@@ -131,6 +131,6 @@ class Credential {
   std::string store_dir_;
 };
 
-}  // namespace AstarteDeviceSdk::config
+}  // namespace astarte::device::config
 
 #endif  // ASTARTE_MQTT_CREDENTIALS_H

@@ -9,7 +9,7 @@
 
 #include "astarte_device_sdk/errors.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 AstarteMqttError::AstarteMqttError(std::string_view message) : AstarteErrorBase(k_type_, message) {}
 AstarteMqttError::AstarteMqttError() : AstarteErrorBase(k_type_, "") {}
@@ -110,4 +110,4 @@ AstarteMqttConnectionError::AstarteMqttConnectionError(std::string_view message,
     : AstarteErrorBase(
           k_type_, message,
           std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device

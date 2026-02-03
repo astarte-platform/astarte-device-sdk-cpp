@@ -9,7 +9,7 @@
 
 #include "astarte_device_sdk/data.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 // Default constructor
 AstarteDatastreamObject::AstarteDatastreamObject() = default;
@@ -60,4 +60,4 @@ auto AstarteDatastreamObject::operator!=(const AstarteDatastreamObject& other) c
   return this->data_ != other.get_raw_data();
 }
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device

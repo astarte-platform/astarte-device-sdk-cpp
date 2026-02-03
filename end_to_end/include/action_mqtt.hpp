@@ -9,8 +9,8 @@
 
 namespace actions {
 
-using AstarteDeviceSdk::AstarteError;
-using AstarteDeviceSdk::PairingApi;
+using astarte::device::AstarteError;
+using astarte::device::PairingApi;
 
 constexpr size_t CREDENTIAL_SECRET_LEN = 44;
 
@@ -23,7 +23,7 @@ inline Action RegisterDevice(std::string pairing_token) {
     auto res =
         PairingApi::create(ctx.http.realm, ctx.device_id, ctx.http.astarte_base_url)
             .and_then([&](const PairingApi& pairing_api)
-                          -> AstarteDeviceSdk::astarte_tl::expected<std::string, AstarteError> {
+                          -> astarte::device::astarte_tl::expected<std::string, AstarteError> {
               return pairing_api.register_device(token);
             });
 

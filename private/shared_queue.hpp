@@ -12,7 +12,7 @@
 #include <optional>
 #include <queue>
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 template <typename T>
 class SharedQueue {
@@ -46,6 +46,6 @@ class SharedQueue {
   std::condition_variable condition_;
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device
 
 #endif  // SHARED_QUEUE_H

@@ -29,7 +29,7 @@
 #include "astarte_device_sdk/stored_property.hpp"
 
 /** @brief Umbrella namespace for the Astarte device SDK */
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 /**
  * @brief Class for the Astarte devices.
@@ -182,6 +182,6 @@ class AstarteDeviceMqtt : public AstarteDevice {
   explicit AstarteDeviceMqtt(std::shared_ptr<AstarteDeviceMqttImpl> impl);
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device
 
 #endif  // ASTARTE_DEVICE_SDK_DEVICE_MQTT_H

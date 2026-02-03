@@ -10,7 +10,7 @@
 
 #include <string>
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 using grpc::experimental::ClientInterceptorFactoryInterface;
 using grpc::experimental::ClientRpcInfo;
@@ -35,6 +35,6 @@ class NodeIdInterceptorFactory : public ClientInterceptorFactoryInterface {
   std::string node_id_;
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device
 
 #endif  // GRPC_INTERCEPTOR_H

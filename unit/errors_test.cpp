@@ -9,10 +9,10 @@
 
 #include "astarte_device_sdk/formatter.hpp"
 
-using AstarteDeviceSdk::AstarteError;
-using AstarteDeviceSdk::AstarteFileOpenError;
-using AstarteDeviceSdk::AstarteGrpcLibError;
-using AstarteDeviceSdk::AstarteInternalError;
+using astarte::device::AstarteError;
+using astarte::device::AstarteFileOpenError;
+using astarte::device::AstarteGrpcLibError;
+using astarte::device::AstarteInternalError;
 
 TEST(AstarteTestErrors, Nesting) {
   AstarteError file_open{AstarteFileOpenError{"file name"}};

@@ -16,7 +16,7 @@
 namespace testcases {
 using namespace std::chrono_literals;
 
-using AstarteDeviceSdk::AstarteOwnership;
+using astarte::device::AstarteOwnership;
 
 std::vector<Action> set_all_properties() {
     return {

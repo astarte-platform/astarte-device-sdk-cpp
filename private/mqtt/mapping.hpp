@@ -29,7 +29,7 @@
 #include "astarte_device_sdk/ownership.hpp"
 #include "astarte_device_sdk/type.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 using json = nlohmann::json;
 
@@ -427,7 +427,7 @@ class Mapping {
   std::optional<std::string> doc_;
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device
 
 // ------------------------------------------------------------------------------------------------
 // FORAMATTING
@@ -435,7 +435,7 @@ class Mapping {
 
 /// @brief astarte_fmt::formatter specialization for Reliability.
 template <>
-struct astarte_fmt::formatter<AstarteDeviceSdk::Reliability> {
+struct astarte_fmt::formatter<astarte::device::Reliability> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -453,20 +453,19 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Reliability> {
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const AstarteDeviceSdk::Reliability& rel, FormatContext& ctx) const {
+  auto format(const astarte::device::Reliability& rel, FormatContext& ctx) const {
     return astarte_fmt::format_to(ctx.out(), "{}", rel.to_string());
   }
 };
 
-inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::Reliability rel)
-    -> std::ostream& {
+inline auto operator<<(std::ostream& out, const astarte::device::Reliability rel) -> std::ostream& {
   out << astarte_fmt::format("{}", rel);
   return out;
 }
 
 /// @brief astarte_fmt::formatter specialization for Retention.
 template <>
-struct astarte_fmt::formatter<AstarteDeviceSdk::Retention> {
+struct astarte_fmt::formatter<astarte::device::Retention> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -484,19 +483,19 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Retention> {
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const AstarteDeviceSdk::Retention& ret, FormatContext& ctx) const {
+  auto format(const astarte::device::Retention& ret, FormatContext& ctx) const {
     return astarte_fmt::format_to(ctx.out(), "{}", ret.to_string());
   }
 };
 
-inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::Retention ret) -> std::ostream& {
+inline auto operator<<(std::ostream& out, const astarte::device::Retention ret) -> std::ostream& {
   out << astarte_fmt::format("{}", ret);
   return out;
 }
 
 /// @brief astarte_fmt::formatter specialization for DatabaseRetentionPolicy.
 template <>
-struct astarte_fmt::formatter<AstarteDeviceSdk::DatabaseRetentionPolicy> {
+struct astarte_fmt::formatter<astarte::device::DatabaseRetentionPolicy> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -514,12 +513,12 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::DatabaseRetentionPolicy> {
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const AstarteDeviceSdk::DatabaseRetentionPolicy& ret_pol, FormatContext& ctx) const {
+  auto format(const astarte::device::DatabaseRetentionPolicy& ret_pol, FormatContext& ctx) const {
     return astarte_fmt::format_to(ctx.out(), "{}", ret_pol.to_string());
   }
 };
 
-inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::DatabaseRetentionPolicy ret_pol)
+inline auto operator<<(std::ostream& out, const astarte::device::DatabaseRetentionPolicy ret_pol)
     -> std::ostream& {
   out << astarte_fmt::format("{}", ret_pol);
   return out;
@@ -527,7 +526,7 @@ inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::DatabaseRetent
 
 /// @brief astarte_fmt::formatter specialization for Mapping.
 template <>
-struct astarte_fmt::formatter<AstarteDeviceSdk::Mapping> {
+struct astarte_fmt::formatter<astarte::device::Mapping> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -546,7 +545,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Mapping> {
    */
   template <typename FormatContext>
   // NOLINTNEXTLINE(readability-function-size)
-  auto format(const AstarteDeviceSdk::Mapping& mapping, FormatContext& ctx) const {
+  auto format(const astarte::device::Mapping& mapping, FormatContext& ctx) const {
     auto out = ctx.out();
 
     astarte_fmt::format_to(out, "Mapping {{");
@@ -585,7 +584,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Mapping> {
   }
 };
 
-inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::Mapping& mapping)
+inline auto operator<<(std::ostream& out, const astarte::device::Mapping& mapping)
     -> std::ostream& {
   out << astarte_fmt::format("{}", mapping);
   return out;

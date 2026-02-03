@@ -32,7 +32,7 @@
 #include "astarte_device_sdk/stored_property.hpp"
 #include "shared_queue.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 using gRPCMessageHub = astarteplatform::msghub::MessageHub;
 using gRPCMessageHubEvent = astarteplatform::msghub::MessageHubEvent;
@@ -186,6 +186,6 @@ struct AstarteDeviceGrpc::AstarteDeviceGrpcImpl {
   SharedQueue<AstarteMessage> rcv_queue_;
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device
 
 #endif  // DEVICE_GRPC_IMPL_H

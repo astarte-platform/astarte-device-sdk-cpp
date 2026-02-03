@@ -25,7 +25,7 @@
 #include "mqtt/iasync_client.h"
 #include "mqtt/introspection.hpp"
 
-namespace AstarteDeviceSdk::mqtt_connection {
+namespace astarte::device::mqtt_connection {
 
 /**
  * @brief Manages the MQTT connection to an Astarte instance.
@@ -108,6 +108,6 @@ class Connection {
   std::shared_ptr<mqtt::thread_queue<mqtt::token_ptr>> session_setup_tokens_;
 };
 
-}  // namespace AstarteDeviceSdk::mqtt_connection
+}  // namespace astarte::device::mqtt_connection
 
 #endif  // ASTARTE_MQTT_CONNECTION_H

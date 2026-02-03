@@ -21,7 +21,7 @@
 
 #include "astarte_device_sdk/mqtt/errors.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 /**
  * @brief A C++ RAII wrapper for a PSA mbedtls_svc_key_id_t.
@@ -95,6 +95,6 @@ class Crypto {
   static auto create_csr(const PsaKey& priv_key) -> astarte_tl::expected<std::string, AstarteError>;
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device
 
 #endif  // ASTARTE_CRYPTO_HPP

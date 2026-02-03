@@ -6,7 +6,7 @@
 
 #include <utility>
 
-namespace AstarteDeviceSdk::mqtt_connection {
+namespace astarte::device::mqtt_connection {
 
 SessionSetupListener::SessionSetupListener(
     std::shared_ptr<mqtt::thread_queue<mqtt::token_ptr>> session_setup_tokens,
@@ -38,4 +38,4 @@ void DisconnectionListener::on_success(const mqtt::token& /*tok*/) {
   connected_->store(false);
 }
 
-}  // namespace AstarteDeviceSdk::mqtt_connection
+}  // namespace astarte::device::mqtt_connection

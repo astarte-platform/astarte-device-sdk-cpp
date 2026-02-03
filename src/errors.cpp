@@ -10,7 +10,7 @@
 #include <string_view>
 #include <variant>
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 AstarteErrorBase::AstarteErrorBase(std::string_view type, std::string_view message)
     : type_(type), message_(message), other_(nullptr) {}
@@ -157,4 +157,4 @@ AstarteInvalidDatabaseRetentionPolicyError::AstarteInvalidDatabaseRetentionPolic
     : AstarteErrorBase(
           k_type_, message,
           std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device

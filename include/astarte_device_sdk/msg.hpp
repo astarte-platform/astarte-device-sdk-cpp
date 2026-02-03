@@ -22,7 +22,7 @@
 #include "astarte_device_sdk/object.hpp"
 #include "astarte_device_sdk/property.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 /** @brief Astarte message class, represents a full message for/from Astarte. */
 class AstarteMessage {
@@ -104,13 +104,13 @@ class AstarteMessage {
       data_;
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device
 
 /**
- * @brief astarte_fmt::formatter specialization for AstarteDeviceSdk::AstarteMessage.
+ * @brief astarte_fmt::formatter specialization for astarte::device::AstarteMessage.
  */
 template <>
-struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteMessage> {
+struct astarte_fmt::formatter<astarte::device::AstarteMessage> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -128,7 +128,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteMessage> {
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const AstarteDeviceSdk::AstarteMessage& msg, FormatContext& ctx) const {
+  auto format(const astarte::device::AstarteMessage& msg, FormatContext& ctx) const {
     auto out = ctx.out();
 
     out = astarte_fmt::format_to(out, "{{interface: {}, path: {}", msg.get_interface(),
@@ -136,8 +136,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteMessage> {
 
     // check if the payload is an unset property, which is the only "empty" case
     bool is_unset_prop = false;
-    const auto* prop =
-        std::get_if<AstarteDeviceSdk::AstartePropertyIndividual>(&msg.get_raw_data());
+    const auto* prop = std::get_if<astarte::device::AstartePropertyIndividual>(&msg.get_raw_data());
     if (prop && !prop->get_value().has_value()) {
       is_unset_prop = true;
     }
@@ -158,7 +157,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteMessage> {
  * @param msg The AstarteMessage object to output.
  * @return Reference to the output stream.
  */
-inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::AstarteMessage& msg)
+inline auto operator<<(std::ostream& out, const astarte::device::AstarteMessage& msg)
     -> std::ostream& {
   out << astarte_fmt::format("{}", msg);
   return out;

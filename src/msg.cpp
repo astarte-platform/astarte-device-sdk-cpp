@@ -11,7 +11,7 @@
 #include "astarte_device_sdk/object.hpp"
 #include "astarte_device_sdk/property.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 auto AstarteMessage::get_interface() const -> const std::string& { return interface_; }
 
@@ -41,4 +41,4 @@ auto AstarteMessage::operator!=(const AstarteMessage& other) const -> bool {
          this->data_ != other.get_raw_data();
 }
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device

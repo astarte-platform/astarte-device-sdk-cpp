@@ -8,7 +8,7 @@
 
 #include "astarte_device_sdk/formatter.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 auto Introspection::checked_insert(Interface interface)
     -> astarte_tl::expected<void, AstarteError> {
@@ -89,4 +89,4 @@ auto Introspection::get(std::string_view interface_name) const
   return iter->second;
 }
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device

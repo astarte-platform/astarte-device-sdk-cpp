@@ -12,7 +12,7 @@
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/object.hpp"
 
-namespace AstarteDeviceSdk::bson {
+namespace astarte::device::bson {
 
 using json = nlohmann::json;
 
@@ -37,6 +37,6 @@ void serialize_astarte_individual(json& bson, const std::string& key, const Asta
 void serialize_astarte_object(json& bson, const AstarteDatastreamObject& object,
                               const std::chrono::system_clock::time_point* timestamp);
 
-}  // namespace AstarteDeviceSdk::bson
+}  // namespace astarte::device::bson
 
 #endif  // ASTARTE_DATA_SERIALIZATION_H

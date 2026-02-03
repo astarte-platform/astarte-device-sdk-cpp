@@ -13,7 +13,7 @@
 #include "astarte_device_sdk/errors.hpp"
 #include "mqtt/mapping.hpp"
 
-namespace AstarteDeviceSdk::json_helper {
+namespace astarte::device::json_helper {
 
 using json = nlohmann::json;
 
@@ -26,7 +26,7 @@ using json = nlohmann::json;
  * if the field is missing or has the wrong type.
  */
 inline auto get_field(const json& interface, std::string_view key, json::value_t expected_type)
-    -> astarte_tl::expected<json, AstarteDeviceSdk::AstarteError> {
+    -> astarte_tl::expected<json, astarte::device::AstarteError> {
   auto field = interface.find(key);
   if (field == interface.end()) {
     return astarte_tl::unexpected(
@@ -116,6 +116,6 @@ auto optional_value_from_json(const nlohmann::json& interface, std::string_view 
   }
 }
 
-}  // namespace AstarteDeviceSdk::json_helper
+}  // namespace astarte::device::json_helper
 
 #endif  // ASTARTE_MQTT_HELPERS_H

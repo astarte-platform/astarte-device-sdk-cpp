@@ -12,7 +12,7 @@
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/ownership.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 AstarteStoredProperty::AstarteStoredProperty(std::string_view interface_name, std::string_view path,
                                              int32_t version_major, AstarteOwnership ownership,
@@ -45,4 +45,4 @@ auto AstarteStoredProperty::operator!=(const AstarteStoredProperty& other) const
   return !(*this == other);
 }
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device

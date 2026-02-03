@@ -11,7 +11,7 @@ using ::testing::AllOf;
 using ::testing::Ge;
 using ::testing::Le;
 
-using AstarteDeviceSdk::ExponentialBackoff;
+using astarte::device::ExponentialBackoff;
 
 TEST(AstarteTestExponentialBackoff, IncorrectInputs) {
   ASSERT_FALSE(ExponentialBackoff::create(std::chrono::minutes(-1), std::chrono::minutes(1)));

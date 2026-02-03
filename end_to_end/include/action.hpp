@@ -30,15 +30,15 @@
 
 using json = nlohmann::json;
 
-using AstarteDeviceSdk::AstarteData;
-using AstarteDeviceSdk::AstarteDatastreamIndividual;
-using AstarteDeviceSdk::AstarteDatastreamObject;
-using AstarteDeviceSdk::AstarteDevice;
-using AstarteDeviceSdk::AstarteError;
-using AstarteDeviceSdk::AstarteMessage;
-using AstarteDeviceSdk::AstarteOwnership;
-using AstarteDeviceSdk::AstartePropertyIndividual;
-using AstarteDeviceSdk::AstarteStoredProperty;
+using astarte::device::AstarteData;
+using astarte::device::AstarteDatastreamIndividual;
+using astarte::device::AstarteDatastreamObject;
+using astarte::device::AstarteDevice;
+using astarte::device::AstarteError;
+using astarte::device::AstarteMessage;
+using astarte::device::AstarteOwnership;
+using astarte::device::AstartePropertyIndividual;
+using astarte::device::AstarteStoredProperty;
 
 // -----------------------------------------------------------------------------
 // Context & Types
@@ -270,7 +270,7 @@ inline Action TransmitDeviceData(
     std::optional<std::chrono::system_clock::time_point> timestamp = std::nullopt) {
   return [msg = std::move(message), ts = timestamp](const TestCaseContext& ctx) {
     spdlog::info("Transmitting MQTT data...");
-    AstarteDeviceSdk::astarte_tl::expected<void, AstarteError> res;
+    astarte::device::astarte_tl::expected<void, AstarteError> res;
 
     // Use current time if timestamp not provided, or specific time if provided
     auto ts_ptr = ts.has_value() ? &ts.value() : nullptr;

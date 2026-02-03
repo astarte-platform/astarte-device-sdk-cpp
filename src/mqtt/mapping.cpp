@@ -58,7 +58,7 @@ auto is_segment_match(std::string_view pattern, std::string_view path_seg) -> bo
 
 }  // namespace
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 auto Mapping::try_from_json(const json& json) -> astarte_tl::expected<Mapping, AstarteError> {
   // ensure each element in the array is actually an object
@@ -161,4 +161,4 @@ auto Mapping::check_data_type(const AstarteData& data) const
   return {};
 }
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device

@@ -8,7 +8,7 @@
 
 #include "astarte_device_sdk/data.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 AstarteDatastreamIndividual::AstarteDatastreamIndividual(AstarteData data)
     : data_(std::move(data)) {}
@@ -24,4 +24,4 @@ auto AstarteDatastreamIndividual::operator!=(const AstarteDatastreamIndividual& 
   return this->get_value() != other.get_value();
 }
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device

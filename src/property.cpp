@@ -8,7 +8,7 @@
 
 #include "astarte_device_sdk/data.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 AstartePropertyIndividual::AstartePropertyIndividual(const std::optional<AstarteData>& data)
     : data_(data) {}
@@ -24,4 +24,4 @@ auto AstartePropertyIndividual::operator!=(const AstartePropertyIndividual& othe
   return this->get_value() != other.get_value();
 }
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device

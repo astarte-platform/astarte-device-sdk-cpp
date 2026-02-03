@@ -7,11 +7,11 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-using AstarteDeviceSdk::AstarteData;
-using AstarteDeviceSdk::AstarteDatastreamIndividual;
-using AstarteDeviceSdk::AstarteDatastreamObject;
-using AstarteDeviceSdk::AstarteMessage;
-using AstarteDeviceSdk::AstartePropertyIndividual;
+using astarte::device::AstarteData;
+using astarte::device::AstarteDatastreamIndividual;
+using astarte::device::AstarteDatastreamObject;
+using astarte::device::AstarteMessage;
+using astarte::device::AstartePropertyIndividual;
 
 TEST(AstarteTestMessage, InstantiationDatastreamIndividual) {
   std::string interface("some.interface.Name");

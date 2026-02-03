@@ -24,7 +24,7 @@
 #include "astarte_device_sdk/stored_property.hpp"
 
 /** @brief Umbrella namespace for the Astarte device SDK */
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 /**
  * @brief Interface for an Astarte device.
@@ -172,6 +172,6 @@ class AstarteDevice {
   AstarteDevice() = default;
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device
 
 #endif  // ASTARTE_DEVICE_SDK_DEVICE_H

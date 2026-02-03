@@ -13,7 +13,7 @@
 
 #include "astarte_device_sdk/type.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 auto AstarteData::get_type() const -> AstarteType {
   struct Visitor {
@@ -62,4 +62,4 @@ auto AstarteData::operator!=(const AstarteData& other) const -> bool {
   return this->data_ != other.get_raw_data();
 }
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device

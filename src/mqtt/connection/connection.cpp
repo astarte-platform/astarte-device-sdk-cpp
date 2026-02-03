@@ -30,7 +30,7 @@
 #include "mqtt/introspection.hpp"
 #include "mqtt/persistence.hpp"
 
-namespace AstarteDeviceSdk::mqtt_connection {
+namespace astarte::device::mqtt_connection {
 
 using config::Credential;
 
@@ -43,7 +43,7 @@ auto build_mqtt_options(config::MqttConfig& cfg)
   auto keepalive = cfg.keepalive();
 
   if (keepalive <= conn_timeout) {
-    return astarte_tl::unexpected(AstarteDeviceSdk::AstartePairingConfigError(
+    return astarte_tl::unexpected(astarte::device::AstartePairingConfigError(
         astarte_fmt::format("Keep alive ({}s) should be greater than the connection timeout ({}s)",
                             keepalive, conn_timeout)));
   }
@@ -246,4 +246,4 @@ auto Connection::disconnect() -> astarte_tl::expected<void, AstarteError> {
   return {};
 }
 
-}  // namespace AstarteDeviceSdk::mqtt_connection
+}  // namespace astarte::device::mqtt_connection

@@ -24,7 +24,7 @@
 #include "astarte_device_sdk/type.hpp"
 #include "mqtt/mapping.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 /// @brief alias for nlohmann json
 using json = nlohmann::json;
@@ -283,7 +283,7 @@ class Interface {
   std::vector<Mapping> mappings_;
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device
 
 // ------------------------------------------------------------------------------------------------
 // FORAMATTING
@@ -291,7 +291,7 @@ class Interface {
 
 /// @brief astarte_fmt::formatter specialization for InterfaceType.
 template <>
-struct astarte_fmt::formatter<AstarteDeviceSdk::InterfaceType> {
+struct astarte_fmt::formatter<astarte::device::InterfaceType> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -309,12 +309,12 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::InterfaceType> {
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const AstarteDeviceSdk::InterfaceType& typ, FormatContext& ctx) const {
+  auto format(const astarte::device::InterfaceType& typ, FormatContext& ctx) const {
     return astarte_fmt::format_to(ctx.out(), "{}", typ.to_string());
   }
 };
 
-inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::InterfaceType typ)
+inline auto operator<<(std::ostream& out, const astarte::device::InterfaceType typ)
     -> std::ostream& {
   out << astarte_fmt::format("{}", typ);
   return out;
@@ -322,7 +322,7 @@ inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::InterfaceType 
 
 /// @brief astarte_fmt::formatter specialization for InterfaceAggregation.
 template <>
-struct astarte_fmt::formatter<AstarteDeviceSdk::InterfaceAggregation> {
+struct astarte_fmt::formatter<astarte::device::InterfaceAggregation> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -340,12 +340,12 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::InterfaceAggregation> {
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const AstarteDeviceSdk::InterfaceAggregation& aggr, FormatContext& ctx) const {
+  auto format(const astarte::device::InterfaceAggregation& aggr, FormatContext& ctx) const {
     return astarte_fmt::format_to(ctx.out(), "{}", aggr.to_string());
   }
 };
 
-inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::InterfaceAggregation aggr)
+inline auto operator<<(std::ostream& out, const astarte::device::InterfaceAggregation aggr)
     -> std::ostream& {
   out << astarte_fmt::format("{}", aggr);
   return out;
@@ -353,7 +353,7 @@ inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::InterfaceAggre
 
 /// @brief astarte_fmt::formatter specialization for Interface.
 template <>
-struct astarte_fmt::formatter<AstarteDeviceSdk::Interface> {
+struct astarte_fmt::formatter<astarte::device::Interface> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -371,7 +371,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Interface> {
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const AstarteDeviceSdk::Interface& interface, FormatContext& ctx) const {
+  auto format(const astarte::device::Interface& interface, FormatContext& ctx) const {
     auto out = ctx.out();
 
     astarte_fmt::format_to(out, "Interface {{\n");
@@ -393,7 +393,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Interface> {
       astarte_fmt::format_to(out, "  doc: {}\n", *doc);
     }
     astarte_fmt::format_to(out, "  mappings: ");
-    AstarteDeviceSdk::utils::format_vector(out, interface.mappings());
+    astarte::device::utils::format_vector(out, interface.mappings());
     astarte_fmt::format_to(out, "\n");
 
     astarte_fmt::format_to(out, "}}\n");
@@ -402,7 +402,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Interface> {
   }
 };
 
-inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::Interface& interface)
+inline auto operator<<(std::ostream& out, const astarte::device::Interface& interface)
     -> std::ostream& {
   out << astarte_fmt::format("{}", interface);
   return out;

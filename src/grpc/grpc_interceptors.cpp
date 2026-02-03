@@ -9,7 +9,7 @@
 #include <string>
 #include <utility>
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 using grpc::experimental::InterceptionHookPoints;
 
@@ -32,4 +32,4 @@ auto NodeIdInterceptorFactory::CreateClientInterceptor(ClientRpcInfo* info) -> I
   return new NodeIdInterceptor(node_id_);
 }
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device

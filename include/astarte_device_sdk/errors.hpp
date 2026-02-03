@@ -20,7 +20,7 @@
 
 #include "astarte_device_sdk/formatter.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 #if defined(ASTARTE_USE_TL_EXPECTED)
 namespace astarte_tl = ::tl;
@@ -502,7 +502,7 @@ class AstarteInvalidDatabaseRetentionPolicyError : public AstarteErrorBase {
   static constexpr std::string_view k_type_ = "AstarteInvalidDatabaseRetentionPolicyError";
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device
 
 #if !defined(ASTARTE_TRANSPORT_GRPC)
 // We accept this circular inclusion as it's required for the forward declarations above to work
@@ -512,11 +512,11 @@ class AstarteInvalidDatabaseRetentionPolicyError : public AstarteErrorBase {
 #endif
 
 /**
- * @brief Formatter specialization for AstarteDeviceSdk::AstarteError.
+ * @brief Formatter specialization for astarte::device::AstarteError.
  */
 template <>
 // NOLINTNEXTLINE(cert-dcl58-cpp)
-struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteError> {
+struct astarte_fmt::formatter<astarte::device::AstarteError> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -534,10 +534,10 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteError> {
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const AstarteDeviceSdk::AstarteError& err_variant, FormatContext& ctx) const {
+  auto format(const astarte::device::AstarteError& err_variant, FormatContext& ctx) const {
     return std::visit(
         [&ctx](const auto& err) {
-          const auto& base_err = static_cast<const AstarteDeviceSdk::AstarteErrorBase&>(err);
+          const auto& base_err = static_cast<const astarte::device::AstarteErrorBase&>(err);
           return astarte_fmt::format_to(ctx.out(), "{}", base_err);
         },
         err_variant);
@@ -545,10 +545,10 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteError> {
 };
 
 /**
- * @brief Formatter specialization for AstarteDeviceSdk::AstarteErrorBase.
+ * @brief Formatter specialization for astarte::device::AstarteErrorBase.
  */
 template <>
-struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteErrorBase> {
+struct astarte_fmt::formatter<astarte::device::AstarteErrorBase> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -566,11 +566,11 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteErrorBase> {
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const AstarteDeviceSdk::AstarteErrorBase& err, FormatContext& ctx) const {
+  auto format(const astarte::device::AstarteErrorBase& err, FormatContext& ctx) const {
     auto out = astarte_fmt::format_to(ctx.out(), "{}: {}", err.type(), err.message());
 
     std::string indent;
-    const AstarteDeviceSdk::AstarteErrorBase* current = &err;
+    const astarte::device::AstarteErrorBase* current = &err;
     while (const auto& nested = current->nested_error()) {
       indent += "  ";
       out = astarte_fmt::format_to(out, "\n{}-> {}: {}", indent, nested->type(), nested->message());
