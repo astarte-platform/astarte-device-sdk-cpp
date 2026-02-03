@@ -15,7 +15,7 @@
 #include "astarte_device_sdk/errors.hpp"
 #include "mqtt/interface.hpp"
 
-namespace astarte::device {
+namespace astarte::device::mqtt {
 
 /**
  * @brief Thread safe collection of Astarte interface.
@@ -66,6 +66,6 @@ class Introspection {
   std::map<std::string, std::shared_ptr<const Interface>, std::less<>> interfaces_;
 };
 
-}  // namespace astarte::device
+}  // namespace astarte::device::mqtt
 
 #endif  // ASTARTE_INTROSPECTION_H

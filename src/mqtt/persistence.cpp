@@ -14,7 +14,7 @@
 #include "astarte_device_sdk/formatter.hpp"
 #include "astarte_device_sdk/mqtt/errors.hpp"
 
-namespace astarte::device {
+namespace astarte::device::mqtt {
 
 namespace {
 
@@ -142,4 +142,4 @@ auto Persistence::secure_shred_file(const std::string& path) -> astarte_tl::expe
   return {};
 }
 
-}  // namespace astarte::device
+}  // namespace astarte::device::mqtt

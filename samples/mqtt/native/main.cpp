@@ -25,7 +25,7 @@ int main() {
   auto cfg = Config("samples/mqtt/native/config.toml");
 
   auto api_res =
-      astarte::device::PairingApi::create(cfg.realm, cfg.device_id, cfg.astarte_base_url);
+      astarte::device::mqtt::PairingApi::create(cfg.realm, cfg.device_id, cfg.astarte_base_url);
   if (!api_res) {
     spdlog::error("Pairing API creation failure. Err: \n{}", api_res.error());
     return 0;
@@ -67,7 +67,7 @@ int main() {
 
     auto mqtt_cfg = [&] {
       if (in_db) {
-        return astarte::device::config::MqttConfig::with_credential_secret(
+        return astarte::device::mqtt::MqttConfig::with_credential_secret(
             cfg.realm, cfg.device_id, *cred_opt,
             astarte_fmt::format("{}/pairing", cfg.astarte_base_url), cfg.store_dir);
       } else {
@@ -76,7 +76,7 @@ int main() {
         // first, store the cred secret in the db for future usage
         store_cred_secret(db, cfg.device_id, cfg.credential_secret.value());
 
-        return astarte::device::config::MqttConfig::with_credential_secret(
+        return astarte::device::mqtt::MqttConfig::with_credential_secret(
             cfg.realm, cfg.device_id, cfg.credential_secret.value(),
             astarte_fmt::format("{}/pairing", cfg.astarte_base_url), cfg.store_dir);
       }
@@ -85,7 +85,7 @@ int main() {
     // here you can modify the mqtt_cfg options, such as the keepalive interval, the connection
     // timeout period, etc.
 
-    auto device_res = astarte::device::AstarteDeviceMqtt::create(std::move(mqtt_cfg));
+    auto device_res = astarte::device::mqtt::AstarteDeviceMqtt::create(std::move(mqtt_cfg));
     if (!device_res) {
       spdlog::error("device creation error: {}", device_res.error());
       return EXIT_FAILURE;

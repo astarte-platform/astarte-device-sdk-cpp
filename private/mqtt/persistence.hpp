@@ -13,7 +13,7 @@
 
 #include "astarte_device_sdk/mqtt/errors.hpp"
 
-namespace astarte::device {
+namespace astarte::device::mqtt {
 
 /**
  * @brief Utility class for file system persistence operations.
@@ -59,6 +59,6 @@ class Persistence {
   static auto secure_shred_file(const std::string& path) -> astarte_tl::expected<void, Error>;
 };
 
-}  // namespace astarte::device
+}  // namespace astarte::device::mqtt
 
 #endif  // ASTARTE_MQTT_PERSISTENCE_H

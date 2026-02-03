@@ -41,13 +41,13 @@
 #include "mqtt/introspection.hpp"
 #include "mqtt/serialize.hpp"
 
-namespace astarte::device {
+namespace astarte::device::mqtt {
 
 using namespace std::chrono_literals;
 
 using json = nlohmann::json;
 
-auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::create(config::MqttConfig& cfg)
+auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::create(mqtt::MqttConfig& cfg)
     -> astarte_tl::expected<std::shared_ptr<AstarteDeviceMqttImpl>, Error> {
   auto conn = mqtt_connection::Connection::create(cfg);
   if (!conn) {
@@ -60,7 +60,7 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::create(config::MqttConfig& cfg)
 }
 
 AstarteDeviceMqtt::AstarteDeviceMqttImpl::AstarteDeviceMqttImpl(
-    config::MqttConfig cfg, mqtt_connection::Connection connection)
+    mqtt::MqttConfig cfg, mqtt_connection::Connection connection)
     : cfg_(std::move(cfg)), connection_(std::move(connection)) {}
 
 AstarteDeviceMqtt::AstarteDeviceMqttImpl::~AstarteDeviceMqttImpl() = default;
@@ -281,4 +281,4 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::get_property(std::string_view /* 
   TODO("not yet implemented");
 }
 
-}  // namespace astarte::device
+}  // namespace astarte::device::mqtt

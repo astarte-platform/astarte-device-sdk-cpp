@@ -29,7 +29,7 @@
 #include "astarte_device_sdk/stored_property.hpp"
 
 /** @brief Umbrella namespace for the Astarte device SDK */
-namespace astarte::device {
+namespace astarte::device::mqtt {
 
 /**
  * @brief Class for the Astarte devices.
@@ -42,7 +42,7 @@ class AstarteDeviceMqtt : public Device {
    * @param cfg set of MQTT configuration options used to connect a device to Astarte.
    * @return An AstarteDeviceMqtt object, an error otherwise.
    */
-  [[nodiscard]] static auto create(config::MqttConfig cfg)
+  [[nodiscard]] static auto create(mqtt::MqttConfig cfg)
       -> astarte_tl::expected<AstarteDeviceMqtt, Error>;
   /** @brief Destructor for the Astarte device class. */
   ~AstarteDeviceMqtt() override;
@@ -179,6 +179,6 @@ class AstarteDeviceMqtt : public Device {
   explicit AstarteDeviceMqtt(std::shared_ptr<AstarteDeviceMqttImpl> impl);
 };
 
-}  // namespace astarte::device
+}  // namespace astarte::device::mqtt
 
 #endif  // ASTARTE_DEVICE_SDK_DEVICE_MQTT_H

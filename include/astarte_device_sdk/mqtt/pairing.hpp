@@ -15,7 +15,7 @@
 
 #include "astarte_device_sdk/mqtt/errors.hpp"
 
-namespace astarte::device {
+namespace astarte::device::mqtt {
 
 /// @cond DO_NOT_DOCUMENT
 using namespace std::chrono_literals;
@@ -115,6 +115,6 @@ auto create_random_device_id() -> std::string;
 auto create_deterministic_device_id(std::string_view namespc, std::string_view unique_data)
     -> astarte_tl::expected<std::string, Error>;
 
-}  // namespace astarte::device
+}  // namespace astarte::device::mqtt
 
 #endif  // ASTARTE_MQTT_PAIRING_H

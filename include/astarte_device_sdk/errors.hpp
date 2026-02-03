@@ -45,6 +45,7 @@ class InvalidAstarteTypeError;
 class InvalidRetentionError;
 class InvalidDatabaseRetentionPolicyError;
 #if !defined(ASTARTE_TRANSPORT_GRPC)
+namespace mqtt {
 class JsonParsingError;
 class DeviceRegistrationError;
 class PairingApiError;
@@ -58,6 +59,7 @@ class CryptoError;
 class UuidError;
 class HttpError;
 class MqttConnectionError;
+}  // namespace mqtt
 #endif
 
 /**
@@ -72,10 +74,11 @@ using Error =
                  InvalidAstarteTypeError, InvalidReliabilityError, InvalidRetentionError,
                  InvalidDatabaseRetentionPolicyError,
 #if !defined(ASTARTE_TRANSPORT_GRPC)
-                 OperationRefusedError, GrpcLibError, MsgHubError, JsonParsingError,
-                 DeviceRegistrationError, PairingApiError, MqttError, InvalidUrlError,
-                 RetrieveBrokerUrlError, ReadCredentialError, WriteCredentialError,
-                 PairingConfigError, CryptoError, UuidError, HttpError, MqttConnectionError>;
+                 OperationRefusedError, GrpcLibError, MsgHubError, mqtt::JsonParsingError,
+                 mqtt::DeviceRegistrationError, mqtt::PairingApiError, mqtt::MqttError,
+                 mqtt::InvalidUrlError, mqtt::RetrieveBrokerUrlError, mqtt::ReadCredentialError,
+                 mqtt::WriteCredentialError, mqtt::PairingConfigError, mqtt::CryptoError,
+                 mqtt::UuidError, mqtt::HttpError, mqtt::MqttConnectionError>;
 #else
                  OperationRefusedError, GrpcLibError, MsgHubError>;
 #endif

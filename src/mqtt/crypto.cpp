@@ -32,7 +32,7 @@
 #include "psa/crypto_types.h"
 #include "psa/crypto_values.h"
 
-namespace astarte::device {
+namespace astarte::device::mqtt {
 
 constexpr size_t ERROR_BUF_LEN = 100;
 constexpr size_t PSA_KEY_LEN = 1024;
@@ -239,4 +239,4 @@ auto Crypto::create_csr(const PsaKey& priv_key) -> astarte_tl::expected<std::str
       .transform([&](auto&& buf_value) { return std::string(buf_value.begin(), buf_value.end()); });
 }
 
-}  // namespace astarte::device
+}  // namespace astarte::device::mqtt

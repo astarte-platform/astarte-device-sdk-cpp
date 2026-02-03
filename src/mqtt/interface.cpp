@@ -25,7 +25,7 @@
 #include "mqtt/helpers.hpp"
 #include "mqtt/mapping.hpp"
 
-namespace astarte::device {
+namespace astarte::device::mqtt {
 
 namespace {
 /**
@@ -267,4 +267,4 @@ auto Interface::get_qos(std::string_view path) const -> astarte_tl::expected<uin
   return reliability->get_qos();
 }
 
-}  // namespace astarte::device
+}  // namespace astarte::device::mqtt

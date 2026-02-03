@@ -7,7 +7,7 @@
 #include "astarte_device_sdk/formatter.hpp"
 #include "mqtt/persistence.hpp"
 
-namespace astarte::device::config {
+namespace astarte::device::mqtt {
 
 constexpr std::string_view CLIENT_CERTIFICATE_FILE = "client-certificate.pem";
 constexpr std::string_view PRIVATE_KEY_FILE = "client-priv-key.pem";
@@ -76,4 +76,4 @@ auto Credential::delete_client_certificate_and_key(const std::string_view store_
       });
 }
 
-}  // namespace astarte::device::config
+}  // namespace astarte::device::mqtt

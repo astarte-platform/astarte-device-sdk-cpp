@@ -33,7 +33,7 @@
 
 using json = nlohmann::json;
 
-namespace astarte::device {
+namespace astarte::device::mqtt {
 
 #include <span>
 #include <vector>
@@ -375,4 +375,4 @@ auto create_deterministic_device_id(std::string_view namespc, std::string_view u
   return uuid_to_str(uuid);
 }
 
-}  // namespace astarte::device
+}  // namespace astarte::device::mqtt

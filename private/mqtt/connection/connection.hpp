@@ -25,7 +25,9 @@
 #include "mqtt/iasync_client.h"
 #include "mqtt/introspection.hpp"
 
-namespace astarte::device::mqtt_connection {
+namespace astarte::device::mqtt::mqtt_connection {
+
+namespace paho_mqtt = ::mqtt;
 
 /**
  * @brief Manages the MQTT connection to an Astarte instance.
@@ -55,7 +57,7 @@ class Connection {
    * @param cfg The MQTT configuration object containing connection details.
    * @return The MQTT connection object, an error otherwise.
    */
-  static auto create(config::MqttConfig& cfg) -> astarte_tl::expected<Connection, Error>;
+  static auto create(mqtt::MqttConfig& cfg) -> astarte_tl::expected<Connection, Error>;
 
   /**
    * @brief Connects the client to the Astarte MQTT broker.
@@ -88,25 +90,25 @@ class Connection {
   auto disconnect() -> astarte_tl::expected<void, Error>;
 
  private:
-  Connection(config::MqttConfig cfg, mqtt::connect_options options,
-             std::unique_ptr<mqtt::async_client> client, PairingApi pairing_api);
+  Connection(mqtt::MqttConfig cfg, paho_mqtt::connect_options options,
+             std::unique_ptr<paho_mqtt::async_client> client, PairingApi pairing_api);
 
   /// @brief Pairing API object.
   PairingApi pairing_api_;
   /// @brief The MQTT configuration object.
-  config::MqttConfig cfg_;
+  mqtt::MqttConfig cfg_;
   /// @brief The Paho MQTT connection options.
-  mqtt::connect_options connect_options_;
+  paho_mqtt::connect_options connect_options_;
   /// @brief The underlying Paho MQTT async client.
-  std::unique_ptr<mqtt::async_client> client_;
+  std::unique_ptr<paho_mqtt::async_client> client_;
   /// @brief The callback handler for MQTT events.
   std::unique_ptr<Callback> callback_;
   /// @brief Flag stating if the device is successfully connected to Astarte.
   std::shared_ptr<std::atomic<bool>> connected_;
   /// @brief Queue containing the token used during session setup
-  std::shared_ptr<mqtt::thread_queue<mqtt::token_ptr>> session_setup_tokens_;
+  std::shared_ptr<paho_mqtt::thread_queue<paho_mqtt::token_ptr>> session_setup_tokens_;
 };
 
-}  // namespace astarte::device::mqtt_connection
+}  // namespace astarte::device::mqtt::mqtt_connection
 
 #endif  // ASTARTE_MQTT_CONNECTION_H

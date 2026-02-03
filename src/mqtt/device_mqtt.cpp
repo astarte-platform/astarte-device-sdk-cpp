@@ -23,9 +23,9 @@
 #include "astarte_device_sdk/stored_property.hpp"
 #include "mqtt/device_mqtt_impl.hpp"
 
-namespace astarte::device {
+namespace astarte::device::mqtt {
 
-auto AstarteDeviceMqtt::create(config::MqttConfig cfg)
+auto AstarteDeviceMqtt::create(mqtt::MqttConfig cfg)
     -> astarte_tl::expected<AstarteDeviceMqtt, Error> {
   auto impl_result = AstarteDeviceMqttImpl::create(cfg);
   if (!impl_result) {
@@ -113,4 +113,4 @@ auto AstarteDeviceMqtt::get_property(std::string_view interface_name, std::strin
   return astarte_device_impl_->get_property(interface_name, path);
 }
 
-}  // namespace astarte::device
+}  // namespace astarte::device::mqtt

@@ -24,7 +24,7 @@
 #include "astarte_device_sdk/type.hpp"
 #include "mqtt/mapping.hpp"
 
-namespace astarte::device {
+namespace astarte::device::mqtt {
 
 /// @brief alias for nlohmann json
 using json = nlohmann::json;
@@ -281,7 +281,7 @@ class Interface {
   std::vector<Mapping> mappings_;
 };
 
-}  // namespace astarte::device
+}  // namespace astarte::device::mqtt
 
 // ------------------------------------------------------------------------------------------------
 // FORAMATTING
@@ -289,7 +289,7 @@ class Interface {
 
 /// @brief astarte_fmt::formatter specialization for InterfaceType.
 template <>
-struct astarte_fmt::formatter<astarte::device::InterfaceType> {
+struct astarte_fmt::formatter<astarte::device::mqtt::InterfaceType> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -307,12 +307,12 @@ struct astarte_fmt::formatter<astarte::device::InterfaceType> {
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const astarte::device::InterfaceType& typ, FormatContext& ctx) const {
+  auto format(const astarte::device::mqtt::InterfaceType& typ, FormatContext& ctx) const {
     return astarte_fmt::format_to(ctx.out(), "{}", typ.to_string());
   }
 };
 
-inline auto operator<<(std::ostream& out, const astarte::device::InterfaceType typ)
+inline auto operator<<(std::ostream& out, const astarte::device::mqtt::InterfaceType typ)
     -> std::ostream& {
   out << astarte_fmt::format("{}", typ);
   return out;
@@ -320,7 +320,7 @@ inline auto operator<<(std::ostream& out, const astarte::device::InterfaceType t
 
 /// @brief astarte_fmt::formatter specialization for InterfaceAggregation.
 template <>
-struct astarte_fmt::formatter<astarte::device::InterfaceAggregation> {
+struct astarte_fmt::formatter<astarte::device::mqtt::InterfaceAggregation> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -338,12 +338,12 @@ struct astarte_fmt::formatter<astarte::device::InterfaceAggregation> {
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const astarte::device::InterfaceAggregation& aggr, FormatContext& ctx) const {
+  auto format(const astarte::device::mqtt::InterfaceAggregation& aggr, FormatContext& ctx) const {
     return astarte_fmt::format_to(ctx.out(), "{}", aggr.to_string());
   }
 };
 
-inline auto operator<<(std::ostream& out, const astarte::device::InterfaceAggregation aggr)
+inline auto operator<<(std::ostream& out, const astarte::device::mqtt::InterfaceAggregation aggr)
     -> std::ostream& {
   out << astarte_fmt::format("{}", aggr);
   return out;
@@ -351,7 +351,7 @@ inline auto operator<<(std::ostream& out, const astarte::device::InterfaceAggreg
 
 /// @brief astarte_fmt::formatter specialization for Interface.
 template <>
-struct astarte_fmt::formatter<astarte::device::Interface> {
+struct astarte_fmt::formatter<astarte::device::mqtt::Interface> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -369,7 +369,7 @@ struct astarte_fmt::formatter<astarte::device::Interface> {
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const astarte::device::Interface& interface, FormatContext& ctx) const {
+  auto format(const astarte::device::mqtt::Interface& interface, FormatContext& ctx) const {
     auto out = ctx.out();
 
     astarte_fmt::format_to(out, "Interface {{\n");
@@ -400,7 +400,7 @@ struct astarte_fmt::formatter<astarte::device::Interface> {
   }
 };
 
-inline auto operator<<(std::ostream& out, const astarte::device::Interface& interface)
+inline auto operator<<(std::ostream& out, const astarte::device::mqtt::Interface& interface)
     -> std::ostream& {
   out << astarte_fmt::format("{}", interface);
   return out;

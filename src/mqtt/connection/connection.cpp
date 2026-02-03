@@ -30,20 +30,20 @@
 #include "mqtt/introspection.hpp"
 #include "mqtt/persistence.hpp"
 
-namespace astarte::device::mqtt_connection {
+namespace astarte::device::mqtt::mqtt_connection {
 
-using config::Credential;
+using mqtt::Credential;
 
 namespace {
 
-auto build_mqtt_options(config::MqttConfig& cfg)
-    -> astarte_tl::expected<mqtt::connect_options, Error> {
-  auto conn_opts = mqtt::connect_options_builder::v3();
+auto build_mqtt_options(mqtt::MqttConfig& cfg)
+    -> astarte_tl::expected<paho_mqtt::connect_options, Error> {
+  auto conn_opts = paho_mqtt::connect_options_builder::v3();
   auto conn_timeout = cfg.connection_timeout();
   auto keepalive = cfg.keepalive();
 
   if (keepalive <= conn_timeout) {
-    return astarte_tl::unexpected(astarte::device::PairingConfigError(
+    return astarte_tl::unexpected(PairingConfigError(
         astarte_fmt::format("Keep alive ({}s) should be greater than the connection timeout ({}s)",
                             keepalive, conn_timeout)));
   }
@@ -54,7 +54,7 @@ auto build_mqtt_options(config::MqttConfig& cfg)
       .clean_session(true);
 
   auto ssl_opts =
-      mqtt::ssl_options_builder()
+      paho_mqtt::ssl_options_builder()
           .ssl_version(3)
           .enable_server_cert_auth(true)
           .verify(false)
@@ -76,7 +76,7 @@ auto build_mqtt_options(config::MqttConfig& cfg)
 // Connection Implementation
 // ============================================================================
 
-auto Connection::create(config::MqttConfig& cfg) -> astarte_tl::expected<Connection, Error> {
+auto Connection::create(mqtt::MqttConfig& cfg) -> astarte_tl::expected<Connection, Error> {
   auto realm = cfg.realm();
   auto device_id = cfg.device_id();
   auto pairing_url = cfg.pairing_url();
@@ -121,18 +121,18 @@ auto Connection::create(config::MqttConfig& cfg) -> astarte_tl::expected<Connect
   }
 
   auto client_id = astarte_fmt::format("{}/{}", realm, device_id);
-  auto client = std::make_unique<mqtt::async_client>(broker_url.value(), client_id);
+  auto client = std::make_unique<paho_mqtt::async_client>(broker_url.value(), client_id);
 
   return Connection(std::move(cfg), std::move(options.value()), std::move(client), std::move(api));
 }
 
-Connection::Connection(config::MqttConfig cfg, mqtt::connect_options options,
-                       std::unique_ptr<mqtt::async_client> client, PairingApi pairing_api)
+Connection::Connection(mqtt::MqttConfig cfg, paho_mqtt::connect_options options,
+                       std::unique_ptr<paho_mqtt::async_client> client, PairingApi pairing_api)
     : cfg_(std::move(cfg)),
       connect_options_(std::move(options)),
       client_(std::move(client)),
       connected_(std::make_shared<std::atomic<bool>>(false)),
-      session_setup_tokens_(std::make_shared<mqtt::thread_queue<mqtt::token_ptr>>()),
+      session_setup_tokens_(std::make_shared<paho_mqtt::thread_queue<paho_mqtt::token_ptr>>()),
       pairing_api_(std::move(pairing_api)) {}
 
 auto Connection::connect(std::shared_ptr<Introspection> introspection)
@@ -183,7 +183,7 @@ auto Connection::connect(std::shared_ptr<Introspection> introspection)
 
     // TODO(sorru94): check if connection is fully established and add timeout if needed.
 
-  } catch (const mqtt::exception& e) {
+  } catch (const paho_mqtt::exception& e) {
     spdlog::error("Error while trying to connect to Astarte: {}", e.what());
     return astarte_tl::unexpected(MqttConnectionError(
         astarte_fmt::format("Mqtt connection error (ID {}): {}", e.get_reason_code(), e.what())));
@@ -238,7 +238,7 @@ auto Connection::disconnect() -> astarte_tl::expected<void, Error> {
     client_->disconnect(static_cast<int>(cfg_.disconnection_timeout().count()))->wait();
     connected_->store(false);
     spdlog::info("Device disconnected from Astarte requested.");
-  } catch (const mqtt::exception& e) {
+  } catch (const paho_mqtt::exception& e) {
     return astarte_tl::unexpected(MqttConnectionError(astarte_fmt::format(
         "Mqtt disconnection error (ID {}): {}", e.get_reason_code(), e.what())));
   }
@@ -246,4 +246,4 @@ auto Connection::disconnect() -> astarte_tl::expected<void, Error> {
   return {};
 }
 
-}  // namespace astarte::device::mqtt_connection
+}  // namespace astarte::device::mqtt::mqtt_connection

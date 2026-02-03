@@ -8,7 +8,7 @@
 
 #include "astarte_device_sdk/formatter.hpp"
 
-namespace astarte::device {
+namespace astarte::device::mqtt {
 
 auto Introspection::checked_insert(Interface interface) -> astarte_tl::expected<void, Error> {
   const std::unique_lock lock(lock_);
@@ -88,4 +88,4 @@ auto Introspection::get(std::string_view interface_name) const
   return iter->second;
 }
 
-}  // namespace astarte::device
+}  // namespace astarte::device::mqtt

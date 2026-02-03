@@ -13,7 +13,7 @@
 #include "astarte_device_sdk/errors.hpp"
 #include "mqtt/mapping.hpp"
 
-namespace astarte::device::json_helper {
+namespace astarte::device::mqtt::json_helper {
 
 using json = nlohmann::json;
 
@@ -116,6 +116,6 @@ auto optional_value_from_json(const nlohmann::json& interface, std::string_view 
   }
 }
 
-}  // namespace astarte::device::json_helper
+}  // namespace astarte::device::mqtt::json_helper
 
 #endif  // ASTARTE_MQTT_HELPERS_H

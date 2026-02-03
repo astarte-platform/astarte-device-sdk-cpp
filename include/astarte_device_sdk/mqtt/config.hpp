@@ -22,7 +22,7 @@
 /**
  * @brief Namespace for configuration classes definition.
  */
-namespace astarte::device::config {
+namespace astarte::device::mqtt {
 
 /// @cond DO_NOT_DOCUMENT
 using namespace std::chrono_literals;
@@ -194,6 +194,6 @@ class MqttConfig {
   std::chrono::milliseconds disconn_timeout_;
 };
 
-}  // namespace astarte::device::config
+}  // namespace astarte::device::mqtt
 
 #endif  // ASTARTE_MQTT_CONFIG_H

@@ -14,7 +14,7 @@
 #include "astarte_device_sdk/formatter.hpp"
 #include "astarte_device_sdk/object.hpp"
 
-namespace astarte::device::bson {
+namespace astarte::device::mqtt::bson {
 
 using json = nlohmann::json;
 
@@ -88,4 +88,4 @@ void serialize_astarte_object(json& bson, const DatastreamObject& object,
   }
 }
 
-}  // namespace astarte::device::bson
+}  // namespace astarte::device::mqtt::bson

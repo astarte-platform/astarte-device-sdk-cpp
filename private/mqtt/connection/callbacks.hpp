@@ -19,15 +19,17 @@
 #include "mqtt/introspection.hpp"
 #include "mqtt/thread_queue.h"
 
-namespace astarte::device::mqtt_connection {
+namespace astarte::device::mqtt::mqtt_connection {
+
+namespace paho_mqtt = ::mqtt;
 
 /**
- * @brief Implements `mqtt::callback` to handle connection life-cycle events and session setup.
+ * @brief Implements `paho_mqtt::callback` to handle connection life-cycle events and session setup.
  *
  * This class owns the device state (ID, introspection) and is responsible for
  * subscribing to topics and publishing introspection when a session is established.
  */
-class Callback : public virtual mqtt::callback {
+class Callback : public virtual paho_mqtt::callback {
  public:
   /**
    * @brief Construct a new Connection Callback object.
@@ -40,10 +42,11 @@ class Callback : public virtual mqtt::callback {
    * @param session_setup_tokens Tokens from the paho MQTT library related to the session setup
    * procedure.
    */
-  Callback(mqtt::iasync_client* client, std::string realm, std::string device_id,
-           std::shared_ptr<Introspection> introspection,
-           const std::shared_ptr<std::atomic<bool>>& connected,
-           const std::shared_ptr<mqtt::thread_queue<mqtt::token_ptr>>& session_setup_tokens);
+  Callback(
+      paho_mqtt::iasync_client* client, std::string realm, std::string device_id,
+      std::shared_ptr<Introspection> introspection,
+      const std::shared_ptr<std::atomic<bool>>& connected,
+      const std::shared_ptr<paho_mqtt::thread_queue<paho_mqtt::token_ptr>>& session_setup_tokens);
 
   /**
    * @brief Performs the Astarte session setup.
@@ -93,16 +96,16 @@ class Callback : public virtual mqtt::callback {
    * @brief Called when a message arrives from the broker.
    * @param msg The received message.
    */
-  void message_arrived(mqtt::const_message_ptr msg) override;
+  void message_arrived(paho_mqtt::const_message_ptr msg) override;
 
   /**
    * @brief Called when a message delivery is complete.
    * @param token The delivery token associated with the message.
    */
-  void delivery_complete(mqtt::delivery_token_ptr token) override;
+  void delivery_complete(paho_mqtt::delivery_token_ptr token) override;
 
   /// @brief Pointer to the MQTT client, used for operations like subscribe.
-  mqtt::iasync_client* client_;
+  paho_mqtt::iasync_client* client_;
   /// @brief The Astarte Realm name.
   std::string realm_;
   /// @brief The Astarte Device ID.
@@ -112,13 +115,13 @@ class Callback : public virtual mqtt::callback {
   /// @brief The flag stating if the device is successfully connected to Astarte.
   std::shared_ptr<std::atomic<bool>> connected_;
   /// @brief Paho MQTT tokens for the messages of an Astarte session setup.
-  std::shared_ptr<mqtt::thread_queue<mqtt::token_ptr>> session_setup_tokens_;
+  std::shared_ptr<paho_mqtt::thread_queue<paho_mqtt::token_ptr>> session_setup_tokens_;
   /// @brief Paho MQTT listener for the messages of an Astarte session setup.
   std::shared_ptr<SessionSetupListener> session_setup_listener_;
   /// @brief Paho MQTT listener for the disconnection.
   std::shared_ptr<DisconnectionListener> disconnection_listener_;
 };
 
-}  // namespace astarte::device::mqtt_connection
+}  // namespace astarte::device::mqtt::mqtt_connection
 
 #endif  // ASTARTE_MQTT_CONNECTION_CALLBACKS_H

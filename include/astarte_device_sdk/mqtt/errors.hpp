@@ -15,7 +15,7 @@
 // NOLINTNEXTLINE(misc-header-include-cycle)
 #include "astarte_device_sdk/errors.hpp"
 
-namespace astarte::device {
+namespace astarte::device::mqtt {
 
 /**
  * @brief Specific error for when an operation failed due to an internal error.
@@ -299,6 +299,6 @@ class MqttConnectionError : public ErrorBase {
   static constexpr std::string_view k_type_ = "MqttConnectionError";
 };
 
-}  // namespace astarte::device
+}  // namespace astarte::device::mqtt
 
 #endif  // ASTARTE_DEVICE_SDK_MQTT_ERRORS_H

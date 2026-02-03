@@ -11,7 +11,7 @@
 
 #include "mqtt/credentials.hpp"
 
-namespace astarte::device::config {
+namespace astarte::device::mqtt {
 
 MqttConfig::~MqttConfig() = default;
 MqttConfig::MqttConfig(MqttConfig&&) noexcept = default;
@@ -42,4 +42,4 @@ auto MqttConfig::credential_secret() -> std::optional<std::string> {
   return credential_->is_credential_secret() ? std::optional(credential_->value()) : std::nullopt;
 }
 
-}  // namespace astarte::device::config
+}  // namespace astarte::device::mqtt

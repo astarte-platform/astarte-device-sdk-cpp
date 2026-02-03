@@ -26,7 +26,7 @@
 #include "mqtt/connection/connection.hpp"
 #include "mqtt/introspection.hpp"
 
-namespace astarte::device {
+namespace astarte::device::mqtt {
 
 struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
  public:
@@ -35,7 +35,7 @@ struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
    * @param cfg set of MQTT configuration options used to connect a device to Astarte.
    * @return a shared pointer to the AstarteDeviceMqttImpl object, an error otherwise.
    */
-  static auto create(config::MqttConfig& cfg)
+  static auto create(mqtt::MqttConfig& cfg)
       -> astarte_tl::expected<std::shared_ptr<AstarteDeviceMqttImpl>, Error>;
 
   /** @brief Destructor for the Astarte device class. */
@@ -156,13 +156,13 @@ struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
    * @param cfg set of MQTT configuration options used to connect a device to Astarte.
    * @param connection connection object.
    */
-  AstarteDeviceMqttImpl(config::MqttConfig cfg, mqtt_connection::Connection connection);
+  AstarteDeviceMqttImpl(mqtt::MqttConfig cfg, mqtt_connection::Connection connection);
 
-  config::MqttConfig cfg_;
+  mqtt::MqttConfig cfg_;
   mqtt_connection::Connection connection_;
   std::shared_ptr<Introspection> introspection_ = std::make_shared<Introspection>();
 };
 
-}  // namespace astarte::device
+}  // namespace astarte::device::mqtt
 
 #endif  // DEVICE_MQTT_IMPL_H

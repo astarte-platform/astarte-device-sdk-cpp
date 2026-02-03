@@ -17,16 +17,16 @@
 
 using astarte::device::astarte_type_from_str;
 using astarte::device::Data;
-using astarte::device::DatabaseRetentionPolicy;
 using astarte::device::DatastreamObject;
-using astarte::device::Interface;
-using astarte::device::InterfaceAggregation;
-using astarte::device::InterfaceType;
 using astarte::device::Introspection;
-using astarte::device::Mapping;
 using astarte::device::Reliability;
-using astarte::device::Retention;
 using astarte::device::Type;
+using astarte::device::mqtt::DatabaseRetentionPolicy;
+using astarte::device::mqtt::Interface;
+using astarte::device::mqtt::InterfaceAggregation;
+using astarte::device::mqtt::InterfaceType;
+using astarte::device::mqtt::Mapping;
+using astarte::device::mqtt::Retention;
 
 using nlohmann::json;
 
