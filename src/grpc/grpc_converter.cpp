@@ -234,7 +234,7 @@ auto GrpcConverterTo::operator()(const Data& value,
 
 // Clang-tidy assumes some of the gRPC calls are memory leaks
 // NOLINTBEGIN(clang-analyzer-cplusplus.NewDeleteLeaks)
-auto GrpcConverterTo::operator()(const AstarteDatastreamObject& value,
+auto GrpcConverterTo::operator()(const DatastreamObject& value,
                                  const std::chrono::system_clock::time_point* timestamp)
     -> std::unique_ptr<gRPCAstarteDatastreamObject> {
   spdlog::trace("Converting Astarte datastream object to gRPC.");
@@ -369,9 +369,9 @@ auto GrpcConverterFrom::operator()(const gRPCAstarteDatastreamIndividual& value)
 }
 
 auto GrpcConverterFrom::operator()(const gRPCAstarteDatastreamObject& value)
-    -> astarte_tl::expected<AstarteDatastreamObject, Error> {
+    -> astarte_tl::expected<DatastreamObject, Error> {
   spdlog::trace("Converting Astarte datastream object from gRPC, message: \n{}", value);
-  AstarteDatastreamObject object;
+  DatastreamObject object;
   const google::protobuf::Map<std::string, gRPCAstarteData>& grpc_data = value.data();
   for (const auto& [key, data] : grpc_data) {
     auto converted_data = (*this)(data);
@@ -399,7 +399,7 @@ auto GrpcConverterFrom::operator()(const gRPCAstarteMessage& value)
   spdlog::trace("Converting Astarte message from gRPC, message: \n{}", value);
 
   auto make_message = [&](auto&& val) {
-    const std::variant<DatastreamIndividual, AstarteDatastreamObject, AstartePropertyIndividual>
+    const std::variant<DatastreamIndividual, DatastreamObject, AstartePropertyIndividual>
         parsed_data(std::forward<decltype(val)>(val));
     return Message{value.interface_name(), value.path(), parsed_data};
   };

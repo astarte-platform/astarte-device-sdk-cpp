@@ -77,7 +77,7 @@ auto AstarteDeviceMqtt::send_individual(std::string_view interface_name, std::st
 }
 
 auto AstarteDeviceMqtt::send_object(std::string_view interface_name, std::string_view path,
-                                    const AstarteDatastreamObject& object,
+                                    const DatastreamObject& object,
                                     const std::chrono::system_clock::time_point* timestamp)
     -> astarte_tl::expected<void, Error> {
   return astarte_device_impl_->send_object(interface_name, path, object, timestamp);

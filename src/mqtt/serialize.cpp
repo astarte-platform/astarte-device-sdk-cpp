@@ -72,7 +72,7 @@ void serialize_astarte_individual(json& bson, const std::string& key, const Data
   }
 }
 
-void serialize_astarte_object(json& bson, const AstarteDatastreamObject& object,
+void serialize_astarte_object(json& bson, const DatastreamObject& object,
                               const std::chrono::system_clock::time_point* timestamp) {
   json inner_bson;
   for (const auto& [endpoint_path, data] : object) {

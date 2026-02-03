@@ -30,12 +30,12 @@
 
 using json = nlohmann::json;
 
-using astarte::device::AstarteDatastreamObject;
 using astarte::device::AstarteOwnership;
 using astarte::device::AstartePropertyIndividual;
 using astarte::device::AstarteStoredProperty;
 using astarte::device::Data;
 using astarte::device::DatastreamIndividual;
+using astarte::device::DatastreamObject;
 using astarte::device::Device;
 using astarte::device::Error;
 using astarte::device::Message;
@@ -112,7 +112,7 @@ inline void check_datastream_aggregate(const json& response_json, const Message&
     throw EndToEndHTTPException("Fetching of data through REST API failed.");
   }
 
-  const auto& expected_data(msg.into<AstarteDatastreamObject>());
+  const auto& expected_data(msg.into<DatastreamObject>());
   json expected_data_json = json::parse(astarte_fmt::format("{}", expected_data));
 
   // Retrieve the last object (most recent)
@@ -281,7 +281,7 @@ inline Action TransmitDeviceData(
         res = ctx.device->send_individual(msg.get_interface(), msg.get_path(), data.get_value(),
                                           ts_ptr);
       } else {
-        const auto& data(msg.into<AstarteDatastreamObject>());
+        const auto& data(msg.into<DatastreamObject>());
         res = ctx.device->send_object(msg.get_interface(), msg.get_path(), data, ts_ptr);
       }
     } else {
@@ -433,7 +433,7 @@ inline Action TransmitRESTData(Message message) {
       if (msg.is_individual()) {
         payload = make_payload(msg.into<DatastreamIndividual>());
       } else {
-        payload = make_payload(msg.into<AstarteDatastreamObject>());
+        payload = make_payload(msg.into<DatastreamObject>());
       }
       spdlog::trace("HTTP POST: {} {}", url, payload);
       auto res = cpr::Post(cpr::Url{url}, cpr::Body{payload},

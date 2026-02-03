@@ -108,7 +108,7 @@ class AstarteDeviceGrpc : public Device {
    * @return An error if generated.
    */
   auto send_object(std::string_view interface_name, std::string_view path,
-                   const AstarteDatastreamObject& object,
+                   const DatastreamObject& object,
                    const std::chrono::system_clock::time_point* timestamp)
       -> astarte_tl::expected<void, Error> override;
   /**

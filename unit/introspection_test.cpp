@@ -16,10 +16,10 @@
 #include "mqtt/introspection.hpp"
 
 using astarte::device::astarte_type_from_str;
-using astarte::device::AstarteDatastreamObject;
 using astarte::device::AstarteType;
 using astarte::device::Data;
 using astarte::device::DatabaseRetentionPolicy;
+using astarte::device::DatastreamObject;
 using astarte::device::Interface;
 using astarte::device::InterfaceAggregation;
 using astarte::device::InterfaceType;
@@ -556,20 +556,18 @@ TEST_F(AstarteTestIntrospection, ValidateObject) {
   // Test the validate_object method on the interface loaded in SetUp (test.Test, aggregated object)
   auto iface = introspection_.get("test.Test").value();
 
-  AstarteDatastreamObject obj_data = {{"double_endpoint", Data(1.5)},
-                                      {"integer_endpoint", Data(42)}};
+  DatastreamObject obj_data = {{"double_endpoint", Data(1.5)}, {"integer_endpoint", Data(42)}};
 
   EXPECT_THAT(iface->validate_object("/1", obj_data, nullptr), IsExpected());
 
   // Invalid data type in object
-  AstarteDatastreamObject bad_data = {
-      {"double_endpoint", Data(std::string("string instead of double"))}};
+  DatastreamObject bad_data = {{"double_endpoint", Data(std::string("string instead of double"))}};
 
   EXPECT_THAT(iface->validate_object("/1", bad_data, nullptr),
               IsUnexpected("Astarte data type and mapping type do not match"));
 
   // Path that doesn't match object structure (extra fields)
-  AstarteDatastreamObject unknown_field = {{"unknown_endpoint", Data(1.0)}};
+  DatastreamObject unknown_field = {{"unknown_endpoint", Data(1.0)}};
 
   EXPECT_THAT(iface->validate_object("/1", unknown_field, nullptr),
               IsUnexpected("couldn't find mapping with path"));

@@ -186,7 +186,7 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::send_individual(
 }
 
 auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::send_object(
-    std::string_view interface_name, std::string_view path, const AstarteDatastreamObject& object,
+    std::string_view interface_name, std::string_view path, const DatastreamObject& object,
     const std::chrono::system_clock::time_point* timestamp) -> astarte_tl::expected<void, Error> {
   if (!connection_.is_connected()) {
     spdlog::error("couldn't send data since the device is not connected");

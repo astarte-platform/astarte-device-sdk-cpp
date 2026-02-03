@@ -13,7 +13,7 @@ namespace testcases {
 using namespace std::chrono_literals;
 
 TestCase device_aggregate(std::string device_id) {
-    AstarteDatastreamObject astarte_obj = {
+    DatastreamObject astarte_obj = {
         {std::string(constants::data_sets::Integer::ENDPOINT_PARTIAL),
          constants::data_sets::Integer::DATA},
         {std::string(constants::data_sets::Double::ENDPOINT_PARTIAL),

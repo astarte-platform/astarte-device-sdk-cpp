@@ -100,7 +100,7 @@ struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
    * @param timestamp An optional timestamp for the data.
    */
   auto send_object(std::string_view interface_name, std::string_view path,
-                   const AstarteDatastreamObject& object,
+                   const DatastreamObject& object,
                    const std::chrono::system_clock::time_point* timestamp)
       -> astarte_tl::expected<void, Error>;
   /**

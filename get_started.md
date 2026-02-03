@@ -200,7 +200,7 @@ A couple of assumptions have been made:
 
 using astarte::device::Data;
 using astarte::device::DatastreamIndividual;
-using astarte::device::AstarteDatastreamObject;
+using astarte::device::DatastreamObject;
 using astarte::device::AstarteDeviceGrpc;
 using astarte::device::Message;
 using astarte::device::AstartePropertyIndividual;
@@ -220,7 +220,7 @@ void reception_handler(std::stop_token token, std::shared_ptr<AstarteDeviceGrpc>
           const auto &data(msg.into<DatastreamIndividual>());
           std::cout << "Value: {}" << data << std::endl;
         } else {
-          const auto &data(msg.into<AstarteDatastreamObject>());
+          const auto &data(msg.into<DatastreamObject>());
           std::cout << "Value: {}" << data << std::endl;
         }
       } else {
@@ -315,7 +315,7 @@ int main(int argc, char **argv) {
 
   std::string interface_name("org.astarte-platform.cpp.get-started.Aggregated");
   std::string common_path("/group_data");
-  AstarteDatastreamObject data = {
+  DatastreamObject data = {
     {"double_endpoint", Data(43.5)},
     {"string_endpoint", Data(std::string("Hello from cpp!"))}
   };

@@ -222,7 +222,7 @@ auto Interface::validate_individual(std::string_view path, const Data& data,
   return {};
 }
 
-auto Interface::validate_object(std::string_view common_path, const AstarteDatastreamObject& object,
+auto Interface::validate_object(std::string_view common_path, const DatastreamObject& object,
                                 const std::chrono::system_clock::time_point* timestamp) const
     -> astarte_tl::expected<void, Error> {
   for (const auto& [endpoint_path, data] : object) {

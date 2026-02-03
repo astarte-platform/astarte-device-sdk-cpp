@@ -257,7 +257,7 @@ int main() {
       auto interface_name = std::string("org.astarte-platform.cpp.examples.DeviceAggregate");
       auto common_path = std::string("/sensor15");
 
-      astarte::device::AstarteDatastreamObject data = {
+      astarte::device::DatastreamObject data = {
           {"integer_endpoint", astarte::device::Data(43)},
           {"longinteger_endpoint", astarte::device::Data(8589934592)},
           {"double_endpoint", astarte::device::Data(43.5)},

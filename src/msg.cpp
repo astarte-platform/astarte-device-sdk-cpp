@@ -19,7 +19,7 @@ auto Message::get_path() const -> const std::string& { return path_; }
 
 auto Message::is_datastream() const -> bool {
   return std::holds_alternative<DatastreamIndividual>(data_) ||
-         std::holds_alternative<AstarteDatastreamObject>(data_);
+         std::holds_alternative<DatastreamObject>(data_);
 }
 
 auto Message::is_individual() const -> bool {
@@ -27,8 +27,8 @@ auto Message::is_individual() const -> bool {
          std::holds_alternative<AstartePropertyIndividual>(data_);
 }
 
-auto Message::get_raw_data() const -> const
-    std::variant<DatastreamIndividual, AstarteDatastreamObject, AstartePropertyIndividual>& {
+auto Message::get_raw_data() const
+    -> const std::variant<DatastreamIndividual, DatastreamObject, AstartePropertyIndividual>& {
   return this->data_;
 }
 

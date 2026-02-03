@@ -14,11 +14,11 @@
 #include "astarte_device_sdk/grpc/device_grpc.hpp"
 #include "astarte_device_sdk/msg.hpp"
 
-using astarte::device::AstarteDatastreamObject;
 using astarte::device::AstarteDeviceGrpc;
 using astarte::device::AstartePropertyIndividual;
 using astarte::device::Data;
 using astarte::device::DatastreamIndividual;
+using astarte::device::DatastreamObject;
 using astarte::device::Device;
 using astarte::device::FileOpenError;
 using astarte::device::InvalidInputError;
@@ -41,7 +41,7 @@ void reception_handler(std::stop_token token, std::shared_ptr<Device> device) {
           spdlog::info("Value: {}", data);
         } else {
           spdlog::info("Type: object datastream");
-          const auto& data(msg.into<AstarteDatastreamObject>());
+          const auto& data(msg.into<DatastreamObject>());
           spdlog::info("Value: {}", data);
         }
       } else {
@@ -231,7 +231,7 @@ int main(int argc, char** argv) {
     std::string interface_name("org.astarte-platform.cpp.examples.DeviceAggregate");
     std::string common_path("/sensor15");
 
-    AstarteDatastreamObject data = {
+    DatastreamObject data = {
         {"integer_endpoint", Data(43)},
         {"longinteger_endpoint", Data(8589934592)},
         {"double_endpoint", Data(43.5)},

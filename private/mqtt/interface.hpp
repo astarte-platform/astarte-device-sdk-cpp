@@ -243,7 +243,7 @@ class Interface {
    * @param timestamp a pointer to the timestamp pointing out when the data is sent.
    * @return an error if the falidation fails, nothing otherwise.
    */
-  auto validate_object(std::string_view common_path, const AstarteDatastreamObject& object,
+  auto validate_object(std::string_view common_path, const DatastreamObject& object,
                        const std::chrono::system_clock::time_point* timestamp) const
       -> astarte_tl::expected<void, Error>;
 
