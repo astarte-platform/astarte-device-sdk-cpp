@@ -23,8 +23,12 @@
 #include "astarte_device_sdk/ownership.hpp"
 #include "astarte_device_sdk/stored_property.hpp"
 
-/** @brief Umbrella namespace for the Astarte device SDK */
-namespace astarte::device {
+// NOLINTBEGIN(modernize-concat-nested-namespaces) Not nested for doxygen
+/** @brief Global namespace for all Astarte related functionality. */
+namespace astarte {
+/** @brief Umbrella namespace for the Astarte device library */
+namespace device {
+// NOLINTEND(modernize-concat-nested-namespaces)
 
 /**
  * @brief Interface for an Astarte device.
@@ -171,6 +175,7 @@ class Device {
   Device() = default;
 };
 
-}  // namespace astarte::device
+}  // namespace device
+}  // namespace astarte
 
 #endif  // ASTARTE_DEVICE_SDK_DEVICE_H
