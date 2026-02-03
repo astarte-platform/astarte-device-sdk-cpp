@@ -24,12 +24,18 @@ def on_rm_error(func, path, exc_info):
     Error handler for shutil.rmtree.
     If the error is due to an access error (read only file),
     it attempts to add write permission and then retries.
+
+    Args:
+        func (callable): The function that raised the exception.
+        path (str): The path name passed to func.
+        exc_info (tuple): The exception information returned by sys.exc_info().
     """
     if not os.access(path, os.W_OK):
         os.chmod(path, stat.S_IWUSR)
         func(path)
     else:
-        raise
+        # Re-raise the exception passed by the handler
+        raise exc_info[1]
 
 
 def error_exit(message):
@@ -50,19 +56,24 @@ def clean_sample(build_dir, deps_management, cmake_user_presets):
     Args:
         build_dir (str): The path to the build directory to remove.
         deps_management (str): The dependency management system used.
-        cmake_user_presets (str): The path to the CMakeUserPresets.json file (only used if deps_management is "conan").
+        cmake_user_presets (str): The path to the CMakeUserPresets.json file
+                                  (only used if deps_management is "conan").
+    Raises:
+        OSError: If the directory removal fails on non-Windows systems or after force delete.
     """
 
     print("Fresh build requested. Removing old build files...")
 
     if os.path.exists(build_dir):
         try:
+            # pylint: disable=deprecated-argument
+            # 'onerror' is kept for backward compatibility with Python < 3.12
             shutil.rmtree(build_dir, onerror=on_rm_error)
             print(f"Removed directory: {build_dir}")
-        except OSError as e:
+        except OSError:
             if os.name == "nt":
                 # If on Windows use 'rmdir' which is more robust.
-                print(f"Standard delete failed. Attempting Windows system force delete...")
+                print("Standard delete failed. Attempting Windows system force delete...")
                 subprocess.run(f'rmdir /s /q "{build_dir}"', shell=True, check=False)
                 if not os.path.exists(build_dir):
                     print(f"Removed directory (via system command): {build_dir}")

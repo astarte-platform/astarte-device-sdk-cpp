@@ -14,10 +14,10 @@ env:
   GRPC_VERSION: "1.69.0"
 
 jobs:
-  unit-tests:
+  unit-tests-grpc:
     runs-on: ubuntu-latest
     concurrency:
-      group: unit-tests-${{ github.ref }}
+      group: unit-tests-grpc-${{ github.ref }}
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@v6
@@ -40,4 +40,16 @@ jobs:
           ./astarte-device-sdk-cpp/.github/scripts/build-grpc.sh
       - name: Run the unit tests for C++ 20
         working-directory: ./astarte-device-sdk-cpp
-        run: ./unit.sh --system_grpc --fresh
+        run: ./unit.sh --transport grpc --system_transport --fresh
+  unit-tests-mqtt:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: unit-tests-mqtt-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          path: astarte-device-sdk-cpp
+      - name: Run the unit tests for C++ 20
+        working-directory: ./astarte-device-sdk-cpp
+        run: ./unit.sh --transport mqtt --fresh

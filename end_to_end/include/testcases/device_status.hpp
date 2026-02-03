@@ -4,23 +4,33 @@
 
 #pragma once
 
+#include "action.hpp"
 #include "case.hpp"
-#include "constants/astarte_interfaces.hpp"
+#include "constants/interfaces.hpp"
 
 namespace testcases {
-TestCase device_status() {
-  return TestCase(
-      "Device status",
-      std::vector<std::shared_ptr<TestAction>>{
-          TestActionConnect::Create(), TestActionSleep::Create(std::chrono::seconds(1)),
-          TestActionCheckDeviceStatus::Create(
-              true,
-              std::vector<std::string>{std::string(astarte_interfaces::DeviceDatastream::INTERFACE),
-                                       std::string(astarte_interfaces::ServerDatastream::INTERFACE),
-                                       std::string(astarte_interfaces::DeviceAggregate::INTERFACE),
-                                       std::string(astarte_interfaces::ServerAggregate::INTERFACE),
-                                       std::string(astarte_interfaces::DeviceProperty::INTERFACE),
-                                       std::string(astarte_interfaces::ServerProperty::INTERFACE)}),
-          TestActionDisconnect::Create(), TestActionSleep::Create(std::chrono::seconds(1))});
+
+using namespace std::chrono_literals;
+
+TestCase device_status(std::string device_id) {
+    return TestCase(
+        "Device status",
+        {actions::Connect(),
+         actions::Sleep(1s),
+         actions::CheckDeviceStatus(
+             true,
+             std::vector<std::string>{
+                 std::string(constants::interfaces::DeviceDatastream::INTERFACE),
+                 std::string(constants::interfaces::ServerDatastream::INTERFACE),
+                 std::string(constants::interfaces::DeviceAggregate::INTERFACE),
+                 std::string(constants::interfaces::ServerAggregate::INTERFACE),
+                 std::string(constants::interfaces::DeviceProperty::INTERFACE),
+                 std::string(constants::interfaces::ServerProperty::INTERFACE)
+             }
+         ),
+         actions::Disconnect(),
+         actions::Sleep(1s)},
+        device_id
+    );
 }
 }  // namespace testcases

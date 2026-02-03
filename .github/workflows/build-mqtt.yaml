@@ -1,0 +1,57 @@
+# (C) Copyright 2025, SECO Mind Srl
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Check build for the library with MQTT
+
+on:
+  pull_request:
+  push:
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build-mqtt-native-sample-conan-linux:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: build-mqtt-native-sample-conan-linux-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install Conan
+        uses: conan-io/setup-conan@v1
+        with:
+          cache_packages: true
+          use_venv: true
+      - name: Build sample and library
+        run: ./build_sample.sh mqtt/native --fresh --deps-mgmt conan --transport mqtt --ext-tools
+  # TODO(sorru94): The following workflow has been temporarily disabled due to
+  # issues with the Windows build environment. Once those issues are resolved,
+  # this section should be re-enabled to ensure comprehensive testing across
+  # all supported platforms.
+  # build-mqtt-native-sample-conan-windows:
+  #   runs-on: windows-latest
+  #   concurrency:
+  #     group: build-mqtt-native-sample-conan-windows-${{ github.ref }}
+  #     cancel-in-progress: true
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #     - name: Install Conan
+  #       uses: conan-io/setup-conan@v1
+  #       with:
+  #         cache_packages: true
+  #         use_venv: true
+  #     - name: Build sample with conan
+  #       shell: pwsh
+  #       run: .\build_sample.ps1 mqtt/native -fresh -deps-mgmt conan -transport mqtt -ext-tools
+  build-mqtt-native-sample-fetch-linux:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: build-mqtt-native-sample-fetch-linux-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build sample and library
+        run: ./build_sample.sh mqtt/native --fresh --transport mqtt --deps-mgmt fetch
+  # TODO(sorru94): Add Linux system build

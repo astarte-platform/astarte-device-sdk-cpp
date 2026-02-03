@@ -20,6 +20,8 @@
 #include "astarte_device_sdk/errors.hpp"
 #include "astarte_device_sdk/msg.hpp"
 #include "astarte_device_sdk/object.hpp"
+#include "astarte_device_sdk/ownership.hpp"
+#include "astarte_device_sdk/stored_property.hpp"
 
 /** @brief Umbrella namespace for the Astarte device SDK */
 namespace AstarteDeviceSdk {
@@ -139,6 +141,28 @@ class AstarteDevice {
    */
   virtual auto poll_incoming(const std::chrono::milliseconds& timeout)
       -> std::optional<AstarteMessage> = 0;
+  /**
+   * @brief Get the current value for all properties matching the input filter.
+   * @param ownership Optional ownership filter.
+   * @return A list of properties matching the filter.
+   */
+  virtual auto get_all_properties(const std::optional<AstarteOwnership>& ownership)
+      -> astarte_tl::expected<std::list<AstarteStoredProperty>, AstarteError> = 0;
+  /**
+   * @brief Get the current value for properties matching the interface.
+   * @param interface_name The name of the interface for the properties.
+   * @return A list of properties matching the interface.
+   */
+  virtual auto get_properties(std::string_view interface_name)
+      -> astarte_tl::expected<std::list<AstarteStoredProperty>, AstarteError> = 0;
+  /**
+   * @brief Get a single property matching the interface name and path.
+   * @param interface_name The name of the interface for the property.
+   * @param path Exact path for the property.
+   * @return The property value.
+   */
+  virtual auto get_property(std::string_view interface_name, std::string_view path)
+      -> astarte_tl::expected<AstartePropertyIndividual, AstarteError> = 0;
 
  protected:
   /**

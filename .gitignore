@@ -26,8 +26,10 @@ config.toml
 *.qbs.user*
 CMakeLists.txt.user*
 
-grpc/
 grpc-install/
 
 # Conan stuff
 CMakeUserPresets.json
+
+# ignore db files
+**.db

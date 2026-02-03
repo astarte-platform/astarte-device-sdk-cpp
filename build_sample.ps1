@@ -9,17 +9,24 @@
     Arguments are mapped to match the Bash script variables.
 
 .EXAMPLE
-    .\build_sample.ps1 simple
+    .\build_sample.ps1 grpc/native
 .EXAMPLE
-    .\build_sample.ps1 qt -fresh -deps-mgmt fetch -qt_version 6
+    .\build_sample.ps1 mqtt/native -transport mqtt -fresh
+.EXAMPLE
+    .\build_sample.ps1 grpc/qt -deps-mgmt fetch -qt_version 6
 #>
 
 [CmdletBinding()]
 param(
     # Positional argument: <sample_name>
     [Parameter(Mandatory=$true, Position=0)]
-    [ValidateSet("simple", "qt")]
+    [ValidateSet("grpc/native", "grpc/qt", "mqtt/native")]
     [string]$sample_to_build,
+
+    # --transport
+    [Parameter(Mandatory=$false)]
+    [ValidateSet("grpc", "mqtt")]
+    [string]$transport = "grpc",
 
     # --fresh
     [switch]$fresh,
@@ -61,8 +68,10 @@ function Exit-WithError {
 # --- Environment and dependency setup ---
 $sample_src_dir = ""
 switch ($sample_to_build) {
-    "simple" { $sample_src_dir = "samples\simple" }
-    "qt"     { $sample_src_dir = "samples\qt" }
+    "grpc/native" { $sample_src_dir = "samples\grpc\native" }
+    "grpc/qt"     { $sample_src_dir = "samples\grpc\qt" }
+    "mqtt/native" { $sample_src_dir = "samples\mqtt\native" }
+    Default       { Exit-WithError "Unknown sample directory mapping." }
 }
 
 $build_dir = Join-Path $sample_src_dir "build"
@@ -98,15 +107,15 @@ $nproc = $env:NUMBER_OF_PROCESSORS
 
 if ($deps_management -eq "conan") {
     Write-Host "Building with Conan..." -ForegroundColor Cyan
-    python .\scripts\build_sample_conan.py "$current_dir" "$sample_to_build" "$qt_version"
+    python .\scripts\build_sample_conan.py "$current_dir" "$sample_to_build" "$transport" "$qt_version"
 
 } elseif ($deps_management -eq "fetch") {
     Write-Host "Building with CMake Fetch..." -ForegroundColor Cyan
-    python .\scripts\build_sample_cmake.py "$current_dir" "$sample_to_build" "$nproc" "$qt_path" "$qt_version"
+    python .\scripts\build_sample_cmake.py "$current_dir" "$sample_to_build" "$transport" "$nproc" "$qt_path" "$qt_version"
 
 } else { # "system"
     Write-Host "Building with System Deps..." -ForegroundColor Cyan
-    python .\scripts\build_sample_cmake.py "$current_dir" "$sample_to_build" "$nproc" "$qt_path" "$qt_version" --system_grpc
+    python .\scripts\build_sample_cmake.py "$current_dir" "$sample_to_build" "$transport" "$nproc" "$qt_path" "$qt_version" --system_grpc
 }
 
 if ($LASTEXITCODE -ne 0) { Exit-WithError "Build script failed." }

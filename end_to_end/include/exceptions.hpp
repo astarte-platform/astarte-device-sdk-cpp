@@ -16,6 +16,12 @@ class EndToEndException : public std::exception {
   std::string message_;
 };
 
+class EndToEndConfigException : public EndToEndException {
+ public:
+  explicit EndToEndConfigException(const std::string& err_message)
+      : EndToEndException(err_message) {}
+};
+
 class EndToEndAstarteDeviceException : public EndToEndException {
  public:
   explicit EndToEndAstarteDeviceException(const std::string& err_message)

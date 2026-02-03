@@ -11,8 +11,10 @@
  */
 
 #include <optional>
+#include <ostream>
 
 #include "astarte_device_sdk/data.hpp"
+#include "astarte_device_sdk/formatter.hpp"
 
 namespace AstarteDeviceSdk {
 
@@ -47,5 +49,50 @@ class AstartePropertyIndividual {
 };
 
 }  // namespace AstarteDeviceSdk
+
+/**
+ * @brief astarte_fmt::formatter specialization for
+ * AstarteDeviceSdk::AstartePropertyIndividual.
+ */
+template <>
+struct astarte_fmt::formatter<AstarteDeviceSdk::AstartePropertyIndividual> {
+  /**
+   * @brief Parse the format string. Default implementation.
+   * @param ctx The parse context.
+   * @return An iterator to the end of the parsed range.
+   */
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx) const {
+    return ctx.begin();
+  }
+
+  /**
+   * @brief Format the AstartePropertyIndividual object.
+   * @param data The AstartePropertyIndividual to format.
+   * @param ctx The format context.
+   * @return An iterator to the end of the output.
+   */
+  template <typename FormatContext>
+  auto format(const AstarteDeviceSdk::AstartePropertyIndividual& data, FormatContext& ctx) const {
+    const auto& opt_data = data.get_value();
+    if (opt_data.has_value()) {
+      return astarte_fmt::format_to(ctx.out(), "{}", opt_data.value());
+    }
+
+    return ctx.out();
+  }
+};
+
+/**
+ * @brief Stream insertion operator for AstartePropertyIndividual.
+ * @param out The output stream.
+ * @param data The AstartePropertyIndividual object to output.
+ * @return Reference to the output stream.
+ */
+inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::AstartePropertyIndividual& data)
+    -> std::ostream& {
+  out << astarte_fmt::format("{}", data);
+  return out;
+}
 
 #endif  // ASTARTE_DEVICE_SDK_PROPERTY_H

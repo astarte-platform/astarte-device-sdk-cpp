@@ -101,3 +101,85 @@ install_conan() {
         echo "$conan_package_name version $conan_package_version is already installed."
     fi
 }
+
+# Installs a specific version of clang-tidy via pip if not already installed.
+#
+# Arguments:
+#   $1: tidy_package_name - The name of the package (e.g., "clang-tidy").
+#   $2: tidy_package_version - The specific version to install.
+#
+# Example Usage:
+#   install_tidy "clang-tidy" "14.0.0"
+#
+install_tidy() {
+    local tidy_package_name="$1"
+    local tidy_package_version="$2"
+
+    # --- Argument Validation ---
+    if [ -z "$tidy_package_name" ]; then
+        error_exit "Clang-tidy package name not provided."
+    fi
+    if [ -z "$tidy_package_version" ]; then
+        error_exit "Clang-tidy package version not provided."
+    fi
+
+    # Verify pip is accessible
+    if ! command -v pip &> /dev/null; then
+        error_exit "pip not found. Ensure the Python environment is activated before installing clang-tidy."
+    fi
+
+    echo "Checking/installing $tidy_package_name version $tidy_package_version..."
+
+    local installed_version
+    installed_version=$(pip show "$tidy_package_name" | grep Version | awk '{print $2}' || true)
+
+    if [ "$installed_version" != "$tidy_package_version" ]; then
+        echo "Installing $tidy_package_name==$tidy_package_version..."
+        if ! python3 -m pip install "$tidy_package_name==$tidy_package_version"; then
+            error_exit "Failed to install $tidy_package_name version $tidy_package_version."
+        fi
+    else
+        echo "$tidy_package_name version $tidy_package_version is already installed."
+    fi
+}
+
+# Installs a specific version of jsonschema via pip if not already installed.
+#
+# Arguments:
+#   $1: json_package_name - The name of the package (e.g., "jsonschema").
+#   $2: json_package_version - The specific version to install.
+#
+# Example Usage:
+#   install_json "jsonschema" "4.17.3"
+#
+install_json() {
+    local json_package_name="$1"
+    local json_package_version="$2"
+
+    # --- Argument Validation ---
+    if [ -z "$json_package_name" ]; then
+        error_exit "Jsonschema package name not provided."
+    fi
+    if [ -z "$json_package_version" ]; then
+        error_exit "Jsonschema package version not provided."
+    fi
+
+    # Verify pip is accessible
+    if ! command -v pip &> /dev/null; then
+        error_exit "pip not found. Ensure the Python environment is activated before installing jsonschema."
+    fi
+
+    echo "Checking/installing $json_package_name version $json_package_version..."
+
+    local installed_version
+    installed_version=$(pip show "$json_package_name" | grep Version | awk '{print $2}' || true)
+
+    if [ "$installed_version" != "$json_package_version" ]; then
+        echo "Installing $json_package_name==$json_package_version..."
+        if ! python3 -m pip install "$json_package_name==$json_package_version"; then
+            error_exit "Failed to install $json_package_name version $json_package_version."
+        fi
+    else
+        echo "$json_package_name version $json_package_version is already installed."
+    fi
+}

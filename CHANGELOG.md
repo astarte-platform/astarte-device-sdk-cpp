@@ -21,6 +21,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [0.8.0] - 2025-10-10
 ### Added
 - Support for the [Conan](https://conan.io/) package manager. Users can build the library as a conan package and import it in their Conan projects.
+- Implement Astarte pairing mechanism to register a device, retrieve MQTT broker URL and retrieve and check a device certificate.
+- Implement device id generation.
+
+### Fixed
+- Bug preventing build with the Microsoft compiler [#113](https://github.com/astarte-platform/astarte-device-sdk-cpp/pull/131).
 
 ### Fixed
 - Bug preventing build with the Microsoft compiler [#113](https://github.com/astarte-platform/astarte-device-sdk-cpp/pull/131).
@@ -30,6 +35,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - API calls to fetch stored device properties in the gRPC Astarte device.
 
 ### Changed
+- Introduced an `AstarteDeviceMQTT` class that uses the MQTT protocol as a transport layer.
+- The `simple` sample has been renamed to `grpc_native`.
+- The `qt` sample has been renamed to `grpc_qt`.
 - Use C++20 as the minimum required library version.
 - The gRPC Astarte device introspection can now be modified dynamically while the device is connected.
 
@@ -55,7 +63,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - `get_starded.md`, a step by step guide useful to try the SDK functionalities guide.
 
 ### Changed
-- The `AstarteDevice` is now an abstract class transport independent. Users should instantiate the `AstarteDeviceGrpc` class which is the gRPC specific Astarte device class.
+- The `AstarteDevice` is now an abstract class transport independent. Users should instantiate the `AstarteDeviceGRPC` class which is the gRPC specific Astarte device class.
 - Astarte device poll requires a timeout parameter.
 - Reference version of the Astarte message hub is v0.8.0
 - Bump the Astarte message hub proto definitions to v0.8.4.

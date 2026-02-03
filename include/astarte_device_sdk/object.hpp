@@ -11,10 +11,12 @@
  */
 
 #include <initializer_list>
+#include <ostream>
 #include <string>
 #include <unordered_map>
 
 #include "astarte_device_sdk/data.hpp"
+#include "astarte_device_sdk/formatter.hpp"
 
 namespace AstarteDeviceSdk {
 
@@ -145,5 +147,58 @@ class AstarteDatastreamObject {
 };
 
 }  // namespace AstarteDeviceSdk
+
+/**
+ * @brief astarte_fmt::formatter specialization for
+ * AstarteDeviceSdk::AstarteDatastreamObject.
+ */
+template <>
+struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteDatastreamObject> {
+  /**
+   * @brief Parse the format string. Default implementation.
+   * @param ctx The parse context.
+   * @return An iterator to the end of the parsed range.
+   */
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx) const {
+    return ctx.begin();
+  }
+
+  /**
+   * @brief Format the AstarteDatastreamObject object as a key-value map.
+   * @param data The AstarteDatastreamObject to format.
+   * @param ctx The format context.
+   * @return An iterator to the end of the output.
+   */
+  template <typename FormatContext>
+  auto format(const AstarteDeviceSdk::AstarteDatastreamObject& data, FormatContext& ctx) const {
+    auto out = ctx.out();
+    out = astarte_fmt::format_to(out, "{{");
+
+    bool first = true;
+    for (const auto& pair : data.get_raw_data()) {
+      if (!first) {
+        out = astarte_fmt::format_to(out, ", ");
+      }
+      out = astarte_fmt::format_to(out, R"("{}": {})", pair.first, pair.second);
+      first = false;
+    }
+
+    out = astarte_fmt::format_to(out, "}}");
+    return out;
+  }
+};
+
+/**
+ * @brief Stream insertion operator for AstarteDatastreamObject.
+ * @param out The output stream.
+ * @param data The AstarteDatastreamObject to output.
+ * @return Reference to the output stream.
+ */
+inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::AstarteDatastreamObject& data)
+    -> std::ostream& {
+  out << astarte_fmt::format("{}", data);
+  return out;
+}
 
 #endif  // ASTARTE_DEVICE_SDK_OBJECT_H

@@ -11,10 +11,12 @@
  */
 
 #include <cstdint>
+#include <ostream>
 #include <string>
 #include <string_view>
 
 #include "astarte_device_sdk/data.hpp"
+#include "astarte_device_sdk/formatter.hpp"
 #include "astarte_device_sdk/ownership.hpp"
 
 namespace AstarteDeviceSdk {
@@ -82,5 +84,47 @@ class AstarteStoredProperty {
 };
 
 }  // namespace AstarteDeviceSdk
+
+/**
+ * @brief astarte_fmt::formatter specialization for AstarteDeviceSdk::AstarteStoredProperty.
+ */
+template <>
+struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteStoredProperty> {
+  /**
+   * @brief Parse the format string. Default implementation.
+   * @param ctx The parse context.
+   * @return An iterator to the end of the parsed range.
+   */
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx) const {
+    return ctx.begin();
+  }
+
+  /**
+   * @brief Format the AstarteStoredProperty object.
+   * @param prop The AstarteStoredProperty to format.
+   * @param ctx The format context.
+   * @return An iterator to the end of the output.
+   */
+  template <typename FormatContext>
+  auto format(const AstarteDeviceSdk::AstarteStoredProperty& prop, FormatContext& ctx) const {
+    return astarte_fmt::format_to(ctx.out(),
+                                  "Interface: {} v{}, Path: {}, Ownership: {}, Value: {}",
+                                  prop.get_interface_name(), prop.get_version_major(),
+                                  prop.get_path(), prop.get_ownership(), prop.get_value());
+  }
+};
+
+/**
+ * @brief Stream insertion operator for AstarteStoredProperty.
+ * @param out The output stream.
+ * @param prop The AstarteStoredProperty object to output.
+ * @return Reference to the output stream.
+ */
+inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::AstarteStoredProperty& prop)
+    -> std::ostream& {
+  out << astarte_fmt::format("{}", prop);
+  return out;
+}
 
 #endif  // ASTARTE_DEVICE_SDK_STORED_PROPERTY_H

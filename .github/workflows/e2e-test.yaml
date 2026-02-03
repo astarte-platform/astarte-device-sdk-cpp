@@ -15,15 +15,14 @@ env:
   RUST_LOG: debug
 
 jobs:
-  end-to-end-test:
+  end-to-end-test-grpc:
     runs-on: ubuntu-latest
     concurrency:
-      group: end-to-end-test-${{ github.ref }}
+      group: end-to-end-test-grpc--${{ matrix.msghub-version }}${{ github.ref }}
       cancel-in-progress: true
     strategy:
       matrix:
         msghub-version: ["v0.8.0"]
-        grpc-version: ["1.69.0"]
     steps:
       - name: Checkout C++ client
         uses: actions/checkout@v6
@@ -63,7 +62,7 @@ jobs:
           CREDENTIALS_SECRET=$(astartectl pairing agent register --compact-output -- "$DEVICE_ID")
           echo "E2E_REALM=test" >> $GITHUB_ENV
           echo "E2E_APPENGINE_TOKEN=$APPENGINE_TOKEN" >> $GITHUB_ENV
-          echo "E2E_APPENGINE_URL=https://api.autotest.astarte-platform.org/appengine" >> $GITHUB_ENV
+          echo "E2E_ASTARTE_BASE_URL=https://api.autotest.astarte-platform.org" >> $GITHUB_ENV
           echo "E2E_PAIRING_URL=https://api.autotest.astarte-platform.org/pairing" >> $GITHUB_ENV
           echo "E2E_DEVICE_ID=$DEVICE_ID" >> $GITHUB_ENV
           echo "E2E_CREDENTIALS_SECRET=$CREDENTIALS_SECRET" >> $GITHUB_ENV
@@ -110,16 +109,17 @@ jobs:
       - name: Fill in C++ client config
         working-directory: ./astarte-device-sdk-cpp/end_to_end
         run: |
-          echo "server_addr = \"localhost:50051\"" > config.toml
-          echo "node_id = \"aa04dade-9401-4c37-8c6a-d8da15b083ae\"" >> config.toml
-          echo "realm = \"$E2E_REALM\"" >> config.toml
-          echo "appengine_url = \"$E2E_APPENGINE_URL\"" >> config.toml
+          echo "realm = \"$E2E_REALM\"" > config.toml
+          echo "astarte_base_url = \"$E2E_ASTARTE_BASE_URL\"" >> config.toml
           echo "appengine_token = \"$E2E_APPENGINE_TOKEN\"" >> config.toml
           echo "device_id = \"$E2E_DEVICE_ID\"" >> config.toml
+          echo "[grpc]" >> config.toml
+          echo "server_addr = \"localhost:50051\"" >> config.toml
+          echo "node_id = \"aa04dade-9401-4c37-8c6a-d8da15b083ae\"" >> config.toml
           cat config.toml
-      - name: Build the end to end tests
+      - name: Build the end to end tests with grpc
         working-directory: ./astarte-device-sdk-cpp
-        run: ./end_to_end.sh --fresh --ext-tools
+        run: ./end_to_end.sh --fresh --ext-tools --transport grpc
       - name: Run the end to end tests
         working-directory: ./astarte-device-sdk-cpp
         run: ./end_to_end/build/app
@@ -131,3 +131,78 @@ jobs:
       - name: Run the end to end tests with valgrind
         working-directory: ./astarte-device-sdk-cpp
         run: valgrind --leak-check=summary --track-origins=no --error-exitcode=1 ./end_to_end/build/app
+  end-to-end-test-mqtt:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: end-to-end-test-mqtt-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - name: Checkout C++ client
+        uses: actions/checkout@v5
+        with:
+          path: astarte-device-sdk-cpp
+      - name: Free disk space
+        run: |
+          # Remove Android SDK/NDK
+          sudo rm -rf $ANDROID_HOME $ANDROID_NDK_ROOT
+          # Remove large tooling
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf /usr/lib/jvm
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          # Clean Apt cache
+          sudo apt-get clean
+          # Prune Docker
+          docker system prune -af
+      - name: Install Conan
+        uses: conan-io/setup-conan@v1
+        with:
+          cache_packages: true
+          use_venv: true
+      - name: Create Astarte Cluster
+        uses: astarte-platform/astarte-cluster-action@v1
+        with:
+          astarte_version: "1.2.0"
+      - name: Install interfaces
+        working-directory: ./astarte-device-sdk-cpp/.github/workflows
+        timeout-minutes: 3
+        run: ./install_interfaces.sh $GITHUB_WORKSPACE/astarte-device-sdk-cpp/end_to_end/interfaces
+      - name: Store environment variables
+        run: |
+          APPENGINE_TOKEN=$(astartectl utils gen-jwt appengine)
+          PAIRING_TOKEN=$(astartectl utils gen-jwt pairing)
+          # Device ID to be used only for on-board registration
+          DEVICE_ID_REGISTRATION=$(astartectl utils device-id generate-random)
+          DEVICE_ID=$(astartectl utils device-id generate-random)
+          CREDENTIAL_SECRET=$(astartectl pairing agent register --compact-output -- "$DEVICE_ID")
+          echo "E2E_REALM=test" >> $GITHUB_ENV
+          echo "E2E_APPENGINE_TOKEN=$APPENGINE_TOKEN" >> $GITHUB_ENV
+          echo "E2E_PAIRING_TOKEN=$PAIRING_TOKEN" >> $GITHUB_ENV
+          echo "E2E_ASTARTE_BASE_URL=https://api.autotest.astarte-platform.org" >> $GITHUB_ENV
+          echo "E2E_DEVICE_ID=$DEVICE_ID" >> $GITHUB_ENV
+          echo "E2E_DEVICE_ID_REGISTRATION=$DEVICE_ID_REGISTRATION" >> $GITHUB_ENV
+          echo "E2E_CREDENTIAL_SECRET=$CREDENTIAL_SECRET" >> $GITHUB_ENV
+      - name: Fill in C++ client config
+        working-directory: ./astarte-device-sdk-cpp/end_to_end
+        run: |
+          echo "realm = \"$E2E_REALM\"" > config.toml
+          echo "astarte_base_url = \"$E2E_ASTARTE_BASE_URL\"" >> config.toml
+          echo "appengine_token = \"$E2E_APPENGINE_TOKEN\"" >> config.toml
+          echo "device_id = \"$E2E_DEVICE_ID\"" >> config.toml
+          echo "[mqtt]" >> config.toml
+          echo "store_dir = \"./tmp\"" >> config.toml
+          echo "pairing_token = \"$E2E_PAIRING_TOKEN\"" >> config.toml
+          echo "device_id_registration = \"$E2E_DEVICE_ID_REGISTRATION\"" >> config.toml
+          echo "credential_secret = \"$E2E_CREDENTIAL_SECRET\"" >> config.toml
+          cat config.toml
+      - name: Create store directory
+        working-directory: ./astarte-device-sdk-cpp
+        run: mkdir tmp
+      - name: Build the end to end tests with mqtt
+        working-directory: ./astarte-device-sdk-cpp
+        run: ./end_to_end.sh --fresh --ext-tools --transport mqtt
+      - name: Run the end to end tests
+        working-directory: ./astarte-device-sdk-cpp
+        run: ./end_to_end/build/app
+        # TODO: missing valgrind

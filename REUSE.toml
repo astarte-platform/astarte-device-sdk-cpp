@@ -7,7 +7,13 @@ SPDX-PackageName = "Astarte Device SDK C++"
 SPDX-PackageDownloadLocation = "https://github.com/secomind/astarte-device-sdk-cpp"
 
 [[annotations]]
-path = "samples/simple/interfaces/*.json"
+path = "samples/grpc/native/interfaces/*.json"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "SECO Mind Srl"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = "samples/mqtt/native/interfaces/*.json"
 precedence = "aggregate"
 SPDX-FileCopyrightText = "SECO Mind Srl"
 SPDX-License-Identifier = "Apache-2.0"

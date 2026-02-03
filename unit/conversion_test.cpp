@@ -6,7 +6,9 @@
 #include <gtest/gtest.h>
 
 #include "astarte_device_sdk/data.hpp"
-#include "grpc_converter.hpp"
+
+#if defined(ASTARTE_TRANSPORT_GRPC)
+#include "grpc/grpc_converter.hpp"
 
 using AstarteDeviceSdk::AstarteData;
 using AstarteDeviceSdk::gRPCAstarteData;
@@ -24,3 +26,4 @@ TEST(AstarteTestConversion, DataToGrpc) {
   AstarteData original = converter(*grpc_individual).value();
   EXPECT_EQ(original.into<int32_t>(), value);
 }
+#endif

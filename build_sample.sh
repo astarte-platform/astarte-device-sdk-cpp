@@ -5,10 +5,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # --- Configuration ---
+fresh_mode=false
 sample_to_build=""
 fresh_mode=false
 deps_management="conan"
 external_tools=false
+transport=grpc
 qt_version=6
 qt_path="$HOME/Qt/6.5.3/gcc_64/lib/cmake/Qt6"
 venv_dir=".venv"
@@ -20,12 +22,13 @@ display_help() {
     cat << EOF
 Usage: $0 <sample_name> [OPTIONS]
 
-<sample_name> can be 'simple' or 'qt'.
+<sample_name> can be 'grpc/native', 'grpc/qt' or 'mqtt/native'.
 
 Common options:
-  --fresh        Build the sample from scratch (removes its build directory).
-  --deps-mgmt    Select a possible dependency management strategy. One of: conan (default), fetch, system.
-  -h, --help     Display this help message.
+  --fresh             Build the sample from scratch (removes its build directory).
+  --transport <TR>    Specify the transport to use. One of: grpc (default) or mqtt.
+  --deps-mgmt <DP>    Select a possible dependency management strategy. One of: conan (default), fetch, system.
+  -h, --help          Display this help message.
 
 Conan options:
   --ext-tools    Do not setup the venv and python tooling for the build within the script.
@@ -45,29 +48,31 @@ error_exit() {
 # --- Argument Parsing ---
 if [[ -z "$1" ]]; then
     display_help
-    error_exit "No sample specified. Please choose 'simple' or 'qt'."
+    error_exit "No sample specified. Please choose 'grpc/native', 'grpc/qt' or 'mqtt/native'"
 fi
 
 sample_to_build="$1"
 shift
 
-if [[ "$sample_to_build" != "simple" && "$sample_to_build" != "qt" ]]; then
+if [[ "$sample_to_build" != "grpc/native" && "$sample_to_build" != "grpc/qt" && "$sample_to_build" != "mqtt/native" ]]; then
     display_help
-    error_exit "Invalid sample name: '$sample_to_build'. Must be 'simple' or 'qt'."
+    error_exit "Invalid sample name: '$sample_to_build'. Must be 'grpc/native', 'grpc/qt' or 'mqtt/native'."
 fi
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --fresh) fresh_mode=true; shift ;;
+        --transport)
+            transport="$2"
+            if [[ ! "$transport" =~ ^('mqtt'|'grpc')$ ]]; then
+                error_exit "Invalid transport '$transport'. Use mqtt or grpc."
+            fi
+            shift 2
+            ;;
         --deps-mgmt)
-            if [[ "$2" == "conan" ]]; then
-                deps_management="conan"
-            elif [[ "$2" == "fetch" ]]; then
-                deps_management="fetch"
-            elif [[ "$2" == "system" ]]; then
-                deps_management="system"
-            else
-                error_exit "Invalid dependency management: $2 (expected conan, fetch or system)."
+            deps_management="$2"
+            if [[ ! "$deps_management" =~ ^('conan'|'fetch'|'system')$ ]]; then
+                error_exit "Invalid dependency management: $deps_management (expected conan, fetch or system)."
             fi
             shift 2
             ;;
@@ -93,8 +98,15 @@ done
 
 # --- Environment and dependency setup ---
 case "$sample_to_build" in
-    simple) sample_src_dir="samples/simple" ;;
-    qt) sample_src_dir="samples/qt" ;;
+    grpc/native)
+        sample_src_dir="samples/grpc/native"
+        ;;
+    grpc/qt)
+        sample_src_dir="samples/grpc/qt"
+        ;;
+    mqtt/native)
+        sample_src_dir="samples/mqtt/native"
+        ;;
 esac
 build_dir="${sample_src_dir}/build"
 cmake_user_presets="${sample_src_dir}/CMakeUserPresets.json"
@@ -115,13 +127,13 @@ fi
 # --- Perform a build with the desired dependency manager ---
 if [[ "$deps_management" == "conan" ]]; then
     chmod +x ./scripts/build_sample_conan.py
-    ./scripts/build_sample_conan.py "$(pwd)" "$sample_to_build" "$qt_version"
+    ./scripts/build_sample_conan.py "$(pwd)" "$sample_to_build" "$transport" "$qt_version" || error_exit "Conan build failed"
 elif [[ "$deps_management" == "fetch" ]]; then
     chmod +x ./scripts/build_sample_cmake.py
-    ./scripts/build_sample_cmake.py "$(pwd)" "$sample_to_build" "$(nproc --all)" "$qt_path" "$qt_version"
+    ./scripts/build_sample_cmake.py "$(pwd)" "$sample_to_build" "$transport" "$(nproc --all)" "$qt_path" "$qt_version" || error_exit "CMake fetch build failed"
 else # "system"
     chmod +x ./scripts/build_sample_cmake.py
-    ./scripts/build_sample_cmake.py "$(pwd)" "$sample_to_build" "$(nproc --all)" "$qt_path" "$qt_version" --system_grpc
+    ./scripts/build_sample_cmake.py "$(pwd)" "$sample_to_build" "$transport" "$(nproc --all)" "$qt_path" "$qt_version" --system_transport || error_exit "CMake system build failed"
 fi
 
 echo "Build complete for $sample_to_build sample. Executable should be in: $build_dir/"

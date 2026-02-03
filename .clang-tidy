@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 ---
-HeaderFilterRegex: '.*'
 Checks: >
   -abseil-*,
   -altera-*,
@@ -22,6 +21,7 @@ Checks: >
   -llvm-*,
   -llvmlibc-*,
   misc-*,
+  -misc-include-cleaner,
   modernize-*,
   -mpi-*,
   -objc-*,
@@ -49,8 +49,8 @@ CheckOptions:
   - { key: readability-function-cognitive-complexity.IgnoreMacros, value: false }
 
   - { key: readability-function-size.LineThreshold, value: 60 }
-  - { key: readability-function-size.StatementThreshold, value: 30 }
-  - { key: readability-function-size.BranchThreshold, value: 5 }
+  - { key: readability-function-size.StatementThreshold, value: 40 }
+  - { key: readability-function-size.BranchThreshold, value: 10 }
   - { key: readability-function-size.ParameterThreshold, value: 5 }
   - { key: readability-function-size.NestingThreshold, value: none }
   - { key: readability-function-size.VariableThreshold, value: none }
@@ -61,7 +61,6 @@ CheckOptions:
   - { key: readability-identifier-length.IgnoredParameterNames, value: "" }
   - { key: readability-identifier-length.MinimumLoopCounterNameLength, value: 3 }
   - { key: readability-identifier-length.IgnoredLoopCounterNames, value: "^[ijk_]$" }
-
 #   - { key: readability-identifier-naming.ConstantCase, value: lower_case }
 #   - { key: readability-identifier-naming.ConstantParameterCase, value: lower_case }
 #   - { key: readability-identifier-naming.ConstantPointerParameterCase, value: lower_case }

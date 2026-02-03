@@ -26,33 +26,31 @@ jobs:
           python-version: "3.13"
       - name: Check formatting
         run: ./format.sh --check-only
-  clang-tidy-check:
+  clang-tidy-check-grpc:
     runs-on: ubuntu-latest
     concurrency:
-      group: clang-tidy-check-${{ github.ref }}
+      group: clang-tidy-check-grpc-${{ github.ref }}
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@v6
+      - name: Install Conan
+        uses: conan-io/setup-conan@v1
         with:
-          path: astarte-device-sdk-cpp
-      - uses: actions/setup-python@v6
+          cache_packages: true
+          use_venv: true
+      - name: Clang-tidy check on the library
+        run: ./tidy.sh --fresh --transport grpc --ext-tools
+  clang-tidy-check-mqtt:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: clang-tidy-check-mqtt-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install Conan
+        uses: conan-io/setup-conan@v1
         with:
-          python-version: "3.13"
-      - name: Setup gRPC build cache
-        id: cache-grpc-cpp
-        uses: actions/cache@v5
-        with:
-          path: |
-            ./grpc
-            ./grpc-install
-          # Cache the hash of the build script for the CMAKE flags
-          key: grpc-cpp-v${{ env.GRPC_VERSION }}-${{ hashFiles('astarte-device-sdk-cpp/.github/scripts/build-grpc.sh') }}
-      - name: Setup gRPC for build
-        run: |
-          ./astarte-device-sdk-cpp/.github/scripts/setup-grpc.sh "$GRPC_VERSION"
-      - name: Compile gRPC from source
-        run: |
-          ./astarte-device-sdk-cpp/.github/scripts/build-grpc.sh
-      - name: Check library with C++ 20
-        working-directory: ./astarte-device-sdk-cpp
-        run: ./tidy.sh --fresh --system_grpc
+          cache_packages: true
+          use_venv: true
+      - name: Clang-tidy check on the library
+        run: ./tidy.sh --fresh --transport mqtt --ext-tools

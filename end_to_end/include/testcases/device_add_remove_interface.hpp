@@ -4,47 +4,72 @@
 
 #pragma once
 
+#include "action.hpp"
 #include "case.hpp"
-#include "constants/astarte_interfaces.hpp"
-#include "constants/astarte_time.hpp"
+#include "constants/interfaces.hpp"
+#include "constants/time.hpp"
 
 namespace testcases {
 using namespace std::chrono_literals;
 
-TestCase device_add_remove_interface() {
-  return TestCase(
-      "Add/remove interfaces",
-      std::vector<std::shared_ptr<TestAction>>{
-          TestActionConnect::Create(), TestActionSleep::Create(std::chrono::seconds(1)),
-          TestActionTransmitMqttData::Create(
-              AstarteMessage(astarte_interfaces::DeviceDatastream::INTERFACE, "/integer_endpoint",
-                             AstarteDatastreamIndividual(AstarteData(12))),
-              astarte_time::TIMESTAMP),
-          TestActionTransmitMqttData::Create(
-              AstarteMessage(astarte_interfaces::DeviceProperty::INTERFACE, "/integer_endpoint",
-                             AstartePropertyIndividual(AstarteData(12)))),
-          TestActionSleep::Create(std::chrono::seconds(1)),
-          TestActionRemoveInterface::Create(astarte_interfaces::DeviceDatastream::INTERFACE),
-          TestActionSleep::Create(std::chrono::seconds(1)),
-          TestActionTransmitMqttData::Create(
-              AstarteMessage(astarte_interfaces::DeviceDatastream::INTERFACE, "/integer_endpoint",
-                             AstarteDatastreamIndividual(AstarteData(12))),
-              astarte_time::TIMESTAMP, true),
-          TestActionTransmitMqttData::Create(
-              AstarteMessage(astarte_interfaces::DeviceProperty::INTERFACE, "/integer_endpoint",
-                             AstartePropertyIndividual(AstarteData(12)))),
-          TestActionSleep::Create(std::chrono::seconds(1)),
-          TestActionAddInterfaceFile::Create(astarte_interfaces::DeviceDatastream::FILE),
-          TestActionSleep::Create(std::chrono::seconds(1)),
-          TestActionTransmitMqttData::Create(
-              AstarteMessage(astarte_interfaces::DeviceDatastream::INTERFACE, "/integer_endpoint",
-                             AstarteDatastreamIndividual(AstarteData(12))),
-              astarte_time::TIMESTAMP),
-          TestActionTransmitMqttData::Create(
-              AstarteMessage(astarte_interfaces::DeviceProperty::INTERFACE, "/integer_endpoint",
-                             AstartePropertyIndividual(AstarteData(12)))),
-          TestActionSleep::Create(std::chrono::seconds(1)), TestActionDisconnect::Create(),
-          TestActionSleep::Create(std::chrono::seconds(1))});
+TestCase device_add_remove_interface(std::string device_id) {
+    return TestCase(
+        "Add/remove interfaces",
+        {actions::Connect(),
+         actions::Sleep(1s),
+         actions::TransmitDeviceData(
+             AstarteMessage(
+                 constants::interfaces::DeviceDatastream::INTERFACE,
+                 "/integer_endpoint",
+                 AstarteDatastreamIndividual(AstarteData(12))
+             ),
+             constants::time::TIMESTAMP
+         ),
+         actions::TransmitDeviceData(AstarteMessage(
+             constants::interfaces::DeviceProperty::INTERFACE,
+             "/integer_endpoint",
+             AstartePropertyIndividual(AstarteData(12))
+         )),
+         actions::Sleep(1s),
+         actions::RemoveInterface(std::string(constants::interfaces::DeviceDatastream::INTERFACE)),
+         actions::Sleep(1s),
+         actions::ExpectFailure(
+             actions::TransmitDeviceData(
+                 AstarteMessage(
+                     constants::interfaces::DeviceDatastream::INTERFACE,
+                     "/integer_endpoint",
+                     AstarteDatastreamIndividual(AstarteData(12))
+                 ),
+                 constants::time::TIMESTAMP
+             )
+         ),
+         actions::TransmitDeviceData(AstarteMessage(
+             constants::interfaces::DeviceProperty::INTERFACE,
+             "/integer_endpoint",
+             AstartePropertyIndividual(AstarteData(12))
+         )),
+         actions::Sleep(1s),
+         actions::AddInterfaceFile(std::string(constants::interfaces::DeviceDatastream::FILE)),
+         actions::Sleep(1s),
+         actions::TransmitDeviceData(
+             AstarteMessage(
+                 constants::interfaces::DeviceDatastream::INTERFACE,
+                 "/integer_endpoint",
+                 AstarteDatastreamIndividual(AstarteData(12))
+             ),
+             constants::time::TIMESTAMP
+         ),
+         actions::TransmitDeviceData(AstarteMessage(
+             constants::interfaces::DeviceProperty::INTERFACE,
+             "/integer_endpoint",
+             AstartePropertyIndividual(AstarteData(12))
+         )),
+
+         actions::Sleep(1s),
+         actions::Disconnect(),
+         actions::Sleep(1s)},
+        device_id
+    );
 }
 
 }  // namespace testcases

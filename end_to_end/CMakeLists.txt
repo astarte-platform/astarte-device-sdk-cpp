@@ -17,7 +17,7 @@ find_package(astarte_device_sdk REQUIRED)
 add_executable(app ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 target_include_directories(app PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-# Link the library created in the root directory
+# Link the libraries created in the root directory
 target_link_libraries(
     app
     PRIVATE astarte_device_sdk::astarte_device_sdk
@@ -25,3 +25,13 @@ target_link_libraries(
     PRIVATE nlohmann_json::nlohmann_json
     PRIVATE tomlplusplus::tomlplusplus
 )
+
+if(ASTARTE_TRANSPORT_GRPC)
+    message(STATUS "Propagating ASTARTE_TRANSPORT_GRPC definition to app target.")
+    target_compile_definitions(app PRIVATE ASTARTE_TRANSPORT_GRPC)
+endif()
+
+if(NOT ASTARTE_TRANSPORT_GRPC)
+    # Link the library used only for MQTT
+    target_link_libraries(app PRIVATE ada::ada)
+endif()

@@ -7,6 +7,7 @@
 # --- Configuration ---
 fresh_mode=false
 external_tools=false
+transport=grpc
 end_to_end_src_dir="end_to_end"
 build_dir="${end_to_end_src_dir}/build"
 cmake_user_presets="${end_to_end_src_dir}/CMakeUserPresets.json"
@@ -22,9 +23,10 @@ Usage: $0 [OPTIONS]
 Builds the end-to-end samples.
 
 Options:
-  --fresh         Build from scratch (removes $build_dir).
-  --ext-tools     Do not setup the venv and python tooling for the build within the script.
-  -h, --help      Display this help message.
+  --fresh             Build from scratch (removes $build_dir).
+  --transport <TR>    Specify the transport to use. One of: grpc (default) or mqtt.
+  --ext-tools         Do not setup the venv and python tooling for the build within the script.
+  -h, --help          Display this help message.
 EOF
 }
 error_exit() {
@@ -36,6 +38,13 @@ error_exit() {
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --fresh) fresh_mode=true; shift ;;
+        --transport)
+            transport="$2"
+            if [[ ! "$transport" =~ ^('mqtt'|'grpc')$ ]]; then
+                error_exit "Invalid transport '$transport'. Use mqtt or grpc."
+            fi
+            shift 2
+            ;;
         --ext-tools) external_tools=true; shift ;;
         -h|--help) display_help; exit 0 ;;
         *) display_help; error_exit "Unknown option: $1" ;;
@@ -44,51 +53,17 @@ done
 
 # --- Build Logic ---
 echo "Configuration:"
-echo "  Fresh Mode: $fresh_mode"
+echo "  Fresh mode: $fresh_mode"
+echo "  Transport: $transport"
 echo "  External tools: $external_tools"
 echo ""
 
 # --- Environment and dependency setup ---
 if [ "$external_tools" = false ]; then
-    echo "Setting up Python environment and dependencies for conan..."
-
-    # Check for python3
-    if ! command -v python3 &> /dev/null; then
-        error_exit "python3 could not be found. Please install Python 3."
-    fi
-
-    # Create virtual environment if it doesn't exist
-    if [ ! -d "$venv_dir" ]; then
-        echo "Creating Python virtual environment in $venv_dir..."
-        if ! python3 -m venv "$venv_dir"; then
-            error_exit "Failed to create Python virtual environment."
-        fi
-    fi
-
-    # Activate virtual environment
     # shellcheck source=/dev/null
-    if ! source "$venv_dir/bin/activate"; then
-        error_exit "Failed to activate Python virtual environment."
-    fi
-
-    # Upgrade pip
-    echo "Upgrading pip..."
-    if ! pip install --upgrade pip; then
-        error_exit "Failed to upgrade pip."
-    fi
-
-    # Install or verify conan version
-    echo "Checking/installing $conan_package_name version $conan_package_version..."
-    installed_version=$(pip show "$conan_package_name" | grep Version | awk '{print $2}' || true)
-    if [ "$installed_version" != "$conan_package_version" ]; then
-        echo "Installing $conan_package_name==$conan_package_version..."
-        if ! pip install "$conan_package_name==$conan_package_version"; then
-            error_exit "Failed to install $conan_package_name version $conan_package_version."
-        fi
-    else
-        echo "$conan_package_name version $conan_package_version is already installed."
-    fi
-
+    source ./scripts/setup_python.sh
+    setup_python_venv $venv_dir
+    install_conan $conan_package_name $conan_package_version
 fi
 
 # Clean build directory if --fresh is set
@@ -113,6 +88,7 @@ conan_options_array=()
 conan_options_array+=("--build=missing")
 conan_options_array+=("--settings=build_type=Debug")
 conan_options_array+=("--settings=compiler.cppstd=20")
+conan_options_array+=("--options=transport=$transport")
 if ! conan create . "${conan_options_array[@]}"; then
     error_exit "Conan package creation failed for the library."
 fi

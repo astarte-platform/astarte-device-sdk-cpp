@@ -6,19 +6,17 @@ cmake_minimum_required(VERSION 3.23)
 
 project(AstarteDeviceSdk VERSION 0.8.1 LANGUAGES CXX)
 
+include(FetchContent)
+include(cmake/AstarteGrpcTransport.cmake)
+include(cmake/AstarteMqttTransport.cmake)
+
 # Setup library options
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 
-include(FetchContent)
-
 # Configuration options for this library
+option(ASTARTE_TRANSPORT_GRPC "Enable gRPC transport" ON)
 option(ASTARTE_USE_SYSTEM_SPDLOG "Use system installed spdlog" OFF)
 option(ASTARTE_PUBLIC_SPDLOG_DEP "Make spdlog dependency public" OFF)
-option(ASTARTE_PUBLIC_PROTO_DEP "Make message hub proto dependency public" OFF)
-set(ASTARTE_MESSAGE_HUB_PROTO_DIR
-    CACHE PATH
-    "Directory to an already downloaded astarte-message-hub-proto repository"
-)
 
 # check if std::format is actually supported.
 include(CheckCXXSourceCompiles)
@@ -55,16 +53,20 @@ endif()
 
 message(STATUS "--------------------------------------------------")
 message(STATUS "Astarte SDK configuration:")
+message(STATUS "  ASTARTE_TRANSPORT_GRPC:          ${ASTARTE_TRANSPORT_GRPC}")
 message(STATUS "  ASTARTE_USE_SYSTEM_SPDLOG:       ${ASTARTE_USE_SYSTEM_SPDLOG}")
 if(NOT HAS_STD_EXPECTED)
     message(STATUS "  ASTARTE_USE_SYSTEM_TL_EXPECTED:  ${ASTARTE_USE_SYSTEM_TL_EXPECTED}")
 endif()
 message(STATUS "  ASTARTE_PUBLIC_SPDLOG_DEP:       ${ASTARTE_PUBLIC_SPDLOG_DEP}")
-message(STATUS "  ASTARTE_PUBLIC_PROTO_DEP:        ${ASTARTE_PUBLIC_PROTO_DEP}")
-message(STATUS "  ASTARTE_MESSAGE_HUB_PROTO_DIR:   ${ASTARTE_MESSAGE_HUB_PROTO_DIR}")
-message(STATUS "--------------------------------------------------")
 
-# Logging library
+if(ASTARTE_TRANSPORT_GRPC)
+    astarte_sdk_add_grpc_options()
+else()
+    astarte_sdk_add_mqtt_options()
+endif()
+
+message(STATUS "--------------------------------------------------")
 
 if(NOT ASTARTE_USE_SYSTEM_SPDLOG)
     set(SPDLOG_GITHUB_URL https://github.com/gabime/spdlog.git)
@@ -96,33 +98,17 @@ if(NOT HAS_STD_EXPECTED)
     endif()
 endif()
 
-# Astarte message hub protos
-if(ASTARTE_MESSAGE_HUB_PROTO_DIR)
-    add_subdirectory(${ASTARTE_MESSAGE_HUB_PROTO_DIR} astarte_msghub_proto)
+if(ASTARTE_TRANSPORT_GRPC)
+    astarte_sdk_configure_grpc_dependencies()
 else()
-    set(MSGHUB_PROTO_GITHUB_URL https://github.com/astarte-platform/astarte-message-hub-proto.git)
-    set(MSGHUB_PROTO_GIT_TAG e26af9f04390ebb7e720eecab32c1b128ec980d9)
-    FetchContent_Declare(
-        astarte_msghub_proto
-        GIT_REPOSITORY ${MSGHUB_PROTO_GITHUB_URL}
-        GIT_TAG ${MSGHUB_PROTO_GIT_TAG}
-        GIT_SHALLOW TRUE
-        GIT_PROGRESS TRUE
-    )
-    FetchContent_MakeAvailable(astarte_msghub_proto)
+    astarte_sdk_configure_mqtt_dependencies()
 endif()
 
-# Setups grpc
-astarte_setup_grpc(
-    VAR_PROTOC_PATH           # Output: Path to the protoc executable
-    VAR_GRPC_PLUGIN_PATH      # Output: Path to the grpc_cpp_plugin executable
-    VAR_PROTO_STD_INC         # Output: Path to standard include directory
-)
-
-# Project sources
+# --- Core Library Target Definition ---
+add_library(astarte_device_sdk)
+target_compile_features(astarte_device_sdk PUBLIC cxx_std_20)
 set(_ASTARTE_PUBLIC_HEADERS
     "include/astarte_device_sdk/data.hpp"
-    "include/astarte_device_sdk/device_grpc.hpp"
     "include/astarte_device_sdk/device.hpp"
     "include/astarte_device_sdk/errors.hpp"
     "include/astarte_device_sdk/formatter.hpp"
@@ -136,29 +122,20 @@ set(_ASTARTE_PUBLIC_HEADERS
 )
 set(_ASTARTE_SOURCES
     "src/data.cpp"
-    "src/device_grpc_impl.cpp"
-    "src/device_grpc.cpp"
     "src/errors.cpp"
-    "src/grpc_converter.cpp"
-    "src/grpc_interceptors.cpp"
     "src/individual.cpp"
     "src/msg.cpp"
     "src/object.cpp"
     "src/property.cpp"
     "src/stored_property.cpp"
 )
-set(_ASTARTE_PRIVATE_HEADERS
-    "private/device_grpc_impl.hpp"
-    "private/exponential_backoff.hpp"
-    "private/grpc_converter.hpp"
-    "private/grpc_formatter.hpp"
-    "private/grpc_interceptors.hpp"
-    "private/shared_queue.hpp"
-)
+set(_ASTARTE_PRIVATE_HEADERS "private/exponential_backoff.hpp" "private/shared_queue.hpp")
+if(ASTARTE_TRANSPORT_GRPC)
+    astarte_sdk_add_grpc_sources(_ASTARTE_PUBLIC_HEADERS _ASTARTE_SOURCES _ASTARTE_PRIVATE_HEADERS)
+else()
+    astarte_sdk_add_mqtt_sources(_ASTARTE_PUBLIC_HEADERS _ASTARTE_SOURCES _ASTARTE_PRIVATE_HEADERS)
+endif()
 
-# Create a library from the source code
-add_library(astarte_device_sdk)
-target_compile_features(astarte_device_sdk PUBLIC cxx_std_20)
 target_sources(
     astarte_device_sdk
     PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES ${_ASTARTE_PUBLIC_HEADERS}
@@ -167,24 +144,17 @@ target_sources(
         FILE_SET private_headers TYPE HEADERS BASE_DIRS "private" FILES ${_ASTARTE_PRIVATE_HEADERS}
 )
 
-# Set a temporary variable for the visibility flag
-set(_ASTARTE_PROTO_VISIBILITY_FLAG "")
-if(NOT ASTARTE_PUBLIC_PROTO_DEP)
-    set(_ASTARTE_PROTO_VISIBILITY_FLAG PRIVATE_VISIBILITY)
-endif()
-
-# Generate the proto files and attach them to the target
-astarte_proto_attach_to_target(astarte_device_sdk
-    ${_ASTARTE_PROTO_VISIBILITY_FLAG}
-    PROTOBUF_PROTOC                "${VAR_PROTOC_PATH}"
-    GRPC_CPP_PLUGIN_EXECUTABLE     "${VAR_GRPC_PLUGIN_PATH}"
-    PROTOBUF_STANDARD_INCLUDE_DIR  "${VAR_PROTO_STD_INC}"
-)
-
+# Link generic dependencies
 if(ASTARTE_PUBLIC_SPDLOG_DEP)
     target_link_libraries(astarte_device_sdk PUBLIC spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 else()
     target_link_libraries(astarte_device_sdk PRIVATE spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
+endif()
+
+if(ASTARTE_TRANSPORT_GRPC)
+    astarte_sdk_add_grpc_transport()
+else()
+    astarte_sdk_add_mqtt_transport()
 endif()
 if(NOT HAS_STD_EXPECTED)
     target_link_libraries(astarte_device_sdk PUBLIC tl::expected)
@@ -217,8 +187,15 @@ write_basic_package_version_file(
     COMPATIBILITY SameMajorVersion
 )
 
+set(INSTALL_TARGETS_LIST astarte_device_sdk)
+if(ASTARTE_TRANSPORT_GRPC)
+    astarte_sdk_add_grpc_install_targets(INSTALL_TARGETS_LIST)
+else()
+    astarte_sdk_add_mqtt_install_targets(INSTALL_TARGETS_LIST)
+endif()
+
 install(
-    TARGETS astarte_device_sdk
+    TARGETS ${INSTALL_TARGETS_LIST}
     EXPORT astarte_device_sdk-target
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -241,25 +218,8 @@ install(
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/astarte_device_sdk"
 )
 
-# create pkg-conf .pc for astarte_device_sdk
-set(PC_NAME "astarte_device_sdk")
-set(PC_DESCRIPTION "Astarte Device SDK Cpp")
-set(PC_VERSION ${PROJECT_VERSION})
-
-# Configure PkgConfig dependencies based on visibility
-if(ASTARTE_PUBLIC_PROTO_DEP)
-    set(PC_REQUIRES "spdlog grpc++ protobuf")
-    set(PC_REQUIRES_PRIVATE "")
+if(ASTARTE_TRANSPORT_GRPC)
+    astarte_sdk_install_grpc_pkgconfig()
 else()
-    set(PC_REQUIRES "spdlog")
-    set(PC_REQUIRES_PRIVATE "grpc++ protobuf")
+    astarte_sdk_install_mqtt_pkgconfig()
 endif()
-
-set(PC_LIB "-lastarte_device_sdk -lgrpc++_reflection -laddress_sorting -lre2 -lupb --as-needed")
-set(PC_LIBS_PRIVATE "")
-configure_file(cmake/pkg-config-template.pc.in astarte_device_sdk.pc @ONLY)
-
-install(
-    FILES ${CMAKE_CURRENT_BINARY_DIR}/astarte_device_sdk.pc
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
-)

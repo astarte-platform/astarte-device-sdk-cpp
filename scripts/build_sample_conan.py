@@ -40,14 +40,15 @@ def run_command(command, cwd=None, error_message=None):
             error_exit(f"Command failed: {' '.join(command)}")
 
 
-def build_sample_with_conan(lib_src_dir, sample_to_build, qt_version=None):
+def build_sample_with_conan(lib_src_dir, sample_to_build, transport, qt_version=None):
     """
     Builds the Conan package from the provided directory and then builds a specified sample.
 
     Args:
         lib_src_dir (str): The path to the library source directory.
         sample_to_build (str): The name of the sample to build.
-        qt_version (str, optional): The major version of Qt to use if the sample is "qt".
+        transport (str): The transport system to use ('grpc' or 'mqtt').
+        qt_version (str, optional): The major version of Qt to use if the sample is "grpc/qt".
     """
 
     # --- Argument Validation ---
@@ -60,7 +61,10 @@ def build_sample_with_conan(lib_src_dir, sample_to_build, qt_version=None):
     if not sample_to_build:
         error_exit("Sample to build not provided.")
 
-    if sample_to_build == "qt" and not qt_version:
+    if transport not in ["grpc", "mqtt"]:
+        error_exit("Transport should one of: 'grpc' or 'mqtt'.")
+
+    if sample_to_build == "grpc/qt" and not qt_version:
         error_exit("Qt version must be provided for the 'qt' sample.")
 
     # Detect the default conan profile
@@ -79,6 +83,7 @@ def build_sample_with_conan(lib_src_dir, sample_to_build, qt_version=None):
         "create",
         lib_src_dir,
         "--build=missing",
+        f"--options=&:transport={transport}",
         "--settings=build_type=Debug",
         "--settings=compiler.cppstd=20",
         "--settings:build=compiler.cppstd=20",
@@ -101,13 +106,14 @@ def build_sample_with_conan(lib_src_dir, sample_to_build, qt_version=None):
         "build",
         ".",
         "--output-folder=build",
+        f"--options=astarte-device-sdk/*:transport={transport}",
+        "--build=missing",
         "--settings=build_type=Debug",
         "--settings=compiler.cppstd=20",
     ]
 
     # Handle Qt specific options
-    if sample_to_build == "qt":
-        conan_build_cmd.append("--build=missing")
+    if sample_to_build == "grpc/qt":
         qt_bool = "True" if str(qt_version) == "6" else "False"
         conan_build_cmd.append(f"--options=qt6={qt_bool}")
 
@@ -125,14 +131,17 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Build Conan project and sample.")
 
     parser.add_argument("lib_src_dir", help="The path to the library source directory.")
-    parser.add_argument("sample_to_build", help="The name of the sample to build (e.g., 'qt').")
+    parser.add_argument(
+        "sample_to_build", help="The name of the sample to build (e.g., 'grpc/qt')."
+    )
+    parser.add_argument("transport", choices=["grpc", "mqtt"], help="The transport system to use.")
     parser.add_argument(
         "qt_version",
         nargs="?",
         default=None,
-        help="The major version of Qt (required if sample is 'qt').",
+        help="The major version of Qt (required if sample is 'grpc/qt').",
     )
 
     args = parser.parse_args()
 
-    build_sample_with_conan(args.lib_src_dir, args.sample_to_build, args.qt_version)
+    build_sample_with_conan(args.lib_src_dir, args.sample_to_build, args.transport, args.qt_version)

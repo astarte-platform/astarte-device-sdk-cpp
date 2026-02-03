@@ -1,0 +1,32 @@
+# Copyright 2025 SECO Mind Srl
+#
+# SPDX-License-Identifier: Apache-2.0
+
+---
+Language: Cpp
+Standard: Latest
+BasedOnStyle: Google
+
+AlignAfterOpenBracket: BlockIndent
+# AlignArrayOfStructures: Left
+AllowAllArgumentsOnNextLine: true
+BinPackArguments: false
+BinPackLongBracedList: false
+# BraceWrapping:
+#   IndentBraces: true
+# BreakBeforeBraces: Custom
+BracedInitializerIndentWidth: 4
+BreakArrays: true
+ColumnLimit: 100
+Cpp11BracedListStyle: true
+IndentWidth: 4
+KeepEmptyLines:
+  AtEndOfFile: true
+  AtStartOfBlock: false
+  AtStartOfFile: false
+PenaltyBreakBeforeFirstCallParameter: 0
+PenaltyBreakOpenParenthesis: 0
+PenaltyIndentedWhitespace: 0
+TabWidth: 4
+UseTab: Never
+...

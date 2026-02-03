@@ -48,7 +48,14 @@ def run_command(command, cwd=None, error_message=None):
 
 
 def build_sample_with_cmake(
-    lib_src_dir, sample_to_build, jobs, *, system_grpc=False, qt_path=None, qt_version=None
+    lib_src_dir,
+    sample_to_build,
+    transport,
+    jobs,
+    *,
+    system_transport=False,
+    qt_path=None,
+    qt_version=None,
 ):
     """
     Configures and builds a CMake project for a specified sample application.
@@ -56,10 +63,11 @@ def build_sample_with_cmake(
     Args:
         lib_src_dir (str): The path to the library source directory.
         sample_to_build (str): The name of the sample being built.
+        transport (str): The transport system to use ('grpc' or 'mqtt').
         jobs (str): The number of parallel jobs for 'make'.
-        system_grpc (bool): Whether to use system gRPC (Default: False).
-        qt_path (str, optional): The path to the Qt installation (Required if sample is 'qt').
-        qt_version (str, optional): The major version of Qt (Required if sample is 'qt').
+        system_transport (bool): Whether to use system transport libraries (Default: False).
+        qt_path (str, optional): The path to the Qt installation (Required if sample is 'grpc/qt').
+        qt_version (str, optional): The major version of Qt (Required if sample is 'grpc/qt').
     """
 
     # --- Argument Validation ---
@@ -67,10 +75,10 @@ def build_sample_with_cmake(
         error_exit("Library source directory not provided.")
     if not sample_to_build:
         error_exit("Sample to build not provided.")
-    if system_grpc is None:
-        error_exit("System grpc option not provided.")
+    if transport not in ["grpc", "mqtt"]:
+        error_exit("Transport should one of: 'grpc' or 'mqtt'.")
 
-    if sample_to_build == "qt":
+    if sample_to_build == "grpc/qt":
         if not qt_path:
             error_exit("Qt path must be provided for the 'qt' sample.")
         if not qt_version:
@@ -92,13 +100,21 @@ def build_sample_with_cmake(
         "-DCMAKE_POLICY_VERSION_MINIMUM=3.15",
         "-DASTARTE_PUBLIC_SPDLOG_DEP=ON",
         "-DSAMPLE_USE_SYSTEM_ASTARTE_LIB=OFF",
+        "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
     ]
 
-    # Handle system gRPC flag
-    if system_grpc:
-        cmake_options.append("-DASTARTE_USE_SYSTEM_GRPC=ON")
+    # Handle transport configuration
+    if transport == "grpc":
+        cmake_options.append("-DASTARTE_TRANSPORT_GRPC=ON")
+        if system_transport:
+            cmake_options.append("-DASTARTE_USE_SYSTEM_GRPC=ON")
+    else:
+        cmake_options.append("-DASTARTE_TRANSPORT_GRPC=OFF")
+        if system_transport:
+            cmake_options.append("-DASTARTE_USE_SYSTEM_MQTT=ON")
 
-    if sample_to_build == "qt":
+    # Handle Qt configuration
+    if sample_to_build == "grpc/qt":
         # Check consistency between qt_path and qt_version
         if str(qt_version) == "6" and "Qt6" not in qt_path:
             print(" Mismatch: --qt_version is 6 but qt_path does not look like Qt6.")
@@ -136,11 +152,14 @@ if __name__ == "__main__":
 
     parser.add_argument("lib_src_dir", help="The path to the library source directory.")
     parser.add_argument("sample_to_build", help="The name of the sample being built.")
+    parser.add_argument("transport", choices=["grpc", "mqtt"], help="The transport system to use.")
     parser.add_argument("jobs", help="The number of parallel jobs for 'make'.")
 
     # Optional arguments (Flags)
     parser.add_argument(
-        "--system_grpc", action="store_true", help="Use system gRPC (default: False)."
+        "--system_transport",
+        action="store_true",
+        help="Use system transport libraries (default: False).",
     )
 
     # Optional arguments (nargs='?')
@@ -154,8 +173,9 @@ if __name__ == "__main__":
     build_sample_with_cmake(
         args.lib_src_dir,
         args.sample_to_build,
+        args.transport,
         args.jobs,
-        system_grpc=args.system_grpc,
+        system_transport=args.system_transport,
         qt_path=args.qt_path,
         qt_version=args.qt_version,
     )

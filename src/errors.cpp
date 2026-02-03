@@ -1,4 +1,4 @@
-// (C) Copyright 2025, SECO Mind Srl
+// (C) Copyright 2025 - 2026, SECO Mind Srl
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -17,12 +17,19 @@ AstarteErrorBase::AstarteErrorBase(std::string_view type, std::string_view messa
 AstarteErrorBase::AstarteErrorBase(std::string_view type, std::string_view message,
                                    const AstarteErrorBase& other)
     : type_(type), message_(message), other_(std::make_shared<AstarteErrorBase>(other)) {}
-AstarteErrorBase::~AstarteErrorBase() = default;
 auto AstarteErrorBase::message() const -> const std::string& { return message_; }
 auto AstarteErrorBase::type() const -> const std::string& { return type_; }
 auto AstarteErrorBase::nested_error() const -> const std::shared_ptr<AstarteErrorBase>& {
   return other_;
 }
+
+AstarteDataSerializationError::AstarteDataSerializationError(std::string_view message)
+    : AstarteErrorBase(k_type_, message) {}
+AstarteDataSerializationError::AstarteDataSerializationError(std::string_view message,
+                                                             const AstarteError& other)
+    : AstarteErrorBase(
+          k_type_, message,
+          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
 
 AstarteInternalError::AstarteInternalError(std::string_view message)
     : AstarteErrorBase(k_type_, message) {}
@@ -76,4 +83,78 @@ AstarteMsgHubError::AstarteMsgHubError(std::string_view message, const AstarteEr
           k_type_, message,
           std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
 
+AstarteInvalidInterfaceTypeError::AstarteInvalidInterfaceTypeError(std::string_view message)
+    : AstarteErrorBase(k_type_, message) {}
+AstarteInvalidInterfaceTypeError::AstarteInvalidInterfaceTypeError(std::string_view message,
+                                                                   const AstarteError& other)
+    : AstarteErrorBase(
+          k_type_, message,
+          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+
+AstarteInterfaceValidationError::AstarteInterfaceValidationError(std::string_view message)
+    : AstarteErrorBase(k_type_, message) {}
+AstarteInterfaceValidationError::AstarteInterfaceValidationError(std::string_view message,
+                                                                 const AstarteError& other)
+    : AstarteErrorBase(
+          k_type_, message,
+          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+
+AstarteInvalidInterfaceVersionError::AstarteInvalidInterfaceVersionError(std::string_view message)
+    : AstarteErrorBase(k_type_, message) {}
+AstarteInvalidInterfaceVersionError::AstarteInvalidInterfaceVersionError(std::string_view message,
+                                                                         const AstarteError& other)
+    : AstarteErrorBase(
+          k_type_, message,
+          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+
+AstarteInvalidInterfaceOwnershipeError::AstarteInvalidInterfaceOwnershipeError(
+    std::string_view message)
+    : AstarteErrorBase(k_type_, message) {}
+AstarteInvalidInterfaceOwnershipeError::AstarteInvalidInterfaceOwnershipeError(
+    std::string_view message, const AstarteError& other)
+    : AstarteErrorBase(
+          k_type_, message,
+          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+
+AstarteInvalidInterfaceAggregationError::AstarteInvalidInterfaceAggregationError(
+    std::string_view message)
+    : AstarteErrorBase(k_type_, message) {}
+AstarteInvalidInterfaceAggregationError::AstarteInvalidInterfaceAggregationError(
+    std::string_view message, const AstarteError& other)
+    : AstarteErrorBase(
+          k_type_, message,
+          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+
+AstarteInvalidAstarteTypeError::AstarteInvalidAstarteTypeError(std::string_view message)
+    : AstarteErrorBase(k_type_, message) {}
+AstarteInvalidAstarteTypeError::AstarteInvalidAstarteTypeError(std::string_view message,
+                                                               const AstarteError& other)
+    : AstarteErrorBase(
+          k_type_, message,
+          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+
+AstarteInvalidReliabilityError::AstarteInvalidReliabilityError(std::string_view message)
+    : AstarteErrorBase(k_type_, message) {}
+AstarteInvalidReliabilityError::AstarteInvalidReliabilityError(std::string_view message,
+                                                               const AstarteError& other)
+    : AstarteErrorBase(
+          k_type_, message,
+          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+
+AstarteInvalidRetentionError::AstarteInvalidRetentionError(std::string_view message)
+    : AstarteErrorBase(k_type_, message) {}
+AstarteInvalidRetentionError::AstarteInvalidRetentionError(std::string_view message,
+                                                           const AstarteError& other)
+    : AstarteErrorBase(
+          k_type_, message,
+          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+
+AstarteInvalidDatabaseRetentionPolicyError::AstarteInvalidDatabaseRetentionPolicyError(
+    std::string_view message)
+    : AstarteErrorBase(k_type_, message) {}
+AstarteInvalidDatabaseRetentionPolicyError::AstarteInvalidDatabaseRetentionPolicyError(
+    std::string_view message, const AstarteError& other)
+    : AstarteErrorBase(
+          k_type_, message,
+          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
 }  // namespace AstarteDeviceSdk
