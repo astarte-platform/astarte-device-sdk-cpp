@@ -33,8 +33,7 @@ class AstarteStoredProperty {
    * @param data The Astarte data for the property.
    */
   explicit AstarteStoredProperty(std::string_view interface_name, std::string_view path,
-                                 int32_t version_major, AstarteOwnership ownership,
-                                 AstarteData data);
+                                 int32_t version_major, AstarteOwnership ownership, Data data);
   /**
    * @brief Get the interface name contained within the object.
    * @return A constant reference to the interface name string.
@@ -61,7 +60,7 @@ class AstarteStoredProperty {
    * @brief Get the value contained within the object.
    * @return A constant reference to the data, if any.
    */
-  [[nodiscard]] auto get_value() const -> const AstarteData&;
+  [[nodiscard]] auto get_value() const -> const Data&;
   /**
    * @brief Overloader for the comparison operator ==.
    * @param other The object to compare to.
@@ -80,7 +79,7 @@ class AstarteStoredProperty {
   std::string path_;
   int32_t version_major_;
   AstarteOwnership ownership_;
-  AstarteData data_;
+  Data data_;
 };
 
 }  // namespace astarte::device

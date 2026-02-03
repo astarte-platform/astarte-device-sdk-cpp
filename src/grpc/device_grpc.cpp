@@ -62,7 +62,7 @@ auto AstarteDeviceGrpc::disconnect() -> astarte_tl::expected<void, AstarteError>
 }
 
 auto AstarteDeviceGrpc::send_individual(std::string_view interface_name, std::string_view path,
-                                        const AstarteData& data,
+                                        const Data& data,
                                         const std::chrono::system_clock::time_point* timestamp)
     -> astarte_tl::expected<void, AstarteError> {
   return astarte_device_impl_->send_individual(interface_name, path, data, timestamp);
@@ -76,8 +76,7 @@ auto AstarteDeviceGrpc::send_object(std::string_view interface_name, std::string
 }
 
 auto AstarteDeviceGrpc::set_property(std::string_view interface_name, std::string_view path,
-                                     const AstarteData& data)
-    -> astarte_tl::expected<void, AstarteError> {
+                                     const Data& data) -> astarte_tl::expected<void, AstarteError> {
   return astarte_device_impl_->set_property(interface_name, path, data);
 }
 

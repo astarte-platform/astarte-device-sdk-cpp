@@ -17,14 +17,14 @@ namespace astarte::device::bson {
 using json = nlohmann::json;
 
 /**
- * @brief Serialize AstarteData to BSON bytes.
+ * @brief Serialize Data to BSON bytes.
  *
  * @param bson a reference to the BSON object to populate.
  * @param key the BSON key related to the Astarte data value.
  * @param data Astarte individual data to serialize to BSON.
  * @param timestamp Timestamp value to serialize to BSON if not null.
  */
-void serialize_astarte_individual(json& bson, const std::string& key, const AstarteData& data,
+void serialize_astarte_individual(json& bson, const std::string& key, const Data& data,
                                   const std::chrono::system_clock::time_point* timestamp);
 
 /**

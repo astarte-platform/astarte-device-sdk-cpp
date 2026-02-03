@@ -100,7 +100,7 @@ class AstarteDevice {
    * @return An error if generated.
    */
   virtual auto send_individual(std::string_view interface_name, std::string_view path,
-                               const AstarteData& data,
+                               const Data& data,
                                const std::chrono::system_clock::time_point* timestamp)
       -> astarte_tl::expected<void, AstarteError> = 0;
   /**
@@ -123,8 +123,7 @@ class AstarteDevice {
    * @return An error if generated.
    */
   virtual auto set_property(std::string_view interface_name, std::string_view path,
-                            const AstarteData& data)
-      -> astarte_tl::expected<void, AstarteError> = 0;
+                            const Data& data) -> astarte_tl::expected<void, AstarteError> = 0;
   /**
    * @brief Unset a device property on Astarte.
    * @param interface_name The name of the interface containing the property.

@@ -24,7 +24,7 @@ namespace astarte::device {
 class AstarteDatastreamObject {
  public:
   /** @brief Helper type for the map of paths and Astarte datas. */
-  using MapType = std::unordered_map<std::string, AstarteData>;
+  using MapType = std::unordered_map<std::string, Data>;
   /** @brief Helper type for the iterator over the map of paths and Astarte datas. */
   using iterator = MapType::iterator;
   /** @brief Helper type for the const iterator over the map of paths and Astarte datas. */
@@ -47,14 +47,14 @@ class AstarteDatastreamObject {
    * @param key The key to search for.
    * @return Reference to the value corresponding to the key.
    */
-  auto at(const std::string& key) -> AstarteData&;
+  auto at(const std::string& key) -> Data&;
   /**
    * @brief Access specified element with bounds checking.
    * @details Soft wrapper for the equivalent method in the std::unordered_map.
    * @param key The key to search for.
    * @return Reference to the value corresponding to the key.
    */
-  auto at(const std::string& key) const -> const AstarteData&;
+  auto at(const std::string& key) const -> const Data&;
   /**
    * @brief Returns an iterator to the beginning of the specified bucket.
    * @details Soft wrapper for the equivalent method in the std::unordered_map.
@@ -97,7 +97,7 @@ class AstarteDatastreamObject {
    * @param key Key to insert.
    * @param data Value to insert.
    */
-  void insert(const std::string& key, const AstarteData& data);
+  void insert(const std::string& key, const Data& data);
   /**
    * @brief Erases elements.
    * @details Soft wrapper for the equivalent method in the std::unordered_map.

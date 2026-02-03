@@ -10,10 +10,9 @@
 
 namespace astarte::device {
 
-AstarteDatastreamIndividual::AstarteDatastreamIndividual(AstarteData data)
-    : data_(std::move(data)) {}
+AstarteDatastreamIndividual::AstarteDatastreamIndividual(Data data) : data_(std::move(data)) {}
 
-auto AstarteDatastreamIndividual::get_value() const -> const AstarteData& { return data_; }
+auto AstarteDatastreamIndividual::get_value() const -> const Data& { return data_; }
 
 auto AstarteDatastreamIndividual::operator==(const AstarteDatastreamIndividual& other) const
     -> bool {

@@ -97,8 +97,7 @@ struct AstarteDeviceGrpc::AstarteDeviceGrpcImpl {
    * @param data The data point to send.
    * @param timestamp An optional timestamp for the data point.
    */
-  auto send_individual(std::string_view interface_name, std::string_view path,
-                       const AstarteData& data,
+  auto send_individual(std::string_view interface_name, std::string_view path, const Data& data,
                        const std::chrono::system_clock::time_point* timestamp)
       -> astarte_tl::expected<void, AstarteError>;
   /**
@@ -118,7 +117,7 @@ struct AstarteDeviceGrpc::AstarteDeviceGrpcImpl {
    * @param path The path of the property to set.
    * @param data The value to set for the property.
    */
-  auto set_property(std::string_view interface_name, std::string_view path, const AstarteData& data)
+  auto set_property(std::string_view interface_name, std::string_view path, const Data& data)
       -> astarte_tl::expected<void, AstarteError>;
   /**
    * @brief Unset a device property on an interface.

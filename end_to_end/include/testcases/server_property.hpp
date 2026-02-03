@@ -25,7 +25,7 @@ TestCase server_property(std::string device_id) {
          actions::TransmitRESTData(AstarteMessage(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::Integer::ENDPOINT_SENSOR,
-             AstartePropertyIndividual(AstarteData(43))
+             AstartePropertyIndividual(Data(43))
          )),
          actions::TransmitRESTData(AstarteMessage(
              constants::interfaces::ServerProperty::INTERFACE,
@@ -99,7 +99,7 @@ TestCase server_property(std::string device_id) {
          actions::ReadReceivedDeviceData(AstarteMessage(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::Integer::ENDPOINT_SENSOR,
-             AstartePropertyIndividual(AstarteData(43))
+             AstartePropertyIndividual(Data(43))
          )),
          actions::ReadReceivedDeviceData(AstarteMessage(
              constants::interfaces::ServerProperty::INTERFACE,
@@ -333,7 +333,7 @@ TestCase server_property_on_new_device(std::string device_id) {
          actions::TransmitRESTData(AstarteMessage(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::Integer::ENDPOINT_SENSOR,
-             AstartePropertyIndividual(AstarteData(43))
+             AstartePropertyIndividual(Data(43))
          )),
          actions::TransmitRESTData(AstarteMessage(
              constants::interfaces::ServerProperty::INTERFACE,
@@ -352,7 +352,7 @@ TestCase server_property_on_new_device(std::string device_id) {
          actions::ReadReceivedDeviceData(AstarteMessage(
              constants::interfaces::ServerProperty::INTERFACE,
              constants::data_sets::Integer::ENDPOINT_SENSOR,
-             AstartePropertyIndividual(AstarteData(43))
+             AstartePropertyIndividual(Data(43))
          )),
          actions::ReadReceivedDeviceData(AstarteMessage(
              constants::interfaces::ServerProperty::INTERFACE,

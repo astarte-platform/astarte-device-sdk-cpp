@@ -24,12 +24,12 @@ class AstarteDatastreamIndividual {
    * @brief Constructor for the AstarteDatastreamIndividual class.
    * @param data The wrapped Astarte data type.
    */
-  explicit AstarteDatastreamIndividual(AstarteData data);
+  explicit AstarteDatastreamIndividual(Data data);
   /**
    * @brief Get the value contained within the object.
    * @return A constant reference to the data.
    */
-  [[nodiscard]] auto get_value() const -> const AstarteData&;
+  [[nodiscard]] auto get_value() const -> const Data&;
   /**
    * @brief Overloader for the comparison operator ==.
    * @param other The object to compare to.
@@ -44,7 +44,7 @@ class AstarteDatastreamIndividual {
   [[nodiscard]] auto operator!=(const AstarteDatastreamIndividual& other) const -> bool;
 
  private:
-  AstarteData data_;
+  Data data_;
 };
 
 }  // namespace astarte::device

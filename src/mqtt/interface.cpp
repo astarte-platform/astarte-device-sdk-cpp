@@ -195,7 +195,7 @@ auto Interface::get_mapping(std::string_view path) const
       astarte_fmt::format("couldn't find mapping with path {}", path)));
 }
 
-auto Interface::validate_individual(std::string_view path, const AstarteData& data,
+auto Interface::validate_individual(std::string_view path, const Data& data,
                                     const std::chrono::system_clock::time_point* timestamp) const
     -> astarte_tl::expected<void, AstarteError> {
   auto mapping_res = get_mapping(path);

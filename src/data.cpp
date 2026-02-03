@@ -15,7 +15,7 @@
 
 namespace astarte::device {
 
-auto AstarteData::get_type() const -> AstarteType {
+auto Data::get_type() const -> AstarteType {
   struct Visitor {
     auto operator()(const int32_t& /*unused*/) -> AstarteType { return kInteger; }
     auto operator()(const int64_t& /*unused*/) -> AstarteType { return kLongInteger; }
@@ -46,7 +46,7 @@ auto AstarteData::get_type() const -> AstarteType {
   return std::visit(Visitor{}, data_);
 }
 
-auto AstarteData::get_raw_data() const
+auto Data::get_raw_data() const
     -> const std::variant<int32_t, int64_t, double, bool, std::string, std::vector<uint8_t>,
                           std::chrono::system_clock::time_point, std::vector<int32_t>,
                           std::vector<int64_t>, std::vector<double>, std::vector<bool>,
@@ -55,10 +55,10 @@ auto AstarteData::get_raw_data() const
   return this->data_;
 }
 
-auto AstarteData::operator==(const AstarteData& other) const -> bool {
+auto Data::operator==(const Data& other) const -> bool {
   return this->data_ == other.get_raw_data();
 }
-auto AstarteData::operator!=(const AstarteData& other) const -> bool {
+auto Data::operator!=(const Data& other) const -> bool {
   return this->data_ != other.get_raw_data();
 }
 

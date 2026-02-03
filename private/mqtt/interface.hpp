@@ -232,7 +232,7 @@ class Interface {
    * @param timestamp a pointer to the timestamp poiting out when the data is sent.
    * @return an error if the falidation fails, nothing otherwise.
    */
-  auto validate_individual(std::string_view path, const AstarteData& data,
+  auto validate_individual(std::string_view path, const Data& data,
                            const std::chrono::system_clock::time_point* timestamp) const
       -> astarte_tl::expected<void, AstarteError>;
 

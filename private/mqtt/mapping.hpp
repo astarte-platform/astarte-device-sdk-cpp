@@ -311,10 +311,10 @@ class Mapping {
   /**
    * @brief Check that the Astarte data matches the mapping type
    *
-   * @param data The AstarteData to check.
+   * @param data The Data to check.
    * @return an error if the check fails.
    */
-  [[nodiscard]] auto check_data_type(const AstarteData& data) const
+  [[nodiscard]] auto check_data_type(const Data& data) const
       -> astarte_tl::expected<void, AstarteError>;
 
   /**

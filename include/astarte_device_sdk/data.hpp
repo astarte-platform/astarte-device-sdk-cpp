@@ -27,7 +27,7 @@ namespace astarte::device {
 
 /** @brief Restricts the allowed types for instances of an Astarte data class. */
 template <typename T>
-concept AstarteDataAllowedType = requires {
+concept DataAllowedType = requires {
   requires std::is_same_v<T, int32_t> || std::is_same_v<T, int64_t> || std::is_same_v<T, double> ||
                std::is_same_v<T, bool> || std::is_same_v<T, std::string> ||
                std::is_same_v<T, std::string_view> || std::is_same_v<T, std::vector<uint8_t>> ||
@@ -40,18 +40,18 @@ concept AstarteDataAllowedType = requires {
 };
 
 /** @brief Astarte data class, representing the basic Astarte types. */
-class AstarteData {
+class Data {
  public:
   /**
-   * @brief Constructor for the AstarteData class.
-   * @note About string views. By design an AstarteData object is intended to encapsulate
+   * @brief Constructor for the Data class.
+   * @note About string views. By design an Data object is intended to encapsulate
    * data without relying on the lifetime of its inputs. As such passing a string_view to the
    * constructor will result in the creation of a new internal std::string object that will contain
    * a copy of the input string.
    * @param value The content of the Astarte data instance.
    */
-  template <AstarteDataAllowedType T>
-  explicit AstarteData(const T& value) {
+  template <DataAllowedType T>
+  explicit Data(const T& value) {
     if constexpr (std::is_same_v<T, std::string_view>) {
       data_ = std::string(value);
     } else {
@@ -63,7 +63,7 @@ class AstarteData {
    * @brief Convert the Astarte data class to the appropriate data type.
    * @return The value contained in the class instance.
    */
-  template <AstarteDataAllowedType T>
+  template <DataAllowedType T>
   [[nodiscard]] auto into() const
       -> std::conditional_t<std::is_same_v<T, std::string_view>, std::string_view, const T&> {
     if constexpr (std::is_same_v<T, std::string_view>) {
@@ -76,7 +76,7 @@ class AstarteData {
    * @brief Convert the Astarte data class to the given type if it's the correct variant.
    * @return The value contained in the class instance or nullopt.
    */
-  template <AstarteDataAllowedType T>
+  template <DataAllowedType T>
   [[nodiscard]] auto try_into() const -> std::optional<T> {
     if constexpr (std::is_same_v<T, std::string_view>) {
       if (std::holds_alternative<std::string>(data_)) {
@@ -111,13 +111,13 @@ class AstarteData {
    * @param other The object to compare to.
    * @return True when equal, false otherwise.
    */
-  [[nodiscard]] auto operator==(const AstarteData& other) const -> bool;
+  [[nodiscard]] auto operator==(const Data& other) const -> bool;
   /**
    * @brief Overloader for the comparison operator !=.
    * @param other The object to compare to.
    * @return True when different, false otherwise.
    */
-  [[nodiscard]] auto operator!=(const AstarteData& other) const -> bool;
+  [[nodiscard]] auto operator!=(const Data& other) const -> bool;
 
  private:
   std::variant<int32_t, int64_t, double, bool, std::string, std::vector<uint8_t>,
@@ -131,10 +131,10 @@ class AstarteData {
 }  // namespace astarte::device
 
 /**
- * @brief astarte_fmt::formatter specialization for astarte::device::AstarteData.
+ * @brief astarte_fmt::formatter specialization for astarte::device::Data.
  */
 template <>
-struct astarte_fmt::formatter<astarte::device::AstarteData> {
+struct astarte_fmt::formatter<astarte::device::Data> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -146,14 +146,14 @@ struct astarte_fmt::formatter<astarte::device::AstarteData> {
   }
 
   /**
-   * @brief Format the AstarteData variant-like object by dispatching to the correct formatter.
-   * @param data The AstarteData to format.
+   * @brief Format the Data variant-like object by dispatching to the correct formatter.
+   * @param data The Data to format.
    * @param ctx The format context.
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
   // NOLINTNEXTLINE(readability-function-size)
-  auto format(const astarte::device::AstarteData& data, FormatContext& ctx) const {
+  auto format(const astarte::device::Data& data, FormatContext& ctx) const {
     auto out = ctx.out();
 
     if (std::holds_alternative<int32_t>(data.get_raw_data())) {
@@ -201,13 +201,12 @@ struct astarte_fmt::formatter<astarte::device::AstarteData> {
 };
 
 /**
- * @brief Stream insertion operator for AstarteData.
+ * @brief Stream insertion operator for Data.
  * @param out The output stream.
- * @param data The AstarteData object to output.
+ * @param data The Data object to output.
  * @return Reference to the output stream.
  */
-inline auto operator<<(std::ostream& out, const astarte::device::AstarteData& data)
-    -> std::ostream& {
+inline auto operator<<(std::ostream& out, const astarte::device::Data& data) -> std::ostream& {
   out << astarte_fmt::format("{}", data);
   return out;
 }

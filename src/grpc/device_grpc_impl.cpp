@@ -226,7 +226,7 @@ auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::disconnect()
 }
 
 auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::send_individual(
-    std::string_view interface_name, std::string_view path, const AstarteData& data,
+    std::string_view interface_name, std::string_view path, const Data& data,
     const std::chrono::system_clock::time_point* timestamp)
     -> astarte_tl::expected<void, AstarteError> {
   spdlog::debug("Sending individual: {} {}", interface_name, path);
@@ -289,7 +289,7 @@ auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::send_object(
 
 auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::set_property(std::string_view interface_name,
                                                             std::string_view path,
-                                                            const AstarteData& data)
+                                                            const Data& data)
     -> astarte_tl::expected<void, AstarteError> {
   spdlog::debug("Setting property: {} {}", interface_name, path);
   if (!connected_.load()) {
@@ -301,7 +301,7 @@ auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::set_property(std::string_view int
   message.set_interface_name(interface_name);
   message.set_path(path);
 
-  const std::optional<AstarteData>& opt_data = data;
+  const std::optional<Data>& opt_data = data;
   GrpcConverterTo converter;
   std::unique_ptr<gRPCAstartePropertyIndividual> grpc_property_individual = converter(opt_data);
   message.set_allocated_property_individual(grpc_property_individual.release());
@@ -331,7 +331,7 @@ auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::unset_property(std::string_view i
   message.set_interface_name(interface_name);
   message.set_path(path);
 
-  const std::optional<AstarteData> opt_data = std::nullopt;
+  const std::optional<Data> opt_data = std::nullopt;
   GrpcConverterTo converter;
   std::unique_ptr<gRPCAstartePropertyIndividual> grpc_property_individual = converter(opt_data);
   message.set_allocated_property_individual(grpc_property_individual.release());

@@ -10,12 +10,10 @@
 
 namespace astarte::device {
 
-AstartePropertyIndividual::AstartePropertyIndividual(const std::optional<AstarteData>& data)
+AstartePropertyIndividual::AstartePropertyIndividual(const std::optional<Data>& data)
     : data_(data) {}
 
-auto AstartePropertyIndividual::get_value() const -> const std::optional<AstarteData>& {
-  return data_;
-}
+auto AstartePropertyIndividual::get_value() const -> const std::optional<Data>& { return data_; }
 
 auto AstartePropertyIndividual::operator==(const AstartePropertyIndividual& other) const -> bool {
   return this->get_value() == other.get_value();

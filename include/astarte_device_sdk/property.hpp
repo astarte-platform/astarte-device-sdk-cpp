@@ -25,12 +25,12 @@ class AstartePropertyIndividual {
    * @brief Constructor for the AstarteDatastreamIndividual class.
    * @param data The wrapped Astarte data type.
    */
-  explicit AstartePropertyIndividual(const std::optional<AstarteData>& data);
+  explicit AstartePropertyIndividual(const std::optional<Data>& data);
   /**
    * @brief Get the value contained within the object.
    * @return A constant reference to the data, if any.
    */
-  [[nodiscard]] auto get_value() const -> const std::optional<AstarteData>&;
+  [[nodiscard]] auto get_value() const -> const std::optional<Data>&;
   /**
    * @brief Overloader for the comparison operator ==.
    * @param other The object to compare to.
@@ -45,7 +45,7 @@ class AstartePropertyIndividual {
   [[nodiscard]] auto operator!=(const AstartePropertyIndividual& other) const -> bool;
 
  private:
-  std::optional<AstarteData> data_;
+  std::optional<Data> data_;
 };
 
 }  // namespace astarte::device

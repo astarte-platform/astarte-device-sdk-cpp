@@ -198,7 +198,7 @@ A couple of assumptions have been made:
 #include "astarte_device_sdk/msg.hpp"
 #include "astarte_device_sdk/formatter.hpp"
 
-using astarte::device::AstarteData;
+using astarte::device::Data;
 using astarte::device::AstarteDatastreamIndividual;
 using astarte::device::AstarteDatastreamObject;
 using astarte::device::AstarteDeviceGrpc;
@@ -290,7 +290,7 @@ int main(int argc, char **argv) {
 
   std::string interface_name("org.astarte-platform.cpp.get-started.Individual");
   std::string path("/double_endpoint");
-  AstarteData data(42.5);
+  Data data(42.5);
   device->send_individual(interface_name, path, data, NULL);
 
   // Disconnect the device and exit
@@ -316,8 +316,8 @@ int main(int argc, char **argv) {
   std::string interface_name("org.astarte-platform.cpp.get-started.Aggregated");
   std::string common_path("/group_data");
   AstarteDatastreamObject data = {
-    {"double_endpoint", AstarteData(43.5)},
-    {"string_endpoint", AstarteData(std::string("Hello from cpp!"))}
+    {"double_endpoint", Data(43.5)},
+    {"string_endpoint", Data(std::string("Hello from cpp!"))}
   };
   device->send_object(interface_name, common_path, data, NULL);
 
@@ -348,7 +348,7 @@ int main(int argc, char **argv) {
 
   std::string interface_name("org.astarte-platform.cpp.get-started.Property");
   std::string path("/sensor0/string_endpoint");
-  AstarteData data(std::string("some sensor hardware defined info"));
+  Data data(std::string("some sensor hardware defined info"));
   device->set_property(interface_name, path, data);
 
   // Disconnect the device and exit

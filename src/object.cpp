@@ -17,9 +17,9 @@ AstarteDatastreamObject::AstarteDatastreamObject() = default;
 AstarteDatastreamObject::AstarteDatastreamObject(std::initializer_list<MapType::value_type> init)
     : data_(init) {}
 // Access element by key (modifiable)
-auto AstarteDatastreamObject::at(const std::string& key) -> AstarteData& { return data_.at(key); }
+auto AstarteDatastreamObject::at(const std::string& key) -> Data& { return data_.at(key); }
 // Access element by key (const)
-auto AstarteDatastreamObject::at(const std::string& key) const -> const AstarteData& {
+auto AstarteDatastreamObject::at(const std::string& key) const -> const Data& {
   return data_.at(key);
 }
 // Begin iterator (modifiable)
@@ -35,7 +35,7 @@ auto AstarteDatastreamObject::size() const -> size_type { return data_.size(); }
 // Check if map is empty
 auto AstarteDatastreamObject::empty() const -> bool { return data_.empty(); }
 // Insert element into the map
-void AstarteDatastreamObject::insert(const std::string& key, const AstarteData& data) {
+void AstarteDatastreamObject::insert(const std::string& key, const Data& data) {
   data_.insert({key, data});
 }
 // Erase element by key

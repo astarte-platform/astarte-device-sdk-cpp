@@ -134,8 +134,7 @@ auto Mapping::match_path(std::string_view path) const -> bool {
   return endpoint.empty() && path.empty();
 }
 
-auto Mapping::check_data_type(const AstarteData& data) const
-    -> astarte_tl::expected<void, AstarteError> {
+auto Mapping::check_data_type(const Data& data) const -> astarte_tl::expected<void, AstarteError> {
   if (type_ != data.get_type()) {
     spdlog::error("Astarte data type and mapping type do not match");
     return astarte_tl::unexpected(

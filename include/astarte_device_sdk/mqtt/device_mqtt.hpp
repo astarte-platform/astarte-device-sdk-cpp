@@ -108,8 +108,7 @@ class AstarteDeviceMqtt : public AstarteDevice {
    * @param timestamp The timestamp for the data, this might be a nullptr.
    * @return An error if generated.
    */
-  auto send_individual(std::string_view interface_name, std::string_view path,
-                       const AstarteData& data,
+  auto send_individual(std::string_view interface_name, std::string_view path, const Data& data,
                        const std::chrono::system_clock::time_point* timestamp)
       -> astarte_tl::expected<void, AstarteError> override;
   /**
@@ -131,7 +130,7 @@ class AstarteDeviceMqtt : public AstarteDevice {
    * @param data The property data.
    * @return An error if generated.
    */
-  auto set_property(std::string_view interface_name, std::string_view path, const AstarteData& data)
+  auto set_property(std::string_view interface_name, std::string_view path, const Data& data)
       -> astarte_tl::expected<void, AstarteError> override;
   /**
    * @brief Unset a device property.
