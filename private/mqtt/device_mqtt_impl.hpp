@@ -28,7 +28,7 @@
 
 namespace astarte::device::mqtt {
 
-struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
+struct DeviceMqtt::AstarteDeviceMqttImpl {
  public:
   /**
    * @brief Construct an AstarteDeviceMqttImpl instance.

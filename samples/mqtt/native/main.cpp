@@ -85,7 +85,7 @@ int main() {
     // here you can modify the mqtt_cfg options, such as the keepalive interval, the connection
     // timeout period, etc.
 
-    auto device_res = astarte::device::mqtt::AstarteDeviceMqtt::create(std::move(mqtt_cfg));
+    auto device_res = astarte::device::mqtt::DeviceMqtt::create(std::move(mqtt_cfg));
     if (!device_res) {
       spdlog::error("device creation error: {}", device_res.error());
       return EXIT_FAILURE;

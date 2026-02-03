@@ -26,7 +26,7 @@ using astarte::device::Device;
 #ifdef ASTARTE_TRANSPORT_GRPC
 using astarte::device::grpc::DeviceGrpc;
 #else   // ASTARTE_TRANSPORT_GRPC
-using astarte::device::AstarteDeviceMqtt;
+using astarte::device::DeviceMqtt;
 using astarte::device::mqtt::Config;
 #endif  // ASTARTE_TRANSPORT_GRPC
 
@@ -81,13 +81,13 @@ class TestMqttDeviceFactory : public TestDeviceFactory {
         Config::with_credential_secret(config_.realm, config_.device_id, config_.credential_secret,
                                        config_.pairing_url, config_.store_dir);
 
-    auto result = astarte::device::AstarteDeviceMqtt::create(std::move(mqtt_config));
+    auto result = astarte::device::DeviceMqtt::create(std::move(mqtt_config));
     if (!result) {
       throw EndToEndAstarteDeviceException(
           astarte_fmt::format("Failed to create MQTT device: {}", result.error()));
     }
 
-    auto device = std::make_shared<AstarteDeviceMqtt>(*std::move(result));
+    auto device = std::make_shared<DeviceMqtt>(*std::move(result));
     for (const auto& interface_path : config_.interfaces) {
       auto res = device->add_interface_from_file(interface_path);
       if (!res) {

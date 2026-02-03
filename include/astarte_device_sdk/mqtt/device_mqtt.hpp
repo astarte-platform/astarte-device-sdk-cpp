@@ -35,32 +35,31 @@ namespace astarte::device::mqtt {
  * @brief Class for the Astarte devices.
  * @details This class should be instantiated once and then used to communicate with Astarte.
  */
-class AstarteDeviceMqtt : public Device {
+class DeviceMqtt : public Device {
  public:
   /**
    * @brief Fallible constructor method.
    * @param cfg set of MQTT configuration options used to connect a device to Astarte.
-   * @return An AstarteDeviceMqtt object, an error otherwise.
+   * @return An DeviceMqtt object, an error otherwise.
    */
-  [[nodiscard]] static auto create(mqtt::Config cfg)
-      -> astarte_tl::expected<AstarteDeviceMqtt, Error>;
+  [[nodiscard]] static auto create(mqtt::Config cfg) -> astarte_tl::expected<DeviceMqtt, Error>;
   /** @brief Destructor for the Astarte device class. */
-  ~AstarteDeviceMqtt() override;
+  ~DeviceMqtt() override;
   /** @brief Copy constructor for the Astarte device class. */
-  AstarteDeviceMqtt(AstarteDeviceMqtt& other) = delete;
+  DeviceMqtt(DeviceMqtt& other) = delete;
   /** @brief Copy assignment operator for the Astarte device class. */
-  auto operator=(AstarteDeviceMqtt& other) -> AstarteDeviceMqtt& = delete;
+  auto operator=(DeviceMqtt& other) -> DeviceMqtt& = delete;
   /**
    * @brief Move constructor for the Astarte device class.
    * @param other object to move.
    */
-  AstarteDeviceMqtt(AstarteDeviceMqtt&& other) = default;
+  DeviceMqtt(DeviceMqtt&& other) = default;
   /**
    * @brief Move assignment operator for the Astarte device class.
    * @param other object to move.
    * @return reference to the moved object.
    */
-  auto operator=(AstarteDeviceMqtt&& other) -> AstarteDeviceMqtt& = default;
+  auto operator=(DeviceMqtt&& other) -> DeviceMqtt& = default;
 
   /**
    * @brief Add an interface for the device from a json file.
@@ -176,7 +175,7 @@ class AstarteDeviceMqtt : public Device {
    * @brief Construct an AstarteDeviceMqttImpl instance.
    * @param impl a shared pointer to the AstarteDeviceMqttImpl object.
    */
-  explicit AstarteDeviceMqtt(std::shared_ptr<AstarteDeviceMqttImpl> impl);
+  explicit DeviceMqtt(std::shared_ptr<AstarteDeviceMqttImpl> impl);
 };
 
 }  // namespace astarte::device::mqtt
