@@ -11,9 +11,9 @@
 #include "grpc/grpc_converter.hpp"
 
 using astarte::device::Data;
-using astarte::device::gRPCAstarteData;
-using astarte::device::GrpcConverterFrom;
-using astarte::device::GrpcConverterTo;
+using astarte::device::grpc::gRPCAstarteData;
+using astarte::device::grpc::GrpcConverterFrom;
+using astarte::device::grpc::GrpcConverterTo;
 
 TEST(AstarteTestConversion, DataToGrpc) {
   int32_t value = 199;

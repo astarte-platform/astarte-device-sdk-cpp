@@ -10,8 +10,8 @@
 #if !defined(ASTARTE_TRANSPORT_GRPC)
 #include "mqtt/crypto.hpp"
 
-using astarte::device::Crypto;
-using astarte::device::PsaKey;
+using astarte::device::mqtt::Crypto;
+using astarte::device::mqtt::PsaKey;
 
 TEST(AstarteTestCrypto, ParseNullPsaKey) {
   auto key = PsaKey::create();
