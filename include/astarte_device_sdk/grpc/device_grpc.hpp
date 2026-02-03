@@ -139,7 +139,7 @@ class AstarteDeviceGrpc : public Device {
    * @param ownership Optional ownership filter.
    * @return A list of stored properties, as returned by the message hub, or an error upon failure.
    */
-  auto get_all_properties(const std::optional<AstarteOwnership>& ownership)
+  auto get_all_properties(const std::optional<Ownership>& ownership)
       -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error> override;
   /**
    * @brief Get stored properties matching the interface.

@@ -70,7 +70,7 @@ auto parse_interface_type(const json& interface) -> astarte_tl::expected<Interfa
   return InterfaceType::try_from_str(type_json.value().get<std::string>());
 }
 
-auto parse_ownership(const json& interface) -> astarte_tl::expected<AstarteOwnership, Error> {
+auto parse_ownership(const json& interface) -> astarte_tl::expected<Ownership, Error> {
   constexpr std::string_view kOwnership = "ownership";
   auto own_json = json_helper::get_field(interface, kOwnership, json::value_t::string);
   if (!own_json) {

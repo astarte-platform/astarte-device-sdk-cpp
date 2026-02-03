@@ -145,7 +145,7 @@ class Device {
    * @param ownership Optional ownership filter.
    * @return A list of properties matching the filter.
    */
-  virtual auto get_all_properties(const std::optional<AstarteOwnership>& ownership)
+  virtual auto get_all_properties(const std::optional<Ownership>& ownership)
       -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error> = 0;
   /**
    * @brief Get the current value for properties matching the interface.

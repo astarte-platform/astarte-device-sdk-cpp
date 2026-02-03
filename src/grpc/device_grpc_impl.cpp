@@ -348,7 +348,7 @@ auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::poll_incoming(
 }
 
 auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::get_all_properties(
-    const std::optional<AstarteOwnership>& ownership)
+    const std::optional<Ownership>& ownership)
     -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error> {
   if (ownership.has_value()) {
     spdlog::debug("Getting all stored properties {} owned.", ownership.value());
@@ -364,8 +364,8 @@ auto AstarteDeviceGrpc::AstarteDeviceGrpcImpl::get_all_properties(
 
   gRPCPropertyFilter filter;
   if (ownership.has_value()) {
-    filter.set_ownership((ownership == AstarteOwnership::kDevice) ? gRPCOwnership::DEVICE
-                                                                  : gRPCOwnership::SERVER);
+    filter.set_ownership((ownership == Ownership::kDevice) ? gRPCOwnership::DEVICE
+                                                           : gRPCOwnership::SERVER);
   }
 
   ClientContext context;

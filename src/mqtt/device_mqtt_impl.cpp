@@ -265,7 +265,7 @@ auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::poll_incoming(
 }
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 auto AstarteDeviceMqtt::AstarteDeviceMqttImpl::get_all_properties(
-    const std::optional<AstarteOwnership>& /* ownership */)
+    const std::optional<Ownership>& /* ownership */)
     -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error> {
   TODO("not yet implemented");
 }

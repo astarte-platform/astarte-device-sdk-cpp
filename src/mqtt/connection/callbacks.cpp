@@ -60,7 +60,7 @@ auto Callback::setup_subscriptions() -> astarte_tl::expected<void, Error> {
 
   for (const auto& interface : introspection_->values()) {
     // consider only server-owned properties
-    if (interface->ownership() == AstarteOwnership::kDevice) {
+    if (interface->ownership() == Ownership::kDevice) {
       continue;
     }
 

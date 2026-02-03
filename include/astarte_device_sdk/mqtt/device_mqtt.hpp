@@ -150,7 +150,7 @@ class AstarteDeviceMqtt : public Device {
    * @param ownership Optional ownership filter.
    * @return A list of stored properties, or an error if the operation failed.
    */
-  auto get_all_properties(const std::optional<AstarteOwnership>& ownership)
+  auto get_all_properties(const std::optional<Ownership>& ownership)
       -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error> override;
   /**
    * @brief Get stored properties matching the interface.

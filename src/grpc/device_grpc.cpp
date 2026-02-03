@@ -90,7 +90,7 @@ auto AstarteDeviceGrpc::poll_incoming(const std::chrono::milliseconds& timeout)
   return astarte_device_impl_->poll_incoming(timeout);
 }
 
-auto AstarteDeviceGrpc::get_all_properties(const std::optional<AstarteOwnership>& ownership)
+auto AstarteDeviceGrpc::get_all_properties(const std::optional<Ownership>& ownership)
     -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error> {
   return astarte_device_impl_->get_all_properties(ownership);
 }

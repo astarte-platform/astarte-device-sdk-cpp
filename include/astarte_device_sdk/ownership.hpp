@@ -20,7 +20,7 @@
 namespace astarte::device {
 
 /** @brief Possible Astarte ownership. */
-enum AstarteOwnership : int8_t {
+enum Ownership : int8_t {
   /** @brief Ownership is retained by the device. */
   kDevice,
   /** @brief Ownership is retained by the Astarte cloud server. */
@@ -28,19 +28,19 @@ enum AstarteOwnership : int8_t {
 };
 
 /**
- * @brief Convert a string to an AstarteOwnership enum.
+ * @brief Convert a string to an Ownership enum.
  *
  * @param ownership The string representation of the interface ownership.
- * @return The corresponding AstarteOwnership enum value, an error if the string is not a valid
+ * @return The corresponding Ownership enum value, an error if the string is not a valid
  * ownership.
  */
 inline auto ownership_from_str(const std::string& ownership)
-    -> astarte_tl::expected<AstarteOwnership, Error> {
+    -> astarte_tl::expected<Ownership, Error> {
   if (ownership == "device") {
-    return AstarteOwnership::kDevice;
+    return Ownership::kDevice;
   }
   if (ownership == "server") {
-    return AstarteOwnership::kServer;
+    return Ownership::kServer;
   }
   return astarte_tl::unexpected(
       InvalidInterfaceOwnershipeError("interface ownershipe not valid: " + ownership));
@@ -52,7 +52,7 @@ inline auto ownership_from_str(const std::string& ownership)
  * @brief astarte_fmt::formatter specialization for astarte::device::AstarteStoredProperty.
  */
 template <>
-struct astarte_fmt::formatter<astarte::device::AstarteOwnership> {
+struct astarte_fmt::formatter<astarte::device::Ownership> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -70,14 +70,14 @@ struct astarte_fmt::formatter<astarte::device::AstarteOwnership> {
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const astarte::device::AstarteOwnership& ownership, FormatContext& ctx) const {
+  auto format(const astarte::device::Ownership& ownership, FormatContext& ctx) const {
     auto out = ctx.out();
 
     switch (ownership) {
-      case astarte::device::AstarteOwnership::kDevice:
+      case astarte::device::Ownership::kDevice:
         astarte_fmt::format_to(out, "device");
         break;
-      case astarte::device::AstarteOwnership::kServer:
+      case astarte::device::Ownership::kServer:
         astarte_fmt::format_to(out, "server");
         break;
     }
@@ -87,12 +87,12 @@ struct astarte_fmt::formatter<astarte::device::AstarteOwnership> {
 };
 
 /**
- * @brief Stream insertion operator for AstarteOwnership.
+ * @brief Stream insertion operator for Ownership.
  * @param out The output stream.
- * @param ownership The AstarteOwnership enum to output.
+ * @param ownership The Ownership enum to output.
  * @return Reference to the output stream.
  */
-inline auto operator<<(std::ostream& out, const astarte::device::AstarteOwnership ownership)
+inline auto operator<<(std::ostream& out, const astarte::device::Ownership ownership)
     -> std::ostream& {
   out << astarte_fmt::format("{}", ownership);
   return out;

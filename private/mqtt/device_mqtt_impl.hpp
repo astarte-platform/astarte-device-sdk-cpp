@@ -132,7 +132,7 @@ struct AstarteDeviceMqtt::AstarteDeviceMqttImpl {
    * @param ownership Optional ownership filter.
    * @return A list of stored properties, as returned by Astarte.
    */
-  auto get_all_properties(const std::optional<AstarteOwnership>& ownership)
+  auto get_all_properties(const std::optional<Ownership>& ownership)
       -> astarte_tl::expected<std::list<AstarteStoredProperty>, Error>;
   /**
    * @brief Get stored propertied matching the interface.

@@ -33,7 +33,7 @@ class AstarteStoredProperty {
    * @param data The Astarte data for the property.
    */
   explicit AstarteStoredProperty(std::string_view interface_name, std::string_view path,
-                                 int32_t version_major, AstarteOwnership ownership, Data data);
+                                 int32_t version_major, Ownership ownership, Data data);
   /**
    * @brief Get the interface name contained within the object.
    * @return A constant reference to the interface name string.
@@ -55,7 +55,7 @@ class AstarteStoredProperty {
    * @details The ownership is the ownership of the interface of the property.
    * @return A constant reference to the ownership.
    */
-  [[nodiscard]] auto get_ownership() const -> const AstarteOwnership&;
+  [[nodiscard]] auto get_ownership() const -> const Ownership&;
   /**
    * @brief Get the value contained within the object.
    * @return A constant reference to the data, if any.
@@ -78,7 +78,7 @@ class AstarteStoredProperty {
   std::string interface_name_;
   std::string path_;
   int32_t version_major_;
-  AstarteOwnership ownership_;
+  Ownership ownership_;
   Data data_;
 };
 

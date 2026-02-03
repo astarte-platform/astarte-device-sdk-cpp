@@ -15,8 +15,7 @@
 namespace astarte::device {
 
 AstarteStoredProperty::AstarteStoredProperty(std::string_view interface_name, std::string_view path,
-                                             int32_t version_major, AstarteOwnership ownership,
-                                             Data data)
+                                             int32_t version_major, Ownership ownership, Data data)
     : interface_name_(interface_name),
       path_(path),
       version_major_(version_major),
@@ -31,7 +30,7 @@ auto AstarteStoredProperty::get_path() const -> const std::string& { return path
 
 auto AstarteStoredProperty::get_version_major() const -> int32_t { return version_major_; }
 
-auto AstarteStoredProperty::get_ownership() const -> const AstarteOwnership& { return ownership_; }
+auto AstarteStoredProperty::get_ownership() const -> const Ownership& { return ownership_; }
 
 auto AstarteStoredProperty::get_value() const -> const Data& { return data_; }
 

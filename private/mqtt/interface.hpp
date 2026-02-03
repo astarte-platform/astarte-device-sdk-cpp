@@ -196,7 +196,7 @@ class Interface {
   [[nodiscard]] auto interface_type() const -> InterfaceType { return interface_type_; }
 
   /// @return The quality of the interface.
-  [[nodiscard]] auto ownership() const -> AstarteOwnership { return ownership_; }
+  [[nodiscard]] auto ownership() const -> Ownership { return ownership_; }
 
   /// @return The aggregation of the mappings (Individual or Object), if present.
   [[nodiscard]] auto aggregation() const -> const std::optional<InterfaceAggregation>& {
@@ -257,7 +257,7 @@ class Interface {
 
  private:
   Interface(std::string interface_name, uint32_t version_major, uint32_t version_minor,
-            InterfaceType interface_type, AstarteOwnership ownership,
+            InterfaceType interface_type, Ownership ownership,
             std::optional<InterfaceAggregation> aggregation, std::optional<std::string> description,
             std::optional<std::string> doc, std::vector<Mapping> mappings)
       : interface_name_(std::move(interface_name)),
@@ -274,7 +274,7 @@ class Interface {
   uint32_t version_major_;
   uint32_t version_minor_;
   InterfaceType interface_type_;
-  AstarteOwnership ownership_;
+  Ownership ownership_;
   std::optional<InterfaceAggregation> aggregation_;
   std::optional<std::string> description_;
   std::optional<std::string> doc_;

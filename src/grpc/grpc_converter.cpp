@@ -417,9 +417,9 @@ auto GrpcConverterFrom::operator()(const gRPCAstarteMessage& value)
   return astarte_tl::unexpected(InternalError{"Found an unrecognized gRPC gRPCAstarteDataType."});
 }
 
-auto GrpcConverterFrom::operator()(const gRPCOwnership& value) -> AstarteOwnership {
+auto GrpcConverterFrom::operator()(const gRPCOwnership& value) -> Ownership {
   spdlog::trace("Converting Astarte ownership from gRPC.");
-  return (value == gRPCOwnership::DEVICE) ? AstarteOwnership::kDevice : AstarteOwnership::kServer;
+  return (value == gRPCOwnership::DEVICE) ? Ownership::kDevice : Ownership::kServer;
 }
 
 auto GrpcConverterFrom::operator()(const gRPCStoredProperties& value)
