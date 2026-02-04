@@ -14,13 +14,13 @@
 #include "astarte_device_sdk/formatter.hpp"
 #include "astarte_device_sdk/object.hpp"
 
-namespace AstarteDeviceSdk::bson {
+namespace astarte::device::mqtt::bson {
 
 using json = nlohmann::json;
 
 constexpr uint8_t BSON_TYPE_EOO = 0x00;
 
-void serialize_astarte_individual(json& bson, const std::string& key, const AstarteData& data,
+void serialize_astarte_individual(json& bson, const std::string& key, const Data& data,
                                   const std::chrono::system_clock::time_point* timestamp) {
   std::visit(
       [&](auto&& arg) {
@@ -72,7 +72,7 @@ void serialize_astarte_individual(json& bson, const std::string& key, const Asta
   }
 }
 
-void serialize_astarte_object(json& bson, const AstarteDatastreamObject& object,
+void serialize_astarte_object(json& bson, const DatastreamObject& object,
                               const std::chrono::system_clock::time_point* timestamp) {
   json inner_bson;
   for (const auto& [endpoint_path, data] : object) {
@@ -88,4 +88,4 @@ void serialize_astarte_object(json& bson, const AstarteDatastreamObject& object,
   }
 }
 
-}  // namespace AstarteDeviceSdk::bson
+}  // namespace astarte::device::mqtt::bson

@@ -22,7 +22,7 @@
 /**
  * @brief Namespace for configuration classes definition.
  */
-namespace AstarteDeviceSdk::config {
+namespace astarte::device::mqtt {
 
 /// @cond DO_NOT_DOCUMENT
 using namespace std::chrono_literals;
@@ -45,37 +45,37 @@ constexpr auto DEFAULT_DISCONNECTION_TIMEOUT = 1s;
  * @details This class holds all necessary settings for connecting a device to Astarte via MQTT.
  * It uses a builder pattern, allowing for fluent and readable configuration.
  */
-class MqttConfig {
+class Config {
  public:
-  /** @brief Move constructor for the MqttConfig class. */
-  MqttConfig(MqttConfig&&) noexcept;
+  /** @brief Move constructor for the Config class. */
+  Config(Config&&) noexcept;
   /**
-   * @brief Move assignment operator for the MqttConfig class.
-   * @return A reference to this MqttConfig object.
+   * @brief Move assignment operator for the Config class.
+   * @return A reference to this Config object.
    */
-  auto operator=(MqttConfig&&) noexcept -> MqttConfig&;
+  auto operator=(Config&&) noexcept -> Config&;
 
   /** @brief Copy constructor is deleted. */
-  MqttConfig(const MqttConfig&) = delete;
+  Config(const Config&) = delete;
   /** @brief Copy assignment operator is deleted. */
-  auto operator=(const MqttConfig&) -> MqttConfig& = delete;
+  auto operator=(const Config&) -> Config& = delete;
 
-  ~MqttConfig();
+  ~Config();
 
   /**
-   * @brief Create a new MqttConfig instance using a credential secret.
+   * @brief Create a new Config instance using a credential secret.
    * @param realm The Astarte realm.
    * @param device_id The device's unique ID.
    * @param credential The credential secret string.
    * @param pairing_url The base URL of the Astarte pairing API.
    * @param store_dir Path to a local directory for persisting state.
-   * @return A new MqttConfig object.
+   * @return A new Config object.
    */
   [[nodiscard]] static auto with_credential_secret(std::string_view realm,
                                                    std::string_view device_id,
                                                    std::string_view credential,
                                                    std::string_view pairing_url,
-                                                   std::string_view store_dir) -> MqttConfig;
+                                                   std::string_view store_dir) -> Config;
 
   /**
    * @brief Get the configured realm.
@@ -116,18 +116,18 @@ class MqttConfig {
   /**
    * @brief Set the MQTT keep-alive interval.
    * @param duration The keep-alive duration in seconds.
-   * @return A reference to the MqttConfig object for chaining.
+   * @return A reference to the Config object for chaining.
    */
-  auto keepalive(uint32_t duration) -> MqttConfig& {
+  auto keepalive(uint32_t duration) -> Config& {
     this->keepalive_ = duration;
     return *this;
   }
 
   /**
    * @brief Configure the client to ignore TLS/SSL certificate validation errors.
-   * @return A reference to the updated MqttConfig object.
+   * @return A reference to the updated Config object.
    */
-  auto ignore_ssl_errors() -> MqttConfig& {
+  auto ignore_ssl_errors() -> Config& {
     this->ignore_ssl_ = true;
     return *this;
   }
@@ -135,9 +135,9 @@ class MqttConfig {
   /**
    * @brief Set the MQTT connection timeout.
    * @param duration The timeout duration in seconds.
-   * @return A reference to the MqttConfig object for chaining.
+   * @return A reference to the Config object for chaining.
    */
-  auto connection_timeout(uint32_t duration) -> MqttConfig& {
+  auto connection_timeout(uint32_t duration) -> Config& {
     this->conn_timeout_ = duration;
     return *this;
   }
@@ -145,9 +145,9 @@ class MqttConfig {
   /**
    * @brief Set the MQTT connection timeout.
    * @param duration The timeout duration in milliseconds.
-   * @return A reference to the MqttConfig object for chaining.
+   * @return A reference to the Config object for chaining.
    */
-  auto disconnection_timeout(std::chrono::milliseconds duration) -> MqttConfig& {
+  auto disconnection_timeout(std::chrono::milliseconds duration) -> Config& {
     this->disconn_timeout_ = duration;
     return *this;
   }
@@ -174,14 +174,13 @@ class MqttConfig {
 
  private:
   /**
-   * @brief Create a new instance of MqttConfig.
+   * @brief Create a new instance of Config.
    *
    * This constructor is private to enforce instance creation through the provided static factory
    * methods, ensuring that a valid credential type is always supplied.
    */
-  MqttConfig(std::string_view realm, std::string_view device_id,
-             std::unique_ptr<Credential> credential, std::string_view pairing_url,
-             std::string_view store_dir);
+  Config(std::string_view realm, std::string_view device_id, std::unique_ptr<Credential> credential,
+         std::string_view pairing_url, std::string_view store_dir);
 
   std::string realm_;
   std::string device_id_;
@@ -194,6 +193,6 @@ class MqttConfig {
   std::chrono::milliseconds disconn_timeout_;
 };
 
-}  // namespace AstarteDeviceSdk::config
+}  // namespace astarte::device::mqtt
 
 #endif  // ASTARTE_MQTT_CONFIG_H

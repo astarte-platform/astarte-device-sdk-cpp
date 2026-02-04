@@ -9,9 +9,9 @@
 #include <string>
 #include <utility>
 
-namespace AstarteDeviceSdk {
+namespace astarte::device::grpc {
 
-using grpc::experimental::InterceptionHookPoints;
+using ::grpc::experimental::InterceptionHookPoints;
 
 NodeIdInterceptor::NodeIdInterceptor(std::string node_id) : node_id_(std::move(node_id)) {}
 
@@ -32,4 +32,4 @@ auto NodeIdInterceptorFactory::CreateClientInterceptor(ClientRpcInfo* info) -> I
   return new NodeIdInterceptor(node_id_);
 }
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device::grpc

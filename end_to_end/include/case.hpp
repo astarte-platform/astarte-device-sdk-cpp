@@ -16,7 +16,7 @@
 #include "astarte_device_sdk/device.hpp"
 #include "device_factory.hpp"
 
-using AstarteDeviceSdk::AstarteDevice;
+using astarte::device::Device;
 
 // End to end test case
 class TestCase {
@@ -45,7 +45,7 @@ class TestCase {
     spdlog::info("Starting Test Case: {}", name_);
 
     // 1. Create a fresh device instance for each test case
-    std::shared_ptr<AstarteDevice> device = nullptr;
+    std::shared_ptr<Device> device = nullptr;
     if (generate_device_) {
       if (!device_factory_) {
         spdlog::error("Couldn't execute test case since no device factory has been defined.");
@@ -55,7 +55,7 @@ class TestCase {
     }
 
     // 2. Create the RX Queue for this specific run
-    auto rx_queue = std::make_shared<SharedQueue<AstarteMessage>>();
+    auto rx_queue = std::make_shared<SharedQueue<Message>>();
 
     // 3. Start the background reception thread (if device is present)
     std::unique_ptr<std::jthread> rx_thread;
@@ -65,7 +65,7 @@ class TestCase {
         while (!token.stop_requested()) {
           auto incoming = dev->poll_incoming(std::chrono::milliseconds(100));
           if (incoming.has_value()) {
-            AstarteMessage msg(incoming.value());
+            Message msg(incoming.value());
             spdlog::debug("Handler received message: {}", msg.get_path());
             rx_queue->push(msg);
           }

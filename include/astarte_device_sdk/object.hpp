@@ -18,13 +18,13 @@
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/formatter.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 /** @brief Astarte object class, representing the Astarte object datastream data. */
-class AstarteDatastreamObject {
+class DatastreamObject {
  public:
   /** @brief Helper type for the map of paths and Astarte datas. */
-  using MapType = std::unordered_map<std::string, AstarteData>;
+  using MapType = std::unordered_map<std::string, Data>;
   /** @brief Helper type for the iterator over the map of paths and Astarte datas. */
   using iterator = MapType::iterator;
   /** @brief Helper type for the const iterator over the map of paths and Astarte datas. */
@@ -35,26 +35,26 @@ class AstarteDatastreamObject {
   using value_type = MapType::value_type;
 
   /** @brief Constructor for the class. To instantiate an empty object. */
-  AstarteDatastreamObject();
+  DatastreamObject();
   /**
    * @brief Constructor for the class. To instantiate a non-empty object.
    * @param init The initialize list to use as intial content.
    */
-  AstarteDatastreamObject(std::initializer_list<value_type> init);
+  DatastreamObject(std::initializer_list<value_type> init);
   /**
    * @brief Access specified element with bounds checking.
    * @details Soft wrapper for the equivalent method in the std::unordered_map.
    * @param key The key to search for.
    * @return Reference to the value corresponding to the key.
    */
-  auto at(const std::string& key) -> AstarteData&;
+  auto at(const std::string& key) -> Data&;
   /**
    * @brief Access specified element with bounds checking.
    * @details Soft wrapper for the equivalent method in the std::unordered_map.
    * @param key The key to search for.
    * @return Reference to the value corresponding to the key.
    */
-  auto at(const std::string& key) const -> const AstarteData&;
+  auto at(const std::string& key) const -> const Data&;
   /**
    * @brief Returns an iterator to the beginning of the specified bucket.
    * @details Soft wrapper for the equivalent method in the std::unordered_map.
@@ -97,7 +97,7 @@ class AstarteDatastreamObject {
    * @param key Key to insert.
    * @param data Value to insert.
    */
-  void insert(const std::string& key, const AstarteData& data);
+  void insert(const std::string& key, const Data& data);
   /**
    * @brief Erases elements.
    * @details Soft wrapper for the equivalent method in the std::unordered_map.
@@ -134,26 +134,26 @@ class AstarteDatastreamObject {
    * @param other The object to compare to.
    * @return True when equal, false otherwise.
    */
-  [[nodiscard]] auto operator==(const AstarteDatastreamObject& other) const -> bool;
+  [[nodiscard]] auto operator==(const DatastreamObject& other) const -> bool;
   /**
    * @brief Overloader for the comparison operator !=.
    * @param other The object to compare to.
    * @return True when different, false otherwise.
    */
-  [[nodiscard]] auto operator!=(const AstarteDatastreamObject& other) const -> bool;
+  [[nodiscard]] auto operator!=(const DatastreamObject& other) const -> bool;
 
  private:
   MapType data_;
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device
 
 /**
  * @brief astarte_fmt::formatter specialization for
- * AstarteDeviceSdk::AstarteDatastreamObject.
+ * astarte::device::DatastreamObject.
  */
 template <>
-struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteDatastreamObject> {
+struct astarte_fmt::formatter<astarte::device::DatastreamObject> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -165,13 +165,13 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteDatastreamObject> {
   }
 
   /**
-   * @brief Format the AstarteDatastreamObject object as a key-value map.
-   * @param data The AstarteDatastreamObject to format.
+   * @brief Format the DatastreamObject object as a key-value map.
+   * @param data The DatastreamObject to format.
    * @param ctx The format context.
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const AstarteDeviceSdk::AstarteDatastreamObject& data, FormatContext& ctx) const {
+  auto format(const astarte::device::DatastreamObject& data, FormatContext& ctx) const {
     auto out = ctx.out();
     out = astarte_fmt::format_to(out, "{{");
 
@@ -190,12 +190,12 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteDatastreamObject> {
 };
 
 /**
- * @brief Stream insertion operator for AstarteDatastreamObject.
+ * @brief Stream insertion operator for DatastreamObject.
  * @param out The output stream.
- * @param data The AstarteDatastreamObject to output.
+ * @param data The DatastreamObject to output.
  * @return Reference to the output stream.
  */
-inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::AstarteDatastreamObject& data)
+inline auto operator<<(std::ostream& out, const astarte::device::DatastreamObject& data)
     -> std::ostream& {
   out << astarte_fmt::format("{}", data);
   return out;

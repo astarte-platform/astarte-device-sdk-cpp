@@ -13,7 +13,7 @@
 
 #include "astarte_device_sdk/mqtt/errors.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device::mqtt {
 
 /**
  * @brief Utility class for file system persistence operations.
@@ -38,7 +38,7 @@ class Persistence {
    * @return The content of the file as a string, or an error if the operation fails.
    */
   static auto read_from_file(const std::filesystem::path& file_path)
-      -> astarte_tl::expected<std::string, AstarteError>;
+      -> astarte_tl::expected<std::string, Error>;
 
   /**
    * @brief Writes string data to a specific file.
@@ -48,7 +48,7 @@ class Persistence {
    * @return An error if the write operation fails.
    */
   static auto write_to_file(const std::filesystem::path& file_path, std::string_view data)
-      -> astarte_tl::expected<void, AstarteError>;
+      -> astarte_tl::expected<void, Error>;
 
   /**
    * @brief Securely removes a file from the filesystem.
@@ -56,10 +56,9 @@ class Persistence {
    * @param path The path of the file to remove.
    * @return An error if the operation fails.
    */
-  static auto secure_shred_file(const std::string& path)
-      -> astarte_tl::expected<void, AstarteError>;
+  static auto secure_shred_file(const std::string& path) -> astarte_tl::expected<void, Error>;
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device::mqtt
 
 #endif  // ASTARTE_MQTT_PERSISTENCE_H

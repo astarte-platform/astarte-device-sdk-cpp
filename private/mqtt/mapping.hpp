@@ -29,7 +29,7 @@
 #include "astarte_device_sdk/ownership.hpp"
 #include "astarte_device_sdk/type.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device::mqtt {
 
 using json = nlohmann::json;
 
@@ -79,10 +79,9 @@ class Reliability {
   /**
    * @brief Attempt to create a Reliability from a string.
    * @param str The string representation to parse.
-   * @return An expected containing the Reliability on success, or an AstarteError on failure.
+   * @return An expected containing the Reliability on success, or an Error on failure.
    */
-  static auto try_from_str(std::string_view str)
-      -> astarte_tl::expected<Reliability, AstarteError> {
+  static auto try_from_str(std::string_view str) -> astarte_tl::expected<Reliability, Error> {
     if (str == "unreliable") {
       return Reliability(kUnreliable);
     }
@@ -93,7 +92,7 @@ class Reliability {
       return Reliability(kUnique);
     }
     return astarte_tl::unexpected(
-        AstarteInvalidReliabilityError(astarte_fmt::format("reliability not valid: {}", str)));
+        InvalidReliabilityError(astarte_fmt::format("reliability not valid: {}", str)));
   }
 
   /**
@@ -168,9 +167,9 @@ class Retention {
   /**
    * @brief Attempt to create a Retention from a string.
    * @param str The string representation to parse.
-   * @return An expected containing the Retention on success, or an AstarteError on failure.
+   * @return An expected containing the Retention on success, or an Error on failure.
    */
-  static auto try_from_str(std::string_view str) -> astarte_tl::expected<Retention, AstarteError> {
+  static auto try_from_str(std::string_view str) -> astarte_tl::expected<Retention, Error> {
     if (str == "discard") {
       return Retention(kDiscard);
     }
@@ -181,7 +180,7 @@ class Retention {
       return Retention(kStored);
     }
     return astarte_tl::unexpected(
-        AstarteInvalidRetentionError(astarte_fmt::format("retention not valid: {}", str)));
+        InvalidRetentionError(astarte_fmt::format("retention not valid: {}", str)));
   }
 
   /**
@@ -246,17 +245,17 @@ class DatabaseRetentionPolicy {
   /**
    * @brief Attempt to create a DatabaseRetentionPolicy from a string.
    * @param str The string representation to parse.
-   * @return An expected containing the policy on success, or an AstarteError on failure.
+   * @return An expected containing the policy on success, or an Error on failure.
    */
   static auto try_from_str(std::string_view str)
-      -> astarte_tl::expected<DatabaseRetentionPolicy, AstarteError> {
+      -> astarte_tl::expected<DatabaseRetentionPolicy, Error> {
     if (str == "no_ttl") {
       return DatabaseRetentionPolicy(kNoTtl);
     }
     if (str == "use_ttl") {
       return DatabaseRetentionPolicy(kUseTtl);
     }
-    return astarte_tl::unexpected(AstarteInvalidDatabaseRetentionPolicyError(
+    return astarte_tl::unexpected(InvalidDatabaseRetentionPolicyError(
         astarte_fmt::format("database retention policy not valid: {}", str)));
   }
 
@@ -282,7 +281,7 @@ class DatabaseRetentionPolicy {
 
 class Mapping {
  public:
-  Mapping(std::string endpoint, AstarteType type, std::optional<bool> explicit_timestamp,
+  Mapping(std::string endpoint, Type type, std::optional<bool> explicit_timestamp,
           std::optional<Reliability> reliability, std::optional<Retention> retention,
           std::optional<int64_t> expiry,
           std::optional<DatabaseRetentionPolicy> database_retention_policy,
@@ -311,11 +310,10 @@ class Mapping {
   /**
    * @brief Check that the Astarte data matches the mapping type
    *
-   * @param data The AstarteData to check.
+   * @param data The Data to check.
    * @return an error if the check fails.
    */
-  [[nodiscard]] auto check_data_type(const AstarteData& data) const
-      -> astarte_tl::expected<void, AstarteError>;
+  [[nodiscard]] auto check_data_type(const Data& data) const -> astarte_tl::expected<void, Error>;
 
   /**
    * @brief Path of the mapping.
@@ -329,7 +327,7 @@ class Mapping {
    *
    * This represent the data that will be published on the mapping.
    */
-  [[nodiscard]] auto type() const -> AstarteType { return type_; }
+  [[nodiscard]] auto type() const -> Type { return type_; }
 
   /**
    * @brief Allow to set a custom timestamp.
@@ -411,11 +409,11 @@ class Mapping {
    * @param json The json structure to parse
    * @return A Mapping object representation of the json data, an error otherwise.
    */
-  static auto try_from_json(const json& json) -> astarte_tl::expected<Mapping, AstarteError>;
+  static auto try_from_json(const json& json) -> astarte_tl::expected<Mapping, Error>;
 
  private:
   std::string endpoint_;
-  AstarteType type_;
+  Type type_;
   std::optional<bool> explicit_timestamp_;
   std::optional<Reliability> reliability_;
   std::optional<Retention> retention_;
@@ -427,7 +425,7 @@ class Mapping {
   std::optional<std::string> doc_;
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device::mqtt
 
 // ------------------------------------------------------------------------------------------------
 // FORAMATTING
@@ -435,7 +433,7 @@ class Mapping {
 
 /// @brief astarte_fmt::formatter specialization for Reliability.
 template <>
-struct astarte_fmt::formatter<AstarteDeviceSdk::Reliability> {
+struct astarte_fmt::formatter<astarte::device::mqtt::Reliability> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -453,12 +451,12 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Reliability> {
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const AstarteDeviceSdk::Reliability& rel, FormatContext& ctx) const {
+  auto format(const astarte::device::mqtt::Reliability& rel, FormatContext& ctx) const {
     return astarte_fmt::format_to(ctx.out(), "{}", rel.to_string());
   }
 };
 
-inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::Reliability rel)
+inline auto operator<<(std::ostream& out, const astarte::device::mqtt::Reliability rel)
     -> std::ostream& {
   out << astarte_fmt::format("{}", rel);
   return out;
@@ -466,7 +464,7 @@ inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::Reliability re
 
 /// @brief astarte_fmt::formatter specialization for Retention.
 template <>
-struct astarte_fmt::formatter<AstarteDeviceSdk::Retention> {
+struct astarte_fmt::formatter<astarte::device::mqtt::Retention> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -484,19 +482,20 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Retention> {
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const AstarteDeviceSdk::Retention& ret, FormatContext& ctx) const {
+  auto format(const astarte::device::mqtt::Retention& ret, FormatContext& ctx) const {
     return astarte_fmt::format_to(ctx.out(), "{}", ret.to_string());
   }
 };
 
-inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::Retention ret) -> std::ostream& {
+inline auto operator<<(std::ostream& out, const astarte::device::mqtt::Retention ret)
+    -> std::ostream& {
   out << astarte_fmt::format("{}", ret);
   return out;
 }
 
 /// @brief astarte_fmt::formatter specialization for DatabaseRetentionPolicy.
 template <>
-struct astarte_fmt::formatter<AstarteDeviceSdk::DatabaseRetentionPolicy> {
+struct astarte_fmt::formatter<astarte::device::mqtt::DatabaseRetentionPolicy> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -514,12 +513,14 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::DatabaseRetentionPolicy> {
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const AstarteDeviceSdk::DatabaseRetentionPolicy& ret_pol, FormatContext& ctx) const {
+  auto format(const astarte::device::mqtt::DatabaseRetentionPolicy& ret_pol,
+              FormatContext& ctx) const {
     return astarte_fmt::format_to(ctx.out(), "{}", ret_pol.to_string());
   }
 };
 
-inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::DatabaseRetentionPolicy ret_pol)
+inline auto operator<<(std::ostream& out,
+                       const astarte::device::mqtt::DatabaseRetentionPolicy ret_pol)
     -> std::ostream& {
   out << astarte_fmt::format("{}", ret_pol);
   return out;
@@ -527,7 +528,7 @@ inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::DatabaseRetent
 
 /// @brief astarte_fmt::formatter specialization for Mapping.
 template <>
-struct astarte_fmt::formatter<AstarteDeviceSdk::Mapping> {
+struct astarte_fmt::formatter<astarte::device::mqtt::Mapping> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -546,7 +547,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Mapping> {
    */
   template <typename FormatContext>
   // NOLINTNEXTLINE(readability-function-size)
-  auto format(const AstarteDeviceSdk::Mapping& mapping, FormatContext& ctx) const {
+  auto format(const astarte::device::mqtt::Mapping& mapping, FormatContext& ctx) const {
     auto out = ctx.out();
 
     astarte_fmt::format_to(out, "Mapping {{");
@@ -585,7 +586,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Mapping> {
   }
 };
 
-inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::Mapping& mapping)
+inline auto operator<<(std::ostream& out, const astarte::device::mqtt::Mapping& mapping)
     -> std::ostream& {
   out << astarte_fmt::format("{}", mapping);
   return out;

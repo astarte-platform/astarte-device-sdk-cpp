@@ -23,10 +23,10 @@ TestCase device_reconnection(std::string device_id) {
          actions::Sleep(1s),
          actions::ExpectFailure(
              actions::TransmitDeviceData(
-                 AstarteMessage(
+                 Message(
                      constants::interfaces::DeviceDatastream::INTERFACE,
                      constants::data_sets::Integer::ENDPOINT_FULL,
-                     AstarteDatastreamIndividual(constants::data_sets::Integer::DATA)
+                     DatastreamIndividual(constants::data_sets::Integer::DATA)
                  ),
                  constants::time::TIMESTAMP
              )
@@ -35,19 +35,19 @@ TestCase device_reconnection(std::string device_id) {
          actions::Connect(),
          actions::Sleep(1s),
          actions::TransmitDeviceData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::Integer::ENDPOINT_FULL,
-                 AstarteDatastreamIndividual(constants::data_sets::Integer::DATA)
+                 DatastreamIndividual(constants::data_sets::Integer::DATA)
              ),
              constants::time::TIMESTAMP
          ),
          actions::Sleep(1s),
          actions::FetchRESTData(
-             AstarteMessage(
+             Message(
                  constants::interfaces::DeviceDatastream::INTERFACE,
                  constants::data_sets::Integer::ENDPOINT_PARTIAL,
-                 AstarteDatastreamIndividual(constants::data_sets::Integer::DATA)
+                 DatastreamIndividual(constants::data_sets::Integer::DATA)
              ),
              constants::time::TIMESTAMP
          ),

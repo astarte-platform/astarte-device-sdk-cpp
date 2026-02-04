@@ -9,105 +9,77 @@
 
 #include "astarte_device_sdk/errors.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device::mqtt {
 
-AstarteMqttError::AstarteMqttError(std::string_view message) : AstarteErrorBase(k_type_, message) {}
-AstarteMqttError::AstarteMqttError() : AstarteErrorBase(k_type_, "") {}
-AstarteMqttError::AstarteMqttError(std::string_view message, const AstarteError& other)
-    : AstarteErrorBase(
-          k_type_, message,
-          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
-AstarteMqttError::AstarteMqttError(const AstarteError& other)
-    : AstarteErrorBase(
-          k_type_, "",
-          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+MqttError::MqttError(std::string_view message) : ErrorBase(k_type_, message) {}
+MqttError::MqttError() : ErrorBase(k_type_, "") {}
+MqttError::MqttError(std::string_view message, const Error& other)
+    : ErrorBase(k_type_, message,
+                std::visit([](const auto& err) -> const ErrorBase& { return err; }, other)) {}
+MqttError::MqttError(const Error& other)
+    : ErrorBase(k_type_, "",
+                std::visit([](const auto& err) -> const ErrorBase& { return err; }, other)) {}
 
-AstartePairingApiError::AstartePairingApiError(std::string_view message)
-    : AstarteErrorBase(k_type_, message) {}
-AstartePairingApiError::AstartePairingApiError(std::string_view message, const AstarteError& other)
-    : AstarteErrorBase(
-          k_type_, message,
-          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+PairingApiError::PairingApiError(std::string_view message) : ErrorBase(k_type_, message) {}
+PairingApiError::PairingApiError(std::string_view message, const Error& other)
+    : ErrorBase(k_type_, message,
+                std::visit([](const auto& err) -> const ErrorBase& { return err; }, other)) {}
 
-AstarteInvalidUrlError::AstarteInvalidUrlError(std::string_view message)
-    : AstarteErrorBase(k_type_, message) {}
-AstarteInvalidUrlError::AstarteInvalidUrlError(std::string_view message, const AstarteError& other)
-    : AstarteErrorBase(
-          k_type_, message,
-          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+InvalidUrlError::InvalidUrlError(std::string_view message) : ErrorBase(k_type_, message) {}
+InvalidUrlError::InvalidUrlError(std::string_view message, const Error& other)
+    : ErrorBase(k_type_, message,
+                std::visit([](const auto& err) -> const ErrorBase& { return err; }, other)) {}
 
-AstarteDeviceRegistrationError::AstarteDeviceRegistrationError(std::string_view message)
-    : AstarteErrorBase(k_type_, message) {}
-AstarteDeviceRegistrationError::AstarteDeviceRegistrationError(std::string_view message,
-                                                               const AstarteError& other)
-    : AstarteErrorBase(
-          k_type_, message,
-          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+DeviceRegistrationError::DeviceRegistrationError(std::string_view message)
+    : ErrorBase(k_type_, message) {}
+DeviceRegistrationError::DeviceRegistrationError(std::string_view message, const Error& other)
+    : ErrorBase(k_type_, message,
+                std::visit([](const auto& err) -> const ErrorBase& { return err; }, other)) {}
 
-AstarteJsonParsingError::AstarteJsonParsingError(std::string_view message)
-    : AstarteErrorBase(k_type_, message) {}
-AstarteJsonParsingError::AstarteJsonParsingError(std::string_view message,
-                                                 const AstarteError& other)
-    : AstarteErrorBase(
-          k_type_, message,
-          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+JsonParsingError::JsonParsingError(std::string_view message) : ErrorBase(k_type_, message) {}
+JsonParsingError::JsonParsingError(std::string_view message, const Error& other)
+    : ErrorBase(k_type_, message,
+                std::visit([](const auto& err) -> const ErrorBase& { return err; }, other)) {}
 
-AstarteRetrieveBrokerUrlError::AstarteRetrieveBrokerUrlError(std::string_view message)
-    : AstarteErrorBase(k_type_, message) {}
-AstarteRetrieveBrokerUrlError::AstarteRetrieveBrokerUrlError(std::string_view message,
-                                                             const AstarteError& other)
-    : AstarteErrorBase(
-          k_type_, message,
-          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+RetrieveBrokerUrlError::RetrieveBrokerUrlError(std::string_view message)
+    : ErrorBase(k_type_, message) {}
+RetrieveBrokerUrlError::RetrieveBrokerUrlError(std::string_view message, const Error& other)
+    : ErrorBase(k_type_, message,
+                std::visit([](const auto& err) -> const ErrorBase& { return err; }, other)) {}
 
-AstarteReadCredentialError::AstarteReadCredentialError(std::string_view message)
-    : AstarteErrorBase(k_type_, message) {}
-AstarteReadCredentialError::AstarteReadCredentialError(std::string_view message,
-                                                       const AstarteError& other)
-    : AstarteErrorBase(
-          k_type_, message,
-          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+ReadCredentialError::ReadCredentialError(std::string_view message) : ErrorBase(k_type_, message) {}
+ReadCredentialError::ReadCredentialError(std::string_view message, const Error& other)
+    : ErrorBase(k_type_, message,
+                std::visit([](const auto& err) -> const ErrorBase& { return err; }, other)) {}
 
-AstarteWriteCredentialError::AstarteWriteCredentialError(std::string_view message)
-    : AstarteErrorBase(k_type_, message) {}
-AstarteWriteCredentialError::AstarteWriteCredentialError(std::string_view message,
-                                                         const AstarteError& other)
-    : AstarteErrorBase(
-          k_type_, message,
-          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+WriteCredentialError::WriteCredentialError(std::string_view message)
+    : ErrorBase(k_type_, message) {}
+WriteCredentialError::WriteCredentialError(std::string_view message, const Error& other)
+    : ErrorBase(k_type_, message,
+                std::visit([](const auto& err) -> const ErrorBase& { return err; }, other)) {}
 
-AstartePairingConfigError::AstartePairingConfigError(std::string_view message)
-    : AstarteErrorBase(k_type_, message) {}
-AstartePairingConfigError::AstartePairingConfigError(std::string_view message,
-                                                     const AstarteError& other)
-    : AstarteErrorBase(
-          k_type_, message,
-          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+PairingConfigError::PairingConfigError(std::string_view message) : ErrorBase(k_type_, message) {}
+PairingConfigError::PairingConfigError(std::string_view message, const Error& other)
+    : ErrorBase(k_type_, message,
+                std::visit([](const auto& err) -> const ErrorBase& { return err; }, other)) {}
 
-AstarteCryptoError::AstarteCryptoError(std::string_view message)
-    : AstarteErrorBase(k_type_, message) {}
-AstarteCryptoError::AstarteCryptoError(std::string_view message, const AstarteError& other)
-    : AstarteErrorBase(
-          k_type_, message,
-          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+CryptoError::CryptoError(std::string_view message) : ErrorBase(k_type_, message) {}
+CryptoError::CryptoError(std::string_view message, const Error& other)
+    : ErrorBase(k_type_, message,
+                std::visit([](const auto& err) -> const ErrorBase& { return err; }, other)) {}
 
-AstarteUuidError::AstarteUuidError(std::string_view message) : AstarteErrorBase(k_type_, message) {}
-AstarteUuidError::AstarteUuidError(std::string_view message, const AstarteError& other)
-    : AstarteErrorBase(
-          k_type_, message,
-          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+UuidError::UuidError(std::string_view message) : ErrorBase(k_type_, message) {}
+UuidError::UuidError(std::string_view message, const Error& other)
+    : ErrorBase(k_type_, message,
+                std::visit([](const auto& err) -> const ErrorBase& { return err; }, other)) {}
 
-AstarteHttpError::AstarteHttpError(std::string_view message) : AstarteErrorBase(k_type_, message) {}
-AstarteHttpError::AstarteHttpError(std::string_view message, const AstarteError& other)
-    : AstarteErrorBase(
-          k_type_, message,
-          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
+HttpError::HttpError(std::string_view message) : ErrorBase(k_type_, message) {}
+HttpError::HttpError(std::string_view message, const Error& other)
+    : ErrorBase(k_type_, message,
+                std::visit([](const auto& err) -> const ErrorBase& { return err; }, other)) {}
 
-AstarteMqttConnectionError::AstarteMqttConnectionError(std::string_view message)
-    : AstarteErrorBase(k_type_, message) {}
-AstarteMqttConnectionError::AstarteMqttConnectionError(std::string_view message,
-                                                       const AstarteError& other)
-    : AstarteErrorBase(
-          k_type_, message,
-          std::visit([](const auto& err) -> const AstarteErrorBase& { return err; }, other)) {}
-}  // namespace AstarteDeviceSdk
+MqttConnectionError::MqttConnectionError(std::string_view message) : ErrorBase(k_type_, message) {}
+MqttConnectionError::MqttConnectionError(std::string_view message, const Error& other)
+    : ErrorBase(k_type_, message,
+                std::visit([](const auto& err) -> const ErrorBase& { return err; }, other)) {}
+}  // namespace astarte::device::mqtt

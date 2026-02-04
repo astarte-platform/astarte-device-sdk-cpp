@@ -33,7 +33,7 @@
 
 using json = nlohmann::json;
 
-namespace AstarteDeviceSdk {
+namespace astarte::device::mqtt {
 
 #include <span>
 #include <vector>
@@ -146,22 +146,22 @@ struct json_type_traits<bool> {
 
 template <typename T>
 auto parse_json(const std::string& text, const std::string& path)
-    -> astarte_tl::expected<T, AstarteError> {
+    -> astarte_tl::expected<T, Error> {
   json text_json = json::parse(text, nullptr, false);
   if (text_json.is_discarded()) {
     return astarte_tl::unexpected(
-        AstarteJsonParsingError(astarte_fmt::format("Invalid JSON. Body: {}", text)));
+        JsonParsingError(astarte_fmt::format("Invalid JSON. Body: {}", text)));
   }
 
   const json::json_pointer path_json(path);
   if (!text_json.contains(path_json)) {
-    return astarte_tl::unexpected(AstarteJsonParsingError{
+    return astarte_tl::unexpected(JsonParsingError{
         astarte_fmt::format("Path {} not found. Body: {}", path_json.to_string(), text)});
   }
 
   const auto& value = text_json[path_json];
   if (!json_type_traits<T>::check(value)) {
-    return astarte_tl::unexpected(AstarteJsonParsingError{
+    return astarte_tl::unexpected(JsonParsingError{
         astarte_fmt::format("Value at {} is not a {}. Body: {}", path_json.to_string(),
                             json_type_traits<T>::name(), text)});
   }
@@ -172,12 +172,12 @@ auto parse_json(const std::string& text, const std::string& path)
 
 auto PairingApi::create(std::string_view realm, std::string_view device_id,
                         std::string_view astarte_base_url)
-    -> astarte_tl::expected<PairingApi, AstarteError> {
+    -> astarte_tl::expected<PairingApi, Error> {
   auto parsed_url = ada::parse(astarte_base_url);
   if (!parsed_url) {
-    return astarte_tl::unexpected(AstarteMqttError(AstartePairingApiError(
+    return astarte_tl::unexpected(MqttError(PairingApiError(
         "Failed creating the pairing API class",
-        AstarteInvalidUrlError(astarte_fmt::format("Invalid base URL: {}", astarte_base_url)))));
+        InvalidUrlError(astarte_fmt::format("Invalid base URL: {}", astarte_base_url)))));
   }
 
   auto pairing_url = parsed_url.value();
@@ -191,7 +191,7 @@ PairingApi::PairingApi(std::string_view realm, std::string_view device_id,
 
 auto PairingApi::register_device(std::string_view pairing_token,
                                  std::chrono::milliseconds timeout_ms) const
-    -> astarte_tl::expected<std::string, AstarteError> {
+    -> astarte_tl::expected<std::string, Error> {
   auto request_url = pairing_url_;
   const std::string pathname =
 
@@ -212,23 +212,22 @@ auto PairingApi::register_device(std::string_view pairing_token,
   // it tells whether a generic error occurred (e.g., a timeout, the device was already registeres
   // and its certificate expired, etc.)
   if (res.error) {
-    return astarte_tl::unexpected(AstarteMqttError(AstartePairingApiError(
-        "Failed to register device.",
-        AstarteHttpError(astarte_fmt::format("CPR error: {}", res.error.message)))));
+    return astarte_tl::unexpected(MqttError(
+        PairingApiError("Failed to register device.",
+                        HttpError(astarte_fmt::format("CPR error: {}", res.error.message)))));
   }
 
   if (!is_successful(res.status_code)) {
-    return astarte_tl::unexpected(AstarteMqttError(AstarteDeviceRegistrationError(
-        "Failed to register device.",
-        AstarteHttpError(
-            astarte_fmt::format("Sttatus code: {}, Reason: {}", res.status_code, res.text)))));
+    return astarte_tl::unexpected(MqttError(DeviceRegistrationError(
+        "Failed to register device.", HttpError(astarte_fmt::format("Sttatus code: {}, Reason: {}",
+                                                                    res.status_code, res.text)))));
   }
 
   return parse_json<std::string>(res.text, "/data/credentials_secret");
 }
 
 auto PairingApi::get_broker_url(std::string_view credential_secret, int timeout_ms) const
-    -> astarte_tl::expected<std::string, AstarteError> {
+    -> astarte_tl::expected<std::string, Error> {
   auto request_url = pairing_url_;
   const std::string pathname =
       astarte_fmt::format("{}/v1/{}/devices/{}", request_url.get_pathname(), realm_, device_id_);
@@ -240,16 +239,15 @@ auto PairingApi::get_broker_url(std::string_view credential_secret, int timeout_
   cpr::Response res = cpr::Get(cpr::Url{request_url.get_href()}, auth, cpr::Timeout{timeout_ms});
 
   if (res.error) {
-    return astarte_tl::unexpected(AstarteMqttError(AstartePairingApiError(
-        "Failed to retrieve Broker URL.",
-        AstarteHttpError(astarte_fmt::format("CPR error: {}", res.error.message)))));
+    return astarte_tl::unexpected(MqttError(
+        PairingApiError("Failed to retrieve Broker URL.",
+                        HttpError(astarte_fmt::format("CPR error: {}", res.error.message)))));
   }
 
   if (!is_successful(res.status_code)) {
-    return astarte_tl::unexpected(AstarteMqttError(
-        AstartePairingApiError("Failed to retrieve Broker URL.",
-                               AstarteHttpError(astarte_fmt::format("Status code: {}, Reason: {}",
-                                                                    res.status_code, res.text)))));
+    return astarte_tl::unexpected(MqttError(PairingApiError(
+        "Failed to retrieve Broker URL.",
+        HttpError(astarte_fmt::format("Status code: {}, Reason: {}", res.status_code, res.text)))));
   }
 
   return parse_json<std::string>(res.text, "/data/protocols/astarte_mqtt_v1/broker_url");
@@ -257,7 +255,7 @@ auto PairingApi::get_broker_url(std::string_view credential_secret, int timeout_
 
 auto PairingApi::get_device_key_and_certificate(std::string_view credential_secret,
                                                 int timeout_ms) const
-    -> astarte_tl::expected<std::tuple<std::string, std::string>, AstarteError> {
+    -> astarte_tl::expected<std::tuple<std::string, std::string>, Error> {
   auto request_url = pairing_url_;
   const std::string pathname =
       astarte_fmt::format("{}/v1/{}/devices/{}/protocols/astarte_mqtt_v1/credentials",
@@ -284,8 +282,8 @@ auto PairingApi::get_device_key_and_certificate(std::string_view credential_secr
 
   auto device_csr = Crypto::create_csr(priv_key);
   if (!device_csr) {
-    return astarte_tl::unexpected(AstarteMqttError(AstartePairingApiError(
-        "Failed to retrieve Astarte device certificate.", device_csr.error())));
+    return astarte_tl::unexpected(MqttError(
+        PairingApiError("Failed to retrieve Astarte device certificate.", device_csr.error())));
   }
 
   json body;
@@ -296,29 +294,26 @@ auto PairingApi::get_device_key_and_certificate(std::string_view credential_secr
                                 cpr::Timeout{timeout_ms});
 
   if (res.error) {
-    return astarte_tl::unexpected(AstarteMqttError(AstartePairingApiError(
-        "Failed to retrieve Astarte device certificate.",
-        AstarteHttpError(astarte_fmt::format("CPR error: {}", res.error.message)))));
+    return astarte_tl::unexpected(MqttError(
+        PairingApiError("Failed to retrieve Astarte device certificate.",
+                        HttpError(astarte_fmt::format("CPR error: {}", res.error.message)))));
   }
 
   if (!is_successful(res.status_code)) {
-    return astarte_tl::unexpected(AstarteMqttError(
-        AstartePairingApiError("Failed to retrieve Astarte device certificate.",
-                               AstarteHttpError(astarte_fmt::format("Status code: {}, Reason: {}",
-                                                                    res.status_code, res.text)))));
+    return astarte_tl::unexpected(MqttError(PairingApiError(
+        "Failed to retrieve Astarte device certificate.",
+        HttpError(astarte_fmt::format("Status code: {}, Reason: {}", res.status_code, res.text)))));
   }
 
   return parse_json<std::string>(res.text, "/data/client_crt")
-      .transform_error([](const AstarteError& err) -> AstarteError {
-        return AstarteMqttError(
-            AstartePairingApiError("Failed to retrieve Astarte device certificate.", err));
+      .transform_error([](const Error& err) -> Error {
+        return MqttError(PairingApiError("Failed to retrieve Astarte device certificate.", err));
       })
       .transform([&](const auto& cert) { return std::make_tuple(device_priv_key.value(), cert); });
 }
 
 auto PairingApi::device_cert_valid(std::string_view certificate, std::string_view credential_secret,
-                                   int timeout_ms) const
-    -> astarte_tl::expected<bool, AstarteError> {
+                                   int timeout_ms) const -> astarte_tl::expected<bool, Error> {
   auto request_url = pairing_url_;
   const std::string pathname =
       astarte_fmt::format("{}/v1/{}/devices/{}/protocols/astarte_mqtt_v1/credentials/verify",
@@ -337,23 +332,20 @@ auto PairingApi::device_cert_valid(std::string_view certificate, std::string_vie
                                 cpr::Timeout{timeout_ms});
 
   if (res.error) {
-    return astarte_tl::unexpected(AstarteMqttError(AstartePairingApiError(
-        "Failed to check Astarte device certificate validity.",
-        AstarteHttpError(astarte_fmt::format("CPR error: {}", res.error.message)))));
+    return astarte_tl::unexpected(MqttError(
+        PairingApiError("Failed to check Astarte device certificate validity.",
+                        HttpError(astarte_fmt::format("CPR error: {}", res.error.message)))));
   }
 
   if (!is_successful(res.status_code)) {
-    return astarte_tl::unexpected(AstarteMqttError(
-        AstartePairingApiError("Failed to check Astarte device certificate validity.",
-                               AstarteHttpError(astarte_fmt::format("Status code: {}, Reason: {}",
-                                                                    res.status_code, res.text)))));
+    return astarte_tl::unexpected(MqttError(PairingApiError(
+        "Failed to check Astarte device certificate validity.",
+        HttpError(astarte_fmt::format("Status code: {}, Reason: {}", res.status_code, res.text)))));
   }
 
-  return parse_json<bool>(res.text, "/data/valid")
-      .transform_error([](const AstarteError& err) -> AstarteError {
-        return AstarteMqttError(
-            AstartePairingApiError("Failed to check Astarte device certificate validity.", err));
-      });
+  return parse_json<bool>(res.text, "/data/valid").transform_error([](const Error& err) -> Error {
+    return MqttError(PairingApiError("Failed to check Astarte device certificate validity.", err));
+  });
 }
 
 auto create_random_device_id() -> std::string {
@@ -363,7 +355,7 @@ auto create_random_device_id() -> std::string {
 }
 
 auto create_deterministic_device_id(std::string_view namespc, std::string_view unique_data)
-    -> astarte_tl::expected<std::string, AstarteError> {
+    -> astarte_tl::expected<std::string, Error> {
   boost::uuids::uuid ns_uuid;
 
   try {
@@ -371,7 +363,7 @@ auto create_deterministic_device_id(std::string_view namespc, std::string_view u
     const boost::uuids::string_generator string_gen;
     ns_uuid = string_gen(namespc.begin(), namespc.end());
   } catch (const std::exception&) {
-    return astarte_tl::unexpected(AstarteUuidError(
+    return astarte_tl::unexpected(UuidError(
         astarte_fmt::format("couldn't parse namespace to UUID, invalid value: {}", namespc)));
   }
 
@@ -383,4 +375,4 @@ auto create_deterministic_device_id(std::string_view namespc, std::string_view u
   return uuid_to_str(uuid);
 }
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device::mqtt

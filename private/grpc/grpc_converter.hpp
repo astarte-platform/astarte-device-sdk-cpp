@@ -27,7 +27,7 @@
 #include "astarte_device_sdk/property.hpp"
 #include "astarte_device_sdk/stored_property.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device::grpc {
 
 using gRPCAstarteData = astarteplatform::msghub::AstarteData;
 using gRPCAstarteDatastreamIndividual = astarteplatform::msghub::AstarteDatastreamIndividual;
@@ -56,31 +56,30 @@ class GrpcConverterTo {
   auto operator()(const std::vector<std::chrono::system_clock::time_point>& values)
       -> std::unique_ptr<gRPCAstarteData>;
 
-  auto operator()(const AstarteData& value, const std::chrono::system_clock::time_point* timestamp)
+  auto operator()(const Data& value, const std::chrono::system_clock::time_point* timestamp)
       -> std::unique_ptr<gRPCAstarteDatastreamIndividual>;
-  auto operator()(const AstarteDatastreamObject& value,
+  auto operator()(const DatastreamObject& value,
                   const std::chrono::system_clock::time_point* timestamp)
       -> std::unique_ptr<gRPCAstarteDatastreamObject>;
-  auto operator()(const std::optional<AstarteData>& value)
+  auto operator()(const std::optional<Data>& value)
       -> std::unique_ptr<gRPCAstartePropertyIndividual>;
 };
 
 class GrpcConverterFrom {
  public:
-  auto operator()(const gRPCAstarteData& value) -> astarte_tl::expected<AstarteData, AstarteError>;
+  auto operator()(const gRPCAstarteData& value) -> astarte_tl::expected<Data, Error>;
   auto operator()(const gRPCAstarteDatastreamIndividual& value)
-      -> astarte_tl::expected<AstarteDatastreamIndividual, AstarteError>;
+      -> astarte_tl::expected<DatastreamIndividual, Error>;
   auto operator()(const gRPCAstarteDatastreamObject& value)
-      -> astarte_tl::expected<AstarteDatastreamObject, AstarteError>;
+      -> astarte_tl::expected<DatastreamObject, Error>;
   auto operator()(const gRPCAstartePropertyIndividual& value)
-      -> astarte_tl::expected<AstartePropertyIndividual, AstarteError>;
-  auto operator()(const gRPCAstarteMessage& value)
-      -> astarte_tl::expected<AstarteMessage, AstarteError>;
-  auto operator()(const gRPCOwnership& value) -> AstarteOwnership;
+      -> astarte_tl::expected<PropertyIndividual, Error>;
+  auto operator()(const gRPCAstarteMessage& value) -> astarte_tl::expected<Message, Error>;
+  auto operator()(const gRPCOwnership& value) -> Ownership;
   auto operator()(const gRPCStoredProperties& value)
-      -> astarte_tl::expected<std::list<AstarteStoredProperty>, AstarteError>;
+      -> astarte_tl::expected<std::list<StoredProperty>, Error>;
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device::grpc
 
 #endif  // GRPC_CONVERTER_H

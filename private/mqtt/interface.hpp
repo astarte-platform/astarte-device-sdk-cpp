@@ -24,7 +24,7 @@
 #include "astarte_device_sdk/type.hpp"
 #include "mqtt/mapping.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device::mqtt {
 
 /// @brief alias for nlohmann json
 using json = nlohmann::json;
@@ -68,10 +68,9 @@ class InterfaceType {
   /**
    * @brief Attempt to create an InterfaceType from a string.
    * @param str The string representation to parse.
-   * @return An expected containing the InterfaceType on success, or an AstarteError on failure.
+   * @return An expected containing the InterfaceType on success, or an Error on failure.
    */
-  static auto try_from_str(std::string_view str)
-      -> astarte_tl::expected<InterfaceType, AstarteError> {
+  static auto try_from_str(std::string_view str) -> astarte_tl::expected<InterfaceType, Error> {
     if (str == "datastream") {
       return InterfaceType(Value::kDatastream);
     }
@@ -79,7 +78,7 @@ class InterfaceType {
       return InterfaceType(Value::kProperty);
     }
     return astarte_tl::unexpected(
-        AstarteInvalidInterfaceTypeError(astarte_fmt::format("interface type not valid: {}", str)));
+        InvalidInterfaceTypeError(astarte_fmt::format("interface type not valid: {}", str)));
   }
 
  private:
@@ -125,18 +124,18 @@ class InterfaceAggregation {
   /**
    * @brief Attempt to create an InterfaceAggregation from a string.
    * @param str The string representation to parse.
-   * @return An expected containing the InterfaceAggregation on success, or an AstarteError on
+   * @return An expected containing the InterfaceAggregation on success, or an Error on
    * failure.
    */
   static auto try_from_str(std::string_view str)
-      -> astarte_tl::expected<InterfaceAggregation, AstarteError> {
+      -> astarte_tl::expected<InterfaceAggregation, Error> {
     if (str == "individual") {
       return InterfaceAggregation(Value::kIndividual);
     }
     if (str == "object") {
       return InterfaceAggregation(Value::kObject);
     }
-    return astarte_tl::unexpected(AstarteInvalidInterfaceAggregationError(
+    return astarte_tl::unexpected(InvalidInterfaceAggregationError(
         astarte_fmt::format("interface aggregation not valid: {}", str)));
   }
 
@@ -158,7 +157,7 @@ class Interface {
    * @param interface json representation of the Astarte interface.
    * @return An Interface object containg all the parsed Astarte interface information.
    */
-  static auto try_from_json(const json& interface) -> astarte_tl::expected<Interface, AstarteError>;
+  static auto try_from_json(const json& interface) -> astarte_tl::expected<Interface, Error>;
 
   /**
    * @brief Move constructor.
@@ -197,7 +196,7 @@ class Interface {
   [[nodiscard]] auto interface_type() const -> InterfaceType { return interface_type_; }
 
   /// @return The quality of the interface.
-  [[nodiscard]] auto ownership() const -> AstarteOwnership { return ownership_; }
+  [[nodiscard]] auto ownership() const -> Ownership { return ownership_; }
 
   /// @return The aggregation of the mappings (Individual or Object), if present.
   [[nodiscard]] auto aggregation() const -> const std::optional<InterfaceAggregation>& {
@@ -222,7 +221,7 @@ class Interface {
    * @return a pointer to the mapping associated with the path, an error otherwise.
    */
   [[nodiscard]] auto get_mapping(std::string_view path) const
-      -> astarte_tl::expected<const Mapping*, AstarteError>;
+      -> astarte_tl::expected<const Mapping*, Error>;
 
   /**
    * @brief Validate an Astarte individual.
@@ -232,9 +231,9 @@ class Interface {
    * @param timestamp a pointer to the timestamp poiting out when the data is sent.
    * @return an error if the falidation fails, nothing otherwise.
    */
-  auto validate_individual(std::string_view path, const AstarteData& data,
+  auto validate_individual(std::string_view path, const Data& data,
                            const std::chrono::system_clock::time_point* timestamp) const
-      -> astarte_tl::expected<void, AstarteError>;
+      -> astarte_tl::expected<void, Error>;
 
   /**
    * @brief Validate an Astarte object.
@@ -244,9 +243,9 @@ class Interface {
    * @param timestamp a pointer to the timestamp pointing out when the data is sent.
    * @return an error if the falidation fails, nothing otherwise.
    */
-  auto validate_object(std::string_view common_path, const AstarteDatastreamObject& object,
+  auto validate_object(std::string_view common_path, const DatastreamObject& object,
                        const std::chrono::system_clock::time_point* timestamp) const
-      -> astarte_tl::expected<void, AstarteError>;
+      -> astarte_tl::expected<void, Error>;
 
   /**
    * @brief Get the MQTT QoS from a certain mapping endpoint.
@@ -254,12 +253,11 @@ class Interface {
    * @param path the Astarte interface path.
    * @return the QoS value, an error otherwise.
    */
-  [[nodiscard]] auto get_qos(std::string_view path) const
-      -> astarte_tl::expected<uint8_t, AstarteError>;
+  [[nodiscard]] auto get_qos(std::string_view path) const -> astarte_tl::expected<uint8_t, Error>;
 
  private:
   Interface(std::string interface_name, uint32_t version_major, uint32_t version_minor,
-            InterfaceType interface_type, AstarteOwnership ownership,
+            InterfaceType interface_type, Ownership ownership,
             std::optional<InterfaceAggregation> aggregation, std::optional<std::string> description,
             std::optional<std::string> doc, std::vector<Mapping> mappings)
       : interface_name_(std::move(interface_name)),
@@ -276,14 +274,14 @@ class Interface {
   uint32_t version_major_;
   uint32_t version_minor_;
   InterfaceType interface_type_;
-  AstarteOwnership ownership_;
+  Ownership ownership_;
   std::optional<InterfaceAggregation> aggregation_;
   std::optional<std::string> description_;
   std::optional<std::string> doc_;
   std::vector<Mapping> mappings_;
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device::mqtt
 
 // ------------------------------------------------------------------------------------------------
 // FORAMATTING
@@ -291,7 +289,7 @@ class Interface {
 
 /// @brief astarte_fmt::formatter specialization for InterfaceType.
 template <>
-struct astarte_fmt::formatter<AstarteDeviceSdk::InterfaceType> {
+struct astarte_fmt::formatter<astarte::device::mqtt::InterfaceType> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -309,12 +307,12 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::InterfaceType> {
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const AstarteDeviceSdk::InterfaceType& typ, FormatContext& ctx) const {
+  auto format(const astarte::device::mqtt::InterfaceType& typ, FormatContext& ctx) const {
     return astarte_fmt::format_to(ctx.out(), "{}", typ.to_string());
   }
 };
 
-inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::InterfaceType typ)
+inline auto operator<<(std::ostream& out, const astarte::device::mqtt::InterfaceType typ)
     -> std::ostream& {
   out << astarte_fmt::format("{}", typ);
   return out;
@@ -322,7 +320,7 @@ inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::InterfaceType 
 
 /// @brief astarte_fmt::formatter specialization for InterfaceAggregation.
 template <>
-struct astarte_fmt::formatter<AstarteDeviceSdk::InterfaceAggregation> {
+struct astarte_fmt::formatter<astarte::device::mqtt::InterfaceAggregation> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -340,12 +338,12 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::InterfaceAggregation> {
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const AstarteDeviceSdk::InterfaceAggregation& aggr, FormatContext& ctx) const {
+  auto format(const astarte::device::mqtt::InterfaceAggregation& aggr, FormatContext& ctx) const {
     return astarte_fmt::format_to(ctx.out(), "{}", aggr.to_string());
   }
 };
 
-inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::InterfaceAggregation aggr)
+inline auto operator<<(std::ostream& out, const astarte::device::mqtt::InterfaceAggregation aggr)
     -> std::ostream& {
   out << astarte_fmt::format("{}", aggr);
   return out;
@@ -353,7 +351,7 @@ inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::InterfaceAggre
 
 /// @brief astarte_fmt::formatter specialization for Interface.
 template <>
-struct astarte_fmt::formatter<AstarteDeviceSdk::Interface> {
+struct astarte_fmt::formatter<astarte::device::mqtt::Interface> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -371,7 +369,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Interface> {
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const AstarteDeviceSdk::Interface& interface, FormatContext& ctx) const {
+  auto format(const astarte::device::mqtt::Interface& interface, FormatContext& ctx) const {
     auto out = ctx.out();
 
     astarte_fmt::format_to(out, "Interface {{\n");
@@ -393,7 +391,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Interface> {
       astarte_fmt::format_to(out, "  doc: {}\n", *doc);
     }
     astarte_fmt::format_to(out, "  mappings: ");
-    AstarteDeviceSdk::utils::format_vector(out, interface.mappings());
+    astarte::device::utils::format_vector(out, interface.mappings());
     astarte_fmt::format_to(out, "\n");
 
     astarte_fmt::format_to(out, "}}\n");
@@ -402,7 +400,7 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::Interface> {
   }
 };
 
-inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::Interface& interface)
+inline auto operator<<(std::ostream& out, const astarte::device::mqtt::Interface& interface)
     -> std::ostream& {
   out << astarte_fmt::format("{}", interface);
   return out;

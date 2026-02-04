@@ -21,7 +21,7 @@
 #include "astarte_device_sdk/mqtt/pairing.hpp"
 #include "mqtt/connect_options.h"
 
-namespace AstarteDeviceSdk::config {
+namespace astarte::device::mqtt {
 
 /**
  * @brief A type-safe wrapper for Astarte credentials, distinguishing between a credential secret
@@ -98,7 +98,7 @@ class Credential {
   static auto store_device_key_and_certificate(std::string_view client_priv_key,
                                                std::string_view client_cert,
                                                std::string_view store_dir)
-      -> astarte_tl::expected<void, AstarteError>;
+      -> astarte_tl::expected<void, Error>;
 
   /**
    * @brief Retrieve and persist device crypto credentials.
@@ -110,10 +110,10 @@ class Credential {
    */
   static auto validate_client_certificate(PairingApi& api, std::string_view secret,
                                           std::string_view store_dir)
-      -> astarte_tl::expected<bool, AstarteError>;
+      -> astarte_tl::expected<bool, Error>;
 
   static auto delete_client_certificate_and_key(std::string_view store_dir)
-      -> astarte_tl::expected<void, AstarteError>;
+      -> astarte_tl::expected<void, Error>;
 
  private:
   /// @brief Enum to differentiate credential types.
@@ -131,6 +131,6 @@ class Credential {
   std::string store_dir_;
 };
 
-}  // namespace AstarteDeviceSdk::config
+}  // namespace astarte::device::mqtt
 
 #endif  // ASTARTE_MQTT_CREDENTIALS_H

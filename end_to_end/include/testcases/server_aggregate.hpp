@@ -13,7 +13,7 @@ namespace testcases {
 using namespace std::chrono_literals;
 
 TestCase server_aggregate(std::string device_id) {
-    AstarteDatastreamObject astarte_obj = {
+    DatastreamObject astarte_obj = {
         {std::string(constants::data_sets::Integer::ENDPOINT_PARTIAL),
          constants::data_sets::Integer::DATA},
         {std::string(constants::data_sets::Double::ENDPOINT_PARTIAL),
@@ -49,15 +49,15 @@ TestCase server_aggregate(std::string device_id) {
         {actions::Connect(),
          actions::Sleep(1s),
 
-         actions::TransmitRESTData(AstarteMessage(
-             constants::interfaces::ServerAggregate::INTERFACE, "/sensor1", astarte_obj
-         )),
+         actions::TransmitRESTData(
+             Message(constants::interfaces::ServerAggregate::INTERFACE, "/sensor1", astarte_obj)
+         ),
 
          actions::Sleep(1s),
 
-         actions::ReadReceivedDeviceData(AstarteMessage(
-             constants::interfaces::ServerAggregate::INTERFACE, "/sensor1", astarte_obj
-         )),
+         actions::ReadReceivedDeviceData(
+             Message(constants::interfaces::ServerAggregate::INTERFACE, "/sensor1", astarte_obj)
+         ),
 
          actions::Sleep(1s),
          actions::Disconnect(),

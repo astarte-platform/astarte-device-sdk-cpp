@@ -15,46 +15,46 @@
 #include "astarte_device_sdk/data.hpp"
 #include "astarte_device_sdk/formatter.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 /** @brief Representing the Astarte individual datastream data. */
-class AstarteDatastreamIndividual {
+class DatastreamIndividual {
  public:
   /**
-   * @brief Constructor for the AstarteDatastreamIndividual class.
+   * @brief Constructor for the DatastreamIndividual class.
    * @param data The wrapped Astarte data type.
    */
-  explicit AstarteDatastreamIndividual(AstarteData data);
+  explicit DatastreamIndividual(Data data);
   /**
    * @brief Get the value contained within the object.
    * @return A constant reference to the data.
    */
-  [[nodiscard]] auto get_value() const -> const AstarteData&;
+  [[nodiscard]] auto get_value() const -> const Data&;
   /**
    * @brief Overloader for the comparison operator ==.
    * @param other The object to compare to.
    * @return True when equal, false otherwise.
    */
-  [[nodiscard]] auto operator==(const AstarteDatastreamIndividual& other) const -> bool;
+  [[nodiscard]] auto operator==(const DatastreamIndividual& other) const -> bool;
   /**
    * @brief Overloader for the comparison operator !=.
    * @param other The object to compare to.
    * @return True when different, false otherwise.
    */
-  [[nodiscard]] auto operator!=(const AstarteDatastreamIndividual& other) const -> bool;
+  [[nodiscard]] auto operator!=(const DatastreamIndividual& other) const -> bool;
 
  private:
-  AstarteData data_;
+  Data data_;
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device
 
 /**
  * @brief astarte_fmt::formatter specialization for
- * AstarteDeviceSdk::AstarteDatastreamIndividual.
+ * astarte::device::DatastreamIndividual.
  */
 template <>
-struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteDatastreamIndividual> {
+struct astarte_fmt::formatter<astarte::device::DatastreamIndividual> {
   /**
    * @brief Parse the format string. Default implementation.
    * @param ctx The parse context.
@@ -66,24 +66,24 @@ struct astarte_fmt::formatter<AstarteDeviceSdk::AstarteDatastreamIndividual> {
   }
 
   /**
-   * @brief Format the AstarteDatastreamIndividual object.
-   * @param data The AstarteDatastreamIndividual to format.
+   * @brief Format the DatastreamIndividual object.
+   * @param data The DatastreamIndividual to format.
    * @param ctx The format context.
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
-  auto format(const AstarteDeviceSdk::AstarteDatastreamIndividual& data, FormatContext& ctx) const {
+  auto format(const astarte::device::DatastreamIndividual& data, FormatContext& ctx) const {
     return astarte_fmt::format_to(ctx.out(), "{}", data.get_value());
   }
 };
 
 /**
- * @brief Stream insertion operator for AstarteDatastreamIndividual.
+ * @brief Stream insertion operator for DatastreamIndividual.
  * @param out The output stream.
- * @param data The AstarteDatastreamIndividual object to output.
+ * @param data The DatastreamIndividual object to output.
  * @return Reference to the output stream.
  */
-inline auto operator<<(std::ostream& out, const AstarteDeviceSdk::AstarteDatastreamIndividual& data)
+inline auto operator<<(std::ostream& out, const astarte::device::DatastreamIndividual& data)
     -> std::ostream& {
   out << astarte_fmt::format("{}", data);
   return out;

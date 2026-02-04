@@ -41,7 +41,7 @@ struct formatter {};
 #endif
 
 /** @brief Utility functions for formatting data. */
-namespace AstarteDeviceSdk::utils {
+namespace astarte::device::utils {
 
 /**
  * @brief Format a vector of bytes into a Base64 string literal.
@@ -162,6 +162,6 @@ void format_vector(OutputIt& out, const std::vector<T>& data) {
   out = astarte_fmt::format_to(out, "]");
 }
 
-}  // namespace AstarteDeviceSdk::utils
+}  // namespace astarte::device::utils
 
 #endif  // ASTARTE_FORMATTER_H

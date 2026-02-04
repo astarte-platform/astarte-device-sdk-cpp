@@ -13,7 +13,7 @@
 
 #include "astarte_device_sdk/errors.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device {
 
 class ExponentialBackoff {
  public:
@@ -33,16 +33,16 @@ class ExponentialBackoff {
    * @param cutoff_coeff The cut-off coefficient, an upper bound for the exponential curve.
    */
   static auto create(std::chrono::milliseconds mul_coeff, std::chrono::milliseconds cutoff_coeff)
-      -> astarte_tl::expected<ExponentialBackoff, AstarteError> {
+      -> astarte_tl::expected<ExponentialBackoff, Error> {
     if ((mul_coeff <= std::chrono::milliseconds::zero()) ||
         (cutoff_coeff <= std::chrono::milliseconds::zero())) {
-      return astarte_tl::unexpected(AstarteInvalidInputError{
-          "ExponentialBackoff create() received zero or negative coefficients"});
+      return astarte_tl::unexpected(
+          InvalidInputError{"ExponentialBackoff create() received zero or negative coefficients"});
     }
     if (cutoff_coeff < mul_coeff) {
       return astarte_tl::unexpected(
-          AstarteInvalidInputError{"ExponentialBackoff create() received a multiplier coefficient "
-                                   "larger than the cuttoff coefficient"});
+          InvalidInputError{"ExponentialBackoff create() received a multiplier coefficient "
+                            "larger than the cuttoff coefficient"});
     }
     return ExponentialBackoff(mul_coeff, cutoff_coeff);
   }
@@ -110,6 +110,6 @@ class ExponentialBackoff {
   ChronoMillisRep prev_delay_{0};
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device
 
 #endif  // EXPONENTIAL_BACKOFF_H

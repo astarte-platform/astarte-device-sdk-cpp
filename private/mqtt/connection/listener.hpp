@@ -14,16 +14,18 @@
 #include "mqtt/thread_queue.h"
 #include "mqtt/token.h"
 
-namespace AstarteDeviceSdk::mqtt_connection {
+namespace astarte::device::mqtt::connection {
+
+namespace paho_mqtt = ::mqtt;
 
 /**
  * @brief Listener for MQTT actions performed during the Astarte session setup.
  *
- * This class implements `mqtt::iaction_listener` to handle the completion (success or failure)
+ * This class implements `paho_mqtt::iaction_listener` to handle the completion (success or failure)
  * of asynchronous operations—such as subscriptions and introspection publishing—that occur
  * when establishing a session with Astarte.
  */
-class SessionSetupListener : public virtual mqtt::iaction_listener {
+class SessionSetupListener : public virtual paho_mqtt::iaction_listener {
  public:
   /**
    * @brief Construct a new Session Setup Listener object.
@@ -32,7 +34,7 @@ class SessionSetupListener : public virtual mqtt::iaction_listener {
    * @param connected A flag stating if the client is correctly connected to Astarte.
    */
   explicit SessionSetupListener(
-      std::shared_ptr<mqtt::thread_queue<mqtt::token_ptr>> session_setup_tokens,
+      std::shared_ptr<paho_mqtt::thread_queue<paho_mqtt::token_ptr>> session_setup_tokens,
       std::shared_ptr<std::atomic<bool>> connected);
 
  private:
@@ -40,16 +42,16 @@ class SessionSetupListener : public virtual mqtt::iaction_listener {
    * @brief Called when an asynchronous action fails.
    * @param tok The token associated with the failed action.
    */
-  void on_failure(const mqtt::token& tok) override;
+  void on_failure(const paho_mqtt::token& tok) override;
 
   /**
    * @brief Called when an asynchronous action completes successfully.
    * @param tok The token associated with the successful action.
    */
-  void on_success(const mqtt::token& tok) override;
+  void on_success(const paho_mqtt::token& tok) override;
 
   /// @brief Queue to store the tokens of the session setup actions.
-  std::shared_ptr<mqtt::thread_queue<mqtt::token_ptr>> session_setup_tokens_;
+  std::shared_ptr<paho_mqtt::thread_queue<paho_mqtt::token_ptr>> session_setup_tokens_;
   /// @brief The flag stating if the device is successfully connected to Astarte.
   std::shared_ptr<std::atomic<bool>> connected_;
 };
@@ -57,10 +59,10 @@ class SessionSetupListener : public virtual mqtt::iaction_listener {
 /**
  * @brief Listener for the MQTT disconnection action.
  *
- * This class implements `mqtt::iaction_listener` to handle the callbacks specifically
+ * This class implements `paho_mqtt::iaction_listener` to handle the callbacks specifically
  * related to the explicit disconnection of the client.
  */
-class DisconnectionListener : public virtual mqtt::iaction_listener {
+class DisconnectionListener : public virtual paho_mqtt::iaction_listener {
  public:
   /**
    * @brief Construct a new Disconnection Listener object.
@@ -74,18 +76,18 @@ class DisconnectionListener : public virtual mqtt::iaction_listener {
    * @brief Called when the disconnection action fails.
    * @param tok The token associated with the failed action.
    */
-  void on_failure(const mqtt::token& tok) override;
+  void on_failure(const paho_mqtt::token& tok) override;
 
   /**
    * @brief Called when the disconnection action completes successfully.
    * @param tok The token associated with the successful action.
    */
-  void on_success(const mqtt::token& tok) override;
+  void on_success(const paho_mqtt::token& tok) override;
 
   /// @brief The flag stating if the device is successfully connected to Astarte.
   std::shared_ptr<std::atomic<bool>> connected_;
 };
 
-}  // namespace AstarteDeviceSdk::mqtt_connection
+}  // namespace astarte::device::mqtt::connection
 
 #endif  // ASTARTE_MQTT_CONNECTION_H

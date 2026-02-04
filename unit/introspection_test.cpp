@@ -15,18 +15,18 @@
 
 #include "mqtt/introspection.hpp"
 
-using AstarteDeviceSdk::astarte_type_from_str;
-using AstarteDeviceSdk::AstarteData;
-using AstarteDeviceSdk::AstarteDatastreamObject;
-using AstarteDeviceSdk::AstarteType;
-using AstarteDeviceSdk::DatabaseRetentionPolicy;
-using AstarteDeviceSdk::Interface;
-using AstarteDeviceSdk::InterfaceAggregation;
-using AstarteDeviceSdk::InterfaceType;
-using AstarteDeviceSdk::Introspection;
-using AstarteDeviceSdk::Mapping;
-using AstarteDeviceSdk::Reliability;
-using AstarteDeviceSdk::Retention;
+using astarte::device::astarte_type_from_str;
+using astarte::device::Data;
+using astarte::device::DatastreamObject;
+using astarte::device::Type;
+using astarte::device::mqtt::DatabaseRetentionPolicy;
+using astarte::device::mqtt::Interface;
+using astarte::device::mqtt::InterfaceAggregation;
+using astarte::device::mqtt::InterfaceType;
+using astarte::device::mqtt::Introspection;
+using astarte::device::mqtt::Mapping;
+using astarte::device::mqtt::Reliability;
+using astarte::device::mqtt::Retention;
 
 using nlohmann::json;
 
@@ -262,24 +262,24 @@ class AstarteTestInterfaceValidation : public testing::Test {
 TEST_F(AstarteTestInterfaceValidation, DataTypeCompatibilityMatrix) {
   struct TypeMatch {
     std::string astarte_type;
-    AstarteData data;
+    Data data;
   };
 
   std::vector<TypeMatch> matrix = {
-      {"double", AstarteData(1.1)},
-      {"integer", AstarteData(int32_t(42))},
-      {"longinteger", AstarteData(int64_t(9000000000LL))},
-      {"boolean", AstarteData(true)},
-      {"string", AstarteData(std::string("hello"))},
-      {"binaryblob", AstarteData(std::vector<uint8_t>{0xDE, 0xAD})},
-      {"datetime", AstarteData(std::chrono::system_clock::now())},
-      {"doublearray", AstarteData(std::vector<double>{1.1, 2.2})},
-      {"integerarray", AstarteData(std::vector<int32_t>{1, 2})},
-      {"longintegerarray", AstarteData(std::vector<int64_t>{1, 2})},
-      {"booleanarray", AstarteData(std::vector<bool>{true, false})},
-      {"stringarray", AstarteData(std::vector<std::string>{"a", "b"})},
-      {"binaryblobarray", AstarteData(std::vector<std::vector<uint8_t>>{{0x01}, {0x02}})},
-      {"datetimearray", AstarteData(std::vector<std::chrono::system_clock::time_point>{})}};
+      {"double", Data(1.1)},
+      {"integer", Data(int32_t(42))},
+      {"longinteger", Data(int64_t(9000000000LL))},
+      {"boolean", Data(true)},
+      {"string", Data(std::string("hello"))},
+      {"binaryblob", Data(std::vector<uint8_t>{0xDE, 0xAD})},
+      {"datetime", Data(std::chrono::system_clock::now())},
+      {"doublearray", Data(std::vector<double>{1.1, 2.2})},
+      {"integerarray", Data(std::vector<int32_t>{1, 2})},
+      {"longintegerarray", Data(std::vector<int64_t>{1, 2})},
+      {"booleanarray", Data(std::vector<bool>{true, false})},
+      {"stringarray", Data(std::vector<std::string>{"a", "b"})},
+      {"binaryblobarray", Data(std::vector<std::vector<uint8_t>>{{0x01}, {0x02}})},
+      {"datetimearray", Data(std::vector<std::chrono::system_clock::time_point>{})}};
 
   for (const auto& entry : matrix) {
     auto iface = create_test_interface("/path", entry.astarte_type, false);
@@ -289,7 +289,7 @@ TEST_F(AstarteTestInterfaceValidation, DataTypeCompatibilityMatrix) {
 
     // test incorrect match (for simplicity, we try to send a boolean to every non-boolean type)
     if (entry.astarte_type != "boolean") {
-      EXPECT_THAT(iface.validate_individual("/path", AstarteData(false), nullptr),
+      EXPECT_THAT(iface.validate_individual("/path", Data(false), nullptr),
                   IsUnexpected("Astarte data type and mapping type do not match"));
     }
   }
@@ -301,17 +301,17 @@ TEST_F(AstarteTestInterfaceValidation, TimestampCheck) {
   // interface requires explicit timestamp
   auto iface_req = create_test_interface("/test", "double", true);
 
-  EXPECT_THAT(iface_req.validate_individual("/test", AstarteData(1.1), &timestamp), IsExpected());
+  EXPECT_THAT(iface_req.validate_individual("/test", Data(1.1), &timestamp), IsExpected());
   // timestamp required but not provided
-  EXPECT_THAT(iface_req.validate_individual("/test", AstarteData(1.1), nullptr),
+  EXPECT_THAT(iface_req.validate_individual("/test", Data(1.1), nullptr),
               IsUnexpected("Explicit timestamp required"));
 
   // interface doesn't require explicit timestamp
   auto iface_forbid = create_test_interface("/test", "double", false);
 
-  EXPECT_THAT(iface_forbid.validate_individual("/test", AstarteData(1.1), nullptr), IsExpected());
+  EXPECT_THAT(iface_forbid.validate_individual("/test", Data(1.1), nullptr), IsExpected());
   // timestamp provided even if not requested
-  EXPECT_THAT(iface_forbid.validate_individual("/test", AstarteData(1.1), &timestamp),
+  EXPECT_THAT(iface_forbid.validate_individual("/test", Data(1.1), &timestamp),
               IsUnexpected("Explicit timestamp not supported"));
 }
 
@@ -319,15 +319,14 @@ TEST_F(AstarteTestInterfaceValidation, PathResolution) {
   auto iface = create_test_interface("/sensors/%{sensor_id}/value", "double", false);
 
   // parameterized path matching
-  EXPECT_THAT(iface.validate_individual("/sensors/123/value", AstarteData(1.1), nullptr),
-              IsExpected());
+  EXPECT_THAT(iface.validate_individual("/sensors/123/value", Data(1.1), nullptr), IsExpected());
 
   // incomplete path
-  EXPECT_THAT(iface.validate_individual("/sensors/123", AstarteData(1.1), nullptr),
+  EXPECT_THAT(iface.validate_individual("/sensors/123", Data(1.1), nullptr),
               IsUnexpected("couldn't find mapping with path"));
 
   // path prefix mismatch
-  EXPECT_THAT(iface.validate_individual("/actuators/1/value", AstarteData(1.1), nullptr),
+  EXPECT_THAT(iface.validate_individual("/actuators/1/value", Data(1.1), nullptr),
               IsUnexpected("couldn't find mapping with path"));
 }
 
@@ -339,7 +338,7 @@ TEST_F(AstarteTestInterfaceValidation, CheckDatatType) {
     }
     Mapping m("/test", type_res.value(), std::nullopt, std::nullopt, std::nullopt, std::nullopt,
               std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
-    return m.check_data_type(AstarteData(value)).has_value();
+    return m.check_data_type(Data(value)).has_value();
   };
 
   EXPECT_TRUE(check("double", 1.1));
@@ -371,11 +370,11 @@ TEST_F(AstarteTestInterfaceValidation, FiniteDoubleCheck) {
   Mapping m("/test", type_res.value(), std::nullopt, std::nullopt, std::nullopt, std::nullopt,
             std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
 
-  EXPECT_THAT(m.check_data_type(AstarteData(std::numeric_limits<double>::quiet_NaN())),
+  EXPECT_THAT(m.check_data_type(Data(std::numeric_limits<double>::quiet_NaN())),
               IsUnexpected("Astarte data double is not a number"));
-  EXPECT_THAT(m.check_data_type(AstarteData(std::numeric_limits<double>::infinity())),
+  EXPECT_THAT(m.check_data_type(Data(std::numeric_limits<double>::infinity())),
               IsUnexpected("Astarte data double is not a number"));
-  EXPECT_THAT(m.check_data_type(AstarteData(1.0)), IsExpected());
+  EXPECT_THAT(m.check_data_type(Data(1.0)), IsExpected());
 
   // Check double arrays
   auto array_type_res = astarte_type_from_str("doublearray");
@@ -384,9 +383,9 @@ TEST_F(AstarteTestInterfaceValidation, FiniteDoubleCheck) {
                 std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
 
   EXPECT_THAT(m_arr.check_data_type(
-                  AstarteData(std::vector<double>{1.0, std::numeric_limits<double>::quiet_NaN()})),
+                  Data(std::vector<double>{1.0, std::numeric_limits<double>::quiet_NaN()})),
               IsUnexpected("Astarte data double is not a number"));
-  EXPECT_THAT(m_arr.check_data_type(AstarteData(std::vector<double>{1.0, 2.0})), IsExpected());
+  EXPECT_THAT(m_arr.check_data_type(Data(std::vector<double>{1.0, 2.0})), IsExpected());
 }
 
 TEST(AstarteTestInterfaceGetQoS, GetQosLevels) {
@@ -557,20 +556,18 @@ TEST_F(AstarteTestIntrospection, ValidateObject) {
   // Test the validate_object method on the interface loaded in SetUp (test.Test, aggregated object)
   auto iface = introspection_.get("test.Test").value();
 
-  AstarteDatastreamObject obj_data = {{"double_endpoint", AstarteData(1.5)},
-                                      {"integer_endpoint", AstarteData(42)}};
+  DatastreamObject obj_data = {{"double_endpoint", Data(1.5)}, {"integer_endpoint", Data(42)}};
 
   EXPECT_THAT(iface->validate_object("/1", obj_data, nullptr), IsExpected());
 
   // Invalid data type in object
-  AstarteDatastreamObject bad_data = {
-      {"double_endpoint", AstarteData(std::string("string instead of double"))}};
+  DatastreamObject bad_data = {{"double_endpoint", Data(std::string("string instead of double"))}};
 
   EXPECT_THAT(iface->validate_object("/1", bad_data, nullptr),
               IsUnexpected("Astarte data type and mapping type do not match"));
 
   // Path that doesn't match object structure (extra fields)
-  AstarteDatastreamObject unknown_field = {{"unknown_endpoint", AstarteData(1.0)}};
+  DatastreamObject unknown_field = {{"unknown_endpoint", Data(1.0)}};
 
   EXPECT_THAT(iface->validate_object("/1", unknown_field, nullptr),
               IsUnexpected("couldn't find mapping with path"));

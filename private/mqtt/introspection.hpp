@@ -15,7 +15,7 @@
 #include "astarte_device_sdk/errors.hpp"
 #include "mqtt/interface.hpp"
 
-namespace AstarteDeviceSdk {
+namespace astarte::device::mqtt {
 
 /**
  * @brief Thread safe collection of Astarte interface.
@@ -43,7 +43,7 @@ class Introspection {
    * @param interface The interface to add.
    * @return an error if the operation fails
    */
-  auto checked_insert(Interface interface) -> astarte_tl::expected<void, AstarteError>;
+  auto checked_insert(Interface interface) -> astarte_tl::expected<void, Error>;
 
   /**
    * @brief Return a snapshot of the introspection values as shared pointers.
@@ -59,13 +59,13 @@ class Introspection {
    * @return a shared pointer to the const interface if found, an error otherwise.
    */
   [[nodiscard]] auto get(std::string_view interface_name) const
-      -> astarte_tl::expected<std::shared_ptr<const Interface>, AstarteError>;
+      -> astarte_tl::expected<std::shared_ptr<const Interface>, Error>;
 
  private:
   mutable std::shared_mutex lock_;
   std::map<std::string, std::shared_ptr<const Interface>, std::less<>> interfaces_;
 };
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device::mqtt
 
 #endif  // ASTARTE_INTROSPECTION_H

@@ -21,19 +21,19 @@
 #include "astarte_device_sdk/mqtt/device_mqtt.hpp"
 #endif  // ASTARTE_TRANSPORT_GRPC
 
-using AstarteDeviceSdk::AstarteDevice;
+using astarte::device::Device;
 
 #ifdef ASTARTE_TRANSPORT_GRPC
-using AstarteDeviceSdk::AstarteDeviceGrpc;
+using astarte::device::grpc::DeviceGrpc;
 #else   // ASTARTE_TRANSPORT_GRPC
-using AstarteDeviceSdk::AstarteDeviceMqtt;
-using AstarteDeviceSdk::config::MqttConfig;
+using astarte::device::mqtt::Config;
+using astarte::device::mqtt::DeviceMqtt;
 #endif  // ASTARTE_TRANSPORT_GRPC
 
 class TestDeviceFactory {
  public:
   virtual ~TestDeviceFactory() = default;
-  virtual std::shared_ptr<AstarteDevice> create_device() const = 0;
+  virtual std::shared_ptr<Device> create_device() const = 0;
 };
 
 // config structures
@@ -47,8 +47,8 @@ struct TestGrpcDeviceConfig {
 class TestGrpcDeviceFactory : public TestDeviceFactory {
  public:
   explicit TestGrpcDeviceFactory(TestGrpcDeviceConfig config) : config_(std::move(config)) {}
-  std::shared_ptr<AstarteDevice> create_device() const override {
-    auto device = std::make_shared<AstarteDeviceGrpc>(config_.server_addr, config_.node_id);
+  std::shared_ptr<Device> create_device() const override {
+    auto device = std::make_shared<DeviceGrpc>(config_.server_addr, config_.node_id);
     for (const auto& interface_path : config_.interfaces) {
       auto res = device->add_interface_from_file(interface_path);
       if (!res) {
@@ -76,18 +76,18 @@ class TestMqttDeviceFactory : public TestDeviceFactory {
  public:
   explicit TestMqttDeviceFactory(TestMqttDeviceConfig config) : config_(std::move(config)) {}
 
-  std::shared_ptr<AstarteDevice> create_device() const override {
-    auto mqtt_config = MqttConfig::with_credential_secret(config_.realm, config_.device_id,
-                                                          config_.credential_secret,
-                                                          config_.pairing_url, config_.store_dir);
+  std::shared_ptr<Device> create_device() const override {
+    auto mqtt_config =
+        Config::with_credential_secret(config_.realm, config_.device_id, config_.credential_secret,
+                                       config_.pairing_url, config_.store_dir);
 
-    auto result = AstarteDeviceSdk::AstarteDeviceMqtt::create(std::move(mqtt_config));
+    auto result = DeviceMqtt::create(std::move(mqtt_config));
     if (!result) {
       throw EndToEndAstarteDeviceException(
           astarte_fmt::format("Failed to create MQTT device: {}", result.error()));
     }
 
-    auto device = std::make_shared<AstarteDeviceMqtt>(*std::move(result));
+    auto device = std::make_shared<DeviceMqtt>(*std::move(result));
     for (const auto& interface_path : config_.interfaces) {
       auto res = device->add_interface_from_file(interface_path);
       if (!res) {

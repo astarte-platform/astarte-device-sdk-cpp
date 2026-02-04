@@ -8,8 +8,8 @@
 #if !defined(ASTARTE_TRANSPORT_GRPC)
 #include "astarte_device_sdk/mqtt/pairing.hpp"
 
-using AstarteDeviceSdk::create_deterministic_device_id;
-using AstarteDeviceSdk::create_random_device_id;
+using astarte::device::mqtt::create_deterministic_device_id;
+using astarte::device::mqtt::create_random_device_id;
 
 TEST(AstarteTestDeviceId, GenerateRandom) {
   auto device_id = create_random_device_id();

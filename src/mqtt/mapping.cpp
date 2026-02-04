@@ -58,13 +58,13 @@ auto is_segment_match(std::string_view pattern, std::string_view path_seg) -> bo
 
 }  // namespace
 
-namespace AstarteDeviceSdk {
+namespace astarte::device::mqtt {
 
-auto Mapping::try_from_json(const json& json) -> astarte_tl::expected<Mapping, AstarteError> {
+auto Mapping::try_from_json(const json& json) -> astarte_tl::expected<Mapping, Error> {
   // ensure each element in the array is actually an object
   if (!json.is_object()) {
     return astarte_tl::unexpected(
-        AstarteInterfaceValidationError("Each element in 'mappings' must be an object"));
+        InterfaceValidationError("Each element in 'mappings' must be an object"));
   }
 
   // extract required endpoint (string)
@@ -134,26 +134,24 @@ auto Mapping::match_path(std::string_view path) const -> bool {
   return endpoint.empty() && path.empty();
 }
 
-auto Mapping::check_data_type(const AstarteData& data) const
-    -> astarte_tl::expected<void, AstarteError> {
+auto Mapping::check_data_type(const Data& data) const -> astarte_tl::expected<void, Error> {
   if (type_ != data.get_type()) {
     spdlog::error("Astarte data type and mapping type do not match");
     return astarte_tl::unexpected(
-        AstarteInterfaceValidationError("Astarte data type and mapping type do not match"));
+        InterfaceValidationError("Astarte data type and mapping type do not match"));
   }
 
-  if ((type_ == AstarteType::kDouble) && (!std::isfinite(data.into<double>()))) {
+  if ((type_ == Type::kDouble) && (!std::isfinite(data.into<double>()))) {
     spdlog::error("Astarte data double is not a number");
-    return astarte_tl::unexpected(
-        AstarteInterfaceValidationError("Astarte data double is not a number"));
+    return astarte_tl::unexpected(InterfaceValidationError("Astarte data double is not a number"));
   }
 
-  if (type_ == AstarteType::kDoubleArray) {
+  if (type_ == Type::kDoubleArray) {
     for (const double value : data.into<std::vector<double>>()) {
       if (!std::isfinite(value)) {
         spdlog::error("Astarte data double is not a number");
         return astarte_tl::unexpected(
-            AstarteInterfaceValidationError("Astarte data double is not a number"));
+            InterfaceValidationError("Astarte data double is not a number"));
       }
     }
   }
@@ -161,4 +159,4 @@ auto Mapping::check_data_type(const AstarteData& data) const
   return {};
 }
 
-}  // namespace AstarteDeviceSdk
+}  // namespace astarte::device::mqtt

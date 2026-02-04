@@ -9,25 +9,25 @@
 
 #include "astarte_device_sdk/formatter.hpp"
 
-using AstarteDeviceSdk::AstarteError;
-using AstarteDeviceSdk::AstarteFileOpenError;
-using AstarteDeviceSdk::AstarteGrpcLibError;
-using AstarteDeviceSdk::AstarteInternalError;
+using astarte::device::Error;
+using astarte::device::FileOpenError;
+using astarte::device::GrpcLibError;
+using astarte::device::InternalError;
 
 TEST(AstarteTestErrors, Nesting) {
-  AstarteError file_open{AstarteFileOpenError{"file name"}};
-  AstarteError internal{AstarteInternalError{"Invalid input or something else", file_open}};
+  Error file_open{FileOpenError{"file name"}};
+  Error internal{InternalError{"Invalid input or something else", file_open}};
   std::string formatted = astarte_fmt::format("{}", internal);
-  std::string expected = R"(AstarteInternalError: Invalid input or something else
-  -> AstarteFileOpenError: file name)";
+  std::string expected = R"(InternalError: Invalid input or something else
+  -> FileOpenError: file name)";
   ASSERT_EQ(expected, formatted);
 }
 
 TEST(AstarteTestErrors, Grpc) {
   std::uint64_t code = 12;
   std::string_view message = "A simple error message";
-  AstarteError grpc_err{AstarteGrpcLibError{code, message}};
+  Error grpc_err{GrpcLibError{code, message}};
   std::string formatted = astarte_fmt::format("{}", grpc_err);
-  std::string expected = R"(AstarteGrpcLibError: code(12)-message(A simple error message))";
+  std::string expected = R"(GrpcLibError: code(12)-message(A simple error message))";
   ASSERT_EQ(expected, formatted);
 }

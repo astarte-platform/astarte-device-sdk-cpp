@@ -25,7 +25,7 @@ int main() {
   auto cfg = Config("samples/mqtt/native/config.toml");
 
   auto api_res =
-      AstarteDeviceSdk::PairingApi::create(cfg.realm, cfg.device_id, cfg.astarte_base_url);
+      astarte::device::mqtt::PairingApi::create(cfg.realm, cfg.device_id, cfg.astarte_base_url);
   if (!api_res) {
     spdlog::error("Pairing API creation failure. Err: \n{}", api_res.error());
     return 0;
@@ -67,7 +67,7 @@ int main() {
 
     auto mqtt_cfg = [&] {
       if (in_db) {
-        return AstarteDeviceSdk::config::MqttConfig::with_credential_secret(
+        return astarte::device::mqtt::Config::with_credential_secret(
             cfg.realm, cfg.device_id, *cred_opt,
             astarte_fmt::format("{}/pairing", cfg.astarte_base_url), cfg.store_dir);
       } else {
@@ -76,7 +76,7 @@ int main() {
         // first, store the cred secret in the db for future usage
         store_cred_secret(db, cfg.device_id, cfg.credential_secret.value());
 
-        return AstarteDeviceSdk::config::MqttConfig::with_credential_secret(
+        return astarte::device::mqtt::Config::with_credential_secret(
             cfg.realm, cfg.device_id, cfg.credential_secret.value(),
             astarte_fmt::format("{}/pairing", cfg.astarte_base_url), cfg.store_dir);
       }
@@ -85,7 +85,7 @@ int main() {
     // here you can modify the mqtt_cfg options, such as the keepalive interval, the connection
     // timeout period, etc.
 
-    auto device_res = AstarteDeviceSdk::AstarteDeviceMqtt::create(std::move(mqtt_cfg));
+    auto device_res = astarte::device::mqtt::DeviceMqtt::create(std::move(mqtt_cfg));
     if (!device_res) {
       spdlog::error("device creation error: {}", device_res.error());
       return EXIT_FAILURE;
@@ -123,7 +123,7 @@ int main() {
       auto now = std::chrono::system_clock::time_point(std::chrono::system_clock::now());
 
       auto integer_path("/integer_endpoint");
-      auto integer_value = AstarteDeviceSdk::AstarteData(43);
+      auto integer_value = astarte::device::Data(43);
       auto send_res = device.send_individual(interface_name, integer_path, integer_value, &now);
       if (!send_res) {
         spdlog::error("send datastream individual error: {}", send_res.error());
@@ -131,7 +131,7 @@ int main() {
       }
 
       auto longinteger_path("/longinteger_endpoint");
-      auto longinteger_value = AstarteDeviceSdk::AstarteData(8589934592);
+      auto longinteger_value = astarte::device::Data(8589934592);
       send_res = device.send_individual(interface_name, longinteger_path, longinteger_value, &now);
       if (!send_res) {
         spdlog::error("send datastream individual error: {}", send_res.error());
@@ -139,7 +139,7 @@ int main() {
       }
 
       auto double_path("/double_endpoint");
-      auto double_value = AstarteDeviceSdk::AstarteData(43.5);
+      auto double_value = astarte::device::Data(43.5);
       send_res = device.send_individual(interface_name, double_path, double_value, &now);
       if (!send_res) {
         spdlog::error("send datastream individual error: {}", send_res.error());
@@ -147,7 +147,7 @@ int main() {
       }
 
       auto boolean_path("/boolean_endpoint");
-      auto boolean_value = AstarteDeviceSdk::AstarteData(true);
+      auto boolean_value = astarte::device::Data(true);
       send_res = device.send_individual(interface_name, boolean_path, boolean_value, &now);
       if (!send_res) {
         spdlog::error("send datastream individual error: {}", send_res.error());
@@ -156,7 +156,7 @@ int main() {
 
       auto string_path("/string_endpoint");
       auto hello_string = std::string("Hello from cpp!");
-      auto string_value = AstarteDeviceSdk::AstarteData(hello_string);
+      auto string_value = astarte::device::Data(hello_string);
       send_res = device.send_individual(interface_name, string_path, string_value, &now);
       if (!send_res) {
         spdlog::error("send datastream individual error: {}", send_res.error());
@@ -165,7 +165,7 @@ int main() {
 
       auto binaryblob_path("/binaryblob_endpoint");
       std::vector<uint8_t> binaryblob = {10, 20, 30, 40, 50};
-      auto binaryblob_value = AstarteDeviceSdk::AstarteData(binaryblob);
+      auto binaryblob_value = astarte::device::Data(binaryblob);
       send_res = device.send_individual(interface_name, binaryblob_path, binaryblob_value, &now);
       if (!send_res) {
         spdlog::error("send datastream individual error: {}", send_res.error());
@@ -173,7 +173,7 @@ int main() {
       }
 
       auto datetime_path("/datetime_endpoint");
-      auto datetime_value = AstarteDeviceSdk::AstarteData(std::chrono::system_clock::now());
+      auto datetime_value = astarte::device::Data(std::chrono::system_clock::now());
       send_res = device.send_individual(interface_name, datetime_path, datetime_value, &now);
       if (!send_res) {
         spdlog::error("send datastream individual error: {}", send_res.error());
@@ -182,7 +182,7 @@ int main() {
 
       auto integerarray_path("/integerarray_endpoint");
       std::vector<int32_t> integerarray = {10, 20, 30, 40, 50};
-      auto integerarray_value = AstarteDeviceSdk::AstarteData(integerarray);
+      auto integerarray_value = astarte::device::Data(integerarray);
       send_res =
           device.send_individual(interface_name, integerarray_path, integerarray_value, &now);
       if (!send_res) {
@@ -192,7 +192,7 @@ int main() {
 
       auto longintegerarray_path("/longintegerarray_endpoint");
       std::vector<int64_t> longintegerarray = {8589934592, 8589934593, 8589939592};
-      auto longintegerarray_value = AstarteDeviceSdk::AstarteData(longintegerarray);
+      auto longintegerarray_value = astarte::device::Data(longintegerarray);
       send_res = device.send_individual(interface_name, longintegerarray_path,
                                         longintegerarray_value, &now);
       if (!send_res) {
@@ -202,7 +202,7 @@ int main() {
 
       auto doubleararray_path("/doublearray_endpoint");
       std::vector<double> doublearray = {1.2, 3.4};
-      auto doublearray_value = AstarteDeviceSdk::AstarteData(doublearray);
+      auto doublearray_value = astarte::device::Data(doublearray);
       send_res =
           device.send_individual(interface_name, doubleararray_path, doublearray_value, &now);
       if (!send_res) {
@@ -212,7 +212,7 @@ int main() {
 
       auto booleanarray_path("/booleanarray_endpoint");
       std::vector<bool> booleanarray = {true, false, true};
-      auto booleanarray_value = AstarteDeviceSdk::AstarteData(booleanarray);
+      auto booleanarray_value = astarte::device::Data(booleanarray);
       send_res =
           device.send_individual(interface_name, booleanarray_path, booleanarray_value, &now);
       if (!send_res) {
@@ -222,7 +222,7 @@ int main() {
 
       auto stringarray_path("/stringarray_endpoint");
       std::vector<std::string> stringarray = {"Hello ", "world ", "from ", "C++"};
-      auto stringarray_value = AstarteDeviceSdk::AstarteData(stringarray);
+      auto stringarray_value = astarte::device::Data(stringarray);
       send_res = device.send_individual(interface_name, stringarray_path, stringarray_value, &now);
       if (!send_res) {
         spdlog::error("send datastream individual error: {}", send_res.error());
@@ -231,7 +231,7 @@ int main() {
 
       auto binaryblobarray_path("/binaryblobarray_endpoint");
       std::vector<std::vector<uint8_t>> binaryblobarray = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
-      auto binaryblobarray_value = AstarteDeviceSdk::AstarteData(binaryblobarray);
+      auto binaryblobarray_value = astarte::device::Data(binaryblobarray);
       send_res =
           device.send_individual(interface_name, binaryblobarray_path, binaryblobarray_value, &now);
       if (!send_res) {
@@ -242,7 +242,7 @@ int main() {
       auto datetimearray_path("/datetimearray_endpoint");
       std::vector<std::chrono::system_clock::time_point> datetimearray = {
           std::chrono::system_clock::now(), std::chrono::system_clock::now()};
-      auto datetimearray_value = AstarteDeviceSdk::AstarteData(datetimearray);
+      auto datetimearray_value = astarte::device::Data(datetimearray);
       send_res =
           device.send_individual(interface_name, datetimearray_path, datetimearray_value, &now);
       if (!send_res) {
@@ -257,29 +257,26 @@ int main() {
       auto interface_name = std::string("org.astarte-platform.cpp.examples.DeviceAggregate");
       auto common_path = std::string("/sensor15");
 
-      AstarteDeviceSdk::AstarteDatastreamObject data = {
-          {"integer_endpoint", AstarteDeviceSdk::AstarteData(43)},
-          {"longinteger_endpoint", AstarteDeviceSdk::AstarteData(8589934592)},
-          {"double_endpoint", AstarteDeviceSdk::AstarteData(43.5)},
-          {"boolean_endpoint", AstarteDeviceSdk::AstarteData(true)},
-          {"string_endpoint", AstarteDeviceSdk::AstarteData(std::string("Hello from cpp!"))},
-          {"binaryblob_endpoint",
-           AstarteDeviceSdk::AstarteData(std::vector<uint8_t>{10, 20, 30, 40, 50})},
-          {"datetime_endpoint", AstarteDeviceSdk::AstarteData(std::chrono::system_clock::now())},
+      astarte::device::DatastreamObject data = {
+          {"integer_endpoint", astarte::device::Data(43)},
+          {"longinteger_endpoint", astarte::device::Data(8589934592)},
+          {"double_endpoint", astarte::device::Data(43.5)},
+          {"boolean_endpoint", astarte::device::Data(true)},
+          {"string_endpoint", astarte::device::Data(std::string("Hello from cpp!"))},
+          {"binaryblob_endpoint", astarte::device::Data(std::vector<uint8_t>{10, 20, 30, 40, 50})},
+          {"datetime_endpoint", astarte::device::Data(std::chrono::system_clock::now())},
           {"integerarray_endpoint",
-           AstarteDeviceSdk::AstarteData(std::vector<int32_t>{10, 20, 30, 40, 50})},
+           astarte::device::Data(std::vector<int32_t>{10, 20, 30, 40, 50})},
           {"longintegerarray_endpoint",
-           AstarteDeviceSdk::AstarteData(std::vector<int64_t>{8589934592, 8589934593, 8589939592})},
-          {"doublearray_endpoint", AstarteDeviceSdk::AstarteData(std::vector<double>{1.2, 3.4})},
-          {"booleanarray_endpoint",
-           AstarteDeviceSdk::AstarteData(std::vector<bool>{true, false, true})},
-          {"stringarray_endpoint", AstarteDeviceSdk::AstarteData(std::vector<std::string>{
-                                       "Hello ", "world ", "from ", "C++"})},
-          {"binaryblobarray_endpoint",
-           AstarteDeviceSdk::AstarteData(
-               std::vector<std::vector<uint8_t>>{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}})},
+           astarte::device::Data(std::vector<int64_t>{8589934592, 8589934593, 8589939592})},
+          {"doublearray_endpoint", astarte::device::Data(std::vector<double>{1.2, 3.4})},
+          {"booleanarray_endpoint", astarte::device::Data(std::vector<bool>{true, false, true})},
+          {"stringarray_endpoint",
+           astarte::device::Data(std::vector<std::string>{"Hello ", "world ", "from ", "C++"})},
+          {"binaryblobarray_endpoint", astarte::device::Data(std::vector<std::vector<uint8_t>>{
+                                           {1, 2, 3}, {4, 5, 6}, {7, 8, 9}})},
           {"datetimearray_endpoint",
-           AstarteDeviceSdk::AstarteData(std::vector<std::chrono::system_clock::time_point>{
+           astarte::device::Data(std::vector<std::chrono::system_clock::time_point>{
                std::chrono::system_clock::now(), std::chrono::system_clock::now()})}};
 
       auto send_res = device.send_object(interface_name, common_path, data, nullptr);

@@ -30,15 +30,15 @@
 
 using json = nlohmann::json;
 
-using AstarteDeviceSdk::AstarteData;
-using AstarteDeviceSdk::AstarteDatastreamIndividual;
-using AstarteDeviceSdk::AstarteDatastreamObject;
-using AstarteDeviceSdk::AstarteDevice;
-using AstarteDeviceSdk::AstarteError;
-using AstarteDeviceSdk::AstarteMessage;
-using AstarteDeviceSdk::AstarteOwnership;
-using AstarteDeviceSdk::AstartePropertyIndividual;
-using AstarteDeviceSdk::AstarteStoredProperty;
+using astarte::device::Data;
+using astarte::device::DatastreamIndividual;
+using astarte::device::DatastreamObject;
+using astarte::device::Device;
+using astarte::device::Error;
+using astarte::device::Message;
+using astarte::device::Ownership;
+using astarte::device::PropertyIndividual;
+using astarte::device::StoredProperty;
 
 // -----------------------------------------------------------------------------
 // Context & Types
@@ -52,8 +52,8 @@ struct TestHttpConfig {
 
 struct TestCaseContext {
   std::string device_id;
-  std::shared_ptr<AstarteDevice> device;
-  std::shared_ptr<SharedQueue<AstarteMessage>> rx_queue;
+  std::shared_ptr<Device> device;
+  std::shared_ptr<SharedQueue<Message>> rx_queue;
   TestHttpConfig http;
 };
 
@@ -72,14 +72,14 @@ inline std::string build_url(const TestCaseContext& ctx, const std::string& path
 }
 
 // Logic for validating Datastream Individual responses
-inline void check_datastream_individual(const json& response_json, const AstarteMessage& msg) {
+inline void check_datastream_individual(const json& response_json, const Message& msg) {
   if (!response_json.contains(msg.get_path())) {
     spdlog::error("Missing entry '{}' in REST data.", msg.get_path());
     spdlog::info("Fetched data: {}", response_json.dump());
     throw EndToEndHTTPException("Fetching of data through REST API failed.");
   }
 
-  const auto& expected_data(msg.into<AstarteDatastreamIndividual>());
+  const auto& expected_data(msg.into<DatastreamIndividual>());
   json expected_data_json = json::parse(astarte_fmt::format("{}", expected_data));
   json fetched_data = response_json[msg.get_path()]["value"];
 
@@ -105,14 +105,14 @@ inline void check_datastream_individual(const json& response_json, const Astarte
 }
 
 // Logic for validating Datastream Object responses
-inline void check_datastream_aggregate(const json& response_json, const AstarteMessage& msg) {
+inline void check_datastream_aggregate(const json& response_json, const Message& msg) {
   if (!response_json.contains(msg.get_path())) {
     spdlog::error("Missing entry '{}' in REST data.", msg.get_path());
     spdlog::info("Fetched data: {}", response_json.dump());
     throw EndToEndHTTPException("Fetching of data through REST API failed.");
   }
 
-  const auto& expected_data(msg.into<AstarteDatastreamObject>());
+  const auto& expected_data(msg.into<DatastreamObject>());
   json expected_data_json = json::parse(astarte_fmt::format("{}", expected_data));
 
   // Retrieve the last object (most recent)
@@ -134,8 +134,8 @@ inline void check_datastream_aggregate(const json& response_json, const AstarteM
 }
 
 // Logic for validating Property responses
-inline void check_individual_property(const json& response_json, const AstarteMessage& msg,
-                                      const AstartePropertyIndividual& expected_data) {
+inline void check_individual_property(const json& response_json, const Message& msg,
+                                      const PropertyIndividual& expected_data) {
   if (!response_json.contains(msg.get_path())) {
     spdlog::error("Missing entry '{}' in REST data.", msg.get_path());
     spdlog::info("Fetched data: {}", response_json.dump());
@@ -152,7 +152,7 @@ inline void check_individual_property(const json& response_json, const AstarteMe
   }
 }
 
-inline void check_property_unset(const json& response_json, const AstarteMessage& msg) {
+inline void check_property_unset(const json& response_json, const Message& msg) {
   if (response_json.contains(msg.get_path())) {
     spdlog::error("Found entry '{}' in REST data.", msg.get_path());
     throw EndToEndMismatchException("Fetched REST API data differs from expected data.");
@@ -266,26 +266,26 @@ inline Action RemoveInterface(std::string interface_name) {
 // -----------------------------------------------------------------------------
 
 inline Action TransmitDeviceData(
-    AstarteMessage message,
+    Message message,
     std::optional<std::chrono::system_clock::time_point> timestamp = std::nullopt) {
   return [msg = std::move(message), ts = timestamp](const TestCaseContext& ctx) {
     spdlog::info("Transmitting MQTT data...");
-    AstarteDeviceSdk::astarte_tl::expected<void, AstarteError> res;
+    astarte::device::astarte_tl::expected<void, Error> res;
 
     // Use current time if timestamp not provided, or specific time if provided
     auto ts_ptr = ts.has_value() ? &ts.value() : nullptr;
 
     if (msg.is_datastream()) {
       if (msg.is_individual()) {
-        const auto& data(msg.into<AstarteDatastreamIndividual>());
+        const auto& data(msg.into<DatastreamIndividual>());
         res = ctx.device->send_individual(msg.get_interface(), msg.get_path(), data.get_value(),
                                           ts_ptr);
       } else {
-        const auto& data(msg.into<AstarteDatastreamObject>());
+        const auto& data(msg.into<DatastreamObject>());
         res = ctx.device->send_object(msg.get_interface(), msg.get_path(), data, ts_ptr);
       }
     } else {
-      const auto& data(msg.into<AstartePropertyIndividual>());
+      const auto& data(msg.into<PropertyIndividual>());
       if (data.get_value().has_value()) {
         res =
             ctx.device->set_property(msg.get_interface(), msg.get_path(), data.get_value().value());
@@ -298,7 +298,7 @@ inline Action TransmitDeviceData(
   };
 }
 
-inline Action ReadReceivedDeviceData(AstarteMessage expected_message) {
+inline Action ReadReceivedDeviceData(Message expected_message) {
   return [expected = std::move(expected_message)](const TestCaseContext& ctx) {
     spdlog::info("Reading received MQTT data...");
     auto start = std::chrono::high_resolution_clock::now();
@@ -312,7 +312,7 @@ inline Action ReadReceivedDeviceData(AstarteMessage expected_message) {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
-    AstarteMessage received = ctx.rx_queue->pop().value();
+    Message received = ctx.rx_queue->pop().value();
     if (received != expected) {
       spdlog::error("Received message differs from expected.");
       spdlog::error("Received: {}", received);
@@ -323,7 +323,7 @@ inline Action ReadReceivedDeviceData(AstarteMessage expected_message) {
 }
 
 inline Action GetDeviceProperty(std::string interface_name, std::string path,
-                                AstartePropertyIndividual expected) {
+                                PropertyIndividual expected) {
   return [iface = std::move(interface_name), pth = std::move(path),
           expected_prop = std::move(expected)](const TestCaseContext& ctx) {
     spdlog::info("Getting property from device...");
@@ -341,7 +341,7 @@ inline Action GetDeviceProperty(std::string interface_name, std::string path,
 }
 
 inline Action GetDeviceProperties(std::string interface_name,
-                                  std::list<AstarteStoredProperty> expected_list) {
+                                  std::list<StoredProperty> expected_list) {
   return [iface = std::move(interface_name),
           expected = std::move(expected_list)](const TestCaseContext& ctx) {
     spdlog::info("Getting properties from device...");
@@ -358,8 +358,8 @@ inline Action GetDeviceProperties(std::string interface_name,
   };
 }
 
-inline Action GetAllFilteredProperties(std::optional<AstarteOwnership> ownership,
-                                       std::list<AstarteStoredProperty> expected_list) {
+inline Action GetAllFilteredProperties(std::optional<Ownership> ownership,
+                                       std::list<StoredProperty> expected_list) {
   return [own = ownership, expected = std::move(expected_list)](const TestCaseContext& ctx) {
     spdlog::info("Getting all properties from device...");
     auto res = ctx.device->get_all_properties(own);
@@ -417,7 +417,7 @@ inline Action CheckDeviceStatus(
   };
 }
 
-inline Action TransmitRESTData(AstarteMessage message) {
+inline Action TransmitRESTData(Message message) {
   return [msg = std::move(message)](const TestCaseContext& ctx) {
     spdlog::info("Transmitting REST data...");
     std::string url =
@@ -431,9 +431,9 @@ inline Action TransmitRESTData(AstarteMessage message) {
     if (msg.is_datastream()) {
       std::string payload;
       if (msg.is_individual()) {
-        payload = make_payload(msg.into<AstarteDatastreamIndividual>());
+        payload = make_payload(msg.into<DatastreamIndividual>());
       } else {
-        payload = make_payload(msg.into<AstarteDatastreamObject>());
+        payload = make_payload(msg.into<DatastreamObject>());
       }
       spdlog::trace("HTTP POST: {} {}", url, payload);
       auto res = cpr::Post(cpr::Url{url}, cpr::Body{payload},
@@ -443,7 +443,7 @@ inline Action TransmitRESTData(AstarteMessage message) {
         throw EndToEndHTTPException("Transmission of data through REST API failed.");
       }
     } else {
-      const auto data(msg.into<AstartePropertyIndividual>());
+      const auto data(msg.into<PropertyIndividual>());
       if (data.get_value().has_value()) {
         std::string payload = make_payload(data);
         auto res = cpr::Post(cpr::Url{url}, cpr::Body{payload},
@@ -465,7 +465,7 @@ inline Action TransmitRESTData(AstarteMessage message) {
 }
 
 inline Action FetchRESTData(
-    AstarteMessage message,
+    Message message,
     std::optional<std::chrono::system_clock::time_point> timestamp = std::nullopt) {
   return [msg = std::move(message), ts = timestamp](const TestCaseContext& ctx) {
     spdlog::info("Fetching REST data...");
@@ -488,7 +488,7 @@ inline Action FetchRESTData(
         actions_helpers::check_datastream_aggregate(response_json, msg);
       }
     } else {
-      const auto expected_data(msg.into<AstartePropertyIndividual>());
+      const auto expected_data(msg.into<PropertyIndividual>());
       if (expected_data.get_value().has_value()) {
         actions_helpers::check_individual_property(response_json, msg, expected_data);
       } else {
