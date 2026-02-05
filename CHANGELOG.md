@@ -10,6 +10,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Initial MQTT implementation. Added the `astarte::device::mqtt` namespace containing all MQTT-specific functionality.
+- New `astarte::device::mqtt::DeviceMqtt` class implementing an Astarte device using the MQTT transport layer.
+- New `astarte::device::mqtt::Config` class for configuring an Astarte device using the MQTT transport layer.
+- New `astarte::device::mqtt::PairingApi` class for interacting with the Astarte pairing API.
+- Comprehensive set of error classes encapsulated in `std::expected` objects.
+- Helper scripts to build samples on Windows platforms.
+
+### Changed
+- Reorganized the SDK namespace structure. The `AstarteDeviceSdk` namespace has been replaced by `astarte::device`.
+ - Removed the `Astarte` prefix from all classes and enums.
+- Renamed `AstarteDeviceGRPC` into `DeviceGrpc` and moved it to the `astarte::device::grpc` namespace.
+- Renamed `AstarteStoredProperty` into `StoredProperty`
+- Renamed `AstartePropertyIndividual` into `PropertyIndividual`
+- Renamed `AstarteDatastreamObject` into `DatastreamObject`
+- Renamed `AstarteMessage` into `Message`
+- Renamed `AstarteDatastreamIndividual` into `DatastreamIndividual`
+- Renamed `AstarteDeviceGRPC` into `DeviceGRPC`
+- Renamed `AstarteDevice` into `Device`
+- Renamed `AstarteData` into `Data`
+- Renamed `AstarteType` into `Type`
+- Renamed `AstarteOwnership` into `Ownership`
+- Replaced the exception system with `std::expected` return types. This uses the native C++ implementation where supported, falling back to a third-party dependency on older C++ versions.
+- Updated Astarte message hub protos to `v0.10.1`. As of version `v0.10.0`, protos no longer define their own CMake package. Instead, they provide CMake functions to add compiled protos to the Astarte device target. Consequently, pkg-config now yields a single package for the Astarte device instead of two distinct packages for the device and proto sources.
+
+### Removed
+- All library-specific exception classes. Users should migrate to the new error reporting system.
+
 ## [0.8.1] - 2025-10-29
 
 ## [0.7.1] - 2025-10-28
