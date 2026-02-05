@@ -5,6 +5,14 @@
 #ifndef ASTARTE_DATA_SERIALIZATION_H
 #define ASTARTE_DATA_SERIALIZATION_H
 
+/**
+ * @file private/mqtt/serialize.hpp
+ * @brief BSON serialization utilities for Astarte data.
+ *
+ * @details This file provides functions to serialize Astarte data structures (individuals
+ * and objects) into BSON format for transmission over MQTT.
+ */
+
 #include <chrono>
 #include <nlohmann/json.hpp>
 #include <string>
@@ -17,22 +25,22 @@ namespace astarte::device::mqtt::bson {
 using json = nlohmann::json;
 
 /**
- * @brief Serialize Data to BSON bytes.
+ * @brief Serializes an Astarte Data individual to BSON.
  *
- * @param bson a reference to the BSON object to populate.
- * @param key the BSON key related to the Astarte data value.
- * @param data Astarte individual data to serialize to BSON.
- * @param timestamp Timestamp value to serialize to BSON if not null.
+ * @param[in,out] bson A reference to the JSON/BSON object to populate.
+ * @param[in] key The BSON key associated with the Astarte data value.
+ * @param[in] data The Astarte individual data to serialize.
+ * @param[in] timestamp Optional timestamp to include in the serialization.
  */
 void serialize_astarte_individual(json& bson, const std::string& key, const Data& data,
                                   const std::chrono::system_clock::time_point* timestamp);
 
 /**
- * @brief Serialize DatastreamObject to BSON bytes.
+ * @brief Serializes a DatastreamObject to BSON.
  *
- * @param bson a reference to the BSON object to populate.
- * @param object Astarte object data to serialize to BSON.
- * @param timestamp Timestamp value to serialize to BSON if not null.
+ * @param[in,out] bson A reference to the JSON/BSON object to populate.
+ * @param[in] object The Astarte object data to serialize.
+ * @param[in] timestamp Optional timestamp to include in the serialization.
  */
 void serialize_astarte_object(json& bson, const DatastreamObject& object,
                               const std::chrono::system_clock::time_point* timestamp);

@@ -5,6 +5,14 @@
 #ifndef ASTARTE_INTROSPECTION_H
 #define ASTARTE_INTROSPECTION_H
 
+/**
+ * @file private/mqtt/introspection.hpp
+ * @brief Thread-safe container for device introspection.
+ *
+ * @details This file defines the `Introspection` class, which holds the set of interfaces
+ * supported by the device, managing concurrent access and lookup.
+ */
+
 #include <map>
 #include <memory>
 #include <shared_mutex>
@@ -18,45 +26,52 @@
 namespace astarte::device::mqtt {
 
 /**
- * @brief Thread safe collection of Astarte interface.
+ * @brief Thread-safe collection of Astarte interfaces.
  *
- * The introspection represents the set of device supported interfaces.
+ * @details The introspection represents the complete set of interfaces the device supports.
+ * It provides methods to add, retrieve, and enumerate interfaces safely in a concurrent
+ * environment.
  */
 class Introspection {
  public:
-  /** @brief Default constructor. */
+  /// @brief Default constructor.
   Introspection() = default;
-  /** @brief Default destructor. */
+
+  /// @brief Default destructor.
   ~Introspection() = default;
-  /** @brief Deleted copy constructor. */
+
+  /// @brief Introspection is non-copyable.
   Introspection(const Introspection&) = delete;
-  /** @brief Deleted copy assignment operator. */
+
+  /// @brief Introspection is non-copyable.
   auto operator=(const Introspection&) -> Introspection& = delete;
-  /** @brief Deleted move constructor. */
+
+  /// @brief Introspection is non-moveable.
   Introspection(Introspection&&) = delete;
-  /** @brief Deleted move assignment operator. */
+
+  /// @brief Introspection is non-moveable.
   auto operator=(Introspection&&) -> Introspection& = delete;
 
   /**
-   * @brief Try to insert an Interface into the Introspection.
+   * @brief Adds an Interface to the Introspection safely.
    *
-   * @param interface The interface to add.
-   * @return an error if the operation fails
+   * @param[in] interface The interface object to add.
+   * @return An expected void on success, or an Error if the interface is invalid or already exists.
    */
   auto checked_insert(Interface interface) -> astarte_tl::expected<void, Error>;
 
   /**
-   * @brief Return a snapshot of the introspection values as shared pointers.
+   * @brief Returns a snapshot of the introspection values as shared pointers.
    *
-   * @return a vector containing shared pointers to the introspection interfaces.
+   * @return A vector containing shared pointers to the currently installed interfaces.
    */
   [[nodiscard]] auto values() const -> std::vector<std::shared_ptr<const Interface>>;
 
   /**
-   * @brief Get a read-only, thread-safe handle to an interface.
+   * @brief Gets a read-only, thread-safe handle to an interface.
    *
-   * @param interface_name the interface name.
-   * @return a shared pointer to the const interface if found, an error otherwise.
+   * @param[in] interface_name The name of the interface to retrieve.
+   * @return An expected shared pointer to the const interface if found, or an Error otherwise.
    */
   [[nodiscard]] auto get(std::string_view interface_name) const
       -> astarte_tl::expected<std::shared_ptr<const Interface>, Error>;

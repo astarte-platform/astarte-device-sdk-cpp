@@ -5,6 +5,15 @@
 #ifndef ASTARTE_INTERFACE_H
 #define ASTARTE_INTERFACE_H
 
+/**
+ * @file private/mqtt/interface.hpp
+ * @brief Definition of Astarte Interface and related types.
+ *
+ * @details This file defines the `Interface` class which represents a full Astarte Interface
+ * definition (datastream or property), including its versioning, ownership, aggregation,
+ * and list of mappings.
+ */
+
 #include <spdlog/spdlog.h>
 
 #include <chrono>
@@ -26,7 +35,7 @@
 
 namespace astarte::device::mqtt {
 
-/// @brief alias for nlohmann json
+/// @brief Alias for nlohmann json.
 using json = nlohmann::json;
 
 /// @brief Represents the type of an Astarte Interface.
@@ -41,8 +50,8 @@ class InterfaceType {
   };
 
   /**
-   * @brief Construct an InterfaceType from a specific Value.
-   * @param val The interface type value.
+   * @brief Constructs an InterfaceType from a specific Value.
+   * @param[in] val The interface type value.
    */
   explicit InterfaceType(Value val) : value_(val) {}
 
@@ -52,8 +61,8 @@ class InterfaceType {
   constexpr auto operator==(Value val) const -> bool { return value_ == val; }
 
   /**
-   * @brief Convert the interface type to its string representation.
-   * @return A string_view containing "datastream", "property".
+   * @brief Converts the interface type to its string representation.
+   * @return A string_view containing "datastream" or "property".
    */
   [[nodiscard]] constexpr auto to_string() const -> std::string_view {
     switch (value_) {
@@ -66,8 +75,8 @@ class InterfaceType {
   }
 
   /**
-   * @brief Attempt to create an InterfaceType from a string.
-   * @param str The string representation to parse.
+   * @brief Attempts to create an InterfaceType from a string.
+   * @param[in] str The string representation to parse.
    * @return An expected containing the InterfaceType on success, or an Error on failure.
    */
   static auto try_from_str(std::string_view str) -> astarte_tl::expected<InterfaceType, Error> {
@@ -97,8 +106,8 @@ class InterfaceAggregation {
   };
 
   /**
-   * @brief Construct an InterfaceAggregation from a specific Value.
-   * @param val The interface aggregation value.
+   * @brief Constructs an InterfaceAggregation from a specific Value.
+   * @param[in] val The interface aggregation value.
    */
   explicit InterfaceAggregation(Value val) : value_(val) {}
 
@@ -108,7 +117,7 @@ class InterfaceAggregation {
   constexpr auto operator==(Value val) const -> bool { return value_ == val; }
 
   /**
-   * @brief Convert the interface aggregation to its string representation.
+   * @brief Converts the interface aggregation to its string representation.
    * @return A string_view containing "individual" or "object".
    */
   [[nodiscard]] constexpr auto to_string() const -> std::string_view {
@@ -122,10 +131,9 @@ class InterfaceAggregation {
   }
 
   /**
-   * @brief Attempt to create an InterfaceAggregation from a string.
-   * @param str The string representation to parse.
-   * @return An expected containing the InterfaceAggregation on success, or an Error on
-   * failure.
+   * @brief Attempts to create an InterfaceAggregation from a string.
+   * @param[in] str The string representation to parse.
+   * @return An expected containing the InterfaceAggregation on success, or an Error on failure.
    */
   static auto try_from_str(std::string_view str)
       -> astarte_tl::expected<InterfaceAggregation, Error> {
@@ -140,8 +148,8 @@ class InterfaceAggregation {
   }
 
   /**
-   * @brief Check if the aggregation is of type Individual.
-   * @return true if the aggregation is individual, false otherwise.
+   * @brief Checks if the aggregation is of type Individual.
+   * @return True if the aggregation is individual, false otherwise.
    */
   [[nodiscard]] auto is_individual() const -> bool { return value_ == Value::kIndividual; }
 
@@ -149,35 +157,38 @@ class InterfaceAggregation {
   Value value_;
 };
 
-/// @brief Represents a parsed Astarte interface.
+/**
+ * @brief Represents a parsed Astarte interface.
+ *
+ * @details An Interface object contains metadata (name, version, type) and a collection
+ * of mappings that define the structure of data exchanged with Astarte.
+ */
 class Interface {
  public:
   /**
-   * @brief Try to convert a json into an Interface object.
-   * @param interface json representation of the Astarte interface.
-   * @return An Interface object containg all the parsed Astarte interface information.
+   * @brief Tries to convert a JSON object into an Interface object.
+   * @param[in] interface The JSON representation of the Astarte interface.
+   * @return An expected Interface object on success, or an Error on failure.
    */
   static auto try_from_json(const json& interface) -> astarte_tl::expected<Interface, Error>;
 
   /**
    * @brief Move constructor.
-   *
-   * @param other The Interface object to move from.
+   * @param[in,out] other The Interface object to move from.
    */
   Interface(Interface&& other) noexcept = default;
 
   /**
    * @brief Move assignment operator.
-   *
-   * @param other The Interface object to move from.
+   * @param[in,out] other The Interface object to move from.
    * @return A reference to this Interface object.
    */
   auto operator=(Interface&& other) noexcept -> Interface& = default;
 
-  /// @brief Deleted copy constructor.
+  /// @brief Interface is non-copyable.
   Interface(const Interface&) = delete;
 
-  /// @brief Deleted copy assignment operator.
+  /// @brief Interface is non-copyable.
   auto operator=(const Interface&) -> Interface& = delete;
 
   /// @brief Destructor.
@@ -195,7 +206,7 @@ class Interface {
   /// @return The type of this Interface (Datastream or Property).
   [[nodiscard]] auto interface_type() const -> InterfaceType { return interface_type_; }
 
-  /// @return The quality of the interface.
+  /// @return The ownership of the interface (Device or Server).
   [[nodiscard]] auto ownership() const -> Ownership { return ownership_; }
 
   /// @return The aggregation of the mappings (Individual or Object), if present.
@@ -203,55 +214,55 @@ class Interface {
     return aggregation_;
   }
 
-  /// @return The optional description.
+  /// @return The optional description of the interface.
   [[nodiscard]] auto description() const -> const std::optional<std::string>& {
     return description_;
   }
 
-  /// @return  The documentation string.
+  /// @return The documentation string.
   [[nodiscard]] auto doc() const -> const std::optional<std::string>& { return doc_; }
 
   /// @return The vector of mappings defined for this interface.
   [[nodiscard]] auto mappings() const -> const std::vector<Mapping>& { return mappings_; }
 
   /**
-   * @brief Retrieve the mapping associated to a given path if it exists.
+   * @brief Retrieves the mapping associated with a given path if it exists.
    *
-   * @param path the Astarte interface path.
-   * @return a pointer to the mapping associated with the path, an error otherwise.
+   * @param[in] path The Astarte interface path.
+   * @return An expected pointer to the mapping on success, or an Error if not found.
    */
   [[nodiscard]] auto get_mapping(std::string_view path) const
       -> astarte_tl::expected<const Mapping*, Error>;
 
   /**
-   * @brief Validate an Astarte individual.
+   * @brief Validates an Astarte individual data point against this interface.
    *
-   * @param path the Astarte interface path.
-   * @param data the value to validate.
-   * @param timestamp a pointer to the timestamp poiting out when the data is sent.
-   * @return an error if the falidation fails, nothing otherwise.
+   * @param[in] path The Astarte interface path.
+   * @param[in] data The value to validate.
+   * @param[in] timestamp A pointer to the timestamp, if provided.
+   * @return An expected void on success, or an Error if validation fails.
    */
   auto validate_individual(std::string_view path, const Data& data,
                            const std::chrono::system_clock::time_point* timestamp) const
       -> astarte_tl::expected<void, Error>;
 
   /**
-   * @brief Validate an Astarte object.
+   * @brief Validates an Astarte object against this interface.
    *
-   * @param common_path common path of the Astarte interface enpoints.
-   * @param object the Astarte object data to validate.
-   * @param timestamp a pointer to the timestamp pointing out when the data is sent.
-   * @return an error if the falidation fails, nothing otherwise.
+   * @param[in] common_path The common base path of the Astarte interface endpoints.
+   * @param[in] object The Astarte object data to validate.
+   * @param[in] timestamp A pointer to the timestamp, if provided.
+   * @return An expected void on success, or an Error if validation fails.
    */
   auto validate_object(std::string_view common_path, const DatastreamObject& object,
                        const std::chrono::system_clock::time_point* timestamp) const
       -> astarte_tl::expected<void, Error>;
 
   /**
-   * @brief Get the MQTT QoS from a certain mapping endpoint.
+   * @brief Gets the MQTT QoS level from a certain mapping endpoint.
    *
-   * @param path the Astarte interface path.
-   * @return the QoS value, an error otherwise.
+   * @param[in] path The Astarte interface path.
+   * @return An expected QoS value (uint8_t) on success, or an Error on failure.
    */
   [[nodiscard]] auto get_qos(std::string_view path) const -> astarte_tl::expected<uint8_t, Error>;
 
@@ -284,15 +295,15 @@ class Interface {
 }  // namespace astarte::device::mqtt
 
 // ------------------------------------------------------------------------------------------------
-// FORAMATTING
+// FORMATTING
 // ------------------------------------------------------------------------------------------------
 
 /// @brief astarte_fmt::formatter specialization for InterfaceType.
 template <>
 struct astarte_fmt::formatter<astarte::device::mqtt::InterfaceType> {
   /**
-   * @brief Parse the format string. Default implementation.
-   * @param ctx The parse context.
+   * @brief Parses the format string. Default implementation.
+   * @param[in,out] ctx The parse context.
    * @return An iterator to the end of the parsed range.
    */
   template <typename ParseContext>
@@ -301,9 +312,9 @@ struct astarte_fmt::formatter<astarte::device::mqtt::InterfaceType> {
   }
 
   /**
-   * @brief Format the InterfaceType enum.
-   * @param msg The InterfaceType to format.
-   * @param ctx The format context.
+   * @brief Formats the InterfaceType enum.
+   * @param[in] typ The InterfaceType to format.
+   * @param[in,out] ctx The format context.
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
@@ -322,8 +333,8 @@ inline auto operator<<(std::ostream& out, const astarte::device::mqtt::Interface
 template <>
 struct astarte_fmt::formatter<astarte::device::mqtt::InterfaceAggregation> {
   /**
-   * @brief Parse the format string. Default implementation.
-   * @param ctx The parse context.
+   * @brief Parses the format string. Default implementation.
+   * @param[in,out] ctx The parse context.
    * @return An iterator to the end of the parsed range.
    */
   template <typename ParseContext>
@@ -332,9 +343,9 @@ struct astarte_fmt::formatter<astarte::device::mqtt::InterfaceAggregation> {
   }
 
   /**
-   * @brief Format the InterfaceAggregation enum.
-   * @param msg The InterfaceAggregation to format.
-   * @param ctx The format context.
+   * @brief Formats the InterfaceAggregation enum.
+   * @param[in] aggr The InterfaceAggregation to format.
+   * @param[in,out] ctx The format context.
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
@@ -353,8 +364,8 @@ inline auto operator<<(std::ostream& out, const astarte::device::mqtt::Interface
 template <>
 struct astarte_fmt::formatter<astarte::device::mqtt::Interface> {
   /**
-   * @brief Parse the format string. Default implementation.
-   * @param ctx The parse context.
+   * @brief Parses the format string. Default implementation.
+   * @param[in,out] ctx The parse context.
    * @return An iterator to the end of the parsed range.
    */
   template <typename ParseContext>
@@ -363,9 +374,9 @@ struct astarte_fmt::formatter<astarte::device::mqtt::Interface> {
   }
 
   /**
-   * @brief Format the Interface object.
-   * @param msg The Interface to format.
-   * @param ctx The format context.
+   * @brief Formats the Interface object.
+   * @param[in] interface The Interface to format.
+   * @param[in,out] ctx The format context.
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>

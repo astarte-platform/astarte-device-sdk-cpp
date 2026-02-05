@@ -5,6 +5,14 @@
 #ifndef ASTARTE_MQTT_HELPERS_H
 #define ASTARTE_MQTT_HELPERS_H
 
+/**
+ * @file private/mqtt/helpers.hpp
+ * @brief JSON parsing helpers for Astarte interfaces.
+ *
+ * @details This file contains utility functions to safely extract typed values from
+ * nlohmann::json objects, used extensively during interface parsing.
+ */
+
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <string_view>
@@ -18,10 +26,11 @@ namespace astarte::device::mqtt::json_helper {
 using json = nlohmann::json;
 
 /**
- * @brief Safely get a reference to a JSON field with type validation.
- * @param interface The JSON object to search within.
- * @param key The key of the field to retrieve.
- * @param expected_type The expected JSON type for validation.
+ * @brief Safely gets a reference to a JSON field with type validation.
+ *
+ * @param[in] interface The JSON object to search within.
+ * @param[in] key The key of the field to retrieve.
+ * @param[in] expected_type The expected JSON type for validation.
  * @return An expected containing the JSON field reference on success, or an Error
  * if the field is missing or has the wrong type.
  */
@@ -34,7 +43,7 @@ inline auto get_field(const json& interface, std::string_view key, json::value_t
   }
 
   // if we expect a signed integer, also accept an unsigned one (since the json library we use may
-  // automatically convert in a wrond interger type).
+  // automatically convert in a wrong integer type).
   bool type_match = (field->type() == expected_type);
   if (expected_type == json::value_t::number_integer &&
       field->type() == json::value_t::number_unsigned) {
@@ -51,7 +60,7 @@ inline auto get_field(const json& interface, std::string_view key, json::value_t
 /**
  * @brief Helper to map C++ types to their corresponding Astarte JSON types.
  *
- * This compile-time helper ensures that the type validation in optional_value_from_json
+ * @details This compile-time helper ensures that the type validation in optional_value_from_json
  * correctly identifies strings, integers, booleans, and floats.
  *
  * @tparam T The C++ type to map.
@@ -77,19 +86,20 @@ constexpr auto get_json_type() -> json::value_t {
 }
 
 /**
- * @brief Extract an optional value from a JSON object.
+ * @brief Extracts an optional value from a JSON object.
  *
  * @tparam T The type of the value to extract.
- * @param interface The JSON object to parse.
- * @param key The key of the value to extract.
- * @return An std::optional<T> containing the value if the key exists, or std::nullopt otherwise.
+ * @param[in] interface The JSON object to parse.
+ * @param[in] key The key of the value to extract.
+ * @return An std::optional<T> containing the value if the key exists and matches the type,
+ * or std::nullopt otherwise.
  */
 template <typename T>
 auto optional_value_from_json(const nlohmann::json& interface, std::string_view key)
     -> std::optional<T> {
   auto field = interface.find(key);
 
-  // check existsence
+  // check existence
   if (field == interface.end() || field->is_null()) {
     return std::nullopt;
   }

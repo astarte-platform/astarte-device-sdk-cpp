@@ -5,6 +5,15 @@
 #ifndef ASTARTE_MQTT_PERSISTENCE_H
 #define ASTARTE_MQTT_PERSISTENCE_H
 
+/**
+ * @file private/mqtt/persistence.hpp
+ * @brief Persistence layer utilities.
+ *
+ * @details This file defines the `Persistence` class, offering static methods for basic
+ * filesystem operations such as reading, writing, and securely deleting files, used
+ * for storing configuration and credentials.
+ */
+
 #include <spdlog/spdlog.h>
 
 #include <filesystem>
@@ -18,15 +27,15 @@ namespace astarte::device::mqtt {
 /**
  * @brief Utility class for file system persistence operations.
  *
- * This class provides static helper methods to handle reading, writing, checking existence,
- * and securely deleting files used by the SDK for persistence.
+ * @details This class provides static helper methods to handle reading, writing, checking
+ * existence, and securely deleting files used by the SDK for persistence.
  */
 class Persistence {
  public:
   /**
    * @brief Checks if a file exists at the specified path.
    *
-   * @param file_path The path to the file to check.
+   * @param[in] file_path The path to the file to check.
    * @return True if the file exists, false otherwise.
    */
   static auto exists(const std::filesystem::path& file_path) -> bool;
@@ -34,8 +43,8 @@ class Persistence {
   /**
    * @brief Reads the content of a file into a string.
    *
-   * @param file_path The path to the file to read.
-   * @return The content of the file as a string, or an error if the operation fails.
+   * @param[in] file_path The path to the file to read.
+   * @return An expected containing the file content as a string on success, or an Error on failure.
    */
   static auto read_from_file(const std::filesystem::path& file_path)
       -> astarte_tl::expected<std::string, Error>;
@@ -43,9 +52,9 @@ class Persistence {
   /**
    * @brief Writes string data to a specific file.
    *
-   * @param file_path The path where the file will be written.
-   * @param data The string data to write.
-   * @return An error if the write operation fails.
+   * @param[in] file_path The path where the file will be written.
+   * @param[in] data The string data to write.
+   * @return An expected containing void on success, or an Error on failure.
    */
   static auto write_to_file(const std::filesystem::path& file_path, std::string_view data)
       -> astarte_tl::expected<void, Error>;
@@ -53,8 +62,8 @@ class Persistence {
   /**
    * @brief Securely removes a file from the filesystem.
    *
-   * @param path The path of the file to remove.
-   * @return An error if the operation fails.
+   * @param[in] path The path of the file to remove.
+   * @return An expected containing void on success, or an Error on failure.
    */
   static auto secure_shred_file(const std::string& path) -> astarte_tl::expected<void, Error>;
 };

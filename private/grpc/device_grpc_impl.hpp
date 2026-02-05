@@ -5,6 +5,15 @@
 #ifndef DEVICE_GRPC_IMPL_H
 #define DEVICE_GRPC_IMPL_H
 
+/**
+ * @file private/grpc/device_grpc_impl.hpp
+ * @brief Private implementation of the DeviceGrpc class.
+ *
+ * @details This file contains the declaration of the DeviceGrpcImpl class, which handles
+ * the direct interaction with the Astarte gRPC Message Hub, managing the gRPC channel,
+ * client context, and event loops.
+ */
+
 #include <astarteplatform/msghub/astarte_message.pb.h>
 #include <astarteplatform/msghub/message_hub_service.grpc.pb.h>
 #include <grpcpp/grpcpp.h>
@@ -40,128 +49,176 @@ using ::grpc::ClientReader;
 using gRPCMessageHub = astarteplatform::msghub::MessageHub;
 using gRPCMessageHubEvent = astarteplatform::msghub::MessageHubEvent;
 
+/**
+ * @brief Implementation class for the gRPC-based Astarte device.
+ *
+ * @details Implements the logic declared in DeviceGrpc using the PIMPL idiom.
+ * It manages the lifecycle of the gRPC connection, processes incoming events,
+ * and converts data between SDK types and Protobuf messages.
+ */
 struct DeviceGrpc::DeviceGrpcImpl {
  public:
   /**
-   * @brief Construct an DeviceGrpcImpl instance.
-   * @param server_addr The gRPC server address for the Astarte message hub.
-   * @param node_uuid The unique identifier for the device connection.
+   * @brief Constructs a DeviceGrpcImpl instance.
+   * @param[in] server_addr The gRPC server address for the Astarte message hub.
+   * @param[in] node_uuid The unique identifier for the device connection.
    */
   DeviceGrpcImpl(std::string server_addr, std::string node_uuid);
-  /** @brief Destructor for the Astarte device class. */
+
+  /// @brief Destructor for the implementation class.
   ~DeviceGrpcImpl();
-  /** @brief Copy constructor for the Astarte device class. */
+
+  /// @brief DeviceGrpcImpl is non-copyable.
   DeviceGrpcImpl(DeviceGrpcImpl& other) = delete;
-  /** @brief Move constructor for the Astarte device class. */
+
+  /// @brief DeviceGrpcImpl is non-moveable.
   DeviceGrpcImpl(DeviceGrpcImpl&& other) = delete;
-  /** @brief Copy assignment operator for the Astarte device class. */
+
+  /// @brief DeviceGrpcImpl is non-copyable.
   auto operator=(DeviceGrpcImpl& other) -> DeviceGrpcImpl& = delete;
-  /** @brief Move assignment operator for the Astarte device class. */
+
+  /// @brief DeviceGrpcImpl is non-moveable.
   auto operator=(DeviceGrpcImpl&& other) -> DeviceGrpcImpl& = delete;
 
   /**
-   * @brief Parse an interface definition from a JSON file and adds it to the device.
-   * @details The file content is read and stored internally for use during the connection phase.
-   * @param json_file The filesystem path to the .json interface file.
+   * @brief Parses an interface definition from a JSON file and adds it to the device.
+   * @details The file content is read and stored internally. It will be registered
+   * with Astarte during the connection phase.
+   *
+   * @param[in] json_file The filesystem path to the .json interface file.
+   * @return An expected conforming to std::expected containing void on success or Error on failure.
    */
   auto add_interface_from_file(const std::filesystem::path& json_file)
       -> astarte_tl::expected<void, Error>;
+
   /**
-   * @brief Parse an interface definition from a JSON string and adds it to the device.
-   * @param json The interface to add.
+   * @brief Parses an interface definition from a JSON string and adds it to the device.
+   *
+   * @param[in] json The interface definition as a JSON string view.
+   * @return An expected conforming to std::expected containing void on success or Error on failure.
    */
   auto add_interface_from_str(std::string_view json) -> astarte_tl::expected<void, Error>;
+
   /**
-   * @brief Remove an installed interface.
-   * @param interface_name The interface name.
+   * @brief Removes an installed interface.
+   *
+   * @param[in] interface_name The name of the interface to remove.
+   * @return An expected conforming to std::expected containing void on success or Error on failure.
    */
   auto remove_interface(const std::string& interface_name) -> astarte_tl::expected<void, Error>;
+
   /**
-   * @brief Connect the device to Astarte.
-   * @details This is an asynchronous funciton. It will start a management thread that will
-   * manage the device connectivity.
+   * @brief Connects the device to Astarte.
+   * @details Initializes the gRPC channel and starts a dedicated management thread that
+   * handles connection persistence and incoming message streaming.
+   *
+   * @return An expected conforming to std::expected containing void on success or Error on failure.
    */
   auto connect() -> astarte_tl::expected<void, Error>;
+
   /**
-   * @brief Check if the device is connected.
+   * @brief Checks if the device is connected.
    * @return True if the device is connected to the message hub, false otherwise.
    */
   [[nodiscard]] auto is_connected() const -> bool;
+
   /**
-   * @brief Disconnect from the Astarte message hub.
-   * @details Gracefully terminates the connection by sending a Detach message.
+   * @brief Disconnects from the Astarte message hub.
+   * @details Gracefully terminates the connection by sending a Detach message and stopping
+   * the background connection thread.
+   *
+   * @return An expected conforming to std::expected containing void on success or Error on failure.
    */
   auto disconnect() -> astarte_tl::expected<void, Error>;
+
   /**
-   * @brief Send an individual datastream value to an interface.
-   * @param interface_name The name of the interface to send data to.
-   * @param path The path within the interface (e.g., "/endpoint/value").
-   * @param data The data point to send.
-   * @param timestamp An optional timestamp for the data point.
+   * @brief Sends an individual datastream value to an interface.
+   *
+   * @param[in] interface_name The name of the interface to send data to.
+   * @param[in] path The path within the interface (e.g., "/endpoint/value").
+   * @param[in] data The data point to send.
+   * @param[in] timestamp An optional timestamp for the data point.
+   * @return An expected conforming to std::expected containing void on success or Error on failure.
    */
   auto send_individual(std::string_view interface_name, std::string_view path, const Data& data,
                        const std::chrono::system_clock::time_point* timestamp)
       -> astarte_tl::expected<void, Error>;
+
   /**
-   * @brief Send a datastream object to an interface.
-   * @param interface_name The name of the interface to send data to.
-   * @param path The base path for the object within the interface.
-   * @param object The key-value map representing the object to send.
-   * @param timestamp An optional timestamp for the data.
+   * @brief Sends a datastream object to an interface.
+   *
+   * @param[in] interface_name The name of the interface to send data to.
+   * @param[in] path The base path for the object within the interface.
+   * @param[in] object The key-value map representing the object to send.
+   * @param[in] timestamp An optional timestamp for the data.
+   * @return An expected conforming to std::expected containing void on success or Error on failure.
    */
   auto send_object(std::string_view interface_name, std::string_view path,
                    const DatastreamObject& object,
                    const std::chrono::system_clock::time_point* timestamp)
       -> astarte_tl::expected<void, Error>;
+
   /**
-   * @brief Set a device property on an interface.
-   * @param interface_name The name of the interface where the property is defined.
-   * @param path The path of the property to set.
-   * @param data The value to set for the property.
+   * @brief Sets a device property on an interface.
+   *
+   * @param[in] interface_name The name of the interface where the property is defined.
+   * @param[in] path The path of the property to set.
+   * @param[in] data The value to set for the property.
+   * @return An expected conforming to std::expected containing void on success or Error on failure.
    */
   auto set_property(std::string_view interface_name, std::string_view path, const Data& data)
       -> astarte_tl::expected<void, Error>;
+
   /**
-   * @brief Unset a device property on an interface.
-   * @details This sends a message to the server to clear the value of a specific property.
-   * @param interface_name The name of the interface where the property is defined.
-   * @param path The path of the property to unset.
+   * @brief Unsets a device property on an interface.
+   * @details Sends a message to the server to clear (delete) the value of a specific property.
+   *
+   * @param[in] interface_name The name of the interface where the property is defined.
+   * @param[in] path The path of the property to unset.
+   * @return An expected conforming to std::expected containing void on success or Error on failure.
    */
   auto unset_property(std::string_view interface_name, std::string_view path)
       -> astarte_tl::expected<void, Error>;
+
   /**
-   * @brief Poll for a new message received from the message hub.
-   * @details This method checks an internal queue for parsed messages from the server.
-   * @param timeout Will block for this timeout if no message is present.
-   * @return An std::optional containing an Message if one was available, otherwise
-   * std::nullopt.
+   * @brief Polls for a new message received from the message hub.
+   * @details Checks the internal queue for parsed messages received from the server.
+   * Blocks execution until a message arrives or the timeout occurs.
+   *
+   * @param[in] timeout The maximum duration to block waiting for a message.
+   * @return An std::optional containing a Message if one was available, otherwise std::nullopt.
    */
   auto poll_incoming(const std::chrono::milliseconds& timeout) -> std::optional<Message>;
+
   /**
-   * @brief Get all stored properties matching the input filter.
-   * @param ownership Optional ownership filter.
-   * @return A list of stored properties, as returned by the message hub.
+   * @brief Gets all stored properties matching the input filter.
+   *
+   * @param[in] ownership Optional ownership filter.
+   * @return An expected containing the list of properties on success, or an Error on failure.
    */
   auto get_all_properties(const std::optional<Ownership>& ownership)
       -> astarte_tl::expected<std::list<StoredProperty>, Error>;
+
   /**
-   * @brief Get stored propertied matching the interface.
-   * @param interface_name The name of the interface for the property.
-   * @return A list of stored properties, as returned by the message hub.
+   * @brief Gets stored properties matching the interface.
+   *
+   * @param[in] interface_name The name of the interface for the property.
+   * @return An expected containing the list of properties on success, or an Error on failure.
    */
   auto get_properties(std::string_view interface_name)
       -> astarte_tl::expected<std::list<StoredProperty>, Error>;
+
   /**
-   * @brief Get a single stored property matching the interface name and path.
-   * @param interface_name The name of the interface for the property.
-   * @param path Exact path for the property.
-   * @return The stored property, as returned by the message hub.
+   * @brief Gets a single stored property matching the interface name and path.
+   *
+   * @param[in] interface_name The name of the interface for the property.
+   * @param[in] path Exact path for the property.
+   * @return An expected containing the property on success, or an Error on failure.
    */
   auto get_property(std::string_view interface_name, std::string_view path)
       -> astarte_tl::expected<PropertyIndividual, Error>;
 
  private:
-  // Helper struct to hold the results of the Attach RPC call
   struct AttachResult {
     std::unique_ptr<ClientContext> context;
     std::unique_ptr<ClientReader<gRPCMessageHubEvent>> reader;
