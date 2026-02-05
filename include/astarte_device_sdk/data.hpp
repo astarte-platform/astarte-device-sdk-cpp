@@ -8,6 +8,9 @@
 /**
  * @file astarte_device_sdk/data.hpp
  * @brief Astarte data class and its related methods.
+ *
+ * @details This file defines the container class for data exchanged with the Astarte
+ * platform, handling type mapping between C++ and Astarte's data model.
  */
 
 #include <chrono>
@@ -25,7 +28,12 @@
 
 namespace astarte::device {
 
-/** @brief Restricts the allowed types for instances of an Astarte data class. */
+/**
+ * @brief C++ concept to restrict the allowed types for instances of an Astarte data class.
+ *
+ * @details This concept ensures that only specific C++ types, corresponding to Astarte's
+ * supported data types, can be used to construct and retrieve data from the `Data` class.
+ */
 template <typename T>
 concept DataAllowedType = requires {
   requires std::is_same_v<T, int32_t> || std::is_same_v<T, int64_t> || std::is_same_v<T, double> ||
@@ -39,16 +47,28 @@ concept DataAllowedType = requires {
                std::is_same_v<T, std::vector<std::chrono::system_clock::time_point>>;
 };
 
-/** @brief Astarte data class, representing the basic Astarte types. */
+/**
+ * @brief Represents a single Astarte data value.
+ *
+ * @details The `Data` class acts as a versatile container for all data types supported by the
+ * Astarte platform. It abstracts away the underlying C++ types, providing a unified interface
+ * for handling data sent to and received from Astarte.
+ *
+ * It uses `std::variant` internally to store different types, ensuring type safety
+ * while offering flexibility. The `DataAllowedType` concept restricts which C++ types
+ * can be stored, mapping them to Astarte's data model.
+ */
 class Data {
  public:
   /**
-   * @brief Constructor for the Data class.
-   * @note About string views. By design an Data object is intended to encapsulate
-   * data without relying on the lifetime of its inputs. As such passing a string_view to the
-   * constructor will result in the creation of a new internal std::string object that will contain
-   * a copy of the input string.
-   * @param value The content of the Astarte data instance.
+   * @brief Constructs a Data object from a value of any `DataAllowedType`.
+   *
+   * @details The constructor implicitly copies the provided value into the internal storage.
+   * This ensures that the `Data` object manages its own data lifetime independently
+   * of the input `value`.
+   *
+   * @tparam T The type of the value, must satisfy `DataAllowedType`.
+   * @param[in] value The content to initialize the Astarte data instance with.
    */
   template <DataAllowedType T>
   explicit Data(const T& value) {
@@ -60,8 +80,15 @@ class Data {
   }
 
   /**
-   * @brief Convert the Astarte data class to the appropriate data type.
-   * @return The value contained in the class instance.
+   * @brief Converts the Astarte data class to the specified type `T`.
+   *
+   * @details This method performs a direct extraction of the stored value using `std::get<T>`.
+   * It is the caller's responsibility to ensure that the `Data` object
+   * currently holds a value of type `T`.
+   *
+   * @tparam T The target type to convert to, must satisfy `DataAllowedType`.
+   * @return A constant reference to the value contained in the class instance.
+   * @throws std::bad_variant_access If the `Data` object does not contain a `T`.
    */
   template <DataAllowedType T>
   [[nodiscard]] auto into() const
@@ -72,9 +99,16 @@ class Data {
       return std::get<T>(data_);
     }
   }
+
   /**
-   * @brief Convert the Astarte data class to the given type if it's the correct variant.
-   * @return The value contained in the class instance or nullopt.
+   * @brief Attempts to convert the Astarte data class to the specified type `T` safely.
+   *
+   * @details This method attempts to extract the stored value as type `T`. If the `Data`
+   * object currently holds a value of type `T`, an `std::optional` containing
+   * that value is returned.
+   *
+   * @tparam T The target type to convert to, must satisfy `DataAllowedType`.
+   * @return std::optional containing the value if the types match, or std::nullopt otherwise.
    */
   template <DataAllowedType T>
   [[nodiscard]] auto try_into() const -> std::optional<T> {
@@ -90,15 +124,16 @@ class Data {
 
     return std::nullopt;
   }
+
   /**
-   * @brief Get the type of the data contained in this class instance.
-   * @return The type of the content of this class instance.
+   * @brief Gets the type of the data contained in this class instance.
+   * @return The Astarte Type of the content of this class instance.
    */
   [[nodiscard]] auto get_type() const -> Type;
+
   /**
-   * @brief Return the raw data contained in this class instance.
-   * @return The raw data contained in this class instance. This is a variant containing one of the
-   * possible data types.
+   * @brief Returns the raw data variant contained in this class instance.
+   * @return A constant reference to the internal variant containing one of the possible data types.
    */
   [[nodiscard]] auto get_raw_data() const
       -> const std::variant<int32_t, int64_t, double, bool, std::string, std::vector<uint8_t>,
@@ -108,13 +143,14 @@ class Data {
                             std::vector<std::chrono::system_clock::time_point>>&;
   /**
    * @brief Overloader for the comparison operator ==.
-   * @param other The object to compare to.
+   * @param[in] other The object to compare to.
    * @return True when equal, false otherwise.
    */
   [[nodiscard]] auto operator==(const Data& other) const -> bool;
+
   /**
    * @brief Overloader for the comparison operator !=.
-   * @param other The object to compare to.
+   * @param[in] other The object to compare to.
    * @return True when different, false otherwise.
    */
   [[nodiscard]] auto operator!=(const Data& other) const -> bool;
@@ -130,14 +166,12 @@ class Data {
 
 }  // namespace astarte::device
 
-/**
- * @brief astarte_fmt::formatter specialization for astarte::device::Data.
- */
+/// @brief astarte_fmt::formatter specialization for astarte::device::Data.
 template <>
 struct astarte_fmt::formatter<astarte::device::Data> {
   /**
-   * @brief Parse the format string. Default implementation.
-   * @param ctx The parse context.
+   * @brief Parses the format string.
+   * @param[in,out] ctx The parse context.
    * @return An iterator to the end of the parsed range.
    */
   template <typename ParseContext>
@@ -146,9 +180,9 @@ struct astarte_fmt::formatter<astarte::device::Data> {
   }
 
   /**
-   * @brief Format the Data variant-like object by dispatching to the correct formatter.
-   * @param data The Data to format.
-   * @param ctx The format context.
+   * @brief Formats the Data variant-like object by dispatching to the correct formatter.
+   * @param[in] data The Data instance to format.
+   * @param[in,out] ctx The format context.
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
@@ -202,9 +236,9 @@ struct astarte_fmt::formatter<astarte::device::Data> {
 
 /**
  * @brief Stream insertion operator for Data.
- * @param out The output stream.
- * @param data The Data object to output.
- * @return Reference to the output stream.
+ * @param[in,out] out The output stream.
+ * @param[in] data The Data object to output.
+ * @return A reference to the output stream.
  */
 inline auto operator<<(std::ostream& out, const astarte::device::Data& data) -> std::ostream& {
   out << astarte_fmt::format("{}", data);

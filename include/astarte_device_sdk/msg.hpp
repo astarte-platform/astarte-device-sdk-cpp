@@ -8,6 +8,9 @@
 /**
  * @file astarte_device_sdk/msg.hpp
  * @brief Astarte message class and its related methods.
+ *
+ * @details This file defines the message container used to represent data packets
+ * exchanged with the Astarte platform, encapsulating interface names, paths, and payloads.
  */
 
 #include <optional>
@@ -24,50 +27,71 @@
 
 namespace astarte::device {
 
-/** @brief Astarte message class, represents a full message for/from Astarte. */
+/**
+ * @brief Astarte message class, represents a full message for/from Astarte.
+ *
+ * @details The `Message` class acts as a unified container for data received from
+ * Astarte (via polling). It can hold individual datastreams, aggregated objects, or
+ * individual properties.
+ */
 class Message {
  public:
   /**
    * @brief Constructor for the Message class.
-   * @param interface The interface for the message.
-   * @param path The path for the message.
-   * @param data The data for the message.
+   *
+   * @tparam T The type of the data payload.
+   * @param[in] interface The interface for the message.
+   * @param[in] path The path for the message.
+   * @param[in] data The data for the message.
    */
   template <typename T>
   Message(std::string_view interface, std::string_view path, T data)
       : interface_(interface), path_(path), data_(std::move(data)) {}
 
   /**
-   * @brief Get the interface of the message.
-   * @return The interface.
+   * @brief Gets the interface of the message.
+   *
+   * @return A constant reference to the interface name.
    */
   [[nodiscard]] auto get_interface() const -> const std::string&;
+
   /**
-   * @brief Get the path of the message.
-   * @return The path.
+   * @brief Gets the path of the message.
+   *
+   * @return A constant reference to the path.
    */
   [[nodiscard]] auto get_path() const -> const std::string&;
+
   /**
-   * @brief Check if this message contains a datastream.
+   * @brief Checks if this message contains a datastream.
+   *
    * @return True if the message contains a datastream, false otherwise.
    */
   [[nodiscard]] auto is_datastream() const -> bool;
+
   /**
-   * @brief Check if this message contains individual data.
+   * @brief Checks if this message contains individual data.
+   *
    * @return True if the message contains individual data, false otherwise.
    */
   [[nodiscard]] auto is_individual() const -> bool;
+
   /**
    * @brief Get the content of the message.
-   * @return The value contained in the message.
+   *
+   * @tparam T The target type to cast the content to.
+   * @return A constant reference to the value contained in the message.
    */
   template <typename T>
   [[nodiscard]] auto into() const -> const T& {
     return std::get<T>(data_);
   }
+
   /**
    * @brief Return the content of the message if it's of the correct type.
-   * @return The value contained in the message or nullopt.
+   *
+   * @tparam T The target type to attempt casting to.
+   * @return std::optional containing the value if the type matches, or std::nullopt.
    */
   template <typename T>
   [[nodiscard]] auto try_into() const -> std::optional<T> {
@@ -77,21 +101,27 @@ class Message {
 
     return std::nullopt;
   }
+
   /**
-   * @brief Return the raw data contained in this class instance.
-   * @return The raw data contained in this class instance.
+   * @brief Returns the raw data contained in this class instance.
+   *
+   * @return A constant reference to the internal variant containing the data.
    */
   [[nodiscard]] auto get_raw_data() const
       -> const std::variant<DatastreamIndividual, DatastreamObject, PropertyIndividual>&;
+
   /**
    * @brief Overloader for the comparison operator ==.
-   * @param other The object to compare to.
+   *
+   * @param[in] other The object to compare to.
    * @return True when equal, false otherwise.
    */
   [[nodiscard]] auto operator==(const Message& other) const -> bool;
+
   /**
    * @brief Overloader for the comparison operator !=.
-   * @param other The object to compare to.
+   *
+   * @param[in] other The object to compare to.
    * @return True when different, false otherwise.
    */
   [[nodiscard]] auto operator!=(const Message& other) const -> bool;
@@ -104,14 +134,13 @@ class Message {
 
 }  // namespace astarte::device
 
-/**
- * @brief astarte_fmt::formatter specialization for astarte::device::Message.
- */
+/// @brief astarte_fmt::formatter specialization for astarte::device::Message.
 template <>
 struct astarte_fmt::formatter<astarte::device::Message> {
   /**
-   * @brief Parse the format string. Default implementation.
-   * @param ctx The parse context.
+   * @brief Parses the format string.
+   *
+   * @param[in,out] ctx The parse context.
    * @return An iterator to the end of the parsed range.
    */
   template <typename ParseContext>
@@ -120,9 +149,10 @@ struct astarte_fmt::formatter<astarte::device::Message> {
   }
 
   /**
-   * @brief Format the Message object.
-   * @param msg The Message to format.
-   * @param ctx The format context.
+   * @brief Formats the Message object.
+   *
+   * @param[in] msg The Message instance to format.
+   * @param[in,out] ctx The format context.
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
@@ -151,9 +181,10 @@ struct astarte_fmt::formatter<astarte::device::Message> {
 
 /**
  * @brief Stream insertion operator for Message.
- * @param out The output stream.
- * @param msg The Message object to output.
- * @return Reference to the output stream.
+ *
+ * @param[in,out] out The output stream.
+ * @param[in] msg The Message object to output.
+ * @return A reference to the output stream.
  */
 inline auto operator<<(std::ostream& out, const astarte::device::Message& msg) -> std::ostream& {
   out << astarte_fmt::format("{}", msg);

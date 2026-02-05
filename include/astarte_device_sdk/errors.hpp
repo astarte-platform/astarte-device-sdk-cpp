@@ -5,6 +5,15 @@
 #ifndef ASTARTE_DEVICE_SDK_ERRORS_H
 #define ASTARTE_DEVICE_SDK_ERRORS_H
 
+/**
+ * @file astarte_device_sdk/errors.hpp
+ * @brief Error types and handling for the Astarte device library.
+ *
+ * @details This file defines the comprehensive error hierarchy used across the SDK,
+ * utilizing a variant-based approach for type-safe error propagation and nesting
+ * without relying on C++ exceptions.
+ */
+
 #if defined(ASTARTE_USE_TL_EXPECTED)
 #include <tl/expected.hpp>
 #else
@@ -63,9 +72,10 @@ class MqttConnectionError;
 #endif
 
 /**
- * @brief A variant type representing any possible error from the Astarte device library.
+ * @brief Variant type representing any error from the Astarte device library.
  *
- * This type is intended to be used as the error type 'E' in std::expected<T, E>.
+ * @details Intended for use as the error type `E` in `astarte_tl::expected<T, E>`.
+ * This allows for efficient, stack-allocated error reporting across the SDK.
  */
 using Error =
     std::variant<DataSerializationError, InternalError, FileOpenError, InvalidInputError,
@@ -86,55 +96,63 @@ using Error =
 /**
  * @brief Base error class representing any possible error from the Astarte device library.
  *
- * This type is intended to be used as the error type 'E' in std::expected<T, E>.
+ * @details Provides the fundamental structure for error reporting, including type
+ * identification, human-readable messages, and support for nested (wrapped) errors.
  */
 class ErrorBase {
  public:
-  /** @brief Destructor for the Astarte error. */
+  /// @brief Destructor for the Astarte error.
   virtual ~ErrorBase() = default;
-  /** @brief Default copy constructor. */
+
+  /// @brief Default copy constructor.
   ErrorBase(const ErrorBase&) = default;
+
   /**
    * @brief Default copy assignment operator.
-   * @return The new class.
+   * @return A reference to the assigned class instance.
    */
   auto operator=(const ErrorBase&) -> ErrorBase& = default;
+
   /** @brief Delete move constructor. */
   ErrorBase(ErrorBase&&) = delete;
+
   /**
    * @brief Default move assignment operator.
-   * @return The new instance.
+   * @return A reference to the assigned instance.
    */
   auto operator=(ErrorBase&&) -> ErrorBase& = default;
 
   /**
-   * @brief Return the message encapsulated in the error.
-   * @return The error message.
+   * @brief Retrieves the error message.
+   * @return A constant reference to the error message string.
    */
   [[nodiscard]] auto message() const -> const std::string&;
+
   /**
-   * @brief Return the type encapsulated in the error.
-   * @return The error type.
+   * @brief Retrieves the error type string.
+   * @return A constant reference to the error type string.
    */
   [[nodiscard]] auto type() const -> const std::string&;
+
   /**
-   * @brief Return the nested error.
-   * @return The error.
+   * @brief Retrieves the nested error, if any.
+   * @return A constant reference to a shared pointer to the nested error, or nullptr if none.
    */
   [[nodiscard]] auto nested_error() const -> const std::shared_ptr<ErrorBase>&;
 
  protected:
   /**
    * @brief Constructor for the Astarte error.
-   * @param type The name of the error type.
-   * @param message The error message.
+   * @param[in] type Error type name.
+   * @param[in] message Error message.
    */
   explicit ErrorBase(std::string_view type, std::string_view message);
+
   /**
    * @brief Wrapping constructor for the Astarte error.
-   * @param type The name of the error type.
-   * @param message The error message.
-   * @param other An error to encapsulate within this base error.
+   * @param[in] type Error type name.
+   * @param[in] message Error message.
+   * @param[in] other Nested error to wrap.
    */
   explicit ErrorBase(std::string_view type, std::string_view message, const ErrorBase& other);
 
@@ -144,20 +162,19 @@ class ErrorBase {
   std::shared_ptr<ErrorBase> other_;
 };
 
-/**
- * @brief Specific error for when a serializaion operation failed.
- */
+/// @brief Specific error for when a serialization operation failed.
 class DataSerializationError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
-   * @param message The error message.
+   * @param[in] message Human-readable error message.
    */
   explicit DataSerializationError(std::string_view message);
+
   /**
    * @brief Nested error constructor.
-   * @param message The error message.
-   * @param other The error to nest.
+   * @param[in] message Human-readable error message.
+   * @param[in] other The underlying Error to nest.
    */
   explicit DataSerializationError(std::string_view message, const Error& other);
 
@@ -165,20 +182,19 @@ class DataSerializationError : public ErrorBase {
   static constexpr std::string_view k_type_ = "DataSerializationError";
 };
 
-/**
- * @brief Specific error for when an operation failed due to an internal error.
- */
+/// @brief Specific error for when an operation failed due to an internal error.
 class InternalError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
-   * @param message The error message.
+   * @param[in] message Human-readable error message.
    */
   explicit InternalError(std::string_view message);
+
   /**
    * @brief Nested error constructor.
-   * @param message The error message.
-   * @param other The error to nest.
+   * @param[in] message Human-readable error message.
+   * @param[in] other The underlying Error to nest.
    */
   explicit InternalError(std::string_view message, const Error& other);
 
@@ -186,20 +202,19 @@ class InternalError : public ErrorBase {
   static constexpr std::string_view k_type_ = "InternalError";
 };
 
-/**
- * @brief Specific error for when a file cannot be opened.
- */
+/// @brief Specific error for when a file cannot be opened.
 class FileOpenError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
-   * @param filename The file which could not be opened.
+   * @param[in] filename The path to the file which could not be opened.
    */
   explicit FileOpenError(std::string_view filename);
+
   /**
    * @brief Nested error constructor.
-   * @param filename The file which could not be opened.
-   * @param other The error to nest.
+   * @param[in] filename The path to the file which could not be opened.
+   * @param[in] other The error to nest.
    */
   explicit FileOpenError(std::string_view filename, const Error& other);
 
@@ -207,20 +222,19 @@ class FileOpenError : public ErrorBase {
   static constexpr std::string_view k_type_ = "FileOpenError";
 };
 
-/**
- * @brief Specific error for when an operation failed due to incompatible user input.
- */
+/// @brief Specific error for when an operation failed due to incompatible user input.
 class InvalidInputError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
-   * @param message The error message.
+   * @param[in] message The error message detailing the invalid input.
    */
   explicit InvalidInputError(std::string_view message);
+
   /**
    * @brief Nested error constructor.
-   * @param message The error message.
-   * @param other The error to nest.
+   * @param[in] message The error message detailing the invalid input.
+   * @param[in] other The error to nest.
    */
   explicit InvalidInputError(std::string_view message, const Error& other);
 
@@ -228,20 +242,19 @@ class InvalidInputError : public ErrorBase {
   static constexpr std::string_view k_type_ = "InvalidInputError";
 };
 
-/**
- * @brief Attempted an operation which is not permitted according to the current device status.
- */
+/// @brief An operation which is not permitted according to the current device status was attempted.
 class OperationRefusedError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
-   * @param message The error message.
+   * @param[in] message The human-readable error message.
    */
   explicit OperationRefusedError(std::string_view message);
+
   /**
    * @brief Nested error constructor.
-   * @param message The error message.
-   * @param other The error to nest.
+   * @param[in] message The human-readable error message.
+   * @param[in] other The error to nest.
    */
   explicit OperationRefusedError(std::string_view message, const Error& other);
 
@@ -249,33 +262,34 @@ class OperationRefusedError : public ErrorBase {
   static constexpr std::string_view k_type_ = "OperationRefusedError";
 };
 
-/**
- * @brief Error reported by the gRPC transport library.
- */
+/// @brief Error reported by the gRPC transport library.
 class GrpcLibError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
-   * @param message The error message.
+   * @param[in] message The human-readable error message.
    */
   explicit GrpcLibError(std::string_view message);
+
   /**
    * @brief Nested error constructor.
-   * @param message The error message.
-   * @param other The error to nest.
+   * @param[in] message The human-readable error message.
+   * @param[in] other The error to nest.
    */
   explicit GrpcLibError(std::string_view message, const Error& other);
+
   /**
    * @brief Error constructor including gRPC error codes.
-   * @param code The error code returned by the gRPC library.
-   * @param message The error message.
+   * @param[in] code The error code returned by the gRPC library.
+   * @param[in] message The human-readable error message.
    */
   explicit GrpcLibError(std::uint64_t code, std::string_view message);
+
   /**
    * @brief Nested error constructor including gRPC error codes.
-   * @param code The error code returned by the gRPC library.
-   * @param message The error message.
-   * @param other The error to nest.
+   * @param[in] code The error code returned by the gRPC library.
+   * @param[in] message The human-readable error message.
+   * @param[in] other The error to nest.
    */
   explicit GrpcLibError(std::uint64_t code, std::string_view message, const Error& other);
 
@@ -283,20 +297,19 @@ class GrpcLibError : public ErrorBase {
   static constexpr std::string_view k_type_ = "GrpcLibError";
 };
 
-/**
- * @brief Error reported by the Astarte message hub library.
- */
+/// @brief Error reported by the Astarte message hub library.
 class MsgHubError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
-   * @param message The error message.
+   * @param[in] message The human-readable error message.
    */
   explicit MsgHubError(std::string_view message);
+
   /**
    * @brief Nested error constructor.
-   * @param message The error message.
-   * @param other The error to nest.
+   * @param[in] message The human-readable error message.
+   * @param[in] other The error to nest.
    */
   explicit MsgHubError(std::string_view message, const Error& other);
 
@@ -304,24 +317,23 @@ class MsgHubError : public ErrorBase {
   static constexpr std::string_view k_type_ = "MsgHubError";
 };
 
-/************************************************
- *       Interface validation errors       *
- ***********************************************/
+// -----------------------------------------------------------------------------
+// Interface validation errors
+// -----------------------------------------------------------------------------
 
-/**
- * @brief Error during the Interface validation.
- */
+/// @brief Error during the Interface validation process.
 class InterfaceValidationError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
-   * @param message The error message.
+   * @param[in] message The human-readable error message.
    */
   explicit InterfaceValidationError(std::string_view message);
+
   /**
    * @brief Nested error constructor.
-   * @param message The error message.
-   * @param other The error to nest.
+   * @param[in] message The human-readable error message.
+   * @param[in] other The error to nest.
    */
   explicit InterfaceValidationError(std::string_view message, const Error& other);
 
@@ -329,20 +341,19 @@ class InterfaceValidationError : public ErrorBase {
   static constexpr std::string_view k_type_ = "InterfaceValidationError";
 };
 
-/**
- * @brief Either the minor or the major version is incorrect.
- */
+/// @brief Error indicating that the minor or major version of an interface is incorrect.
 class InvalidInterfaceVersionError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
-   * @param message The error message.
+   * @param[in] message The human-readable error message.
    */
   explicit InvalidInterfaceVersionError(std::string_view message);
+
   /**
    * @brief Nested error constructor.
-   * @param message The error message.
-   * @param other The error to nest.
+   * @param[in] message The human-readable error message.
+   * @param[in] other The error to nest.
    */
   explicit InvalidInterfaceVersionError(std::string_view message, const Error& other);
 
@@ -350,20 +361,19 @@ class InvalidInterfaceVersionError : public ErrorBase {
   static constexpr std::string_view k_type_ = "InvalidInterfaceVersionError";
 };
 
-/**
- * @brief The provided interface type is incorrect.
- */
+/// @brief Error indicating that the provided interface type is incorrect.
 class InvalidInterfaceTypeError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
-   * @param message The error message.
+   * @param[in] message The human-readable error message.
    */
   explicit InvalidInterfaceTypeError(std::string_view message);
+
   /**
    * @brief Nested error constructor.
-   * @param message The error message.
-   * @param other The error to nest.
+   * @param[in] message The human-readable error message.
+   * @param[in] other The error to nest.
    */
   explicit InvalidInterfaceTypeError(std::string_view message, const Error& other);
 
@@ -371,20 +381,19 @@ class InvalidInterfaceTypeError : public ErrorBase {
   static constexpr std::string_view k_type_ = "InvalidInterfaceTypeError";
 };
 
-/**
- * @brief The provided interface ownership is incorrect.
- */
+/// @brief Error indicating that the provided interface ownership is incorrect.
 class InvalidInterfaceOwnershipeError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
-   * @param message The error message.
+   * @param[in] message The human-readable error message.
    */
   explicit InvalidInterfaceOwnershipeError(std::string_view message);
+
   /**
    * @brief Nested error constructor.
-   * @param message The error message.
-   * @param other The error to nest.
+   * @param[in] message The human-readable error message.
+   * @param[in] other The error to nest.
    */
   explicit InvalidInterfaceOwnershipeError(std::string_view message, const Error& other);
 
@@ -392,20 +401,19 @@ class InvalidInterfaceOwnershipeError : public ErrorBase {
   static constexpr std::string_view k_type_ = "InvalidInterfaceOwnershipeError";
 };
 
-/**
- * @brief The provided interface aggregation is incorrect.
- */
+/// @brief Error indicating that the provided interface aggregation is incorrect.
 class InvalidInterfaceAggregationError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
-   * @param message The error message.
+   * @param[in] message The human-readable error message.
    */
   explicit InvalidInterfaceAggregationError(std::string_view message);
+
   /**
    * @brief Nested error constructor.
-   * @param message The error message.
-   * @param other The error to nest.
+   * @param[in] message The human-readable error message.
+   * @param[in] other The error to nest.
    */
   explicit InvalidInterfaceAggregationError(std::string_view message, const Error& other);
 
@@ -413,20 +421,19 @@ class InvalidInterfaceAggregationError : public ErrorBase {
   static constexpr std::string_view k_type_ = "InvalidInterfaceAggregationError";
 };
 
-/**
- * @brief The provided Astarte type is incorrect.
- */
+/// @brief Error indicating that the provided Astarte type is incorrect.
 class InvalidAstarteTypeError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
-   * @param message The error message.
+   * @param[in] message The human-readable error message.
    */
   explicit InvalidAstarteTypeError(std::string_view message);
+
   /**
    * @brief Nested error constructor.
-   * @param message The error message.
-   * @param other The error to nest.
+   * @param[in] message The human-readable error message.
+   * @param[in] other The error to nest.
    */
   explicit InvalidAstarteTypeError(std::string_view message, const Error& other);
 
@@ -434,20 +441,19 @@ class InvalidAstarteTypeError : public ErrorBase {
   static constexpr std::string_view k_type_ = "InvalidAstarteTypeError";
 };
 
-/**
- * @brief The provided Astarte reliability is incorrect.
- */
+/// @brief Error indicating that the provided Astarte reliability is incorrect.
 class InvalidReliabilityError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
-   * @param message The error message.
+   * @param[in] message The human-readable error message.
    */
   explicit InvalidReliabilityError(std::string_view message);
+
   /**
    * @brief Nested error constructor.
-   * @param message The error message.
-   * @param other The error to nest.
+   * @param[in] message The human-readable error message.
+   * @param[in] other The error to nest.
    */
   explicit InvalidReliabilityError(std::string_view message, const Error& other);
 
@@ -455,20 +461,19 @@ class InvalidReliabilityError : public ErrorBase {
   static constexpr std::string_view k_type_ = "InvalidReliabilityError";
 };
 
-/**
- * @brief The provided Astarte retention is incorrect.
- */
+/// @brief Error indicating that the provided Astarte retention is incorrect.
 class InvalidRetentionError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
-   * @param message The error message.
+   * @param[in] message The human-readable error message.
    */
   explicit InvalidRetentionError(std::string_view message);
+
   /**
    * @brief Nested error constructor.
-   * @param message The error message.
-   * @param other The error to nest.
+   * @param[in] message The human-readable error message.
+   * @param[in] other The error to nest.
    */
   explicit InvalidRetentionError(std::string_view message, const Error& other);
 
@@ -476,20 +481,19 @@ class InvalidRetentionError : public ErrorBase {
   static constexpr std::string_view k_type_ = "InvalidRetentionError";
 };
 
-/**
- * @brief The provided Astarte database retention policy is incorrect.
- */
+/// @brief Error indicating that the provided Astarte database retention policy is incorrect.
 class InvalidDatabaseRetentionPolicyError : public ErrorBase {
  public:
   /**
    * @brief Standard error constructor.
-   * @param message The error message.
+   * @param[in] message The human-readable error message.
    */
   explicit InvalidDatabaseRetentionPolicyError(std::string_view message);
+
   /**
    * @brief Nested error constructor.
-   * @param message The error message.
-   * @param other The error to nest.
+   * @param[in] message The human-readable error message.
+   * @param[in] other The error to nest.
    */
   explicit InvalidDatabaseRetentionPolicyError(std::string_view message, const Error& other);
 
@@ -506,15 +510,13 @@ class InvalidDatabaseRetentionPolicyError : public ErrorBase {
 #include "astarte_device_sdk/mqtt/errors.hpp"
 #endif
 
-/**
- * @brief Formatter specialization for astarte::device::Error.
- */
+/// @brief Formatter specialization for astarte::device::Error.
 template <>
 // NOLINTNEXTLINE(cert-dcl58-cpp)
 struct astarte_fmt::formatter<astarte::device::Error> {
   /**
-   * @brief Parse the format string. Default implementation.
-   * @param ctx The parse context.
+   * @brief Parses the format string.
+   * @param[in,out] ctx The parse context.
    * @return An iterator to the end of the parsed range.
    */
   template <typename ParseContext>
@@ -523,10 +525,10 @@ struct astarte_fmt::formatter<astarte::device::Error> {
   }
 
   /**
-   * @brief Format the Error object.
-   * @param err_variant The Error to format.
-   * @param ctx The format context.
-   * @return An iterator to the end of the output.
+   * @brief Formats the Error object by visiting the variant.
+   * @param[in] err_variant The Error variant instance to format.
+   * @param[in,out] ctx The format context.
+   * @return An iterator to the end of the output context.
    */
   template <typename FormatContext>
   auto format(const astarte::device::Error& err_variant, FormatContext& ctx) const {
@@ -539,14 +541,12 @@ struct astarte_fmt::formatter<astarte::device::Error> {
   }
 };
 
-/**
- * @brief Formatter specialization for astarte::device::ErrorBase.
- */
+/// @brief Formatter specialization for astarte::device::ErrorBase.
 template <>
 struct astarte_fmt::formatter<astarte::device::ErrorBase> {
   /**
-   * @brief Parse the format string. Default implementation.
-   * @param ctx The parse context.
+   * @brief Parses the format string.
+   * @param[in,out] ctx The parse context.
    * @return An iterator to the end of the parsed range.
    */
   template <typename ParseContext>
@@ -555,10 +555,10 @@ struct astarte_fmt::formatter<astarte::device::ErrorBase> {
   }
 
   /**
-   * @brief Format the ErrorBase object.
-   * @param err The ErrorBase to format.
-   * @param ctx The format context.
-   * @return An iterator to the end of the output.
+   * @brief Formats the ErrorBase object including any nested errors.
+   * @param[in] err The ErrorBase instance to format.
+   * @param[in,out] ctx The format context.
+   * @return An iterator to the end of the output context.
    */
   template <typename FormatContext>
   auto format(const astarte::device::ErrorBase& err, FormatContext& ctx) const {

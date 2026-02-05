@@ -5,6 +5,15 @@
 #ifndef ASTARTE_FORMATTER_H
 #define ASTARTE_FORMATTER_H
 
+/**
+ * @file astarte_device_sdk/formatter.hpp
+ * @brief Data formatting utilities for Astarte types.
+ *
+ * @details This file provides utility functions and templates to format internal
+ * Astarte data types into strings or serialized formats (like Base64 and ISO 8601),
+ * facilitating logging and transmission.
+ */
+
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -32,22 +41,23 @@ namespace astarte_fmt = ::fmt;
 #endif
 
 #ifdef DOXYGEN
-/** @brief Namespace alias for the formatting library (std or fmt). */
+/// @brief Namespace alias for the formatting library (std or fmt).
 namespace astarte_fmt {
-/** @brief Base formatter struct declaration for Doxygen. */
+/// @brief Base formatter struct declaration for Doxygen.
 template <typename T>
 struct formatter {};
 }  // namespace astarte_fmt
 #endif
 
-/** @brief Utility functions for formatting data. */
+/// @brief Utility functions for formatting data.
 namespace astarte::device::utils {
 
 /**
  * @brief Format a vector of bytes into a Base64 string literal.
+ *
  * @tparam OutputIt The type of the output iterator.
- * @param out Reference to the output iterator where the result is written.
- * @param data The vector of bytes to format.
+ * @param[in,out] out Reference to the output iterator where the result is written.
+ * @param[in] data The vector of bytes to format.
  */
 template <typename OutputIt>
 void format_base64(OutputIt& out, const std::vector<uint8_t>& data) {
@@ -99,9 +109,10 @@ void format_base64(OutputIt& out, const std::vector<uint8_t>& data) {
 
 /**
  * @brief Format a timestamp into an ISO 8601 string literal.
+ *
  * @tparam OutputIt The type of the output iterator.
- * @param out Reference to the output iterator where the result is written.
- * @param data The time_point to format.
+ * @param[in,out] out Reference to the output iterator where the result is written.
+ * @param[in] data The time_point to format.
  */
 template <typename OutputIt>
 void format_timestamp(OutputIt& out, const std::chrono::system_clock::time_point& data) {
@@ -123,10 +134,11 @@ void format_timestamp(OutputIt& out, const std::chrono::system_clock::time_point
 
 /**
  * @brief Format a generic data type into an output iterator.
+ *
  * @tparam OutputIt The type of the output iterator.
  * @tparam T The type of the element.
- * @param out Reference to the output iterator where the result is written.
- * @param data The element to format.
+ * @param[in,out] out Reference to the output iterator where the result is written.
+ * @param[in] data The element to format.
  */
 template <typename OutputIt, typename T>
 void format_data(OutputIt& out, const T& data) {
@@ -145,10 +157,11 @@ void format_data(OutputIt& out, const T& data) {
 
 /**
  * @brief Format a generic vector into a comma-separated list in brackets.
+ *
  * @tparam OutputIt The type of the output iterator.
  * @tparam T The type of elements in the vector.
- * @param out Reference to the output iterator where the result is written.
- * @param data The vector to format.
+ * @param[in,out] out Reference to the output iterator where the result is written.
+ * @param[in] data The vector to format.
  */
 template <typename OutputIt, typename T>
 void format_vector(OutputIt& out, const std::vector<T>& data) {

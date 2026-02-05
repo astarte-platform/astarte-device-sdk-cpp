@@ -8,6 +8,10 @@
 /**
  * @file astarte_device_sdk/type.hpp
  * @brief Types definitions for communication with Astarte.
+ *
+ * @details This file defines the enumeration of supported Astarte data types and provides
+ * utility functions for string conversion and formatting, enabling type-safe data
+ * handling within the SDK.
  */
 
 #include <cstdint>
@@ -20,44 +24,52 @@
 
 namespace astarte::device {
 
-/** @brief Possible Astarte types. */
+/**
+ * @brief Enumeration of supported Astarte data types.
+ *
+ * @details These types correspond to the data types defined in Astarte interfaces
+ * and are used to validate and tag data sent to or received from the platform.
+ */
 enum Type : int8_t {
-  /** @brief Binary blob Astarte type. */
+  /// @brief Binary blob Astarte type.
   kBinaryBlob,
-  /** @brief Boolean Astarte type. */
+  /// @brief Boolean Astarte type.
   kBoolean,
-  /** @brief Date-time Astarte type. */
+  /// @brief Date-time Astarte type.
   kDatetime,
-  /** @brief Double Astarte type. */
+  /// @brief Double Astarte type.
   kDouble,
-  /** @brief Integer Astarte type. */
+  /// @brief Integer Astarte type.
   kInteger,
-  /** @brief Long integer Astarte type. */
+  /// @brief Long integer Astarte type.
   kLongInteger,
-  /** @brief String Astarte type. */
+  /// @brief String Astarte type.
   kString,
-  /** @brief Binary blob array Astarte type. */
+  /// @brief Binary blob array Astarte type.
   kBinaryBlobArray,
-  /** @brief Boolean array Astarte type. */
+  /// @brief Boolean array Astarte type.
   kBooleanArray,
-  /** @brief Datetime array Astarte type. */
+  /// @brief Datetime array Astarte type.
   kDatetimeArray,
-  /** @brief Double array Astarte type. */
+  /// @brief Double array Astarte type.
   kDoubleArray,
-  /** @brief Integer array Astarte type. */
+  /// @brief Integer array Astarte type.
   kIntegerArray,
-  /** @brief Long integer array Astarte type. */
+  /// @brief Long integer array Astarte type.
   kLongIntegerArray,
-  /** @brief String array Astarte type. */
+  /// @brief String array Astarte type.
   kStringArray
 };
 
 /**
- * @brief Convert a string to an Type enum.
+ * @brief Converts a string representation of a type to a Type enum.
  *
- * @param type The string representation of the astarte type.
- * @return The corresponding Type enum value, an error if the string is not a valid Astarte
- * type.
+ * @details This function maps the string identifiers used in Astarte interface
+ * definitions (e.g., "binaryblob", "integer") to their corresponding C++ enum values.
+ *
+ * @param[in] type The string representation of the Astarte type.
+ * @return An expected conforming to std::expected containing the Type on success or Error on
+ * failure.
  */
 // NOLINTNEXTLINE(readability-function-size)
 inline auto astarte_type_from_str(const std::string& type) -> astarte_tl::expected<Type, Error> {
@@ -108,14 +120,12 @@ inline auto astarte_type_from_str(const std::string& type) -> astarte_tl::expect
 
 }  // namespace astarte::device
 
-/**
- * @brief astarte_fmt::formatter specialization for astarte::device::Type.
- */
+/// @brief astarte_fmt::formatter specialization for astarte::device::Type.
 template <>
 struct astarte_fmt::formatter<astarte::device::Type> {
   /**
-   * @brief Parse the format string. Default implementation.
-   * @param ctx The parse context.
+   * @brief Parses the format string. Default implementation.
+   * @param[in] ctx The parse context.
    * @return An iterator to the end of the parsed range.
    */
   template <typename ParseContext>
@@ -124,9 +134,9 @@ struct astarte_fmt::formatter<astarte::device::Type> {
   }
 
   /**
-   * @brief Format the Type enum to its string representation.
-   * @param typ The Type to format.
-   * @param ctx The format context.
+   * @brief Formats the Type enum to its string representation.
+   * @param[in] typ The Type to format.
+   * @param[in,out] ctx The format context.
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
@@ -184,9 +194,10 @@ struct astarte_fmt::formatter<astarte::device::Type> {
 
 /**
  * @brief Stream insertion operator for Type.
- * @param out The output stream.
- * @param typ The Type enum to output.
- * @return Reference to the output stream.
+ *
+ * @param[in,out] out The output stream to write to.
+ * @param[in] typ The Type enum to output.
+ * @return A reference to the output stream.
  */
 inline auto operator<<(std::ostream& out, const astarte::device::Type typ) -> std::ostream& {
   out << astarte_fmt::format("{}", typ);
