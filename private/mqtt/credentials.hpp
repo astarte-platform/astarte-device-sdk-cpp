@@ -104,7 +104,7 @@ class Credential {
    * @param[in] client_cert The device certificate as a PEM string.
    * @param[in] store_dir The directory path where the certificate and private key files can be
    * stored.
-   * @return An expected void on success, or an Error if file writing fails.
+   * @return An expected containing void on success or Error on failure.
    */
   static auto store_device_key_and_certificate(std::string_view client_priv_key,
                                                std::string_view client_cert,
@@ -117,7 +117,7 @@ class Credential {
    * @param[in] api The PairingApi instance used to request the credentials.
    * @param[in] secret The credential secret used to authenticate the request.
    * @param[in] store_dir The directory path where the certificate and private key files are stored.
-   * @return An expected boolean (true if valid) on success, or an Error on failure.
+   * @return An expected containing the certificate validity on success or Error on failure.
    */
   static auto validate_client_certificate(PairingApi& api, std::string_view secret,
                                           std::string_view store_dir)
@@ -127,7 +127,7 @@ class Credential {
    * @brief Deletes the stored client certificate and private key.
    *
    * @param[in] store_dir The directory where the files are stored.
-   * @return An expected void on success, or an Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   static auto delete_client_certificate_and_key(std::string_view store_dir)
       -> astarte_tl::expected<void, Error>;

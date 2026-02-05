@@ -111,14 +111,14 @@ class GrpcConverterFrom {
   /**
    * @brief Converts an AstarteData Protobuf message to a Data object.
    * @param[in] value The Protobuf message.
-   * @return An expected containing the Data object on success.
+   * @return An expected containing the Data on success or Error on failure.
    */
   auto operator()(const gRPCAstarteData& value) -> astarte_tl::expected<Data, Error>;
 
   /**
    * @brief Converts an AstarteDatastreamIndividual Protobuf message to a DatastreamIndividual.
    * @param[in] value The Protobuf message.
-   * @return An expected containing the DatastreamIndividual on success.
+   * @return An expected containing the DatastreamIndividual on success or Error on failure.
    */
   auto operator()(const gRPCAstarteDatastreamIndividual& value)
       -> astarte_tl::expected<DatastreamIndividual, Error>;
@@ -126,7 +126,7 @@ class GrpcConverterFrom {
   /**
    * @brief Converts an AstarteDatastreamObject Protobuf message to a DatastreamObject.
    * @param[in] value The Protobuf message.
-   * @return An expected containing the DatastreamObject on success.
+   * @return An expected containing the DatastreamObject on success or Error on failure.
    */
   auto operator()(const gRPCAstarteDatastreamObject& value)
       -> astarte_tl::expected<DatastreamObject, Error>;
@@ -134,7 +134,7 @@ class GrpcConverterFrom {
   /**
    * @brief Converts an AstartePropertyIndividual Protobuf message to a PropertyIndividual.
    * @param[in] value The Protobuf message.
-   * @return An expected containing the PropertyIndividual on success.
+   * @return An expected containing the PropertyIndividual on success or Error on failure.
    */
   auto operator()(const gRPCAstartePropertyIndividual& value)
       -> astarte_tl::expected<PropertyIndividual, Error>;
@@ -142,7 +142,7 @@ class GrpcConverterFrom {
   /**
    * @brief Converts a generic AstarteMessage Protobuf message to a Message object.
    * @param[in] value The Protobuf message.
-   * @return An expected containing the Message on success.
+   * @return An expected containing the Message on success or Error on failure.
    */
   auto operator()(const gRPCAstarteMessage& value) -> astarte_tl::expected<Message, Error>;
 
@@ -156,7 +156,7 @@ class GrpcConverterFrom {
   /**
    * @brief Converts a StoredProperties Protobuf message to a list of StoredProperty objects.
    * @param[in] value The Protobuf message containing the list.
-   * @return An expected containing the list of StoredProperty objects on success.
+   * @return An expected containing the list of StoredProperty on success or Error on failure.
    */
   auto operator()(const gRPCStoredProperties& value)
       -> astarte_tl::expected<std::list<StoredProperty>, Error>;

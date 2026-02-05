@@ -44,7 +44,7 @@ class Persistence {
    * @brief Reads the content of a file into a string.
    *
    * @param[in] file_path The path to the file to read.
-   * @return An expected containing the file content as a string on success, or an Error on failure.
+   * @return An expected containing the file content on success or Error on failure.
    */
   static auto read_from_file(const std::filesystem::path& file_path)
       -> astarte_tl::expected<std::string, Error>;
@@ -54,7 +54,7 @@ class Persistence {
    *
    * @param[in] file_path The path where the file will be written.
    * @param[in] data The string data to write.
-   * @return An expected containing void on success, or an Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   static auto write_to_file(const std::filesystem::path& file_path, std::string_view data)
       -> astarte_tl::expected<void, Error>;
@@ -63,7 +63,7 @@ class Persistence {
    * @brief Securely removes a file from the filesystem.
    *
    * @param[in] path The path of the file to remove.
-   * @return An expected containing void on success, or an Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   static auto secure_shred_file(const std::string& path) -> astarte_tl::expected<void, Error>;
 };

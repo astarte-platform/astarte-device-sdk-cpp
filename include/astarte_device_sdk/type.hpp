@@ -68,8 +68,7 @@ enum Type : int8_t {
  * definitions (e.g., "binaryblob", "integer") to their corresponding C++ enum values.
  *
  * @param[in] type The string representation of the Astarte type.
- * @return An expected conforming to std::expected containing the Type on success or Error on
- * failure.
+ * @return An expected containing the Type on success or Error on failure.
  */
 // NOLINTNEXTLINE(readability-function-size)
 inline auto astarte_type_from_str(const std::string& type) -> astarte_tl::expected<Type, Error> {

@@ -39,7 +39,7 @@ class PsaKey {
  public:
   /**
    * @brief Constructs an empty PsaKey, holding no key.
-   * @return An expected containing the PsaKey instance on success, or an Error on failure.
+   * @return An expected containing the PsaKey on success or Error on failure.
    */
   static auto create() -> astarte_tl::expected<PsaKey, Error>;
 
@@ -69,13 +69,13 @@ class PsaKey {
 
   /**
    * @brief Gets the PEM representation of the underlying key ID.
-   * @return An expected string containing the PEM formatted key on success, or an Error on failure.
+   * @return An expected containing the key in PEM format on success or Error on failure.
    */
   [[nodiscard]] auto to_pem() const -> astarte_tl::expected<const std::string, Error>;
 
   /**
    * @brief Creates a new ECDSA (secp256r1) private key.
-   * @return An expected void on success, or an Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   auto generate() -> astarte_tl::expected<void, Error>;
 
@@ -94,7 +94,7 @@ class Crypto {
    * @brief Creates a Certificate Signing Request (CSR) from a private key.
    *
    * @param[in] priv_key A reference to the PsaKey holding the private key.
-   * @return An expected string containing the CSR in PEM format on success, or an Error on failure.
+   * @return An expected containing the CSR in PEM format on success or Error on failure.
    */
   static auto create_csr(const PsaKey& priv_key) -> astarte_tl::expected<std::string, Error>;
 };

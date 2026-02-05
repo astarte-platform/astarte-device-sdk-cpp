@@ -70,7 +70,7 @@ class Callback : public virtual paho_mqtt::callback {
    * 3. Publishes the `emptyCache` message if required.
    *
    * @param[in] session_present Indicates if the broker resumed a previous persistent session.
-   * @return An expected conforming to std::expected containing void on success or Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   auto perform_session_setup(bool session_present) -> astarte_tl::expected<void, Error>;
 
@@ -81,7 +81,7 @@ class Callback : public virtual paho_mqtt::callback {
    * @details Subscriptions include the device's control topic (for housekeeping) and
    * the topics corresponding to any server-owned interfaces defined in the introspection.
    *
-   * @return An expected conforming to std::expected containing void on success or Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   auto setup_subscriptions() -> astarte_tl::expected<void, Error>;
 
@@ -90,7 +90,7 @@ class Callback : public virtual paho_mqtt::callback {
    *
    * @details Sends the list of supported interfaces and versions to the introspection topic.
    *
-   * @return An expected conforming to std::expected containing void on success or Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   auto send_introspection() -> astarte_tl::expected<void, Error>;
 
@@ -99,7 +99,7 @@ class Callback : public virtual paho_mqtt::callback {
    *
    * @details This signals the platform to invalidate any stale cache for this device.
    *
-   * @return An expected conforming to std::expected containing void on success or Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   auto send_emptycache() -> astarte_tl::expected<void, Error>;
 

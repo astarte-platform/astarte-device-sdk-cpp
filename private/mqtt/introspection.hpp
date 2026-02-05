@@ -56,7 +56,7 @@ class Introspection {
    * @brief Adds an Interface to the Introspection safely.
    *
    * @param[in] interface The interface object to add.
-   * @return An expected void on success, or an Error if the interface is invalid or already exists.
+   * @return An expected containing void on success or Error on failure.
    */
   auto checked_insert(Interface interface) -> astarte_tl::expected<void, Error>;
 
@@ -71,7 +71,7 @@ class Introspection {
    * @brief Gets a read-only, thread-safe handle to an interface.
    *
    * @param[in] interface_name The name of the interface to retrieve.
-   * @return An expected shared pointer to the const interface if found, or an Error otherwise.
+   * @return An expected containing the pointer to the Interface on success or Error on failure.
    */
   [[nodiscard]] auto get(std::string_view interface_name) const
       -> astarte_tl::expected<std::shared_ptr<const Interface>, Error>;

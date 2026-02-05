@@ -77,7 +77,7 @@ class InterfaceType {
   /**
    * @brief Attempts to create an InterfaceType from a string.
    * @param[in] str The string representation to parse.
-   * @return An expected containing the InterfaceType on success, or an Error on failure.
+   * @return An expected containing the InterfaceType on success or Error on failure.
    */
   static auto try_from_str(std::string_view str) -> astarte_tl::expected<InterfaceType, Error> {
     if (str == "datastream") {
@@ -133,7 +133,7 @@ class InterfaceAggregation {
   /**
    * @brief Attempts to create an InterfaceAggregation from a string.
    * @param[in] str The string representation to parse.
-   * @return An expected containing the InterfaceAggregation on success, or an Error on failure.
+   * @return An expected containing the InterfaceAggregation on success or Error on failure.
    */
   static auto try_from_str(std::string_view str)
       -> astarte_tl::expected<InterfaceAggregation, Error> {
@@ -168,7 +168,7 @@ class Interface {
   /**
    * @brief Tries to convert a JSON object into an Interface object.
    * @param[in] interface The JSON representation of the Astarte interface.
-   * @return An expected Interface object on success, or an Error on failure.
+   * @return An expected containing the Interface on success or Error on failure.
    */
   static auto try_from_json(const json& interface) -> astarte_tl::expected<Interface, Error>;
 
@@ -229,7 +229,7 @@ class Interface {
    * @brief Retrieves the mapping associated with a given path if it exists.
    *
    * @param[in] path The Astarte interface path.
-   * @return An expected pointer to the mapping on success, or an Error if not found.
+   * @return An expected containing the reference to the Mapping on success or Error on failure.
    */
   [[nodiscard]] auto get_mapping(std::string_view path) const
       -> astarte_tl::expected<const Mapping*, Error>;
@@ -240,7 +240,7 @@ class Interface {
    * @param[in] path The Astarte interface path.
    * @param[in] data The value to validate.
    * @param[in] timestamp A pointer to the timestamp, if provided.
-   * @return An expected void on success, or an Error if validation fails.
+   * @return An expected containing void on success or Error on failure.
    */
   auto validate_individual(std::string_view path, const Data& data,
                            const std::chrono::system_clock::time_point* timestamp) const
@@ -252,7 +252,7 @@ class Interface {
    * @param[in] common_path The common base path of the Astarte interface endpoints.
    * @param[in] object The Astarte object data to validate.
    * @param[in] timestamp A pointer to the timestamp, if provided.
-   * @return An expected void on success, or an Error if validation fails.
+   * @return An expected containing void on success or Error on failure.
    */
   auto validate_object(std::string_view common_path, const DatastreamObject& object,
                        const std::chrono::system_clock::time_point* timestamp) const
@@ -262,7 +262,7 @@ class Interface {
    * @brief Gets the MQTT QoS level from a certain mapping endpoint.
    *
    * @param[in] path The Astarte interface path.
-   * @return An expected QoS value (uint8_t) on success, or an Error on failure.
+   * @return An expected containing the QoS value on success or Error on failure.
    */
   [[nodiscard]] auto get_qos(std::string_view path) const -> astarte_tl::expected<uint8_t, Error>;
 

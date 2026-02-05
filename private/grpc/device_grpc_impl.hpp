@@ -86,7 +86,7 @@ struct DeviceGrpc::DeviceGrpcImpl {
    * with Astarte during the connection phase.
    *
    * @param[in] json_file The filesystem path to the .json interface file.
-   * @return An expected conforming to std::expected containing void on success or Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   auto add_interface_from_file(const std::filesystem::path& json_file)
       -> astarte_tl::expected<void, Error>;
@@ -95,7 +95,7 @@ struct DeviceGrpc::DeviceGrpcImpl {
    * @brief Parses an interface definition from a JSON string and adds it to the device.
    *
    * @param[in] json The interface definition as a JSON string view.
-   * @return An expected conforming to std::expected containing void on success or Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   auto add_interface_from_str(std::string_view json) -> astarte_tl::expected<void, Error>;
 
@@ -103,7 +103,7 @@ struct DeviceGrpc::DeviceGrpcImpl {
    * @brief Removes an installed interface.
    *
    * @param[in] interface_name The name of the interface to remove.
-   * @return An expected conforming to std::expected containing void on success or Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   auto remove_interface(const std::string& interface_name) -> astarte_tl::expected<void, Error>;
 
@@ -112,7 +112,7 @@ struct DeviceGrpc::DeviceGrpcImpl {
    * @details Initializes the gRPC channel and starts a dedicated management thread that
    * handles connection persistence and incoming message streaming.
    *
-   * @return An expected conforming to std::expected containing void on success or Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   auto connect() -> astarte_tl::expected<void, Error>;
 
@@ -127,7 +127,7 @@ struct DeviceGrpc::DeviceGrpcImpl {
    * @details Gracefully terminates the connection by sending a Detach message and stopping
    * the background connection thread.
    *
-   * @return An expected conforming to std::expected containing void on success or Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   auto disconnect() -> astarte_tl::expected<void, Error>;
 
@@ -138,7 +138,7 @@ struct DeviceGrpc::DeviceGrpcImpl {
    * @param[in] path The path within the interface (e.g., "/endpoint/value").
    * @param[in] data The data point to send.
    * @param[in] timestamp An optional timestamp for the data point.
-   * @return An expected conforming to std::expected containing void on success or Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   auto send_individual(std::string_view interface_name, std::string_view path, const Data& data,
                        const std::chrono::system_clock::time_point* timestamp)
@@ -151,7 +151,7 @@ struct DeviceGrpc::DeviceGrpcImpl {
    * @param[in] path The base path for the object within the interface.
    * @param[in] object The key-value map representing the object to send.
    * @param[in] timestamp An optional timestamp for the data.
-   * @return An expected conforming to std::expected containing void on success or Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   auto send_object(std::string_view interface_name, std::string_view path,
                    const DatastreamObject& object,
@@ -164,7 +164,7 @@ struct DeviceGrpc::DeviceGrpcImpl {
    * @param[in] interface_name The name of the interface where the property is defined.
    * @param[in] path The path of the property to set.
    * @param[in] data The value to set for the property.
-   * @return An expected conforming to std::expected containing void on success or Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   auto set_property(std::string_view interface_name, std::string_view path, const Data& data)
       -> astarte_tl::expected<void, Error>;
@@ -175,7 +175,7 @@ struct DeviceGrpc::DeviceGrpcImpl {
    *
    * @param[in] interface_name The name of the interface where the property is defined.
    * @param[in] path The path of the property to unset.
-   * @return An expected conforming to std::expected containing void on success or Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   auto unset_property(std::string_view interface_name, std::string_view path)
       -> astarte_tl::expected<void, Error>;
@@ -194,7 +194,7 @@ struct DeviceGrpc::DeviceGrpcImpl {
    * @brief Gets all stored properties matching the input filter.
    *
    * @param[in] ownership Optional ownership filter.
-   * @return An expected containing the list of properties on success, or an Error on failure.
+   * @return An expected containing the list of properties on success or Error on failure.
    */
   auto get_all_properties(const std::optional<Ownership>& ownership)
       -> astarte_tl::expected<std::list<StoredProperty>, Error>;
@@ -203,7 +203,7 @@ struct DeviceGrpc::DeviceGrpcImpl {
    * @brief Gets stored properties matching the interface.
    *
    * @param[in] interface_name The name of the interface for the property.
-   * @return An expected containing the list of properties on success, or an Error on failure.
+   * @return An expected containing the list of properties on success or Error on failure.
    */
   auto get_properties(std::string_view interface_name)
       -> astarte_tl::expected<std::list<StoredProperty>, Error>;
@@ -213,7 +213,7 @@ struct DeviceGrpc::DeviceGrpcImpl {
    *
    * @param[in] interface_name The name of the interface for the property.
    * @param[in] path Exact path for the property.
-   * @return An expected containing the property on success, or an Error on failure.
+   * @return An expected containing the property on success or Error on failure.
    */
   auto get_property(std::string_view interface_name, std::string_view path)
       -> astarte_tl::expected<PropertyIndividual, Error>;

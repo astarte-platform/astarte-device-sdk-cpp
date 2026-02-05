@@ -70,7 +70,7 @@ class Device {
    * @details Parses the JSON file to validate and register a new Astarte Interface.
    *
    * @param[in] json_file The filesystem path to the .json interface definition.
-   * @return An expected conforming to std::expected containing void on success or Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   virtual auto add_interface_from_file(const std::filesystem::path& json_file)
       -> astarte_tl::expected<void, Error> = 0;
@@ -79,7 +79,7 @@ class Device {
    * @brief Adds an interface definition to the device from a JSON string.
    *
    * @param[in] json The interface definition as a JSON string view.
-   * @return An expected conforming to std::expected containing void on success or Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   virtual auto add_interface_from_str(std::string_view json)
       -> astarte_tl::expected<void, Error> = 0;
@@ -88,7 +88,7 @@ class Device {
    * @brief Removes an installed interface from the device.
    *
    * @param[in] interface_name The name of the interface to remove.
-   * @return An expected conforming to std::expected containing void on success or Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   virtual auto remove_interface(const std::string& interface_name)
       -> astarte_tl::expected<void, Error> = 0;
@@ -99,7 +99,7 @@ class Device {
    * @details This is an asynchronous operation. It initializes the transport layer
    * and starts a background routine to maintain connectivity.
    *
-   * @return An expected conforming to std::expected containing void on success or Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   virtual auto connect() -> astarte_tl::expected<void, Error> = 0;
 
@@ -111,7 +111,7 @@ class Device {
 
   /**
    * @brief Disconnects the device from Astarte.
-   * @return An expected conforming to std::expected containing void on success or Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   virtual auto disconnect() -> astarte_tl::expected<void, Error> = 0;
 
@@ -122,7 +122,7 @@ class Device {
    * @param[in] path The specific mapping path within the interface (e.g., "/sensors/temp").
    * @param[in] data The value payload to transmit.
    * @param[in] timestamp Optional timestamp. Should match the interface timestamp configuration.
-   * @return An expected conforming to std::expected containing void on success or Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   virtual auto send_individual(std::string_view interface_name, std::string_view path,
                                const Data& data,
@@ -136,7 +136,7 @@ class Device {
    * @param[in] path The common base path for the object aggregation.
    * @param[in] object The map of keys and values constituting the object.
    * @param[in] timestamp Optional timestamp. Should match the interface timestamp configuration.
-   * @return An expected conforming to std::expected containing void on success or Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   virtual auto send_object(std::string_view interface_name, std::string_view path,
                            const DatastreamObject& object,
@@ -149,7 +149,7 @@ class Device {
    * @param[in] interface_name The name of the interface containing the property.
    * @param[in] path The specific path of the property.
    * @param[in] data The new value for the property.
-   * @return An expected conforming to std::expected containing void on success or Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   virtual auto set_property(std::string_view interface_name, std::string_view path,
                             const Data& data) -> astarte_tl::expected<void, Error> = 0;
@@ -159,7 +159,7 @@ class Device {
    *
    * @param[in] interface_name The name of the interface containing the property.
    * @param[in] path The specific path of the property to unset.
-   * @return An expected conforming to std::expected containing void on success or Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   virtual auto unset_property(std::string_view interface_name, std::string_view path)
       -> astarte_tl::expected<void, Error> = 0;
@@ -181,7 +181,7 @@ class Device {
    * @brief Retrieves all stored properties matching an ownership filter.
    *
    * @param[in] ownership Optional filter, if std::nullopt, returns all properties.
-   * @return An expected containing the list of properties on success, or an Error on failure.
+   * @return An expected containing the list of properties on success or Error on failure.
    */
   virtual auto get_all_properties(const std::optional<Ownership>& ownership)
       -> astarte_tl::expected<std::list<StoredProperty>, Error> = 0;
@@ -190,7 +190,7 @@ class Device {
    * @brief Retrieves all stored properties belonging to a specific interface.
    *
    * @param[in] interface_name The name of the interface to query.
-   * @return An expected containing the list of properties on success, or an Error on failure.
+   * @return An expected containing the list of properties on success or Error on failure.
    */
   virtual auto get_properties(std::string_view interface_name)
       -> astarte_tl::expected<std::list<StoredProperty>, Error> = 0;
@@ -200,7 +200,7 @@ class Device {
    *
    * @param[in] interface_name The name of the interface.
    * @param[in] path The exact path of the property.
-   * @return An expected containing the property on success, or an Error on failure.
+   * @return An expected containing the property on success or Error on failure.
    */
   virtual auto get_property(std::string_view interface_name, std::string_view path)
       -> astarte_tl::expected<PropertyIndividual, Error> = 0;

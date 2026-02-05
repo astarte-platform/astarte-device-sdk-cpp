@@ -41,8 +41,7 @@ class ExponentialBackoff {
    *
    * @param[in] mul_coeff Multiplier coefficient used in the exponential delay calculation.
    * @param[in] cutoff_coeff The cut-off coefficient, an upper bound for the exponential curve.
-   * @return An expected containing the ExponentialBackoff instance on success, or an Error on
-   * failure.
+   * @return An expected containing the ExponentialBackoff instance on success or Error on failure.
    */
   static auto create(std::chrono::milliseconds mul_coeff, std::chrono::milliseconds cutoff_coeff)
       -> astarte_tl::expected<ExponentialBackoff, Error> {

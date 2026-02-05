@@ -31,8 +31,7 @@ enum Ownership : int8_t {
  * @brief Converts a string to an Ownership enum.
  *
  * @param[in] ownership The string representation of the interface ownership.
- * @return An expected conforming to std::expected containing the Ownership enum value on success or
- * Error on failure.
+ * @return An expected containing the Ownership on success or Error on failure.
  */
 inline auto ownership_from_str(const std::string& ownership)
     -> astarte_tl::expected<Ownership, Error> {

@@ -31,8 +31,7 @@ using json = nlohmann::json;
  * @param[in] interface The JSON object to search within.
  * @param[in] key The key of the field to retrieve.
  * @param[in] expected_type The expected JSON type for validation.
- * @return An expected containing the JSON field reference on success, or an Error
- * if the field is missing or has the wrong type.
+ * @return An expected containing the JSON field reference on success or Error on failure.
  */
 inline auto get_field(const json& interface, std::string_view key, json::value_t expected_type)
     -> astarte_tl::expected<json, astarte::device::Error> {

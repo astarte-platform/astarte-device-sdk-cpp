@@ -43,7 +43,7 @@ class PairingApi {
    * @param[in] realm The Astarte realm name.
    * @param[in] device_id The Astarte device id.
    * @param[in] astarte_base_url string containing the Astarte pairing API URL.
-   * @return An expected containing the class instance on success, or an Error on failure.
+   * @return An expected containing the class instance on success or Error on failure.
    */
   static auto create(std::string_view realm, std::string_view device_id,
                      std::string_view astarte_base_url) -> astarte_tl::expected<PairingApi, Error>;
@@ -53,7 +53,7 @@ class PairingApi {
    *
    * @param[in] pairing_token The Astarte pairing token.
    * @param[in] timeout_ms A timeout value to perform the HTTP request.
-   * @return An expected containing the credentials secret on success, or an Error on failure.
+   * @return An expected containing the credentials secret on success or Error on failure.
    */
   [[nodiscard]] auto register_device(std::string_view pairing_token,
                                      std::chrono::milliseconds timeout_ms = 0ms) const
@@ -65,7 +65,7 @@ class PairingApi {
    * @param[in] credential_secret The Astarte device credential necessary to authenticate to the
    * broker.
    * @param[in] timeout_ms A timeout value to perform the HTTP request.
-   * @return An expected containing the broker URL on success, or an Error on failure.
+   * @return An expected containing the broker URL on success or Error on failure.
    */
   [[nodiscard]] auto get_broker_url(std::string_view credential_secret, int timeout_ms = 0) const
       -> astarte_tl::expected<std::string, Error>;
@@ -76,8 +76,7 @@ class PairingApi {
    * @param[in] credential_secret The Astarte device credential necessary to authenticate to the
    * broker.
    * @param[in] timeout_ms A timeout value to perform the HTTP request.
-   * @return An expected containing a tuple of key and certificate on success, or an Error on
-   * failure.
+   * @return An expected containing the tuple of key and certificate on success or Error on failure.
    */
   [[nodiscard]] auto get_device_key_and_certificate(std::string_view credential_secret,
                                                     int timeout_ms = 0) const
@@ -90,7 +89,7 @@ class PairingApi {
    * @param[in] credential_secret The Astarte device credential necessary to authenticate to the
    * broker.
    * @param[in] timeout_ms A timeout value to perform the HTTP request.
-   * @return An expected containing true if valid, false if invalid, or an Error on failure.
+   * @return An expected containing the certificate validity on success or Error on failure.
    */
   [[nodiscard]] auto device_cert_valid(std::string_view certificate,
                                        std::string_view credential_secret, int timeout_ms = 0) const
@@ -129,7 +128,7 @@ auto create_random_device_id() -> std::string;
  *
  * @param[in] namespc namespace necessary to generate a UUIDv5.
  * @param[in] unique_data unique data necessary to generate a UUIDv5.
- * @return An expected containing the device id on success, or an Error on failure.
+ * @return An expected containing the device id on success or Error on failure.
  */
 auto create_deterministic_device_id(std::string_view namespc, std::string_view unique_data)
     -> astarte_tl::expected<std::string, Error>;

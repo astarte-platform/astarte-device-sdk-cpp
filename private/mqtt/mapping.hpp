@@ -91,7 +91,7 @@ class Reliability {
   /**
    * @brief Attempts to create a Reliability from a string.
    * @param[in] str The string representation to parse.
-   * @return An expected containing the Reliability on success, or an Error on failure.
+   * @return An expected containing the Reliability on success or Error on failure.
    */
   static auto try_from_str(std::string_view str) -> astarte_tl::expected<Reliability, Error> {
     if (str == "unreliable") {
@@ -182,7 +182,7 @@ class Retention {
   /**
    * @brief Attempts to create a Retention from a string.
    * @param[in] str The string representation to parse.
-   * @return An expected containing the Retention on success, or an Error on failure.
+   * @return An expected containing the Retention on success or Error on failure.
    */
   static auto try_from_str(std::string_view str) -> astarte_tl::expected<Retention, Error> {
     if (str == "discard") {
@@ -263,7 +263,7 @@ class DatabaseRetentionPolicy {
   /**
    * @brief Attempts to create a DatabaseRetentionPolicy from a string.
    * @param[in] str The string representation to parse.
-   * @return An expected containing the policy on success, or an Error on failure.
+   * @return An expected containing the policy on success or Error on failure.
    */
   static auto try_from_str(std::string_view str)
       -> astarte_tl::expected<DatabaseRetentionPolicy, Error> {
@@ -350,7 +350,7 @@ class Mapping {
    * @brief Checks that the Astarte data matches the mapping type.
    *
    * @param[in] data The Data object to check.
-   * @return An expected void on success, or an Error if the types mismatch.
+   * @return An expected containing void on success or Error on failure.
    */
   [[nodiscard]] auto check_data_type(const Data& data) const -> astarte_tl::expected<void, Error>;
 
@@ -441,7 +441,7 @@ class Mapping {
   /**
    * @brief Constructs a Mapping from a JSON object.
    * @param[in] json The JSON structure to parse.
-   * @return An expected Mapping object on success, or an Error on failure.
+   * @return An expected containing the Mapping on success or Error on failure.
    */
   static auto try_from_json(const json& json) -> astarte_tl::expected<Mapping, Error>;
 

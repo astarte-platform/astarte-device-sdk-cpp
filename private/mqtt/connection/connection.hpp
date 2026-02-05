@@ -73,7 +73,7 @@ class Connection {
    *
    * @param[in] cfg The MQTT configuration object containing connection details (Realm, ID, Secret,
    * etc.).
-   * @return An expected containing the Connection object on success, or an Error on failure.
+   * @return An expected containing the Connection on success or Error on failure.
    */
   static auto create(Config& cfg) -> astarte_tl::expected<Connection, Error>;
 
@@ -84,7 +84,7 @@ class Connection {
    * subscriptions. This is an asynchronous operation that sets up the callback handlers.
    *
    * @param[in] introspection A collection of interfaces defining the device structure.
-   * @return An expected conforming to std::expected containing void on success or Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   auto connect(std::shared_ptr<Introspection> introspection) -> astarte_tl::expected<void, Error>;
 
@@ -101,7 +101,7 @@ class Connection {
    * @param[in] path The mapping path of the Astarte interface on which data will be sent.
    * @param[in] qos The quality of service value (0, 1, or 2).
    * @param[in] data A span of bytes containing the BSON serialized data to send.
-   * @return An expected conforming to std::expected containing void on success or Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   auto send(std::string_view interface_name, std::string_view path, uint8_t qos,
             std::span<uint8_t> data) -> astarte_tl::expected<void, Error>;
@@ -109,7 +109,7 @@ class Connection {
   /**
    * @brief Disconnects the client from the Astarte MQTT broker.
    * @details Performs a graceful shutdown of the MQTT session.
-   * @return An expected conforming to std::expected containing void on success or Error on failure.
+   * @return An expected containing void on success or Error on failure.
    */
   auto disconnect() -> astarte_tl::expected<void, Error>;
 
