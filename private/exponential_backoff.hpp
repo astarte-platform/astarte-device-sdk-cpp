@@ -5,6 +5,15 @@
 #ifndef EXPONENTIAL_BACKOFF_H
 #define EXPONENTIAL_BACKOFF_H
 
+/**
+ * @file private/exponential_backoff.hpp
+ * @brief Exponential backoff generator with jitter.
+ *
+ * @details This file defines a utility class for calculating wait times between
+ * retry attempts, using an exponential backoff strategy with randomized jitter
+ * to prevent thundering herd problems.
+ */
+
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -15,22 +24,24 @@
 
 namespace astarte::device {
 
+/// @brief Class for generating exponential backoff delays with jitter.
 class ExponentialBackoff {
  public:
   /**
-   * @brief Create an ExponentialBackoff instance.
+   * @brief Creates an ExponentialBackoff instance.
    *
-   * @details The exponential backoff will will compute an exponential delay using
+   * @details The exponential backoff will compute an exponential delay using
    * 2 as the base for the power operation and @p mul_coeff as the multiplier coefficient.
    * The values returned by calls to getNextDelay will follow the formula:
-   * min( @p mul_coeff * 2 ^ ( number of calls ) , @p cutoff_coeff ) + random jitter
-   * The random jitter will be in the range [ - @p mul_coeff , + @p mul_coeff ]
+   * min( @p mul_coeff * 2 ^ ( number of calls ) , @p cutoff_coeff ) + random jitter.
+   * The random jitter will be in the range [ - @p mul_coeff , + @p mul_coeff ].
    *
    * @note The jitter will be applied also once the @p cutoff_coeff has been reached. Effectively
    * the maximum delay produced will be @p cutoff_coeff + @p mul_coeff.
    *
-   * @param mul_coeff Multiplier coefficient used in the exponential delay calculation.
-   * @param cutoff_coeff The cut-off coefficient, an upper bound for the exponential curve.
+   * @param[in] mul_coeff Multiplier coefficient used in the exponential delay calculation.
+   * @param[in] cutoff_coeff The cut-off coefficient, an upper bound for the exponential curve.
+   * @return An expected containing the ExponentialBackoff instance on success or Error on failure.
    */
   static auto create(std::chrono::milliseconds mul_coeff, std::chrono::milliseconds cutoff_coeff)
       -> astarte_tl::expected<ExponentialBackoff, Error> {
@@ -42,16 +53,19 @@ class ExponentialBackoff {
     if (cutoff_coeff < mul_coeff) {
       return astarte_tl::unexpected(
           InvalidInputError{"ExponentialBackoff create() received a multiplier coefficient "
-                            "larger than the cuttoff coefficient"});
+                            "larger than the cutoff coefficient"});
     }
     return ExponentialBackoff(mul_coeff, cutoff_coeff);
   }
 
   /**
-   * @brief Calculate and returns the next backoff delay.
-   * @details See the documentation of the constructor of this class for an explanation on how
-   * this delay is computed.
-   * @return The calculated delay duration.
+   * @brief Calculates and returns the next backoff delay.
+   *
+   * @details Computes the next delay duration based on the number of previous calls
+   * since the last reset, clamped by the cutoff coefficient, and modifies it with
+   * random jitter.
+   *
+   * @return The calculated delay duration in milliseconds.
    */
   auto getNextDelay() -> std::chrono::milliseconds {
     const ChronoMillisRep mul_coeff = mul_coeff_.count();
@@ -90,16 +104,22 @@ class ExponentialBackoff {
     return std::chrono::milliseconds(jittered_delay);
   }
 
-  /** @brief Reset the backoff generator. */
+  /**
+   * @brief Resets the backoff generator.
+   *
+   * @details Resets the internal state so that the next call to getNextDelay()
+   * will start from the initial multiplier coefficient.
+   */
   void reset() { prev_delay_ = 0; }
 
  private:
   using ChronoMillisRep = std::chrono::milliseconds::rep;
 
   /**
-   * @brief Construct an ExponentialBackoff instance.
-   * @param mul_coeff Multiplier coefficient used in the exponential delay calculation.
-   * @param cutoff_coeff The cut-off coefficient, an upper bound for the exponential curve.
+   * @brief Constructs an ExponentialBackoff instance.
+   *
+   * @param[in] mul_coeff Multiplier coefficient used in the exponential delay calculation.
+   * @param[in] cutoff_coeff The cut-off coefficient, an upper bound for the exponential curve.
    */
   ExponentialBackoff(std::chrono::milliseconds mul_coeff, std::chrono::milliseconds cutoff_coeff)
       : mul_coeff_(mul_coeff), cutoff_coeff_(cutoff_coeff) {}

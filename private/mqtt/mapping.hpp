@@ -5,6 +5,15 @@
 #ifndef ASTARTE_MAPPING_H
 #define ASTARTE_MAPPING_H
 
+/**
+ * @file private/mqtt/mapping.hpp
+ * @brief Definition of Astarte Mappings and related types.
+ *
+ * @details This file defines the `Mapping` class, which represents a single mapping
+ * within an Astarte Interface, along with auxiliary classes for reliability, retention,
+ * and database policies.
+ */
+
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
@@ -33,25 +42,28 @@ namespace astarte::device::mqtt {
 
 using json = nlohmann::json;
 
-/// @brief Represents the reliability of an Astarte datastream.
+/**
+ * @brief Represents the reliability of an Astarte datastream.
+ * @details Determines the guarantee level of message delivery (e.g., QoS 0, 1, or 2).
+ */
 class Reliability {
  public:
   /// @brief Underlying values for the reliability.
   enum Value : uint8_t {
-    /// @brief If the transport sends the data.
+    /// @brief If the transport sends the data (QoS 0).
     kUnreliable,
-    /// @brief When we know the data has been received at least once.
+    /// @brief When we know the data has been received at least once (QoS 1).
     kGuaranteed,
-    /// @brief When we know the data has been received exactly once.
+    /// @brief When we know the data has been received exactly once (QoS 2).
     kUnique,
   };
 
-  /// @brief Construct a Reliability object with default value (unreliable).
+  /// @brief Constructs a Reliability object with default value (unreliable).
   Reliability() : value_(kUnreliable) {}
 
   /**
-   * @brief Construct a Reliability from a specific Value.
-   * @param val The reliability value.
+   * @brief Constructs a Reliability from a specific Value.
+   * @param[in] val The reliability value.
    */
   explicit Reliability(Value val) : value_(val) {}
 
@@ -61,7 +73,7 @@ class Reliability {
   constexpr auto operator==(Value val) const -> bool { return value_ == val; }
 
   /**
-   * @brief Convert the reliability to its string representation.
+   * @brief Converts the reliability to its string representation.
    * @return A string_view containing "unreliable", "guaranteed", or "unique".
    */
   [[nodiscard]] constexpr auto to_string() const -> std::string_view {
@@ -77,9 +89,9 @@ class Reliability {
   }
 
   /**
-   * @brief Attempt to create a Reliability from a string.
-   * @param str The string representation to parse.
-   * @return An expected containing the Reliability on success, or an Error on failure.
+   * @brief Attempts to create a Reliability from a string.
+   * @param[in] str The string representation to parse.
+   * @return An expected containing the Reliability on success or Error on failure.
    */
   static auto try_from_str(std::string_view str) -> astarte_tl::expected<Reliability, Error> {
     if (str == "unreliable") {
@@ -96,15 +108,15 @@ class Reliability {
   }
 
   /**
-   * @brief Get the Quality of Service level associated with the reliability.
-   * @return The QoS value as an 8-bit integer.
+   * @brief Gets the Quality of Service (QoS) level associated with the reliability.
+   * @return The QoS value as an 8-bit integer (0, 1, or 2).
    */
   [[nodiscard]] auto get_qos() const -> int8_t { return static_cast<int8_t>(value_); }
 
   /**
-   * @brief Deserialize Reliability from a JSON object.
-   * @param json The JSON object to deserialize from.
-   * @param rel The Reliability object to fill.
+   * @brief Deserializes Reliability from a JSON object.
+   * @param[in] json The JSON object to deserialize from.
+   * @param[out] rel The Reliability object to fill.
    */
   friend void from_json(const nlohmann::json& json, Reliability& rel) {
     if (json.is_string()) {
@@ -121,7 +133,10 @@ class Reliability {
   Value value_;
 };
 
-/// @brief Represents the retention policy of an Astarte datastream.
+/**
+ * @brief Represents the retention policy of an Astarte datastream.
+ * @details Determines how messages are handled when the transport is temporarily unavailable.
+ */
 class Retention {
  public:
   /// @brief Underlying values for the retention.
@@ -134,12 +149,12 @@ class Retention {
     kStored,
   };
 
-  /// @brief Construct a Retention object with default value (discard).
+  /// @brief Constructs a Retention object with default value (discard).
   Retention() : value_(kDiscard) {}
 
   /**
-   * @brief Construct a Retention from a specific Value.
-   * @param val The retention value.
+   * @brief Constructs a Retention from a specific Value.
+   * @param[in] val The retention value.
    */
   explicit Retention(Value val) : value_(val) {}
 
@@ -149,7 +164,7 @@ class Retention {
   constexpr auto operator==(Value val) const -> bool { return value_ == val; }
 
   /**
-   * @brief Convert the retention to its string representation.
+   * @brief Converts the retention to its string representation.
    * @return A string_view containing "discard", "volatile", or "stored".
    */
   [[nodiscard]] constexpr auto to_string() const -> std::string_view {
@@ -165,9 +180,9 @@ class Retention {
   }
 
   /**
-   * @brief Attempt to create a Retention from a string.
-   * @param str The string representation to parse.
-   * @return An expected containing the Retention on success, or an Error on failure.
+   * @brief Attempts to create a Retention from a string.
+   * @param[in] str The string representation to parse.
+   * @return An expected containing the Retention on success or Error on failure.
    */
   static auto try_from_str(std::string_view str) -> astarte_tl::expected<Retention, Error> {
     if (str == "discard") {
@@ -184,9 +199,9 @@ class Retention {
   }
 
   /**
-   * @brief Deserialize Retention from a JSON object.
-   * @param json The JSON object to deserialize from.
-   * @param ret The Retention object to fill.
+   * @brief Deserializes Retention from a JSON object.
+   * @param[in] json The JSON object to deserialize from.
+   * @param[out] ret The Retention object to fill.
    */
   friend void from_json(const nlohmann::json& json, Retention& ret) {
     if (json.is_string()) {
@@ -203,7 +218,10 @@ class Retention {
   Value value_;
 };
 
-/// @brief Represents the database retention policy of an Astarte mapping.
+/**
+ * @brief Represents the database retention policy of an Astarte mapping.
+ * @details Determines if data stored in the Astarte database should expire.
+ */
 class DatabaseRetentionPolicy {
  public:
   /// @brief Underlying values for the database retention policy.
@@ -214,12 +232,12 @@ class DatabaseRetentionPolicy {
     kUseTtl,
   };
 
-  /// @brief Construct a DatabaseRetentionPolicy object with default value (no_ttl).
+  /// @brief Constructs a DatabaseRetentionPolicy object with default value (no_ttl).
   DatabaseRetentionPolicy() : value_(kNoTtl) {}
 
   /**
-   * @brief Construct a DatabaseRetentionPolicy from a specific Value.
-   * @param val The policy value.
+   * @brief Constructs a DatabaseRetentionPolicy from a specific Value.
+   * @param[in] val The policy value.
    */
   explicit DatabaseRetentionPolicy(Value val) : value_(val) {}
 
@@ -229,7 +247,7 @@ class DatabaseRetentionPolicy {
   constexpr auto operator==(Value val) const -> bool { return value_ == val; }
 
   /**
-   * @brief Convert the policy to its string representation.
+   * @brief Converts the policy to its string representation.
    * @return A string_view containing "no_ttl" or "use_ttl".
    */
   [[nodiscard]] constexpr auto to_string() const -> std::string_view {
@@ -243,9 +261,9 @@ class DatabaseRetentionPolicy {
   }
 
   /**
-   * @brief Attempt to create a DatabaseRetentionPolicy from a string.
-   * @param str The string representation to parse.
-   * @return An expected containing the policy on success, or an Error on failure.
+   * @brief Attempts to create a DatabaseRetentionPolicy from a string.
+   * @param[in] str The string representation to parse.
+   * @return An expected containing the policy on success or Error on failure.
    */
   static auto try_from_str(std::string_view str)
       -> astarte_tl::expected<DatabaseRetentionPolicy, Error> {
@@ -260,9 +278,9 @@ class DatabaseRetentionPolicy {
   }
 
   /**
-   * @brief Deserialize DatabaseRetentionPolicy from a JSON object.
-   * @param json The JSON object to deserialize from.
-   * @param pol The DatabaseRetentionPolicy object to fill.
+   * @brief Deserializes DatabaseRetentionPolicy from a JSON object.
+   * @param[in] json The JSON object to deserialize from.
+   * @param[out] pol The DatabaseRetentionPolicy object to fill.
    */
   friend void from_json(const nlohmann::json& json, DatabaseRetentionPolicy& pol) {
     if (json.is_string()) {
@@ -279,8 +297,29 @@ class DatabaseRetentionPolicy {
   Value value_;
 };
 
+/**
+ * @brief Represents a single Astarte mapping within an interface.
+ *
+ * @details A mapping defines a specific data endpoint (e.g., `/sensors/temp`), its type,
+ * reliability, and other configuration parameters that dictate how data is exchanged.
+ */
 class Mapping {
  public:
+  /**
+   * @brief Constructs a Mapping object.
+   *
+   * @param[in] endpoint The endpoint pattern (can be parametrized).
+   * @param[in] type The data type accepted by this mapping.
+   * @param[in] explicit_timestamp Whether the client should provide an explicit timestamp.
+   * @param[in] reliability The QoS level for data transmission.
+   * @param[in] retention The policy for retaining unsent messages.
+   * @param[in] expiry The expiration time for retained messages.
+   * @param[in] database_retention_policy The policy for database storage retention.
+   * @param[in] database_retention_ttl The TTL for database storage.
+   * @param[in] allow_unset Whether this property can be unset.
+   * @param[in] description A description of the mapping.
+   * @param[in] doc Documentation for the mapping.
+   */
   Mapping(std::string endpoint, Type type, std::optional<bool> explicit_timestamp,
           std::optional<Reliability> reliability, std::optional<Retention> retention,
           std::optional<int64_t> expiry,
@@ -300,114 +339,109 @@ class Mapping {
         doc_(std::move(doc)) {}
 
   /**
-   * @brief Check that the mapping endpoint matches a given path.
+   * @brief Checks that the mapping endpoint matches a given path.
    *
-   * @param path The Astarte interface path to check.
-   * @return a boolean stating if the mapping endpoint matches the path or not.
+   * @param[in] path The Astarte interface path to check.
+   * @return True if the mapping endpoint matches the path, false otherwise.
    */
   [[nodiscard]] auto match_path(std::string_view path) const -> bool;
 
   /**
-   * @brief Check that the Astarte data matches the mapping type
+   * @brief Checks that the Astarte data matches the mapping type.
    *
-   * @param data The Data to check.
-   * @return an error if the check fails.
+   * @param[in] data The Data object to check.
+   * @return An expected containing void on success or Error on failure.
    */
   [[nodiscard]] auto check_data_type(const Data& data) const -> astarte_tl::expected<void, Error>;
 
   /**
-   * @brief Path of the mapping.
-   *
-   * It can be parametrized (e.g. `/foo/%{path}/baz`).
+   * @brief Gets the path of the mapping.
+   * @details It can be parametrized (e.g. `/foo/%{path}/baz`).
+   * @return A constant reference to the endpoint string.
    */
   [[nodiscard]] auto endpoint() const -> const std::string& { return endpoint_; }
 
   /**
-   * @brief Define the type of the mapping.
-   *
-   * This represent the data that will be published on the mapping.
+   * @brief Gets the type of the mapping.
+   * @details This represents the data type that will be published on the mapping.
+   * @return The Astarte Type.
    */
   [[nodiscard]] auto type() const -> Type { return type_; }
 
   /**
-   * @brief Allow to set a custom timestamp.
+   * @brief Checks if an explicit timestamp is allowed.
+   * @return An optional boolean indicating the configuration.
    */
   [[nodiscard]] auto explicit_timestamp() const -> std::optional<bool> {
     return explicit_timestamp_;
   }
 
   /**
-   * @brief Define when to consider the data delivered.
-   *
-   * Useful only with datastream. Defines whether the sent data should be considered delivered
-   * when the transport successfully sends the data (unreliable), when we know that the data has
-   * been received at least once (guaranteed) or when we know that the data has been received
-   * exactly once (unique). Unreliable by default.
+   * @brief Gets the reliability configuration.
+   * @details Useful only with datastreams. Defines delivery guarantees (unreliable, guaranteed,
+   * unique).
+   * @return An optional Reliability object.
    */
   [[nodiscard]] auto reliability() const -> std::optional<Reliability> { return reliability_; }
 
   /**
-   * @brief Retention of the data when not deliverable.
-   *
-   * Useful only with datastream. Defines whether the sent data should be discarded if the
-   * transport is temporarily uncapable of delivering it (discard) or should be kept in a cache in
-   * memory (volatile) or on disk (stored), and guaranteed to be delivered in the timeframe
-   * defined by the expiry.
+   * @brief Gets the retention configuration.
+   * @details Useful only with datastreams. Defines behavior when data cannot be immediately
+   * delivered.
+   * @return An optional Retention object.
    */
   [[nodiscard]] auto retention() const -> std::optional<Retention> { return retention_; }
 
   /**
-   * @brief Expiry for the retain data.
-   *
-   * Useful when retention is stored. Defines after how many seconds a specific data entry should
-   * be kept before giving up and erasing it from the persistent cache. A value <= 0 means the
-   * persistent cache never expires, and is the default.
+   * @brief Gets the expiry for retained data.
+   * @details Useful when retention is stored. Defines validity duration in seconds.
+   * @return An optional expiry duration.
    */
   [[nodiscard]] auto expiry() const -> std::optional<int64_t> { return expiry_; }
 
   /**
-   * @brief Expiry for the retain data.
-   *
-   * Useful only with datastream. Defines whether data should expire from the database after a
-   * given interval. Valid values are: `no_ttl` and `use_ttl`.
+   * @brief Gets the database retention policy.
+   * @details Useful only with datastreams. Defines if data expires from the Astarte database.
+   * @return An optional DatabaseRetentionPolicy object.
    */
   [[nodiscard]] auto database_retention_policy() const -> std::optional<DatabaseRetentionPolicy> {
     return database_retention_policy_;
   }
 
   /**
-   * @brief Seconds to keep the data in the database.
-   *
-   * Useful when `database_retention_policy` is "`use_ttl`". Defines how many seconds a specific
-   * data entry should be kept before erasing it from the database.
+   * @brief Gets the database retention TTL.
+   * @details Defines how many seconds data is kept in the database if policy is `use_ttl`.
+   * @return An optional TTL in seconds.
    */
   [[nodiscard]] auto database_retention_ttl() const -> std::optional<int64_t> {
     return database_retention_ttl_;
   }
 
   /**
-   * @brief Allow the property to be unset.
-   *
-   * Used only with properties.
+   * @brief Checks if the property allows unsetting.
+   * @details Used only with properties.
+   * @return An optional boolean.
    */
   [[nodiscard]] auto allow_unset() const -> std::optional<bool> { return allow_unset_; }
 
   /**
-   * @brief An optional description of the mapping.
+   * @brief Gets the description of the mapping.
+   * @return An optional string description.
    */
   [[nodiscard]] auto description() const -> const std::optional<std::string>& {
     return description_;
   }
 
   /**
-   * @brief A string containing documentation that will be injected in the generated client code.
+   * @brief Gets the documentation string.
+   * @return An optional string containing documentation.
    */
   [[nodiscard]] auto doc() const -> const std::optional<std::string>& { return doc_; }
 
   /**
-   * @brief Construct a Mapping from a json.
-   * @param json The json structure to parse
-   * @return A Mapping object representation of the json data, an error otherwise.
+   * @brief Constructs a Mapping from a JSON object.
+   * @param[in] json The JSON structure to parse.
+   * @return An expected containing the Mapping on success or Error on failure.
    */
   static auto try_from_json(const json& json) -> astarte_tl::expected<Mapping, Error>;
 
@@ -428,15 +462,15 @@ class Mapping {
 }  // namespace astarte::device::mqtt
 
 // ------------------------------------------------------------------------------------------------
-// FORAMATTING
+// FORMATTING
 // ------------------------------------------------------------------------------------------------
 
 /// @brief astarte_fmt::formatter specialization for Reliability.
 template <>
 struct astarte_fmt::formatter<astarte::device::mqtt::Reliability> {
   /**
-   * @brief Parse the format string. Default implementation.
-   * @param ctx The parse context.
+   * @brief Parses the format string. Default implementation.
+   * @param[in,out] ctx The parse context.
    * @return An iterator to the end of the parsed range.
    */
   template <typename ParseContext>
@@ -445,9 +479,9 @@ struct astarte_fmt::formatter<astarte::device::mqtt::Reliability> {
   }
 
   /**
-   * @brief Format the Reliability enum.
-   * @param msg The Reliability to format.
-   * @param ctx The format context.
+   * @brief Formats the Reliability enum.
+   * @param[in] rel The Reliability to format.
+   * @param[in,out] ctx The format context.
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
@@ -466,8 +500,8 @@ inline auto operator<<(std::ostream& out, const astarte::device::mqtt::Reliabili
 template <>
 struct astarte_fmt::formatter<astarte::device::mqtt::Retention> {
   /**
-   * @brief Parse the format string. Default implementation.
-   * @param ctx The parse context.
+   * @brief Parses the format string. Default implementation.
+   * @param[in,out] ctx The parse context.
    * @return An iterator to the end of the parsed range.
    */
   template <typename ParseContext>
@@ -476,9 +510,9 @@ struct astarte_fmt::formatter<astarte::device::mqtt::Retention> {
   }
 
   /**
-   * @brief Format the Retention enum.
-   * @param msg The Retention to format.
-   * @param ctx The format context.
+   * @brief Formats the Retention enum.
+   * @param[in] ret The Retention to format.
+   * @param[in,out] ctx The format context.
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
@@ -497,8 +531,8 @@ inline auto operator<<(std::ostream& out, const astarte::device::mqtt::Retention
 template <>
 struct astarte_fmt::formatter<astarte::device::mqtt::DatabaseRetentionPolicy> {
   /**
-   * @brief Parse the format string. Default implementation.
-   * @param ctx The parse context.
+   * @brief Parses the format string. Default implementation.
+   * @param[in,out] ctx The parse context.
    * @return An iterator to the end of the parsed range.
    */
   template <typename ParseContext>
@@ -507,9 +541,9 @@ struct astarte_fmt::formatter<astarte::device::mqtt::DatabaseRetentionPolicy> {
   }
 
   /**
-   * @brief Format the DatabaseRetentionPolicy enum.
-   * @param msg The DatabaseRetentionPolicy to format.
-   * @param ctx The format context.
+   * @brief Formats the DatabaseRetentionPolicy enum.
+   * @param[in] ret_pol The DatabaseRetentionPolicy to format.
+   * @param[in,out] ctx The format context.
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
@@ -530,8 +564,8 @@ inline auto operator<<(std::ostream& out,
 template <>
 struct astarte_fmt::formatter<astarte::device::mqtt::Mapping> {
   /**
-   * @brief Parse the format string. Default implementation.
-   * @param ctx The parse context.
+   * @brief Parses the format string. Default implementation.
+   * @param[in,out] ctx The parse context.
    * @return An iterator to the end of the parsed range.
    */
   template <typename ParseContext>
@@ -540,9 +574,9 @@ struct astarte_fmt::formatter<astarte::device::mqtt::Mapping> {
   }
 
   /**
-   * @brief Format the Mapping enum.
-   * @param msg The Mapping to format.
-   * @param ctx The format context.
+   * @brief Formats the Mapping object.
+   * @param[in] mapping The Mapping to format.
+   * @param[in,out] ctx The format context.
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>

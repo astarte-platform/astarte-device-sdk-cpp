@@ -8,6 +8,9 @@
 /**
  * @file astarte_device_sdk/object.hpp
  * @brief Astarte object class and its related methods.
+ *
+ * @details This file defines the container for aggregated object datastreams,
+ * allowing multiple Astarte data fields to be grouped and sent as a single coherent unit.
  */
 
 #include <initializer_list>
@@ -20,124 +23,176 @@
 
 namespace astarte::device {
 
-/** @brief Astarte object class, representing the Astarte object datastream data. */
+/**
+ * @brief Astarte object class, representing the Astarte object datastream data.
+ *
+ * @details This class acts as a specialized container for mapping relative paths (keys)
+ * to Astarte Data values. It is primarily used when transmitting data via interfaces
+ * configured with object aggregation.
+ */
 class DatastreamObject {
  public:
-  /** @brief Helper type for the map of paths and Astarte datas. */
+  /// @brief Helper type for the map of paths and Astarte datas.
   using MapType = std::unordered_map<std::string, Data>;
-  /** @brief Helper type for the iterator over the map of paths and Astarte datas. */
+  /// @brief Helper type for the iterator over the map of paths and Astarte datas.
   using iterator = MapType::iterator;
-  /** @brief Helper type for the const iterator over the map of paths and Astarte datas. */
+  /// @brief Helper type for the const iterator over the map of paths and Astarte datas.
   using const_iterator = MapType::const_iterator;
-  /** @brief Helper type for size type of the map of paths and Astarte datas. */
+  /// @brief Helper type for size type of the map of paths and Astarte datas.
   using size_type = MapType::size_type;
-  /** @brief Helper type for value type of the map of paths and Astarte datas. */
+  /// @brief Helper type for value type of the map of paths and Astarte datas.
   using value_type = MapType::value_type;
 
-  /** @brief Constructor for the class. To instantiate an empty object. */
+  /// @brief Constructs an empty DatastreamObject.
   DatastreamObject();
+
   /**
-   * @brief Constructor for the class. To instantiate a non-empty object.
-   * @param init The initialize list to use as intial content.
+   * @brief Constructs a DatastreamObject with initial content.
+   *
+   * @param[in] init The initialize list to use as initial content.
    */
   DatastreamObject(std::initializer_list<value_type> init);
+
   /**
-   * @brief Access specified element with bounds checking.
+   * @brief Accesses the specified element with bounds checking.
+   *
    * @details Soft wrapper for the equivalent method in the std::unordered_map.
-   * @param key The key to search for.
-   * @return Reference to the value corresponding to the key.
+   *
+   * @param[in] key The key to search for.
+   * @return A reference to the value corresponding to the key.
    */
   auto at(const std::string& key) -> Data&;
+
   /**
-   * @brief Access specified element with bounds checking.
+   * @brief Accesses the specified element with bounds checking.
+   *
    * @details Soft wrapper for the equivalent method in the std::unordered_map.
-   * @param key The key to search for.
-   * @return Reference to the value corresponding to the key.
+   *
+   * @param[in] key The key to search for.
+   * @return A constant reference to the value corresponding to the key.
    */
   auto at(const std::string& key) const -> const Data&;
+
   /**
-   * @brief Returns an iterator to the beginning of the specified bucket.
+   * @brief Returns an iterator to the beginning of the map.
+   *
    * @details Soft wrapper for the equivalent method in the std::unordered_map.
-   * @return Iterator pointing at the beginning of the map.
+   *
+   * @return An iterator pointing at the beginning of the map.
    */
   auto begin() -> iterator;
+
   /**
-   * @brief Returns an iterator to the beginning of the specified bucket.
+   * @brief Returns an iterator to the beginning of the map.
+   *
    * @details Soft wrapper for the equivalent method in the std::unordered_map.
-   * @return Iterator pointing at the beginning of the map.
+   *
+   * @return A constant iterator pointing at the beginning of the map.
    */
   auto begin() const -> const_iterator;
+
   /**
-   * @brief Returns an iterator to the end of the specified bucket.
+   * @brief Returns an iterator to the end of the map.
+   *
    * @details Soft wrapper for the equivalent method in the std::unordered_map.
-   * @return Iterator pointing at the end of the map.
+   *
+   * @return An iterator pointing at the end of the map.
    */
   auto end() -> iterator;
+
   /**
-   * @brief Returns an iterator to the end of the specified bucket.
+   * @brief Returns an iterator to the end of the map.
+   *
    * @details Soft wrapper for the equivalent method in the std::unordered_map.
-   * @return Iterator pointing at the end of the map.
+   *
+   * @return A constant iterator pointing at the end of the map.
    */
   auto end() const -> const_iterator;
+
   /**
-   * @brief Returns the number of elements.
+   * @brief Returns the number of elements in the map.
+   *
    * @details Soft wrapper for the equivalent method in the std::unordered_map.
-   * @return Number of elements in the map.
+   *
+   * @return The number of elements in the map.
    */
   auto size() const -> size_type;
+
   /**
-   * @brief Checks whether the container is empty.
+   * @brief Checks if the map is empty.
+   *
    * @details Soft wrapper for the equivalent method in the std::unordered_map.
+   *
    * @return True if the map is empty, false otherwise.
    */
   auto empty() const -> bool;
+
   /**
-   * @brief Insert elements.
+   * @brief Inserts elements into the map.
+   *
    * @details Soft wrapper for the equivalent method in the std::unordered_map.
-   * @param key Key to insert.
-   * @param data Value to insert.
+   *
+   * @param[in] key The key to insert.
+   * @param[in] data The value to insert.
    */
   void insert(const std::string& key, const Data& data);
+
   /**
-   * @brief Erases elements.
+   * @brief Erases elements from the map.
+   *
    * @details Soft wrapper for the equivalent method in the std::unordered_map.
-   * @param key Key to erase.
-   * @return Number of elements removed (0 or 1).
+   *
+   * @param[in] key The key of the element to erase.
+   * @return The number of elements removed (0 or 1).
    */
   auto erase(const std::string& key) -> size_type;
+
   /**
-   * @brief Clears the contents.
+   * @brief Clears the contents of the map.
+   *
    * @details Soft wrapper for the equivalent method in the std::unordered_map.
    */
   void clear();
+
   /**
-   * @brief Finds element with specific key.
+   * @brief Finds an element with a specific key.
+   *
    * @details Soft wrapper for the equivalent method in the std::unordered_map.
-   * @param key Key to find.
+   *
+   * @param[in] key The key to find.
    * @return An iterator to the requested element.
    */
   auto find(const std::string& key) -> iterator;
+
   /**
-   * @brief Finds element with specific key.
+   * @brief Finds an element with a specific key.
+   *
    * @details Soft wrapper for the equivalent method in the std::unordered_map.
-   * @param key Key to find.
-   * @return An iterator to the requested element.
+   *
+   * @param[in] key The key to find.
+   * @return A constant iterator to the requested element.
    */
   auto find(const std::string& key) const -> const_iterator;
+
   /**
-   * @brief Return the raw data contained in this class instance.
-   * @return The raw data contained in this class instance.
+   * @brief Returns the raw data contained in this class instance.
+   *
+   * @return A constant reference to the internal map containing the object data.
    */
   auto get_raw_data() const -> const MapType&;
+
   /**
    * @brief Overloader for the comparison operator ==.
-   * @param other The object to compare to.
+   *
+   * @param[in] other The object to compare to.
    * @return True when equal, false otherwise.
    */
   [[nodiscard]] auto operator==(const DatastreamObject& other) const -> bool;
+
   /**
    * @brief Overloader for the comparison operator !=.
-   * @param other The object to compare to.
+   *
+   * @param[in] other The object to compare to.
    * @return True when different, false otherwise.
    */
   [[nodiscard]] auto operator!=(const DatastreamObject& other) const -> bool;
@@ -148,15 +203,13 @@ class DatastreamObject {
 
 }  // namespace astarte::device
 
-/**
- * @brief astarte_fmt::formatter specialization for
- * astarte::device::DatastreamObject.
- */
+/// @brief astarte_fmt::formatter specialization for astarte::device::DatastreamObject.
 template <>
 struct astarte_fmt::formatter<astarte::device::DatastreamObject> {
   /**
-   * @brief Parse the format string. Default implementation.
-   * @param ctx The parse context.
+   * @brief Parses the format string.
+   *
+   * @param[in,out] ctx The parse context.
    * @return An iterator to the end of the parsed range.
    */
   template <typename ParseContext>
@@ -165,10 +218,11 @@ struct astarte_fmt::formatter<astarte::device::DatastreamObject> {
   }
 
   /**
-   * @brief Format the DatastreamObject object as a key-value map.
-   * @param data The DatastreamObject to format.
-   * @param ctx The format context.
-   * @return An iterator to the end of the output.
+   * @brief Formats the DatastreamObject object as a key-value map.
+   *
+   * @param[in] data The DatastreamObject instance to format.
+   * @param[in,out] ctx The format context.
+   * @return An iterator to the end of the output context.
    */
   template <typename FormatContext>
   auto format(const astarte::device::DatastreamObject& data, FormatContext& ctx) const {
@@ -191,9 +245,10 @@ struct astarte_fmt::formatter<astarte::device::DatastreamObject> {
 
 /**
  * @brief Stream insertion operator for DatastreamObject.
- * @param out The output stream.
- * @param data The DatastreamObject to output.
- * @return Reference to the output stream.
+ *
+ * @param[in,out] out The output stream.
+ * @param[in] data The DatastreamObject to output.
+ * @return A reference to the output stream.
  */
 inline auto operator<<(std::ostream& out, const astarte::device::DatastreamObject& data)
     -> std::ostream& {

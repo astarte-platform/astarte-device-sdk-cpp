@@ -229,7 +229,7 @@ TEST(AstarteTestInterface, ConvertFromJson) {
   auto wrong_ownership = json;
   wrong_ownership.update({{"ownership", "wrong"}});
   ASSERT_THAT(Interface::try_from_json(wrong_ownership),
-              IsUnexpected("interface ownershipe not valid: wrong"));
+              IsUnexpected("interface ownership not valid: wrong"));
 
   auto wrong_aggregation = json;
   wrong_aggregation.update({{"aggregation", "wrong"}});

@@ -5,6 +5,15 @@
 #ifndef ASTARTE_MQTT_CONNECTION_H
 #define ASTARTE_MQTT_CONNECTION_H
 
+/**
+ * @file private/mqtt/connection/connection.hpp
+ * @brief Astarte MQTT Connection Manager.
+ *
+ * @details This file defines the `Connection` class, which wraps the Paho MQTT client
+ * and orchestrates the entire connection lifecycle, including pairing, SSL/TLS configuration,
+ * session setup, and message transmission.
+ */
+
 #include <spdlog/spdlog.h>
 
 #include <atomic>
@@ -31,17 +40,25 @@ namespace paho_mqtt = ::mqtt;
 
 /**
  * @brief Manages the MQTT connection to an Astarte instance.
+ *
+ * @details The `Connection` class is responsible for initializing the MQTT client with
+ * correct credentials (potentially obtained via Pairing), managing the connection options (SSL,
+ * Persistence), and handling data transmission.
  */
 class Connection {
  public:
-  /** @brief Default destructor for the Connection class. */
+  /// @brief Default destructor for the Connection class.
   ~Connection() = default;
-  /** @brief Copy constructor for the Connection class. */
+
+  /// @brief Connection is non-copyable.
   Connection(const Connection&) = delete;
-  /** @brief Move constructor for the Connection class. */
+
+  /// @brief Move constructor for the Connection class.
   Connection(Connection&&) noexcept = default;
-  /** @brief Copy assignment operator for the Connection class. */
+
+  /// @brief Connection is non-copyable.
   auto operator=(const Connection&) -> Connection& = delete;
+
   /**
    * @brief Move assignment operator for the Connection class.
    * @return A reference to this Connection object.
@@ -49,47 +66,61 @@ class Connection {
   auto operator=(Connection&&) noexcept -> Connection& = default;
 
   /**
-   * @brief Construct a new Mqtt Connection object.
+   * @brief Constructs a new Mqtt Connection object.
    *
-   * Initializes connection parameters, performs pairing if necessary,
+   * @details Initializes connection parameters, performs pairing if necessary,
    * and configures the MQTT client.
    *
-   * @param cfg The MQTT configuration object containing connection details.
-   * @return The MQTT connection object, an error otherwise.
+   * @param[in] cfg The MQTT configuration object containing connection details (Realm, ID, Secret,
+   * etc.).
+   * @return An expected containing the Connection on success or Error on failure.
    */
   static auto create(Config& cfg) -> astarte_tl::expected<Connection, Error>;
 
   /**
    * @brief Connects the client to the Astarte MQTT broker.
-   * @param introspection A collection of interfaces defining the device.
-   * @return an error if the connection operation fails.
+   *
+   * @details Initiates the connection process using the provided introspection to set up
+   * subscriptions. This is an asynchronous operation that sets up the callback handlers.
+   *
+   * @param[in] introspection A collection of interfaces defining the device structure.
+   * @return An expected containing void on success or Error on failure.
    */
   auto connect(std::shared_ptr<Introspection> introspection) -> astarte_tl::expected<void, Error>;
 
   /**
-   * @brief Check if the device is connected.
-   * @return True if the device is connected to Astarte, false otherwise.
+   * @brief Checks if the device is connected.
+   * @return True if the device is fully connected to the Astarte broker, false otherwise.
    */
   [[nodiscard]] auto is_connected() const -> bool;
 
   /**
-   * @brief Send an individual or object data to Astarte.
-   * @param interface_name The interface on which data will be sent.
-   * @param path The mapping path of the Astarte interface on which data will be sentr.
-   * @param qos The quality of service value. It could be only 0, 1 or 2.
-   * @param data A vector of bytes containing the BSON data to send to Astarte.
-   * @return an error if sending failed, nothing otherwise.
+   * @brief Sends individual or object data to Astarte.
+   *
+   * @param[in] interface_name The interface on which data will be sent.
+   * @param[in] path The mapping path of the Astarte interface on which data will be sent.
+   * @param[in] qos The quality of service value (0, 1, or 2).
+   * @param[in] data A span of bytes containing the BSON serialized data to send.
+   * @return An expected containing void on success or Error on failure.
    */
   auto send(std::string_view interface_name, std::string_view path, uint8_t qos,
             std::span<uint8_t> data) -> astarte_tl::expected<void, Error>;
 
   /**
-   * @brief Disconnect the client from the Astarte MQTT broker.
-   * @return an error if the disconnection operation fails.
+   * @brief Disconnects the client from the Astarte MQTT broker.
+   * @details Performs a graceful shutdown of the MQTT session.
+   * @return An expected containing void on success or Error on failure.
    */
   auto disconnect() -> astarte_tl::expected<void, Error>;
 
  private:
+  /**
+   * @brief Private constructor.
+   * @param[in] cfg Configuration options.
+   * @param[in] options Paho Connect options.
+   * @param[in] client The Paho async client.
+   * @param[in] pairing_api The pairing API instance.
+   */
   Connection(Config cfg, paho_mqtt::connect_options options,
              std::unique_ptr<paho_mqtt::async_client> client, PairingApi pairing_api);
 
@@ -105,7 +136,7 @@ class Connection {
   std::unique_ptr<Callback> callback_;
   /// @brief Flag stating if the device is successfully connected to Astarte.
   std::shared_ptr<std::atomic<bool>> connected_;
-  /// @brief Queue containing the token used during session setup
+  /// @brief Queue containing the tokens used during session setup.
   std::shared_ptr<paho_mqtt::thread_queue<paho_mqtt::token_ptr>> session_setup_tokens_;
 };
 

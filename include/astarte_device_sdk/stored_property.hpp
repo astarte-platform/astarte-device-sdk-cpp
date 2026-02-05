@@ -7,7 +7,10 @@
 
 /**
  * @file astarte_device_sdk/stored_property.hpp
- * @brief Astarte stored property class and its related methods.
+ * @brief Astarte stored property class.
+ *
+ * @details This file defines the StoredProperty class, which acts as a container for
+ * a property's value and its associated metadata (interface name, path, version, ownership).
  */
 
 #include <cstdint>
@@ -21,56 +24,60 @@
 
 namespace astarte::device {
 
-/** @brief Representing data for a stored property. */
+/**
+ * @brief Represents a stored property on the device.
+ *
+ * @details This class encapsulates the data and metadata of a property that is stored
+ * locally on the device, often used for synchronization with the Astarte platform.
+ */
 class StoredProperty {
  public:
   /**
-   * @brief Constructor for the StoredProperty class.
-   * @param interface_name The name of the interface of the property.
-   * @param path The path for the property.
-   * @param version_major The major version for the interface of the property.
-   * @param ownership The ownership for the interface of the property.
-   * @param data The Astarte data for the property.
+   * @brief Constructs a new Stored Property instance.
+   *
+   * @param[in] interface_name The name of the interface the property belongs to.
+   * @param[in] path The specific path of the property.
+   * @param[in] version_major The major version of the interface.
+   * @param[in] ownership The ownership of the interface.
+   * @param[in] data The value payload of the property.
    */
   explicit StoredProperty(std::string_view interface_name, std::string_view path,
                           int32_t version_major, Ownership ownership, Data data);
   /**
-   * @brief Get the interface name contained within the object.
+   * @brief Retrieves the interface name.
    * @return A constant reference to the interface name string.
    */
   [[nodiscard]] auto get_interface_name() const -> const std::string&;
   /**
-   * @brief Get the path contained within the object.
+   * @brief Retrieves the property path.
    * @return A constant reference to the path string.
    */
   [[nodiscard]] auto get_path() const -> const std::string&;
   /**
-   * @brief Get the major version within the object.
-   * @details The major version is the major version of the interface of the property.
-   * @return The major version.
+   * @brief Retrieves the major version of the interface.
+   * @return The major version integer.
    */
   [[nodiscard]] auto get_version_major() const -> int32_t;
   /**
-   * @brief Get the ownership contained within the object.
-   * @details The ownership is the ownership of the interface of the property.
-   * @return A constant reference to the ownership.
+   * @brief Retrieves the ownership of the interface.
+   * @return A constant reference to the ownership enumeration.
    */
   [[nodiscard]] auto get_ownership() const -> const Ownership&;
   /**
-   * @brief Get the value contained within the object.
-   * @return A constant reference to the data, if any.
+   * @brief Retrieves the value of the property.
+   * @return A constant reference to the Data object containing the value.
    */
   [[nodiscard]] auto get_value() const -> const Data&;
   /**
-   * @brief Overloader for the comparison operator ==.
-   * @param other The object to compare to.
-   * @return True when equal, false otherwise.
+   * @brief Equality comparison operator.
+   * @param[in] other The StoredProperty object to compare with.
+   * @return True if the properties are equal, false otherwise.
    */
   [[nodiscard]] auto operator==(const StoredProperty& other) const -> bool;
   /**
-   * @brief Overloader for the comparison operator !=.
-   * @param other The object to compare to.
-   * @return True when different, false otherwise.
+   * @brief Inequality comparison operator.
+   * @param[in] other The StoredProperty object to compare with.
+   * @return True if the properties are different, false otherwise.
    */
   [[nodiscard]] auto operator!=(const StoredProperty& other) const -> bool;
 
@@ -84,14 +91,14 @@ class StoredProperty {
 
 }  // namespace astarte::device
 
-/**
- * @brief astarte_fmt::formatter specialization for astarte::device::StoredProperty.
- */
+/// @brief astarte_fmt::formatter specialization for astarte::device::StoredProperty.
 template <>
 struct astarte_fmt::formatter<astarte::device::StoredProperty> {
   /**
-   * @brief Parse the format string. Default implementation.
-   * @param ctx The parse context.
+   * @brief Parses the format string.
+   * @details Default implementation required by the formatter interface.
+   *
+   * @param[in,out] ctx The parse context.
    * @return An iterator to the end of the parsed range.
    */
   template <typename ParseContext>
@@ -100,9 +107,10 @@ struct astarte_fmt::formatter<astarte::device::StoredProperty> {
   }
 
   /**
-   * @brief Format the StoredProperty object.
-   * @param prop The StoredProperty to format.
-   * @param ctx The format context.
+   * @brief Formats the StoredProperty object.
+   *
+   * @param[in] prop The StoredProperty instance to format.
+   * @param[in,out] ctx The format context.
    * @return An iterator to the end of the output.
    */
   template <typename FormatContext>
@@ -116,9 +124,10 @@ struct astarte_fmt::formatter<astarte::device::StoredProperty> {
 
 /**
  * @brief Stream insertion operator for StoredProperty.
- * @param out The output stream.
- * @param prop The StoredProperty object to output.
- * @return Reference to the output stream.
+ *
+ * @param[in,out] out The output stream.
+ * @param[in] prop The StoredProperty object to output.
+ * @return A reference to the output stream.
  */
 inline auto operator<<(std::ostream& out, const astarte::device::StoredProperty& prop)
     -> std::ostream& {

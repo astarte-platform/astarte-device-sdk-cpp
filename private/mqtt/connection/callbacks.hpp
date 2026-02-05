@@ -5,6 +5,16 @@
 #ifndef ASTARTE_MQTT_CONNECTION_CALLBACKS_H
 #define ASTARTE_MQTT_CONNECTION_CALLBACKS_H
 
+/**
+ * @file private/mqtt/connection/callbacks.hpp
+ * @brief MQTT Client Callback implementation.
+ *
+ * @details This file defines the `Callback` class, which implements the `paho_mqtt::callback`
+ * interface. It handles asynchronous events from the MQTT broker, such as connection success,
+ * disconnection, message arrival, and delivery confirmation, as well as managing the Astarte
+ * session setup sequence.
+ */
+
 #include <spdlog/spdlog.h>
 
 #include <atomic>
@@ -26,21 +36,24 @@ namespace paho_mqtt = ::mqtt;
 /**
  * @brief Implements `paho_mqtt::callback` to handle connection life-cycle events and session setup.
  *
- * This class owns the device state (ID, introspection) and is responsible for
- * subscribing to topics and publishing introspection when a session is established.
+ * @details This class acts as the central event handler for the underlying Paho MQTT client.
+ * It owns the device state (Realm, ID, Introspection) and is responsible for the critical
+ * "Session Setup" phase: subscribing to control topics and server-owned interfaces, and
+ * publishing the device introspection.
  */
 class Callback : public virtual paho_mqtt::callback {
  public:
   /**
-   * @brief Construct a new Connection Callback object.
+   * @brief Constructs a new Connection Callback object.
    *
-   * @param client Pointer to the MQTT asynchronous client.
-   * @param realm The Astarte realm name.
-   * @param device_id The Astarte Device ID.
-   * @param introspection A reference to the collection of device interfaces.
-   * @param connected A flag stating if the client is correctly connected to Astarte.
-   * @param session_setup_tokens Tokens from the paho MQTT library related to the session setup
-   * procedure.
+   * @param[in] client Pointer to the MQTT asynchronous client instance.
+   * @param[in] realm The Astarte realm name.
+   * @param[in] device_id The Astarte Device ID.
+   * @param[in] introspection A reference to the collection of device interfaces.
+   * @param[in] connected A flag shared with the main connection object to track connectivity
+   * status.
+   * @param[in] session_setup_tokens Queue for storing tokens related to session setup actions
+   * (subscriptions, publications) to ensure they complete before declaring the device ready.
    */
   Callback(
       paho_mqtt::iasync_client* client, std::string realm, std::string device_id,
@@ -49,13 +62,15 @@ class Callback : public virtual paho_mqtt::callback {
       const std::shared_ptr<paho_mqtt::thread_queue<paho_mqtt::token_ptr>>& session_setup_tokens);
 
   /**
-   * @brief Performs the Astarte session setup.
+   * @brief Performs the Astarte session setup sequence.
    *
-   * This includes subscribing to control/data topics and sending the introspection
-   * and emptyCache messages.
+   * @details This method triggers the necessary steps to initialize an Astarte session:
+   * 1. Subscribes to the device control topic and server-owned interface topics.
+   * 2. Publishes the device introspection.
+   * 3. Publishes the `emptyCache` message if required.
    *
-   * @param session_present Indicates if the broker resumed a previous session.
-   * @return an error if the operation fails
+   * @param[in] session_present Indicates if the broker resumed a previous persistent session.
+   * @return An expected containing void on success or Error on failure.
    */
   auto perform_session_setup(bool session_present) -> astarte_tl::expected<void, Error>;
 
@@ -63,44 +78,60 @@ class Callback : public virtual paho_mqtt::callback {
   /**
    * @brief Subscribes the client to all required Astarte topics.
    *
-   * Includes the control topic and all topics for server-owned interfaces.
-   * @return an error if the operation fails
+   * @details Subscriptions include the device's control topic (for housekeeping) and
+   * the topics corresponding to any server-owned interfaces defined in the introspection.
+   *
+   * @return An expected containing void on success or Error on failure.
    */
   auto setup_subscriptions() -> astarte_tl::expected<void, Error>;
 
   /**
    * @brief Publishes the device's introspection to Astarte.
-   * @return an error if the operation fails
+   *
+   * @details Sends the list of supported interfaces and versions to the introspection topic.
+   *
+   * @return An expected containing void on success or Error on failure.
    */
   auto send_introspection() -> astarte_tl::expected<void, Error>;
 
   /**
    * @brief Sends an "emptyCache" message to Astarte.
-   * @return an error if the operation fails
+   *
+   * @details This signals the platform to invalidate any stale cache for this device.
+   *
+   * @return An expected containing void on success or Error on failure.
    */
   auto send_emptycache() -> astarte_tl::expected<void, Error>;
 
   /**
-   * @brief Called by the client when the connection is established (e.g., after auto-reconnect).
-   * @param cause The cause of the connection (e.g., "automatic reconnect").
+   * @brief Called by the client when the connection is established.
+   * @details This override handles automatic reconnections by the Paho library.
+   *
+   * @param[in] cause The cause of the connection (e.g., "automatic reconnect").
    */
   void connected(const std::string& cause) override;
 
   /**
    * @brief Called when the connection is lost.
-   * @param cause The reason for the disconnection.
+   * @details Updates the internal connected flag and logs the reason.
+   *
+   * @param[in] cause The reason for the disconnection.
    */
   void connection_lost(const std::string& cause) override;
 
   /**
    * @brief Called when a message arrives from the broker.
-   * @param msg The received message.
+   * @details Processes incoming messages, routing them to the appropriate handler within the SDK.
+   *
+   * @param[in] msg The received message.
    */
   void message_arrived(paho_mqtt::const_message_ptr msg) override;
 
   /**
    * @brief Called when a message delivery is complete.
-   * @param token The delivery token associated with the message.
+   * @details Used for QoS 1 and 2 messages to confirm receipt by the broker.
+   *
+   * @param[in] token The delivery token associated with the message.
    */
   void delivery_complete(paho_mqtt::delivery_token_ptr token) override;
 

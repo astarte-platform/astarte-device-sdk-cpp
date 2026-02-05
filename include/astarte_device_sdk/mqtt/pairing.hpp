@@ -5,6 +5,14 @@
 #ifndef ASTARTE_MQTT_PAIRING_H
 #define ASTARTE_MQTT_PAIRING_H
 
+/**
+ * @file astarte_device_sdk/mqtt/pairing.hpp
+ * @brief Astarte pairing API and utilities.
+ *
+ * @details This file defines the PairingApi class and utility functions for
+ * managing device registration, credential retrieval, and device ID generation.
+ */
+
 #include <ada.h>
 
 #include <chrono>
@@ -21,55 +29,67 @@ namespace astarte::device::mqtt {
 using namespace std::chrono_literals;
 /// @endcond
 
-/** @brief Class providing the methods to perform the Astarte pairing operations */
+/**
+ * @brief Class providing the methods to perform the Astarte pairing operations.
+ *
+ * @details This class handles interactions with the Astarte Pairing API, including
+ * device registration and fetching MQTT broker credentials or certificates.
+ */
 class PairingApi {
  public:
   /**
-   * @brief Create an instance of the PairingApi class.
-   * @param realm The Astarte realm name.
-   * @param device_id The Astarte device id.
-   * @param astarte_base_url string containing the Astarte pairing API URL.
-   * @return The generate class instance, or an error on failure.
+   * @brief Creates an instance of the PairingApi class.
+   *
+   * @param[in] realm The Astarte realm name.
+   * @param[in] device_id The Astarte device id.
+   * @param[in] astarte_base_url string containing the Astarte pairing API URL.
+   * @return An expected containing the class instance on success or Error on failure.
    */
   static auto create(std::string_view realm, std::string_view device_id,
                      std::string_view astarte_base_url) -> astarte_tl::expected<PairingApi, Error>;
 
   /**
-   * @brief Register a device.
-   * @param pairing_token The Astarte pairing token.
-   * @param timeout_ms A timeout value to perform the HTTP request.
-   * @return The credentials secret if successful, otherwise an error.
+   * @brief Registers a device.
+   *
+   * @param[in] pairing_token The Astarte pairing token.
+   * @param[in] timeout_ms A timeout value to perform the HTTP request.
+   * @return An expected containing the credentials secret on success or Error on failure.
    */
   [[nodiscard]] auto register_device(std::string_view pairing_token,
                                      std::chrono::milliseconds timeout_ms = 0ms) const
       -> astarte_tl::expected<std::string, Error>;
 
   /**
-   * @brief Retrieve the URL of the Astarte MQTT broker.
-   * @param credential_secret The Astarte device credential necessary to authenticate to the broker.
-   * @param timeout_ms A timeout value to perform the HTTP request.
-   * @return The broker URL on success, an error otherwise.
+   * @brief Retrieves the URL of the Astarte MQTT broker.
+   *
+   * @param[in] credential_secret The Astarte device credential necessary to authenticate to the
+   * broker.
+   * @param[in] timeout_ms A timeout value to perform the HTTP request.
+   * @return An expected containing the broker URL on success or Error on failure.
    */
   [[nodiscard]] auto get_broker_url(std::string_view credential_secret, int timeout_ms = 0) const
       -> astarte_tl::expected<std::string, Error>;
 
   /**
-   * @brief Retrieve the Astarte device certificate and relative private key.
-   * @param credential_secret The Astarte device credential necessary to authenticate to the broker.
-   * @param timeout_ms A timeout value to perform the HTTP request.
-   * @return The device key and certificate on success, an error otherwise.
+   * @brief Retrieves the Astarte device certificate and relative private key.
+   *
+   * @param[in] credential_secret The Astarte device credential necessary to authenticate to the
+   * broker.
+   * @param[in] timeout_ms A timeout value to perform the HTTP request.
+   * @return An expected containing the tuple of key and certificate on success or Error on failure.
    */
   [[nodiscard]] auto get_device_key_and_certificate(std::string_view credential_secret,
                                                     int timeout_ms = 0) const
       -> astarte_tl::expected<std::tuple<std::string, std::string>, Error>;
 
   /**
-   * @brief Check if the Astarte device certificate is valid.
-   * @param certificate The Astarte device certificate.
-   * @param credential_secret The Astarte device credential necessary to authenticate to the broker.
-   * @param timeout_ms A timeout value to perform the HTTP request.
-   * @return true if the cerficate is valid, false if the certificate is not valid, an error when
-   * the validation failed.
+   * @brief Checks if the Astarte device certificate is valid.
+   *
+   * @param[in] certificate The Astarte device certificate.
+   * @param[in] credential_secret The Astarte device credential necessary to authenticate to the
+   * broker.
+   * @param[in] timeout_ms A timeout value to perform the HTTP request.
+   * @return An expected containing the certificate validity on success or Error on failure.
    */
   [[nodiscard]] auto device_cert_valid(std::string_view certificate,
                                        std::string_view credential_secret, int timeout_ms = 0) const
@@ -78,39 +98,37 @@ class PairingApi {
  private:
   /**
    * @brief Constructor for the PairingApi class.
-   * @param realm The Astarte realm name.
-   * @param device_id The Astarte device id.
-   * @param pairing_url string containing the Astarte pairing API URL.
+   *
+   * @param[in] realm The Astarte realm name.
+   * @param[in] device_id The Astarte device id.
+   * @param[in] pairing_url URL object for the Astarte pairing API.
    */
   PairingApi(std::string_view realm, std::string_view device_id, ada::url_aggregator pairing_url);
 
-  /** @brief The Astarte realm name. */
+  /// @brief The Astarte realm name.
   std::string realm_;
-  /** @brief The Astarte device id. */
+  /// @brief The Astarte device id.
   std::string device_id_;
-  /** @brief The Astarte pairing URL as a string. */
+  /// @brief The Astarte pairing URL as a string.
   ada::url_aggregator pairing_url_;
 };
 
 /**
- * @brief Create a random Astarte device id starting from a UUIDv4.
+ * @brief Creates a random Astarte device id starting from a UUIDv4.
  *
- * Generate a random Astarte device id follow Astarte specifications as described here
- * https://docs.astarte-platform.org/astarte/latest/010-design_principles.html#device-id
- *
+ * @details Generates a random Astarte device id following Astarte specifications.
  * @return A string containing the device id.
  */
 auto create_random_device_id() -> std::string;
 
 /**
- * @brief Create a deterministic Astarte device id using a UUIDv5.
+ * @brief Creates a deterministic Astarte device id using a UUIDv5.
  *
- * Generate a random Astarte device id follow Astarte specifications as described here
- * https://docs.astarte-platform.org/astarte/latest/010-design_principles.html#device-id
+ * @details Generates a deterministic Astarte device id following Astarte specifications.
  *
- * @param namespc namespace necessary to generate a UUIDv5.
- * @param unique_data unique necessary to generate a UUIDv5.
- * @return A string containing the device id, or an error on failure.
+ * @param[in] namespc namespace necessary to generate a UUIDv5.
+ * @param[in] unique_data unique data necessary to generate a UUIDv5.
+ * @return An expected containing the device id on success or Error on failure.
  */
 auto create_deterministic_device_id(std::string_view namespc, std::string_view unique_data)
     -> astarte_tl::expected<std::string, Error>;

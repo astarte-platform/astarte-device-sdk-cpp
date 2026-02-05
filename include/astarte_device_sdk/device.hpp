@@ -7,7 +7,11 @@
 
 /**
  * @file astarte_device_sdk/device.hpp
- * @brief Abstract Astarte device object and its related methods.
+ * @brief Abstract Astarte device interface.
+ *
+ * @details This file defines the pure virtual interface that all Astarte device
+ * implementations must adhere to, providing transport-agnostic connectivity and
+ * data transmission capabilities.
  */
 
 #include <chrono>
@@ -24,154 +28,184 @@
 #include "astarte_device_sdk/stored_property.hpp"
 
 // NOLINTBEGIN(modernize-concat-nested-namespaces) Not nested for doxygen
-/** @brief Global namespace for all Astarte related functionality. */
+/// @brief Global namespace for all Astarte related functionality.
 namespace astarte {
-/** @brief Umbrella namespace for the Astarte device library */
+/// @brief Umbrella namespace for the Astarte device library.
 namespace device {
 // NOLINTEND(modernize-concat-nested-namespaces)
 
 /**
  * @brief Interface for an Astarte device.
- * @details This class defines a transport independent abstract class to be used by derived
- * classes to implement transport dependent device classes.
+ *
+ * @details This abstract class normalizes interactions with the Astarte IoT platform,
+ * hiding transport-specific implementation details (e.g., MQTT, gRPC) from the user.
+ * Users should instantiate a concrete implementation of this class.
  */
 class Device {
  public:
-  /**
-   * @brief Virtual destructor.
-   * @details Ensures proper cleanup of derived classes through a base pointer.
-   */
+  /// @brief Virtual destructor.
   virtual ~Device() = default;
-  /** @brief Copy constructor for the Astarte device class. */
+
+  /// @brief Device is non-copyable.
   Device(const Device& other) = delete;
+
   /**
-   * @brief Move constructor for the Astarte device class.
-   * @param other Object to move.
+   * @brief Move constructor.
+   * @param[in,out] other The device instance to move data from.
    */
   Device(Device&& other) = default;
-  /** @brief Copy assignment operator for the Astarte device class. */
+
+  /// @brief Device is non-copyable.
   auto operator=(const Device& other) -> Device& = delete;
+
   /**
-   * @brief Move assignment operator for the Astarte device class.
-   * @param other Object to move.
-   * @return Moved object.
+   * @brief Move assignment operator.
+   * @param[in,out] other The device instance to move data from.
+   * @return A reference to this device.
    */
   auto operator=(Device&& other) -> Device& = default;
+
   /**
-   * @brief Add an interface for the device from a JSON file.
-   * @param json_file The path to the .json interface file.
-   * @return An error if generated.
+   * @brief Adds an interface definition to the device from a JSON file.
+   * @details Parses the JSON file to validate and register a new Astarte Interface.
+   *
+   * @param[in] json_file The filesystem path to the .json interface definition.
+   * @return An expected containing void on success or Error on failure.
    */
   virtual auto add_interface_from_file(const std::filesystem::path& json_file)
       -> astarte_tl::expected<void, Error> = 0;
+
   /**
-   * @brief Add an interface for the device from a JSON string view.
-   * @param json The interface definition as a JSON string view.
-   * @return An error if generated.
+   * @brief Adds an interface definition to the device from a JSON string.
+   *
+   * @param[in] json The interface definition as a JSON string view.
+   * @return An expected containing void on success or Error on failure.
    */
   virtual auto add_interface_from_str(std::string_view json)
       -> astarte_tl::expected<void, Error> = 0;
+
   /**
-   * @brief Remove an installed interface.
-   * @param interface_name The interface name.
-   * @return An error if generated.
+   * @brief Removes an installed interface from the device.
+   *
+   * @param[in] interface_name The name of the interface to remove.
+   * @return An expected containing void on success or Error on failure.
    */
   virtual auto remove_interface(const std::string& interface_name)
       -> astarte_tl::expected<void, Error> = 0;
+
   /**
-   * @brief Connect the device to Astarte.
-   * @details This is an asynchronous function. It starts a management process that will handle
-   * the device's connectivity in the background.
-   * @return An error if generated.
+   * @brief Connects the device to the Astarte platform.
+   *
+   * @details This is an asynchronous operation. It initializes the transport layer
+   * and starts a background routine to maintain connectivity.
+   *
+   * @return An expected containing void on success or Error on failure.
    */
   virtual auto connect() -> astarte_tl::expected<void, Error> = 0;
+
   /**
-   * @brief Check if the device is connected to the Astarte message hub.
-   * @return True if the device is connected, false otherwise.
+   * @brief Checks connectivity status.
+   * @return True if the device is fully connected to Astarte, false otherwise.
    */
   [[nodiscard]] virtual auto is_connected() const -> bool = 0;
+
   /**
-   * @brief Disconnect the device from Astarte.
-   * @return An error if generated.
+   * @brief Disconnects the device from Astarte.
+   * @return An expected containing void on success or Error on failure.
    */
   virtual auto disconnect() -> astarte_tl::expected<void, Error> = 0;
+
   /**
-   * @brief Send an individual data payload to Astarte.
-   * @param interface_name The name of the target interface.
-   * @param path The specific endpoint path within the interface.
-   * @param data The data payload to send.
-   * @param timestamp An optional timestamp for the data point. If nullptr, Astarte will assign one.
-   * @return An error if generated.
+   * @brief Sends an individual data point to an Astarte Interface.
+   *
+   * @param[in] interface_name The name of the target interface.
+   * @param[in] path The specific mapping path within the interface (e.g., "/sensors/temp").
+   * @param[in] data The value payload to transmit.
+   * @param[in] timestamp Optional timestamp. Should match the interface timestamp configuration.
+   * @return An expected containing void on success or Error on failure.
    */
   virtual auto send_individual(std::string_view interface_name, std::string_view path,
                                const Data& data,
                                const std::chrono::system_clock::time_point* timestamp)
       -> astarte_tl::expected<void, Error> = 0;
+
   /**
-   * @brief Send an aggregate object data payload to Astarte.
-   * @param interface_name The name of the target interface.
-   * @param path The common base path for the data object.
-   * @param object The aggregate data object to send.
-   * @param timestamp An optional timestamp for the data. If nullptr, Astarte will assign one.
-   * @return An error if generated.
+   * @brief Sends an aggregated object to an Astarte Interface.
+   *
+   * @param[in] interface_name The name of the target interface.
+   * @param[in] path The common base path for the object aggregation.
+   * @param[in] object The map of keys and values constituting the object.
+   * @param[in] timestamp Optional timestamp. Should match the interface timestamp configuration.
+   * @return An expected containing void on success or Error on failure.
    */
   virtual auto send_object(std::string_view interface_name, std::string_view path,
                            const DatastreamObject& object,
                            const std::chrono::system_clock::time_point* timestamp)
       -> astarte_tl::expected<void, Error> = 0;
+
   /**
-   * @brief Set a device property on Astarte.
-   * @param interface_name The name of the interface containing the property.
-   * @param path The full path to the property.
-   * @param data The value to set for the property.
-   * @return An error if generated.
+   * @brief Updates a local device property and synchronize it with Astarte.
+   *
+   * @param[in] interface_name The name of the interface containing the property.
+   * @param[in] path The specific path of the property.
+   * @param[in] data The new value for the property.
+   * @return An expected containing void on success or Error on failure.
    */
   virtual auto set_property(std::string_view interface_name, std::string_view path,
                             const Data& data) -> astarte_tl::expected<void, Error> = 0;
+
   /**
-   * @brief Unset a device property on Astarte.
-   * @param interface_name The name of the interface containing the property.
-   * @param path The full path to the property to unset.
-   * @return An error if generated.
+   * @brief Unsets (deletes) a device property.
+   *
+   * @param[in] interface_name The name of the interface containing the property.
+   * @param[in] path The specific path of the property to unset.
+   * @return An expected containing void on success or Error on failure.
    */
   virtual auto unset_property(std::string_view interface_name, std::string_view path)
       -> astarte_tl::expected<void, Error> = 0;
+
   /**
-   * @brief Poll for incoming messages from Astarte.
-   * @param timeout The maximum time to block waiting for a message.
-   * @return An std::optional containing the received Message if one was available,
-   * or std::nullopt if the timeout was reached.
+   * @brief Polls for incoming messages from Astarte.
+   *
+   * @details This method blocks the calling thread until a message is received or the
+   * timeout expires.
+   *
+   * @param[in] timeout The maximum duration to block waiting for a message.
+   * @return std::optional containing the Message if received, or std::nullopt if the
+   * timeout was reached.
    */
   virtual auto poll_incoming(const std::chrono::milliseconds& timeout)
       -> std::optional<Message> = 0;
+
   /**
-   * @brief Get the current value for all properties matching the input filter.
-   * @param ownership Optional ownership filter.
-   * @return A list of properties matching the filter.
+   * @brief Retrieves all stored properties matching an ownership filter.
+   *
+   * @param[in] ownership Optional filter, if std::nullopt, returns all properties.
+   * @return An expected containing the list of properties on success or Error on failure.
    */
   virtual auto get_all_properties(const std::optional<Ownership>& ownership)
       -> astarte_tl::expected<std::list<StoredProperty>, Error> = 0;
+
   /**
-   * @brief Get the current value for properties matching the interface.
-   * @param interface_name The name of the interface for the properties.
-   * @return A list of properties matching the interface.
+   * @brief Retrieves all stored properties belonging to a specific interface.
+   *
+   * @param[in] interface_name The name of the interface to query.
+   * @return An expected containing the list of properties on success or Error on failure.
    */
   virtual auto get_properties(std::string_view interface_name)
       -> astarte_tl::expected<std::list<StoredProperty>, Error> = 0;
+
   /**
-   * @brief Get a single property matching the interface name and path.
-   * @param interface_name The name of the interface for the property.
-   * @param path Exact path for the property.
-   * @return The property value.
+   * @brief Retrieves a specific property value.
+   *
+   * @param[in] interface_name The name of the interface.
+   * @param[in] path The exact path of the property.
+   * @return An expected containing the property on success or Error on failure.
    */
   virtual auto get_property(std::string_view interface_name, std::string_view path)
       -> astarte_tl::expected<PropertyIndividual, Error> = 0;
 
  protected:
-  /**
-   * @brief Protected default constructor.
-   * @details Prevents direct instantiation of the interface.
-   */
   Device() = default;
 };
 
