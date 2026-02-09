@@ -49,7 +49,7 @@ jobs:
       group: build-grpc-native-sample-fetch-linux-${{ github.ref }}
       cancel-in-progress: true
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Build sample and library
         run: ./build_sample.sh grpc/native --fresh --transport grpc --deps-mgmt fetch
   build-grpc-native-sample-system-linux:
