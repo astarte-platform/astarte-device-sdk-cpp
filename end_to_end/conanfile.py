@@ -20,9 +20,9 @@ class Pkg(ConanFile):
         self.requires("nlohmann_json/3.12.0")
         self.requires("tomlplusplus/3.4.0")
         if self.options.transport == "grpc":
-            self.requires("astarte-device-sdk/0.8.1", options={"transport": "grpc"})
+            self.requires("astarte-device-sdk/0.9.0", options={"transport": "grpc"})
         else:
-            self.requires("astarte-device-sdk/0.8.1", options={"transport": "mqtt"})
+            self.requires("astarte-device-sdk/0.9.0", options={"transport": "mqtt"})
 
     def generate(self):
         tc = CMakeToolchain(self)

@@ -16,7 +16,7 @@ class Pkg(ConanFile):
             del self.options.fPIC
 
     def requirements(self):
-        self.requires("astarte-device-sdk/0.8.1")
+        self.requires("astarte-device-sdk/0.9.0")
 
     def generate(self):
         tc = CMakeToolchain(self)

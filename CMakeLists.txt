@@ -4,7 +4,7 @@
 
 cmake_minimum_required(VERSION 3.23)
 
-project(AstarteDeviceSdk VERSION 0.8.1 LANGUAGES CXX)
+project(AstarteDeviceSdk VERSION 0.9.0 LANGUAGES CXX)
 
 include(FetchContent)
 include(cmake/AstarteGrpcTransport.cmake)
