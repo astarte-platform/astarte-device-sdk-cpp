@@ -14,7 +14,7 @@ doxygen_version="1.13.2"
 fresh_mode=false
 docs_dir="doc"
 docs_build_dir_name="_build"
-astarte_sdk_version="0.8.1"
+astarte_sdk_version="0.9.0"
 doxyfile_name="astarte-device-sdk.doxyfile.in"
 script_initial_pwd="$PWD"
 

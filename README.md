@@ -65,7 +65,7 @@ include(FetchContent)
 FetchContent_Declare(
     astarte_device_sdk
     GIT_REPOSITORY https://github.com/astarte-platform/astarte-device-sdk-cpp.git
-    GIT_TAG v0.8.1
+    GIT_TAG v0.9.0
 )
 FetchContent_MakeAvailable(astarte_device_sdk)
 ```
@@ -85,7 +85,7 @@ conan create . --build=missing --settings=compiler.cppstd=20
 Add the requirement to your project's `conanfile`:
 ```toml
 [requires]
-astarte-device-sdk/0.8.1
+astarte-device-sdk/0.9.0
 ```
 Then, import and link the library in your CMake configuration:
 ```CMake
