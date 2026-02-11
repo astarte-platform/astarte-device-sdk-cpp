@@ -47,7 +47,7 @@ jobs:
       group: unit-tests-mqtt-${{ github.ref }}
       cancel-in-progress: true
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           path: astarte-device-sdk-cpp
       - name: Run the unit tests for C++ 20

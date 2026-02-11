@@ -138,7 +138,7 @@ jobs:
       cancel-in-progress: true
     steps:
       - name: Checkout C++ client
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: astarte-device-sdk-cpp
       - name: Free disk space
