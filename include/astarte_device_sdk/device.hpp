@@ -16,6 +16,7 @@
 
 #include <chrono>
 #include <filesystem>
+#include <list>
 #include <optional>
 #include <string>
 #include <string_view>
