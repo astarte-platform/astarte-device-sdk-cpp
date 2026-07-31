@@ -18,7 +18,7 @@ class Pkg(ConanFile):
     def requirements(self):
         self.requires("tomlplusplus/3.4.0")
         self.requires("sqlitecpp/3.3.2")
-        self.requires("astarte-device-sdk/0.9.0")
+        self.requires("astarte-device-sdk/0.9.1")
 
     def generate(self):
         tc = CMakeToolchain(self)

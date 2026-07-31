@@ -8,7 +8,7 @@ from conan.tools.build import check_min_cppstd, valid_min_cppstd
 
 class Pkg(ConanFile):
     name = "astarte-device-sdk"
-    version = "0.9.0"
+    version = "0.9.1"
     package_type = "library"
     languages = "C++"
     license = "Apache-2.0"
