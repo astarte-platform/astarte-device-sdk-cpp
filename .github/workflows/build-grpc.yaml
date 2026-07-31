@@ -29,7 +29,7 @@ jobs:
       - name: Build sample and library
         run: ./build_sample.sh grpc/native --fresh --deps-mgmt conan --transport grpc --ext-tools
   build-grpc-native-sample-conan-windows:
-    runs-on: windows-latest
+    runs-on: windows-2022
     concurrency:
       group: build-grpc-native-sample-conan-windows-${{ github.ref }}
       cancel-in-progress: true
